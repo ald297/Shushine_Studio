@@ -1,0 +1,21 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Visual Studio / VS Code
+.vscode/
+.vs/
+*.user
+*.suo
+
+# .NET / C#
+bin/
+obj/
+*.userprefs
+
+# Node / Web / Mobile
+node_modules/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
