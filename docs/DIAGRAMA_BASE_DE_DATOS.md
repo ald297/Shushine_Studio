@@ -1,20 +1,20 @@
-# Modelo y Diagrama de Base de Datos — Shushine Studio
+# Modelo y Diagrama de Base de Datos — Shushine Studio (Supabase / PostgreSQL)
 
-Este documento contiene la arquitectura de datos relacional para **Shushine Studio** (SQL Server / ASP.NET Core EF Core), cubriendo todos los requerimientos funcionales (RF01 - RF12), requerimientos no funcionales (RNF01 - RNF04) y las pantallas del prototipo (Módulo Cliente y Módulo Administrador).
+Este documento contiene la arquitectura de datos relacional para **Shushine Studio** optimizada para **Supabase (PostgreSQL)**, cubriendo todos los requerimientos funcionales (RF01 - RF12), requerimientos no funcionales (RNF01 - RNF04), integración con **Supabase Auth** (`auth.users`), **Row Level Security (RLS)** y suscripciones en tiempo real (**Supabase Realtime**).
 
 ---
 
 ## 1. Código DBML (para dbdiagram.io / DiagramBD)
 
 > **Instrucciones de uso en [dbdiagram.io](https://dbdiagram.io/):**
-> 1. Ingresa a [https://dbdiagram.io/d](https://dbdiagram.io/d).
+> 1. Ingresa a [https://dbdiagram.io/d](https://dbdiagram.io/).
 > 2. Borra el código de ejemplo del panel izquierdo.
 > 3. Pega el siguiente bloque de código DBML.
-> 4. El diagrama visual ER se generará automáticamente en tiempo real con todas las tablas, columnas, tipos de datos y relaciones.
+> 4. El diagrama visual ER se generará automáticamente en tiempo real con todas las tablas, columnas, tipos de datos y relaciones adaptadas a PostgreSQL/Supabase.
 
 ```dbml
 // ==========================================
-// SHUSHINE STUDIO - BASE DE DATOS (SQL SERVER)
+// SHUSHINE STUDIO - BASE DE DATOS (SUPABASE / POSTGRESQL)
 // ==========================================
 
 Table Roles {
@@ -24,19 +24,18 @@ Table Roles {
 }
 
 Table Usuarios {
-  id_usuario int [pk, increment]
+  id_usuario uuid [pk, note: 'FK directa a auth.users(id)']
   id_rol int [not null, ref: > Roles.id_rol]
   nombre_completo varchar(150) [not null]
   correo varchar(150) [not null, unique]
   telefono varchar(20) [not null]
-  password_hash varchar(255) [not null]
-  activo bit [not null, default: 1]
-  fecha_registro datetime [not null, default: `now()`]
+  activo boolean [not null, default: true]
+  fecha_registro timestamptz [not null, default: `now()`]
 }
 
 Table Clientes {
   id_cliente int [pk, increment]
-  id_usuario int [not null, unique, ref: - Usuarios.id_usuario]
+  id_usuario uuid [not null, unique, ref: - Usuarios.id_usuario]
   fecha_nacimiento date [null]
   nivel_fidelidad varchar(50) [default: 'Nivel Oro', note: 'Bronce, Plata, Oro']
   tipo_cabello varchar(100) [null, note: 'ej. Ondulado Fino - Tratado']
@@ -48,7 +47,7 @@ Table CategoriasServicio {
   id_categoria int [pk, increment]
   nombre varchar(100) [not null, unique, note: 'Cabello, Uñas, Maquillaje, Spa']
   descripcion varchar(255)
-  activo bit [not null, default: 1]
+  activo boolean [not null, default: true]
 }
 
 Table Servicios {
@@ -60,17 +59,17 @@ Table Servicios {
   precio decimal(10,2) [not null]
   duracion_minutos int [not null, note: '45, 60, 90, 120 min']
   imagen_url varchar(300) [null]
-  activo bit [not null, default: 1]
+  activo boolean [not null, default: true]
 }
 
 Table Estilistas {
   id_estilista int [pk, increment]
-  id_usuario int [null, unique, ref: - Usuarios.id_usuario]
+  id_usuario uuid [null, unique, ref: - Usuarios.id_usuario]
   nombre_completo varchar(150) [not null, note: 'Elena Gómez, Carlos Méndez, Sofia Valenzuela']
   especialidad varchar(150) [not null, note: 'Colorista & Cuidado Capilar, Estilismo, etc.']
   avatar_url varchar(300) [null]
   estado_disponibilidad varchar(30) [not null, default: 'Activo', note: 'Activo, Inactivo Temporal']
-  activo bit [not null, default: 1]
+  activo boolean [not null, default: true]
 }
 
 Table EstilistaServicios {
@@ -89,14 +88,14 @@ Table HorariosEstilista {
   dia_semana int [not null, note: '1=Lunes, 7=Domingo']
   hora_inicio time [not null]
   hora_fin time [not null]
-  activo bit [not null, default: 1]
+  activo boolean [not null, default: true]
 }
 
 Table EstacionesTrabajo {
   id_estacion int [pk, increment]
   codigo varchar(10) [not null, unique, note: 'E-01, E-02, E-03, E-04, E-05']
   nombre varchar(50) [not null, note: 'Corte, Color, Peinado, Uñas, Spa']
-  activa bit [not null, default: 1]
+  activa boolean [not null, default: true]
 }
 
 Table Reservas {
@@ -111,11 +110,11 @@ Table Reservas {
   hora_fin time [not null]
   monto_total decimal(10,2) [not null]
   estado varchar(30) [not null, default: 'Pendiente', note: 'Pendiente, Completada, Cancelada, No Asistió']
-  es_walk_in bit [not null, default: 0, note: 'RF10: Cliente presencial sin cita previa']
+  es_walk_in boolean [not null, default: false, note: 'RF10: Cliente presencial sin cita previa']
   nombre_walk_in varchar(150) [null]
   telefono_walk_in varchar(20) [null]
   notas varchar(500) [null]
-  fecha_creacion datetime [not null, default: `now()`]
+  fecha_creacion timestamptz [not null, default: `now()`]
 
   indexes {
     (id_estilista, fecha_cita, hora_inicio) [name: 'idx_estilista_horario_reserva']
@@ -126,10 +125,10 @@ Table Reservas {
 Table HistorialEstadoReserva {
   id_historial int [pk, increment]
   id_reserva int [not null, ref: > Reservas.id_reserva]
-  id_usuario_cambio int [not null, ref: > Usuarios.id_usuario]
+  id_usuario_cambio uuid [not null, ref: > Usuarios.id_usuario]
   estado_anterior varchar(30) [not null]
   estado_nuevo varchar(30) [not null]
-  fecha_cambio datetime [not null, default: `now()`]
+  fecha_cambio timestamptz [not null, default: `now()`]
   observaciones varchar(255) [null]
 }
 ```
@@ -167,19 +166,18 @@ erDiagram
     }
 
     USUARIOS {
-        int id_usuario PK
+        uuid id_usuario PK "FK auth.users"
         int id_rol FK
         string nombre_completo
         string correo
         string telefono
-        string password_hash
-        bit activo
-        datetime fecha_registro
+        boolean activo
+        timestamptz fecha_registro
     }
 
     CLIENTES {
         int id_cliente PK
-        int id_usuario FK
+        uuid id_usuario FK
         date fecha_nacimiento
         string nivel_fidelidad
         string tipo_cabello
@@ -191,7 +189,7 @@ erDiagram
         int id_categoria PK
         string nombre
         string descripcion
-        bit activo
+        boolean activo
     }
 
     SERVICIOS {
@@ -203,17 +201,17 @@ erDiagram
         decimal precio
         int duracion_minutos
         string imagen_url
-        bit activo
+        boolean activo
     }
 
     ESTILISTAS {
         int id_estilista PK
-        int id_usuario FK
+        uuid id_usuario FK
         string nombre_completo
         string especialidad
         string avatar_url
         string estado_disponibilidad
-        bit activo
+        boolean activo
     }
 
     ESTILISTA_SERVICIOS {
@@ -228,14 +226,14 @@ erDiagram
         int dia_semana
         time hora_inicio
         time hora_fin
-        bit activo
+        boolean activo
     }
 
     ESTACIONES_TRABAJO {
         int id_estacion PK
         string codigo
         string nombre
-        bit activa
+        boolean activa
     }
 
     RESERVAS {
@@ -250,28 +248,28 @@ erDiagram
         time hora_fin
         decimal monto_total
         string estado
-        bit es_walk_in
+        boolean es_walk_in
         string nombre_walk_in
         string telefono_walk_in
-        datetime fecha_creacion
+        timestamptz fecha_creacion
     }
 
     HISTORIAL_ESTADO_RESERVA {
         int id_historial PK
         int id_reserva FK
-        int id_usuario_cambio FK
+        uuid id_usuario_cambio FK
         string estado_anterior
         string estado_nuevo
-        datetime fecha_cambio
+        timestamptz fecha_cambio
         string observaciones
     }
 ```
 
 ---
 
-## 3. Diagrama de Clases del Modelo de Dominio (Entity Framework Core / C#)
+## 3. Diagrama de Clases del Modelo de Dominio (C# / Supabase Client)
 
-Representa las entidades de clases en ASP.NET Core con sus propiedades de navegación y cardinalidades:
+Representa las entidades con sus tipos correspondientes a PostgreSQL / Supabase:
 
 ```mermaid
 classDiagram
@@ -283,14 +281,13 @@ classDiagram
     }
 
     class Usuario {
-        +int IdUsuario
+        +Guid IdUsuario
         +int IdRol
         +string NombreCompleto
         +string Correo
         +string Telefono
-        +string PasswordHash
         +bool Activo
-        +DateTime FechaRegistro
+        +DateTimeOffset FechaRegistro
         +Rol Rol
         +Cliente Cliente
         +Estilista Estilista
@@ -298,7 +295,7 @@ classDiagram
 
     class Cliente {
         +int IdCliente
-        +int IdUsuario
+        +Guid IdUsuario
         +DateTime? FechaNacimiento
         +string NivelFidelidad
         +string TipoCabello
@@ -310,7 +307,7 @@ classDiagram
 
     class Estilista {
         +int IdEstilista
-        +int? IdUsuario
+        +Guid? IdUsuario
         +string NombreCompleto
         +string Especialidad
         +string AvatarUrl
@@ -386,7 +383,7 @@ classDiagram
         +bool EsWalkIn
         +string NombreWalkIn
         +string TelefonoWalkIn
-        +DateTime FechaCreacion
+        +DateTimeOffset FechaCreacion
         +Cliente Cliente
         +Estilista Estilista
         +Servicio Servicio
@@ -397,10 +394,10 @@ classDiagram
     class HistorialEstadoReserva {
         +int IdHistorial
         +int IdReserva
-        +int IdUsuarioCambio
+        +Guid IdUsuarioCambio
         +string EstadoAnterior
         +string EstadoNuevo
-        +DateTime FechaCambio
+        +DateTimeOffset FechaCambio
         +string Observaciones
         +Reserva Reserva
         +Usuario UsuarioCambio
@@ -423,136 +420,203 @@ classDiagram
 
 ---
 
-## 4. Script DDL para Microsoft SQL Server
+## 4. Script DDL para Supabase (PostgreSQL + RLS + Triggers)
 
 ```sql
 -- =============================================
--- CREACIÓN DE TABLAS - SHUSHINE STUDIO (SQL SERVER)
+-- SHUSHINE STUDIO - SCRIPT DE BASE DE DATOS (SUPABASE / POSTGRESQL)
 -- =============================================
 
-CREATE TABLE Roles (
-    id_rol INT IDENTITY(1,1) PRIMARY KEY,
+-- Extensiones requeridas
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- 1. Tabla de Roles
+CREATE TABLE public.roles (
+    id_rol BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL UNIQUE,
     descripcion VARCHAR(200) NULL
 );
 
-CREATE TABLE Usuarios (
-    id_usuario INT IDENTITY(1,1) PRIMARY KEY,
-    id_rol INT NOT NULL,
+-- Insertar roles por defecto
+INSERT INTO public.roles (nombre, descripcion) VALUES
+('Cliente', 'Usuario final que consulta y solicita citas'),
+('Administrador', 'Control total de configuraciones y usuarios'),
+('Recepcionista', 'Gestiona agenda y atención presencial/walk-ins');
+
+-- 2. Tabla de Usuarios (Vinculada a auth.users de Supabase)
+CREATE TABLE public.usuarios (
+    id_usuario UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    id_rol BIGINT NOT NULL REFERENCES public.roles(id_rol),
     nombre_completo VARCHAR(150) NOT NULL,
     correo VARCHAR(150) NOT NULL UNIQUE,
     telefono VARCHAR(20) NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    activo BIT NOT NULL DEFAULT 1,
-    fecha_registro DATETIME NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT FK_Usuarios_Roles FOREIGN KEY (id_rol) REFERENCES Roles(id_rol)
+    activo BOOLEAN NOT NULL DEFAULT TRUE,
+    fecha_registro TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE Estilistas (
-    id_estilista INT IDENTITY(1,1) PRIMARY KEY,
-    id_usuario INT NULL UNIQUE,
+-- 3. Tabla de Estilistas
+CREATE TABLE public.estilistas (
+    id_estilista BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_usuario UUID NULL UNIQUE REFERENCES public.usuarios(id_usuario) ON DELETE SET NULL,
     nombre_completo VARCHAR(150) NOT NULL,
     especialidad VARCHAR(150) NOT NULL,
     avatar_url VARCHAR(300) NULL,
     estado_disponibilidad VARCHAR(30) NOT NULL DEFAULT 'Activo',
-    activo BIT NOT NULL DEFAULT 1,
-    CONSTRAINT FK_Estilistas_Usuarios FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
+    activo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
-CREATE TABLE Clientes (
-    id_cliente INT IDENTITY(1,1) PRIMARY KEY,
-    id_usuario INT NOT NULL UNIQUE,
+-- 4. Tabla de Clientes
+CREATE TABLE public.clientes (
+    id_cliente BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_usuario UUID NOT NULL UNIQUE REFERENCES public.usuarios(id_usuario) ON DELETE CASCADE,
     fecha_nacimiento DATE NULL,
     nivel_fidelidad VARCHAR(50) NOT NULL DEFAULT 'Nivel Oro',
     tipo_cabello VARCHAR(100) NULL,
-    id_estilista_preferido INT NULL,
-    notas_preferencias VARCHAR(500) NULL,
-    CONSTRAINT FK_Clientes_Usuarios FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
-    CONSTRAINT FK_Clientes_EstilistaPreferido FOREIGN KEY (id_estilista_preferido) REFERENCES Estilistas(id_estilista)
+    id_estilista_preferido BIGINT NULL REFERENCES public.estilistas(id_estilista) ON DELETE SET NULL,
+    notas_preferencias VARCHAR(500) NULL
 );
 
-CREATE TABLE CategoriasServicio (
-    id_categoria INT IDENTITY(1,1) PRIMARY KEY,
+-- 5. Categorías de Servicio
+CREATE TABLE public.categorias_servicio (
+    id_categoria BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL UNIQUE,
     descripcion VARCHAR(255) NULL,
-    activo BIT NOT NULL DEFAULT 1
+    activo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
-CREATE TABLE Servicios (
-    id_servicio INT IDENTITY(1,1) PRIMARY KEY,
+-- 6. Servicios
+CREATE TABLE public.servicios (
+    id_servicio BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     codigo_servicio VARCHAR(20) NOT NULL UNIQUE,
-    id_categoria INT NOT NULL,
+    id_categoria BIGINT NOT NULL REFERENCES public.categorias_servicio(id_categoria),
     nombre VARCHAR(150) NOT NULL,
-    descripcion NVARCHAR(MAX) NOT NULL,
+    descripcion TEXT NOT NULL,
     precio DECIMAL(10,2) NOT NULL,
     duracion_minutos INT NOT NULL,
     imagen_url VARCHAR(300) NULL,
-    activo BIT NOT NULL DEFAULT 1,
-    CONSTRAINT FK_Servicios_Categorias FOREIGN KEY (id_categoria) REFERENCES CategoriasServicio(id_categoria)
+    activo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
-CREATE TABLE EstilistaServicios (
-    id_estilista_servicio INT IDENTITY(1,1) PRIMARY KEY,
-    id_estilista INT NOT NULL,
-    id_servicio INT NOT NULL,
-    CONSTRAINT UQ_Estilista_Servicio UNIQUE (id_estilista, id_servicio),
-    CONSTRAINT FK_ES_Estilistas FOREIGN KEY (id_estilista) REFERENCES Estilistas(id_estilista),
-    CONSTRAINT FK_ES_Servicios FOREIGN KEY (id_servicio) REFERENCES Servicios(id_servicio)
+-- 7. EstilistaServicios (Tabla Intermedia N:M)
+CREATE TABLE public.estilista_servicios (
+    id_estilista_servicio BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_estilista BIGINT NOT NULL REFERENCES public.estilistas(id_estilista) ON DELETE CASCADE,
+    id_servicio BIGINT NOT NULL REFERENCES public.servicios(id_servicio) ON DELETE CASCADE,
+    CONSTRAINT uq_estilista_servicio UNIQUE (id_estilista, id_servicio)
 );
 
-CREATE TABLE HorariosEstilista (
-    id_horario INT IDENTITY(1,1) PRIMARY KEY,
-    id_estilista INT NOT NULL,
+-- 8. Horarios de Estilista
+CREATE TABLE public.horarios_estilista (
+    id_horario BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_estilista BIGINT NOT NULL REFERENCES public.estilistas(id_estilista) ON DELETE CASCADE,
     dia_semana INT NOT NULL CHECK (dia_semana BETWEEN 1 AND 7),
     hora_inicio TIME NOT NULL,
     hora_fin TIME NOT NULL,
-    activo BIT NOT NULL DEFAULT 1,
-    CONSTRAINT FK_Horarios_Estilistas FOREIGN KEY (id_estilista) REFERENCES Estilistas(id_estilista)
+    activo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
-CREATE TABLE EstacionesTrabajo (
-    id_estacion INT IDENTITY(1,1) PRIMARY KEY,
+-- 9. Estaciones de Trabajo
+CREATE TABLE public.estaciones_trabajo (
+    id_estacion BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     codigo VARCHAR(10) NOT NULL UNIQUE,
     nombre VARCHAR(50) NOT NULL,
-    activa BIT NOT NULL DEFAULT 1
+    activa BOOLEAN NOT NULL DEFAULT TRUE
 );
 
-CREATE TABLE Reservas (
-    id_reserva INT IDENTITY(1,1) PRIMARY KEY,
+-- 10. Reservas (Citas)
+CREATE TABLE public.reservas (
+    id_reserva BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     codigo_reserva VARCHAR(20) NOT NULL UNIQUE,
-    id_cliente INT NULL,
-    id_estilista INT NOT NULL,
-    id_servicio INT NOT NULL,
-    id_estacion INT NULL,
+    id_cliente BIGINT NULL REFERENCES public.clientes(id_cliente) ON DELETE SET NULL,
+    id_estilista BIGINT NOT NULL REFERENCES public.estilistas(id_estilista),
+    id_servicio BIGINT NOT NULL REFERENCES public.servicios(id_servicio),
+    id_estacion BIGINT NULL REFERENCES public.estaciones_trabajo(id_estacion) ON DELETE SET NULL,
     fecha_cita DATE NOT NULL,
     hora_inicio TIME NOT NULL,
     hora_fin TIME NOT NULL,
     monto_total DECIMAL(10,2) NOT NULL,
     estado VARCHAR(30) NOT NULL DEFAULT 'Pendiente' CHECK (estado IN ('Pendiente', 'Completada', 'Cancelada', 'No Asistió')),
-    es_walk_in BIT NOT NULL DEFAULT 0,
+    es_walk_in BOOLEAN NOT NULL DEFAULT FALSE,
     nombre_walk_in VARCHAR(150) NULL,
     telefono_walk_in VARCHAR(20) NULL,
     notas VARCHAR(500) NULL,
-    fecha_creacion DATETIME NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT FK_Reservas_Clientes FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente),
-    CONSTRAINT FK_Reservas_Estilistas FOREIGN KEY (id_estilista) REFERENCES Estilistas(id_estilista),
-    CONSTRAINT FK_Reservas_Servicios FOREIGN KEY (id_servicio) REFERENCES Servicios(id_servicio),
-    CONSTRAINT FK_Reservas_Estaciones FOREIGN KEY (id_estacion) REFERENCES EstacionesTrabajo(id_estacion)
+    fecha_creacion TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE HistorialEstadoReserva (
-    id_historial INT IDENTITY(1,1) PRIMARY KEY,
-    id_reserva INT NOT NULL,
-    id_usuario_cambio INT NOT NULL,
+-- 11. Historial de Cambios de Estado
+CREATE TABLE public.historial_estado_reserva (
+    id_historial BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_reserva BIGINT NOT NULL REFERENCES public.reservas(id_reserva) ON DELETE CASCADE,
+    id_usuario_cambio UUID NOT NULL REFERENCES public.usuarios(id_usuario),
     estado_anterior VARCHAR(30) NOT NULL,
     estado_nuevo VARCHAR(30) NOT NULL,
-    fecha_cambio DATETIME NOT NULL DEFAULT GETDATE(),
-    observaciones VARCHAR(255) NULL,
-    CONSTRAINT FK_Historial_Reservas FOREIGN KEY (id_reserva) REFERENCES Reservas(id_reserva),
-    CONSTRAINT FK_Historial_Usuarios FOREIGN KEY (id_usuario_cambio) REFERENCES Usuarios(id_usuario)
+    fecha_cambio TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    observaciones VARCHAR(255) NULL
 );
 
--- Índices recomendados para consultas frecuentes y cálculo dinámico de disponibilidad
-CREATE INDEX IX_Reservas_Disponibilidad ON Reservas(id_estilista, fecha_cita, hora_inicio, hora_fin, estado);
-CREATE INDEX IX_Servicios_Categoria ON Servicios(id_categoria, activo);
-```
+-- =============================================
+-- ÍNDICES DE RENDIMIENTO Y REALTIME
+-- =============================================
+CREATE INDEX ix_reservas_disponibilidad ON public.reservas(id_estilista, fecha_cita, hora_inicio, hora_fin, estado);
+CREATE INDEX ix_servicios_categoria ON public.servicios(id_categoria, activo);
+
+-- =============================================
+-- TRIGGER: SINCRONIZAR AUTH.USERS -> PUBLIC.USUARIOS Y PUBLIC.CLIENTES
+-- =============================================
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_rol_cliente BIGINT;
+BEGIN
+    SELECT id_rol INTO v_rol_cliente FROM public.roles WHERE nombre = 'Cliente' LIMIT 1;
+
+    INSERT INTO public.usuarios (id_usuario, id_rol, nombre_completo, correo, telefono)
+    VALUES (
+        NEW.id,
+        COALESCE(v_rol_cliente, 1),
+        COALESCE(NEW.raw_user_meta_data->>'nombre_completo', 'Usuario Registrado'),
+        NEW.email,
+        COALESCE(NEW.raw_user_meta_data->>'telefono', '')
+    );
+
+    INSERT INTO public.clientes (id_usuario, nivel_fidelidad)
+    VALUES (NEW.id, 'Nivel Oro');
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- =============================================
+-- ROW LEVEL SECURITY (RLS) - POLÍTICAS DE SEGURIDAD SUPABASE
+-- =============================================
+ALTER TABLE public.usuarios ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.clientes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.reservas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.servicios ENABLE ROW LEVEL SECURITY;
+
+-- Catálogo de servicios visible para todos
+CREATE POLICY "Servicios son públicos" ON public.servicios
+    FOR SELECT USING (activo = true);
+
+-- Clientes solo pueden ver sus propias reservas
+CREATE POLICY "Clientes ven sus propias reservas" ON public.reservas
+    FOR SELECT USING (
+        id_cliente IN (
+            SELECT c.id_cliente FROM public.clientes c WHERE c.id_usuario = auth.uid()
+        )
+    );
+
+-- Permitir a clientes crear reservas asociadas a su cuenta
+CREATE POLICY "Clientes pueden crear reservas" ON public.reservas
+    FOR INSERT WITH CHECK (
+        id_cliente IN (
+            SELECT c.id_cliente FROM public.clientes c WHERE c.id_usuario = auth.uid()
+        )
+    );
+
+-- Habilitar replicación Realtime en reservas para actualización en vivo
+ALTER PUBLICATION supabase_realtime ADD TABLE public.reservas;
