@@ -1,0 +1,39 @@
+# Shushine Studio Constitution
+
+## Core Principles
+
+### I. Clean Architecture & Layer Decoupling (NON-NEGOTIABLE)
+- **Frontend (Flutter):** Divided strictly into `Presentation` (Widgets & BLoCs), `Domain` (Entities, UseCases, Repo Contracts - Pure Dart), and `Data` (DTOs, DataSources, Repo Implementations).
+- **Backend (ASP.NET Core):** Strict separation of `Controllers` (thin, routing & validation), `Application/Services` (business logic & transactions), and `Infrastructure/Data` (EF Core with Npgsql).
+- **Dependency Inversion:** High-level policy must never depend on low-level details; dependencies always point inward.
+
+### II. Single Source of Truth (Backend Authority)
+- The C# ASP.NET Core Web API is the **sole authority** for business logic, price/tax calculation, stylist availability computation, and concurrency management.
+- The mobile app is a presentation client. It collects user input and renders API responses. It **never** computes availability or approves appointments on its own.
+
+### III. Database Isolation & Security First
+- The mobile client **never** queries `public.*` PostgreSQL tables directly. All business reads and writes pass through the C# Web API.
+- Supabase SDK on the mobile client is strictly restricted to **Supabase Auth** (login, register, token refresh).
+- Row Level Security (RLS) is enabled across all public tables to prevent unauthorized direct client access.
+
+### IV. Standardized Contracts & Error Handling (RFC 7807)
+- All client-server communication adheres strictly to documented **OpenAPI/Swagger** contracts using `camelCase` JSON.
+- Error handling conforms strictly to **RFC 7807 Problem Details** (`application/problem+json`). Arbitrary error payloads are strictly prohibited.
+- The mobile HTTP interceptor automatically handles `401 Unauthorized` via token refresh or redirects to login.
+
+### V. Bilingual Coding Standards
+- **Code in English:** All classes, methods, variables, database migrations, endpoints, and commit messages must be written in English (`GetAvailableSlots`, `AppointmentService`).
+- **UI in Spanish:** All customer-facing and admin-facing texts (buttons, labels, alerts, notifications) must be written in clear, neutral Spanish (*"Confirmar Reserva"*, *"Error de conexión"*).
+
+## Architectural Constraints & Technology Stack
+- **Mobile:** Flutter (Dart) with `flutter_bloc` state management and `dio` HTTP client.
+- **Backend:** C# ASP.NET Core (.NET 8/9), Entity Framework Core with `Npgsql.EntityFrameworkCore.PostgreSQL`.
+- **Database & BaaS:** Supabase (PostgreSQL relacional + Supabase Auth + Supabase Storage).
+- **DevOps & Boards:** Azure DevOps (Azure Boards Scrum, Azure Repos Git).
+
+## Governance
+- This constitution supersedes informal verbal agreements.
+- All Pull Requests must be reviewed and approved by the peer (Alex Alfaro or Camila Calderón) in branch `develop`.
+- Complexity must be justified; adherence to [AGENTS.md](../../AGENTS.md) is mandatory.
+
+**Version**: 1.0.0 | **Ratified**: 2026-09-11 | **Last Amended**: 2026-09-11
