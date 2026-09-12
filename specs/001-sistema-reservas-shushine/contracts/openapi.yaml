@@ -1,0 +1,488 @@
+openapi: 3.0.3
+info:
+  title: Shushine Studio - Web API RESTful
+  description: >
+    API RESTful de gestión y reservas para el salón de belleza Shushine Studio.
+    Soporta autenticación con JWT emitidos por Supabase Auth, catálogo de servicios,
+    motor transaccional de cálculo de disponibilidad horaria y reservas, agenda de estilistas y facturación.
+  version: 1.0.0
+  contact:
+    name: Alex Fernando Alfaro Diaz (Backend / Scrum Master)
+    email: lalafaro6@gmail.com
+
+servers:
+  - url: https://api.shushinestudio.com/api
+    description: Servidor de Producción / Staging
+  - url: http://localhost:5000/api
+    description: Servidor Local de Desarrollo
+
+paths:
+  /auth/me:
+    get:
+      summary: Obtener perfil del usuario autenticado
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Perfil de usuario retornado con éxito
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /categories:
+    get:
+      summary: Listar categorías activas de servicios
+      responses:
+        '200':
+          description: Listado de categorías retornado
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryDto'
+
+  /services:
+    get:
+      summary: Consultar catálogo de servicios con filtros
+      parameters:
+        - name: categoryId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de servicios coincidentes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceDto'
+
+  /services/{id}:
+    get:
+      summary: Obtener detalle de un servicio por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detalle del servicio
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceDto'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /stylists:
+    get:
+      summary: Listar estilistas activos del salón
+      responses:
+        '200':
+          description: Lista de estilistas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StylistDto'
+
+  /stylists/{id}/availability:
+    get:
+      summary: Consultar franjas horarias libres de un estilista en una fecha específica
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+            example: '2026-09-15'
+        - name: serviceDuration
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 60
+            description: Duración requerida en minutos
+      responses:
+        '200':
+          description: Slots horarios disponibles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailabilityResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /appointments:
+    get:
+      summary: Consultar citas del usuario autenticado o historial
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de citas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AppointmentDto'
+    post:
+      summary: Crear y confirmar una reserva de cita (Transaccional ACID)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAppointmentRequest'
+      responses:
+        '201':
+          description: Cita creada exitosamente con código único
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentDto'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '409':
+          description: Conflicto de horario - El slot ya ha sido tomado
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  /appointments/{id}/cancel:
+    post:
+      summary: Cancelar una cita (requiere mínimo 2h de anticipación para clientes)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  example: 'Compromiso imprevisto de trabajo'
+      responses:
+        '200':
+          description: Cita cancelada con éxito
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /admin/appointments/timeline:
+    get:
+      summary: Agenda interactiva diaria de todos los estilistas (Admin / Recepción)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Citas organizadas por estilista y franja horaria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StylistTimelineDto'
+
+  /admin/dashboard:
+    get:
+      summary: Métricas gerenciales del salón (citas del día, recaudación, ticket promedio)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Métricas del día y mes actual
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardMetricsResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          example: 'https://httpstatuses.io/409'
+        title:
+          type: string
+          example: 'Conflict'
+        status:
+          type: integer
+          example: 409
+        detail:
+          type: string
+          example: 'El estilista seleccionado ya no tiene disponible la franja horaria solicitada.'
+        instance:
+          type: string
+          example: '/api/appointments'
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+    UserProfileResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        fullName:
+          type: string
+        phone:
+          type: string
+        role:
+          type: string
+          example: 'Cliente'
+        loyaltyLevel:
+          type: string
+          example: 'Nivel Oro'
+
+    CategoryDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: 'Cabello'
+        description:
+          type: string
+        iconUrl:
+          type: string
+
+    ServiceDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+          example: 'SRV-C01'
+        categoryId:
+          type: integer
+        name:
+          type: string
+          example: 'Tratamiento Capilar Intensivo'
+        description:
+          type: string
+        price:
+          type: number
+          format: double
+          example: 35.00
+        durationMinutes:
+          type: integer
+          example: 60
+        imageUrl:
+          type: string
+
+    StylistDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        specialty:
+          type: string
+        profilePictureUrl:
+          type: string
+        scheduleColor:
+          type: string
+          example: '#E91E63'
+
+    AvailabilityResponse:
+      type: object
+      properties:
+        stylistId:
+          type: integer
+        date:
+          type: string
+          format: date
+        availableSlots:
+          type: array
+          items:
+            type: object
+            properties:
+              startTime:
+                type: string
+                example: '09:00'
+              endTime:
+                type: string
+                example: '10:00'
+              isAvailable:
+                type: boolean
+
+    CreateAppointmentRequest:
+      type: object
+      required:
+        - stylistId
+        - appointmentDate
+        - startTime
+        - serviceIds
+      properties:
+        stylistId:
+          type: integer
+          example: 2
+        appointmentDate:
+          type: string
+          format: date
+          example: '2026-09-15'
+        startTime:
+          type: string
+          example: '10:00:00'
+        serviceIds:
+          type: array
+          items:
+            type: integer
+          example: [1, 4]
+        notes:
+          type: string
+          example: 'Cabello decolorado previamente'
+
+    AppointmentDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        appointmentCode:
+          type: string
+          example: 'SHU-2026-0042'
+        clientName:
+          type: string
+        stylistName:
+          type: string
+        appointmentDate:
+          type: string
+          format: date
+        startTime:
+          type: string
+        endTime:
+          type: string
+        status:
+          type: string
+          example: 'Confirmada'
+        subtotal:
+          type: number
+          format: double
+        tax:
+          type: number
+          format: double
+        total:
+          type: number
+          format: double
+        depositPaid:
+          type: number
+          format: double
+
+    StylistTimelineDto:
+      type: object
+      properties:
+        stylistId:
+          type: integer
+        stylistName:
+          type: string
+        scheduleColor:
+          type: string
+        appointments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppointmentDto'
+
+    DashboardMetricsResponse:
+      type: object
+      properties:
+        todayAppointmentsCount:
+          type: integer
+          example: 18
+        completedCount:
+          type: integer
+          example: 12
+        pendingCount:
+          type: integer
+          example: 6
+        todayRevenue:
+          type: number
+          format: double
+          example: 540.00
+        averageTicket:
+          type: number
+          format: double
+          example: 30.00
+
+  responses:
+    UnauthorizedError:
+      description: Token JWT ausente, inválido o expirado
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    NotFoundError:
+      description: Recurso no encontrado
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    ValidationError:
+      description: Error de validación de datos de entrada (FluentValidation)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
