@@ -44,12 +44,13 @@ Sistema integral móvil y web para la administración y reserva de citas en salo
    * Administración del catálogo de servicios (precios, duración, estado activo/inactivo).
    * Control de disponibilidad y estado de los estilistas.
 
-### Stack Tecnológico Definido
+### Stack Tecnológico Oficial
 
-* **Frontend Móvil:** Flutter o React Native.
-* **Backend API:** C# ASP.NET Core Web API (RESTful).
-* **Base de Datos:** Microsoft SQL Server.
-* **Seguridad y Autenticación:** JSON Web Tokens (JWT) con control de acceso basado en roles (Cliente / Administrador).
+* **Frontend Móvil:** Flutter (Dart) — Clean Architecture con BLoC.
+* **Backend API:** C# ASP.NET Core Web API (RESTful, .NET 8/9).
+* **Base de Datos & BaaS:** Supabase (PostgreSQL relacional en la nube + Supabase Auth).
+* **Seguridad y Autenticación:** Supabase Auth (JWT emitido en cliente) + Autorización RBAC en ASP.NET Core.
+* **Control de Versiones:** Azure DevOps / Git.
 
 ---
 
@@ -220,5 +221,5 @@ Sistema integral móvil y web para la administración y reserva de citas en salo
 ## 6. Recursos y Archivos Incluidos
 
 * **Archivo Maestro PDF:** [`Registro_Requerimientos_Wireframes_SalonBelleza.pdf`](./Registro_Requerimientos_Wireframes_SalonBelleza.pdf) (Ubicado en la raíz del proyecto).
-* **Diagrama y Modelo de Base de Datos (DBML, Mermaid, SQL):** [`docs/DIAGRAMA_BASE_DE_DATOS.md`](./docs/DIAGRAMA_BASE_DE_DATOS.md) (Especificación técnica de entidades, relaciones y script SQL Server).
+* **Diagrama y Modelo de Base de Datos (DBML, Mermaid, SQL):** [`docs/DIAGRAMA_BASE_DE_DATOS.md`](./docs/DIAGRAMA_BASE_DE_DATOS.md) (Especificación técnica de entidades, relaciones y script para Supabase / PostgreSQL).
 * **Vistas de Wireframes extraídas en alta resolución:** Disponibles en la carpeta [`docs/wireframes/`](./docs/wireframes/) para consulta e integración visual directa.

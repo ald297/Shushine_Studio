@@ -19,3 +19,12 @@ node_modules/
 .flutter-plugins
 .flutter-plugins-dependencies
 build/
+
+# Secrets and Environment Variables
+*.env
+*.env.*
+.env
+appsettings.Development.json
+appsettings.Local.json
+*.secrets.json
+
