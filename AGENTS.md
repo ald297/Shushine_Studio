@@ -119,11 +119,14 @@ Para asegurar escalabilidad, testeabilidad y mantenimiento limpio, la aplicació
 ## 5. Reglas de Codificación (Clean Code) para el Equipo
 
 ### 5.1 Convención de Idiomas y Nomenclatura
-* **Código en Inglés:** Todas las variables, métodos, funciones, clases, interfaces, migraciones, commits y nombres de endpoints deben estar en **inglés**.
+* **Código en Inglés:** Todas las variables, métodos, funciones, clases, interfaces, migraciones y nombres de endpoints deben estar en **inglés**.
   * ✅ `GetAvailableSlots()`, `AppointmentService`, `isAvailable`, `CreateAppointmentDto`, `/api/appointments`
   * ❌ `ObtenerDisponibilidad()`, `ServicioReserva`, `estaDisponible`
 * **Textos de Interfaz (UI) en Español:** Todos los textos visibles por el usuario final (títulos, botones, mensajes de error, notificaciones) deben estar en **español** neutro.
   * ✅ `"Confirmar Reserva"`, `"Selecciona un estilista"`, `"Error al cargar el catálogo"`
+* **Mensajes de Commit en Español:** Los mensajes de commit deben redactarse en **español**, explicando detalladamente los cambios realizados siguiendo la estructura de Conventional Commits.
+  * ✅ `feat(reservas): implementar creación de cita con transacción ACID y validación de disponibilidad`
+  * ✅ `fix(interceptor): corregir manejo de token expirado 401 y redirección a login en Flutter`
 
 ### 5.2 Principio de Responsabilidad Única (Single Responsibility Principle - SRP)
 * Cada clase y archivo debe tener una sola razón para cambiar.
@@ -185,23 +188,68 @@ Para asegurar escalabilidad, testeabilidad y mantenimiento limpio, la aplicació
 
 ---
 
-## 6. Convenciones de Git y Control de Versiones (Azure DevOps)
+## 6. Convenciones de Git y Flujo de Trabajo (Git Workflow en Azure DevOps)
 
-* **Estrategia de Ramas:** GitFlow simplificado:
-  * `main`: Código estable y listo para entrega/producción.
-  * `develop`: Rama de integración continua de características.
-  * `feature/<modulo>-<descripcion>`: Ramas de trabajo individuales (ej. `feature/mobile-auth`, `feature/api-appointments`).
-  * `fix/<descripcion>`: Correcciones puntuales de errores.
-* **Mensajes de Commit:** Seguir la convención Conventional Commits en inglés:
-  * `feat: implement appointment booking use case`
-  * `fix: handle 401 token expiration in dio interceptor`
-  * `docs: update database schema and api rules`
-* **Pull Requests (PR):** Ningún commit debe subirse directamente a `main` o `develop`. Todo cambio requiere PR con revisión de código del compañero de equipo (Alex Fernando o Camila Antonia).
+### 6.1 Estrategia de Ramas por Característica (Branch per Feature)
+Para mantener un historial limpio y evitar roturas en el código compartido, el equipo sigue estrictamente el flujo **GitFlow**:
+* **`main`:** Rama de producción. Solo contiene versiones estables y probadas para entrega final.
+* **`develop`:** Rama base de integración continua. Es el tronco común del que nacen y al que se integran las características.
+* **`feature/<modulo>-<descripcion>`:** Ramas individuales de desarrollo por cada Historia de Usuario o Tarea técnica.
+  * Ejemplos: `feature/api-disponibilidad`, `feature/movil-resumen-reserva`, `feature/auth-custom-claims`
+* **`fix/<descripcion>`:** Ramas de corrección puntual de defectos sobre `develop`.
+  * Ejemplo: `fix/error-interceptor-dio-401`
+* **`hotfix/<descripcion>`:** Ramas de corrección urgente sobre `main`.
 
-### 6.1 Autoría Estricta y Prohibición de Crédito para la IA
+### 6.2 Prohibición Estricta de Push Directo a `develop` y `main`
+* 🛑 **Queda terminantemente prohibido hacer push directo a las ramas `develop` o `main`.**
+* **Todo cambio sin excepción** debe desarrollarse en su propia rama `feature/*` o `fix/*` y subirse a Azure DevOps mediante un **Pull Request (PR)** hacia `develop`.
+* **Revisión por Pares Obligatoria:** Todo Pull Request requiere la revisión y aprobación formal del compañero de equipo (**Alex Fernando** o **Camila Antonia**) antes de poder fusionarse.
+
+### 6.3 Convención de Mensajes de Commit en Español
+Los mensajes de commit deben escribirse en **español** y seguir el estándar Conventional Commits estructurado:
+```text
+tipo(alcance): descripción concisa en español
+
+[Cuerpo opcional detallando los cambios realizados, motivos y contexto]
+```
+* **Tipos permitidos:**
+  * `feat:` Nueva funcionalidad o caso de uso.
+  * `fix:` Corrección de un bug o error.
+  * `docs:` Cambios únicamente en documentación, wireframes o diagramas.
+  * `refactor:` Refactorización de código que no altera el comportamiento funcional.
+  * `test:` Adición o corrección de pruebas unitarias o de integración.
+  * `chore:` Tareas de mantenimiento, dependencias o configuración del proyecto.
+* **Ejemplos oficiales:**
+  * `feat(reservas): implementar motor de cálculo de disponibilidad de estilistas por franja horaria`
+  * `feat(movil): maquetar pantalla de resumen de cita con desglose de servicios e impuestos`
+  * `fix(seguridad): remover archivo .env.local del repositorio y blindar .gitignore`
+  * `test(backend): agregar pruebas unitarias con xUnit para verificar prevención de doble reserva`
+
+### 6.4 Flujo Paso a Paso para Desarrollar una Tarea
+```bash
+# 1. Asegurar estar en develop y sincronizado
+git checkout develop
+git pull origin develop
+
+# 2. Crear y cambiar a la rama de la funcionalidad
+git checkout -b feature/api-disponibilidad-slots
+
+# 3. Desarrollar y confirmar cambios con mensajes en español descriptivos
+git add .
+git commit -m "feat(disponibilidad): agregar servicio de cruce de horarios y reservas existentes"
+
+# 4. Subir la rama a Azure DevOps
+git push origin feature/api-disponibilidad-slots
+
+# 5. Crear Pull Request en Azure Repos: feature/api-disponibilidad-slots -> develop
+# 6. Esperar la revisión y aprobación de Alex o Camila para completar el merge
+```
+
+### 6.5 Autoría Estricta y Prohibición de Crédito para la IA
 * **Regla de Oro:** El Asistente de IA (Antigravity, Cursor, Copilot o cualquier otro agente) tiene **estrictamente prohibido adjudicarse el crédito** de los commits, pull requests, tareas de Azure Boards o modificaciones de código.
 * **Prohibición de Marcas de IA:** Queda terminantemente prohibido incluir frases, firmas o metadatos como `"Co-authored-by: assistant"`, `"Generated by AI"`, `"Created by Antigravity"` o similares en mensajes de commit, descripciones de PRs o archivos fuente.
 * **Atribución Nominal Obligatoria:** Todos los commits, tareas y cambios deben figurar **única y exclusivamente** bajo el nombre y usuario de los integrantes humanos del equipo:
   * **Alex Fernando Alfaro Diaz** (`ald297` / `lalafaro6@gmail.com`)
   * **Camila Antonia Calderon Cortez** (`cc25003@esfe.agape.edu.sv`)
 * Las contribuciones en Git siempre deben realizarse respetando la identidad del desarrollador local (`user.name` y `user.email`).
+
