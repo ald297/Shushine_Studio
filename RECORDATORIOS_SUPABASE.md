@@ -132,12 +132,12 @@ DECLARE
     user_role text;
     internal_user_id int;
 BEGIN
-    -- Consultar el nombre del rol y el id_usuario en nuestra tabla public.usuarios
-    SELECT r.nombre, u.id_usuario 
-    INTO user_role, internal_user_id
+    -- Consultar el nombre del rol en nuestra tabla public.usuarios
+    SELECT r.nombre
+    INTO user_role
     FROM public.usuarios u
     JOIN public.roles r ON u.id_rol = r.id_rol
-    WHERE u.auth_user_id = (event->>'user_id')::uuid;
+    WHERE u.id_usuario = (event->>'user_id')::uuid;
 
     claims := event->'claims';
 
@@ -202,24 +202,33 @@ Para alojar fotos del catálogo de servicios y fotos de perfil de estilistas:
 
 ## 7. Extracción de Secretos para Variables de Entorno
 
-Copiar los valores desde **Project Settings $\rightarrow$ API & Database** y colocarlos en los archivos `.env` (recordando que nunca deben subirse a Git):
+Copiar los valores desde **Project Settings $\rightarrow$ Database (Connection String)** y colocarlos en los archivos locales (protegidos por `.gitignore`):
 
-### Para el Backend C# (`appsettings.Development.json` o Variables de Entorno):
+### Para el Backend C# (`appsettings.Development.json` o `dotnet user-secrets`):
 ```json
 {
   "ConnectionStrings": {
-    "SupabasePostgres": "Host=aws-0-us-east-1.pooler.supabase.com;Port=5432;Database=postgres;Username=postgres.<project-id>;Password=<tu-password-db>;SSL Mode=Require;Trust Server Certificate=true"
+    "SupabasePostgres": "Host=aws-0-us-east-1.pooler.supabase.com;Port=5432;Database=postgres;Username=postgres.acikahicfjtojuvqcvxv;Password=<TU_PASSWORD_DB>;SSL Mode=Require;Trust Server Certificate=true"
   },
   "Supabase": {
-    "ProjectUrl": "https://<tu-project-id>.supabase.co",
-    "JwtSecret": "<tu-jwt-secret-de-supabase>"
+    "Url": "https://acikahicfjtojuvqcvxv.supabase.co",
+    "AnonKey": "eyJhbGciOi..."
+  },
+  "Jwt": {
+    "Authority": "https://acikahicfjtojuvqcvxv.supabase.co/auth/v1",
+    "Audience": "authenticated"
   }
 }
 ```
 
-### Para el Frontend Flutter (`.env` o `--dart-define`):
+### Para el Frontend Flutter (`--dart-define` o `.env.local`):
 ```env
-SUPABASE_URL=https://<tu-project-id>.supabase.co
-SUPABASE_ANON_KEY=<tu-supabase-anon-key-publica>
-API_BASE_URL=https://tu-servidor-csharp.com/api
+SUPABASE_URL=https://acikahicfjtojuvqcvxv.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOi...
+API_BASE_URL=http://localhost:5000/api
+```
+
+### Formato URI para Prisma / Scripts de Migración:
+```bash
+postgresql://postgres.acikahicfjtojuvqcvxv:<TU_PASSWORD_DB>@aws-0-us-east-1.pooler.supabase.com:5432/postgres
 ```
