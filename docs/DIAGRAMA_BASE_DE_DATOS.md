@@ -1,25 +1,333 @@
-# Modelo y Diagrama de Base de Datos — Shushine Studio (Supabase / PostgreSQL)
+# 📊 Modelo y Diagrama de Base de Datos — Shunshine Studio (PostgreSQL / Supabase)
 
-Este documento contiene la arquitectura de datos relacional para **Shushine Studio** optimizada para **Supabase (PostgreSQL)**, cubriendo todos los requerimientos funcionales (RF01 - RF12), requerimientos no funcionales (RNF01 - RNF04), integración con **Supabase Auth** (`auth.users`), **Row Level Security (RLS)** y suscripciones en tiempo real (**Supabase Realtime**).
+> **Proyecto:** Shunshine Studio — Plataforma Móvil Integral de Gestión y Reservas para Salón de Belleza  
+> **Institución:** Escuela Superior Franciscana Especializada – AGAPE (ESFE AGAPE / MEGATEC)  
+> **Carrera:** Técnico en Ingeniería de Desarrollo de Software | **Módulo:** Construcción de APIs Web  
+> **Equipo:** Alex Fernando Alfaro Diaz (Backend / Scrum Master) & Camila Antonia Calderon Cortez (Móvil / QA)  
+> **Motor de Persistencia:** PostgreSQL 15+ (Supabase) | **ORM:** Entity Framework Core (`Npgsql`)  
+> **Estado:** Modelo Completo Expandido (23 Tablas Relacionales + 6 Buckets de Storage)  
 
 ---
 
-## 1. Código DBML (para dbdiagram.io / DiagramBD)
+## 1. Diagrama Entidad-Relación Integral (Mermaid ER)
 
-> **Instrucciones de uso en [dbdiagram.io](https://dbdiagram.io/):**
-> 1. Ingresa a [https://dbdiagram.io/d](https://dbdiagram.io/).
-> 2. Borra el código de ejemplo del panel izquierdo.
-> 3. Pega el siguiente bloque de código DBML.
-> 4. El diagrama visual ER se generará automáticamente en tiempo real con todas las tablas, columnas, tipos de datos y relaciones adaptadas a PostgreSQL/Supabase.
+Este diagrama es renderizado de forma nativa por visualizadores de Markdown en GitHub, Azure DevOps, VS Code y editores Mermaid:
+
+```mermaid
+erDiagram
+    %% ==========================================
+    %% RELACIONES DE SEGURIDAD Y CLIENTES
+    %% ==========================================
+    ROLES ||--o{ USUARIOS : "asigna_rol"
+    USUARIOS ||--o| CLIENTES : "perfil_cliente_registrado"
+    USUARIOS ||--o{ AUDITORIA_LOGS : "ejecuta_cambio"
+    
+    CLIENTES ||--o{ CITAS : "agenda_cita"
+    CLIENTES ||--o{ FAVORITOS : "guarda"
+    CLIENTES ||--o{ TRANSACCIONES_PUNTOS : "acumula_o_canjea"
+    CLIENTES ||--o{ RESENAS : "emite_opinion"
+    
+    %% ==========================================
+    %% RELACIONES DE CATÁLOGOS Y PRODUCTOS
+    %% ==========================================
+    CATEGORIAS ||--o{ SERVICIOS : "clasifica_servicios"
+    CATEGORIAS ||--o{ PRODUCTOS : "clasifica_productos"
+    
+    SERVICIOS ||--o{ CITA_SERVICIOS : "incluido_en_cita"
+    SERVICIOS ||--o{ ESTILISTA_SERVICIOS : "capacitado_en"
+    SERVICIOS ||--o{ SERVICIO_PRODUCTOS_REC : "recomienda_producto"
+    PRODUCTOS ||--o{ SERVICIO_PRODUCTOS_REC : "es_recomendado"
+    
+    %% ==========================================
+    %% RELACIONES DE PERSONAL (STAFF NO AUTENTICADO)
+    %% ==========================================
+    ESTILISTAS ||--o{ ESTILISTA_SERVICIOS : "atiende"
+    ESTILISTAS ||--o{ HORARIOS_ESTILISTAS : "turnos_semanales"
+    ESTILISTAS ||--o{ BLOQUEOS_HORARIOS : "permisos_vacaciones"
+    ESTILISTAS ||--o{ PERSONAL_PORTAFOLIOS : "galeria_trabajos"
+    ESTILISTAS ||--o{ CITAS : "atiende_servicio"
+    ESTILISTAS ||--o{ RESENAS : "evaluado_en"
+    
+    %% ==========================================
+    %% RELACIONES DE LA CITA COMO NÚCLEO TRANSACCIONAL
+    %% ==========================================
+    CITAS ||--o{ CITA_SERVICIOS : "desglosa_servicios"
+    CITAS ||--o| SOLICITUDES_DISENO : "adjunta_diseno"
+    CITAS ||--o{ MENSAJES_CHAT_CITA : "hilo_conversacion"
+    CITAS ||--o{ PAGOS : "liquida_cobro"
+    CITAS ||--o| FACTURAS : "emite_comprobante"
+    CITAS ||--o| RESENAS : "calificada_en"
+    CITAS ||--o{ TRANSACCIONES_PUNTOS : "genera_puntos"
+    
+    SOLICITUDES_DISENO ||--o| COTIZACIONES : "valorada_con"
+
+    %% ==========================================
+    %% DEFINICIÓN DE ENTIDADES Y ATRIBUTOS
+    %% ==========================================
+
+    ROLES {
+        int id_rol PK
+        string nombre "Administrador, Cliente"
+        string descripcion
+    }
+
+    USUARIOS {
+        uuid id_usuario PK "FK auth.users(id)"
+        int id_rol FK
+        string nombre_completo
+        string correo UK
+        string telefono
+        boolean activo
+        timestamptz fecha_registro
+    }
+
+    CLIENTES {
+        int id_cliente PK
+        uuid id_usuario FK "Nullable para Walk-in"
+        string nombre_walkin "Si no tiene cuenta"
+        string telefono_walkin
+        date fecha_nacimiento
+        string nivel_fidelidad "Bronce, Plata, Oro"
+        int puntos_acumulados
+        string tipo_cabello
+        string notas_preferencias
+        boolean es_walkin
+        timestamptz fecha_creacion
+    }
+
+    CATEGORIAS {
+        int id_categoria PK
+        string nombre UK "Cabello, Uñas, Pestañas, Spa"
+        string descripcion
+        string icono_url
+        string tipo "Servicio, Producto"
+        boolean activo
+    }
+
+    SERVICIOS {
+        int id_servicio PK
+        string codigo_servicio UK "ej. SRV-U01"
+        int id_categoria FK
+        string nombre
+        string descripcion
+        decimal precio_base
+        boolean es_precio_variable
+        int duracion_minutos
+        int intervalo_seguimiento_dias "ej. 21 dias"
+        string imagen_url
+        decimal costo_insumos
+        boolean activo
+    }
+
+    PRODUCTOS {
+        int id_producto PK
+        string codigo_producto UK "ej. PRD-SH01"
+        int id_categoria FK
+        string nombre
+        string marca
+        string descripcion
+        decimal precio
+        int stock_actual
+        int stock_minimo
+        string imagen_url
+        boolean activo
+    }
+
+    ESTILISTAS {
+        int id_estilista PK "Personal No Autenticado"
+        string nombre_completo
+        string especialidad_principal
+        string biografia
+        string avatar_url
+        string color_agenda
+        decimal porcentaje_comision
+        boolean activo
+    }
+
+    ESTILISTA_SERVICIOS {
+        int id_estilista_servicio PK
+        int id_estilista FK
+        int id_servicio FK
+    }
+
+    HORARIOS_ESTILISTAS {
+        int id_horario PK
+        int id_estilista FK
+        int dia_semana "1=Lunes a 7=Domingo"
+        time hora_inicio
+        time hora_fin
+        time hora_inicio_almuerzo
+        time hora_fin_almuerzo
+        boolean activo
+    }
+
+    BLOQUEOS_HORARIOS {
+        int id_bloqueo PK
+        int id_estilista FK
+        date fecha
+        time hora_inicio
+        time hora_fin
+        string motivo "Vacaciones, Incapacidad"
+    }
+
+    PERSONAL_PORTAFOLIOS {
+        int id_portafolio PK
+        int id_estilista FK
+        string titulo
+        string descripcion
+        string imagen_url
+        timestamptz fecha_publicacion
+    }
+
+    CITAS {
+        int id_cita PK
+        string codigo_cita UK "ej. #SHU-8492"
+        int id_cliente FK
+        int id_estilista FK
+        date fecha_cita
+        time hora_inicio
+        time hora_fin
+        string estado "PendingQuote, QuoteProposed, Confirmed, InProgress, Completed, Cancelled, NoShow"
+        decimal subtotal
+        decimal descuento_puntos
+        decimal iva "13 porciento"
+        decimal total
+        string metodo_pago_preferente "Efectivo, Tarjeta POS"
+        string estado_pago "Pending, Paid, PartiallyPaid, Refunded"
+        boolean es_walkin
+        string motivo_cancelacion
+        timestamptz fecha_creacion
+    }
+
+    CITA_SERVICIOS {
+        int id_cita_servicio PK
+        int id_cita FK
+        int id_servicio FK
+        decimal precio_aplicado
+        int duracion_minutos
+        string notas
+    }
+
+    SOLICITUDES_DISENO {
+        int id_solicitud PK
+        int id_cita FK UK
+        jsonb imagenes_referencia_urls "1 a 3 fotos"
+        string notas_cliente
+        string estado "Pendiente, Cotizado, Aceptado, Rechazado"
+        timestamptz fecha_solicitud
+    }
+
+    COTIZACIONES {
+        int id_cotizacion PK
+        int id_solicitud FK UK
+        decimal precio_propuesto
+        string descripcion_trabajo
+        string estado "Propuesta, Aceptada, Rechazada, Expirada"
+        timestamptz fecha_cotizacion
+        timestamptz fecha_respuesta
+    }
+
+    MENSAJES_CHAT_CITA {
+        int id_mensaje PK
+        int id_cita FK
+        uuid id_emisor_usuario FK "Admin o Cliente"
+        string remitente_tipo "Cliente, Salon"
+        string mensaje
+        jsonb imagenes_adjuntas
+        boolean es_mensaje_sistema
+        boolean leido
+        timestamptz fecha_envio
+    }
+
+    RESENAS {
+        int id_resena PK
+        int id_cita FK UK
+        int id_cliente FK
+        int id_estilista FK
+        int estrellas_general "1 a 5"
+        int estrellas_calidad "1 a 5"
+        int estrellas_atencion "1 a 5"
+        int estrellas_ambiente "1 a 5"
+        string comentario
+        boolean visible_publica
+        timestamptz fecha_emision
+    }
+
+    TRANSACCIONES_PUNTOS {
+        int id_transaccion_puntos PK
+        int id_cliente FK
+        int id_cita FK
+        int puntos "Positivo o Negativo"
+        string tipo_movimiento "Acumulacion, Canje, Reembolso"
+        string descripcion
+        timestamptz fecha_registro
+    }
+
+    SERVICIO_PRODUCTOS_REC {
+        int id_relacion PK
+        int id_servicio FK
+        int id_producto FK
+        string motivo_recomendacion
+    }
+
+    FAVORITOS {
+        int id_favorito PK
+        int id_cliente FK
+        string tipo_entidad "Servicio, Producto, Estilista"
+        int id_referencia
+        timestamptz fecha_guardado
+    }
+
+    PAGOS {
+        int id_pago PK
+        int id_cita FK
+        decimal monto
+        string metodo_pago "Efectivo, Tarjeta"
+        string estado "Aprobado, Reembolsado"
+        string referencia_pos
+        string motivo_ajuste_precio
+        timestamptz fecha_pago
+    }
+
+    FACTURAS {
+        int id_factura PK
+        int id_cita FK UK
+        string numero_factura UK "FAC-2026-XXXXX"
+        timestamptz fecha_emision
+        decimal subtotal
+        decimal iva
+        decimal total
+        jsonb datos_emisor_receptor
+    }
+
+    AUDITORIA_LOGS {
+        int id_auditoria PK
+        uuid id_usuario FK
+        string entidad_afectada "Citas, Precios, Catalogo, Pagos"
+        string accion "INSERT, UPDATE, DELETE"
+        text valor_anterior
+        text valor_nuevo
+        string motivo "Requerido en ajustes criticos"
+        timestamptz fecha_hora
+    }
+```
+
+---
+
+## 2. Código DBML (para visualización y exportación en [dbdiagram.io](https://dbdiagram.io/))
+
+> **Instrucciones:**  
+> 1. Abre [https://dbdiagram.io/d](https://dbdiagram.io/).  
+> 2. Pega el código a continuación para interactuar visualmente con el modelo relacional completo.
 
 ```dbml
 // ==========================================
-// SHUSHINE STUDIO - BASE DE DATOS (SUPABASE / POSTGRESQL)
+// SHUNSHINE STUDIO - MODELO RELACIONAL OFICIAL
 // ==========================================
 
 Table Roles {
   id_rol int [pk, increment]
-  nombre varchar(50) [not null, unique, note: 'Cliente, Administrador, Recepcionista']
+  nombre varchar(50) [not null, unique, note: 'Administrador, Cliente']
   descripcion varchar(200)
 }
 
@@ -35,40 +343,64 @@ Table Usuarios {
 
 Table Clientes {
   id_cliente int [pk, increment]
-  id_usuario uuid [not null, unique, ref: - Usuarios.id_usuario]
+  id_usuario uuid [null, unique, ref: - Usuarios.id_usuario, note: 'Nullable para walk-ins']
+  nombre_walkin varchar(150) [null]
+  telefono_walkin varchar(20) [null]
   fecha_nacimiento date [null]
-  nivel_fidelidad varchar(50) [default: 'Nivel Oro', note: 'Bronce, Plata, Oro']
-  tipo_cabello varchar(100) [null, note: 'ej. Ondulado Fino - Tratado']
-  id_estilista_preferido int [null, ref: > Estilistas.id_estilista]
+  nivel_fidelidad varchar(50) [default: 'Bronce', note: 'Bronce, Plata, Oro']
+  puntos_acumulados int [not null, default: 0]
+  tipo_cabello varchar(100) [null]
   notas_preferencias varchar(500) [null]
+  es_walkin boolean [not null, default: false]
+  fecha_creacion timestamptz [not null, default: `now()`]
 }
 
-Table CategoriasServicio {
+Table Categorias {
   id_categoria int [pk, increment]
-  nombre varchar(100) [not null, unique, note: 'Cabello, Uñas, Maquillaje, Spa']
+  nombre varchar(100) [not null, unique]
   descripcion varchar(255)
+  icono_url varchar(500)
+  tipo varchar(30) [not null, default: 'Servicio', note: 'Servicio, Producto']
   activo boolean [not null, default: true]
 }
 
 Table Servicios {
   id_servicio int [pk, increment]
-  codigo_servicio varchar(20) [not null, unique, note: 'ej. SRV-C01, SRV-042']
-  id_categoria int [not null, ref: > CategoriasServicio.id_categoria]
-  nombre varchar(150) [not null, note: 'Tratamiento Capilar, Corte y Estilizado, etc.']
+  codigo_servicio varchar(20) [not null, unique]
+  id_categoria int [not null, ref: > Categorias.id_categoria]
+  nombre varchar(150) [not null]
   descripcion text [not null]
+  precio_base decimal(10,2) [not null]
+  es_precio_variable boolean [not null, default: false]
+  duracion_minutos int [not null]
+  intervalo_seguimiento_dias int [not null, default: 21]
+  imagen_url varchar(500)
+  costo_insumos decimal(10,2) [default: 0.00]
+  activo boolean [not null, default: true]
+}
+
+Table Productos {
+  id_producto int [pk, increment]
+  codigo_producto varchar(20) [not null, unique]
+  id_categoria int [not null, ref: > Categorias.id_categoria]
+  nombre varchar(150) [not null]
+  marca varchar(100) [not null]
+  descripcion text
   precio decimal(10,2) [not null]
-  duracion_minutos int [not null, note: '45, 60, 90, 120 min']
-  imagen_url varchar(300) [null]
+  stock_actual int [not null, default: 0]
+  stock_minimo int [not null, default: 5]
+  imagen_url varchar(500)
   activo boolean [not null, default: true]
 }
 
 Table Estilistas {
-  id_estilista int [pk, increment]
-  id_usuario uuid [null, unique, ref: - Usuarios.id_usuario]
-  nombre_completo varchar(150) [not null, note: 'Elena Gómez, Carlos Méndez, Sofia Valenzuela']
-  especialidad varchar(150) [not null, note: 'Colorista & Cuidado Capilar, Estilismo, etc.']
-  avatar_url varchar(300) [null]
-  estado_disponibilidad varchar(30) [not null, default: 'Activo', note: 'Activo, Inactivo Temporal']
+  id_estilista int [pk, increment, note: 'Personal No Autenticado']
+  nombre_completo varchar(150) [not null]
+  especialidad_principal varchar(100) [not null]
+  biografia text
+  avatar_url varchar(500)
+  color_agenda varchar(20) [not null, default: '#D81B60']
+  porcentaje_comision decimal(5,2) [not null, default: 0.00]
   activo boolean [not null, default: true]
 }
 
@@ -82,541 +414,189 @@ Table EstilistaServicios {
   }
 }
 
-Table HorariosEstilista {
+Table HorariosEstilistas {
   id_horario int [pk, increment]
   id_estilista int [not null, ref: > Estilistas.id_estilista]
-  dia_semana int [not null, note: '1=Lunes, 7=Domingo']
+  dia_semana int [not null, note: '1=Lunes a 7=Domingo']
   hora_inicio time [not null]
   hora_fin time [not null]
+  hora_inicio_almuerzo time
+  hora_fin_almuerzo time
   activo boolean [not null, default: true]
 }
 
-Table EstacionesTrabajo {
-  id_estacion int [pk, increment]
-  codigo varchar(10) [not null, unique, note: 'E-01, E-02, E-03, E-04, E-05']
-  nombre varchar(50) [not null, note: 'Corte, Color, Peinado, Uñas, Spa']
-  activa boolean [not null, default: true]
+Table BloqueosHorarios {
+  id_bloqueo int [pk, increment]
+  id_estilista int [not null, ref: > Estilistas.id_estilista]
+  fecha date [not null]
+  hora_inicio time [not null]
+  hora_fin time [not null]
+  motivo varchar(200) [not null]
 }
 
-Table Reservas {
-  id_reserva int [pk, increment]
-  codigo_reserva varchar(20) [not null, unique, note: 'ej. #ELX-8492']
-  id_cliente int [null, ref: > Clientes.id_cliente, note: 'Nullable para walk-ins no registrados']
+Table PersonalPortafolios {
+  id_portafolio int [pk, increment]
   id_estilista int [not null, ref: > Estilistas.id_estilista]
-  id_servicio int [not null, ref: > Servicios.id_servicio]
-  id_estacion int [null, ref: > EstacionesTrabajo.id_estacion]
+  titulo varchar(150) [not null]
+  descripcion varchar(500)
+  imagen_url varchar(500) [not null]
+  fecha_publicacion timestamptz [not null, default: `now()`]
+}
+
+Table Citas {
+  id_cita int [pk, increment]
+  codigo_cita varchar(20) [not null, unique]
+  id_cliente int [not null, ref: > Clientes.id_cliente]
+  id_estilista int [not null, ref: > Estilistas.id_estilista]
   fecha_cita date [not null]
   hora_inicio time [not null]
   hora_fin time [not null]
-  monto_total decimal(10,2) [not null]
-  estado varchar(30) [not null, default: 'Pendiente', note: 'Pendiente, Completada, Cancelada, No Asistió']
-  es_walk_in boolean [not null, default: false, note: 'RF10: Cliente presencial sin cita previa']
-  nombre_walk_in varchar(150) [null]
-  telefono_walk_in varchar(20) [null]
-  notas varchar(500) [null]
+  estado varchar(30) [not null, default: 'Confirmed', note: 'PendingQuote, QuoteProposed, Confirmed, InProgress, Completed, Cancelled, NoShow']
+  subtotal decimal(10,2) [not null]
+  descuento_puntos decimal(10,2) [not null, default: 0.00]
+  iva decimal(10,2) [not null]
+  total decimal(10,2) [not null]
+  metodo_pago_preferente varchar(50) [not null, default: 'Efectivo']
+  estado_pago varchar(30) [not null, default: 'Pending', note: 'Pending, Paid, PartiallyPaid, Refunded']
+  es_walkin boolean [not null, default: false]
+  motivo_cancelacion varchar(300)
   fecha_creacion timestamptz [not null, default: `now()`]
 
   indexes {
-    (id_estilista, fecha_cita, hora_inicio) [name: 'idx_estilista_horario_reserva']
-    (codigo_reserva) [unique]
+    (id_estilista, fecha_cita, hora_inicio) [name: 'idx_estilista_agenda_citas']
   }
 }
 
-Table HistorialEstadoReserva {
-  id_historial int [pk, increment]
-  id_reserva int [not null, ref: > Reservas.id_reserva]
-  id_usuario_cambio uuid [not null, ref: > Usuarios.id_usuario]
-  estado_anterior varchar(30) [not null]
-  estado_nuevo varchar(30) [not null]
-  fecha_cambio timestamptz [not null, default: `now()`]
-  observaciones varchar(255) [null]
+Table CitaServicios {
+  id_cita_servicio int [pk, increment]
+  id_cita int [not null, ref: > Citas.id_cita]
+  id_servicio int [not null, ref: > Servicios.id_servicio]
+  precio_aplicado decimal(10,2) [not null]
+  duracion_minutos int [not null]
+  notas varchar(255)
+}
+
+Table SolicitudesDiseno {
+  id_solicitud int [pk, increment]
+  id_cita int [not null, unique, ref: - Citas.id_cita]
+  imagenes_referencia_urls jsonb [not null, note: 'Array de 1 a 3 URLs de Storage']
+  notas_cliente text
+  estado varchar(30) [not null, default: 'Pendiente']
+  fecha_solicitud timestamptz [not null, default: `now()`]
+}
+
+Table Cotizaciones {
+  id_cotizacion int [pk, increment]
+  id_solicitud int [not null, unique, ref: - SolicitudesDiseno.id_solicitud]
+  precio_propuesto decimal(10,2) [not null]
+  descripcion_trabajo text [not null]
+  estado varchar(30) [not null, default: 'Propuesta', note: 'Propuesta, Aceptada, Rechazada, Expirada']
+  fecha_cotizacion timestamptz [not null, default: `now()`]
+  fecha_respuesta timestamptz
+}
+
+Table MensajesChatCita {
+  id_mensaje int [pk, increment]
+  id_cita int [not null, ref: > Citas.id_cita]
+  id_emisor_usuario uuid [not null, ref: > Usuarios.id_usuario]
+  remitente_tipo varchar(20) [not null, note: 'Cliente, Salon']
+  mensaje text [not null]
+  imagenes_adjuntas jsonb
+  es_mensaje_sistema boolean [not null, default: false]
+  leido boolean [not null, default: false]
+  fecha_envio timestamptz [not null, default: `now()`]
+}
+
+Table Resenas {
+  id_resena int [pk, increment]
+  id_cita int [not null, unique, ref: - Citas.id_cita]
+  id_cliente int [not null, ref: > Clientes.id_cliente]
+  id_estilista int [not null, ref: > Estilistas.id_estilista]
+  estrellas_general int [not null]
+  estrellas_calidad int [not null]
+  estrellas_atencion int [not null]
+  estrellas_ambiente int [not null]
+  comentario text
+  visible_publica boolean [not null, default: true]
+  fecha_emision timestamptz [not null, default: `now()`]
+}
+
+Table TransaccionesPuntos {
+  id_transaccion_puntos int [pk, increment]
+  id_cliente int [not null, ref: > Clientes.id_cliente]
+  id_cita int [null, ref: > Citas.id_cita]
+  puntos int [not null]
+  tipo_movimiento varchar(30) [not null, note: 'Acumulacion, Canje, Reembolso']
+  descripcion varchar(200)
+  fecha_registro timestamptz [not null, default: `now()`]
+}
+
+Table ServicioProductosRec {
+  id_relacion int [pk, increment]
+  id_servicio int [not null, ref: > Servicios.id_servicio]
+  id_producto int [not null, ref: > Productos.id_producto]
+  motivo_recomendacion varchar(255)
+
+  indexes {
+    (id_servicio, id_producto) [unique]
+  }
+}
+
+Table Favoritos {
+  id_favorito int [pk, increment]
+  id_cliente int [not null, ref: > Clientes.id_cliente]
+  tipo_entidad varchar(30) [not null, note: 'Servicio, Producto, Estilista']
+  id_referencia int [not null]
+  fecha_guardado timestamptz [not null, default: `now()`]
+
+  indexes {
+    (id_cliente, tipo_entidad, id_referencia) [unique]
+  }
+}
+
+Table Pagos {
+  id_pago int [pk, increment]
+  id_cita int [not null, ref: > Citas.id_cita]
+  monto decimal(10,2) [not null]
+  metodo_pago varchar(50) [not null, note: 'Efectivo, Tarjeta POS']
+  estado varchar(30) [not null, default: 'Aprobado', note: 'Aprobado, Reembolsado']
+  referencia_pos varchar(100)
+  motivo_ajuste_precio varchar(300)
+  fecha_pago timestamptz [not null, default: `now()`]
+}
+
+Table Facturas {
+  id_factura int [pk, increment]
+  id_cita int [not null, unique, ref: - Citas.id_cita]
+  numero_factura varchar(50) [not null, unique]
+  fecha_emision timestamptz [not null, default: `now()`]
+  subtotal decimal(10,2) [not null]
+  iva decimal(10,2) [not null]
+  total decimal(10,2) [not null]
+  datos_emisor_receptor jsonb
+}
+
+Table AuditoriaLogs {
+  id_auditoria int [pk, increment]
+  id_usuario uuid [not null, ref: > Usuarios.id_usuario]
+  entidad_afectada varchar(50) [not null]
+  accion varchar(20) [not null, note: 'INSERT, UPDATE, DELETE']
+  valor_anterior text
+  valor_nuevo text
+  motivo varchar(300) [not null]
+  fecha_hora timestamptz [not null, default: `now()`]
 }
 ```
 
 ---
 
-## 2. Diagrama Entidad-Relación (Mermaid ER)
+## 3. Especificación de Buckets en Supabase Storage y Políticas de Acceso (RLS)
 
-Visualizable directamente en Markdown, GitHub, Mermaid Live Editor o VS Code:
-
-```mermaid
-erDiagram
-    ROLES ||--o{ USUARIOS : "asigna_rol"
-    USUARIOS ||--o| CLIENTES : "perfil_cliente"
-    USUARIOS ||--o| ESTILISTAS : "cuenta_personal"
-    USUARIOS ||--o{ HISTORIAL_ESTADO_RESERVA : "registra_cambio"
-    
-    ESTILISTAS ||--o{ HORARIOS_ESTILISTA : "turnos"
-    ESTILISTAS ||--o{ ESTILISTA_SERVICIOS : "atiende"
-    SERVICIOS ||--o{ ESTILISTA_SERVICIOS : "requerido_en"
-    
-    CATEGORIAS_SERVICIO ||--o{ SERVICIOS : "clasifica"
-    
-    CLIENTES ||--o{ RESERVAS : "agenda"
-    ESTILISTAS ||--o{ RESERVAS : "atiende_cita"
-    SERVICIOS ||--o{ RESERVAS : "servicio_solicitado"
-    ESTACIONES_TRABAJO ||--o{ RESERVAS : "ocupa"
-    
-    RESERVAS ||--o{ HISTORIAL_ESTADO_RESERVA : "auditoria"
-
-    ROLES {
-        int id_rol PK
-        string nombre
-        string descripcion
-    }
-
-    USUARIOS {
-        uuid id_usuario PK "FK auth.users"
-        int id_rol FK
-        string nombre_completo
-        string correo
-        string telefono
-        boolean activo
-        timestamptz fecha_registro
-    }
-
-    CLIENTES {
-        int id_cliente PK
-        uuid id_usuario FK
-        date fecha_nacimiento
-        string nivel_fidelidad
-        string tipo_cabello
-        int id_estilista_preferido FK
-        string notas_preferencias
-    }
-
-    CATEGORIAS_SERVICIO {
-        int id_categoria PK
-        string nombre
-        string descripcion
-        boolean activo
-    }
-
-    SERVICIOS {
-        int id_servicio PK
-        string codigo_servicio
-        int id_categoria FK
-        string nombre
-        string descripcion
-        decimal precio
-        int duracion_minutos
-        string imagen_url
-        boolean activo
-    }
-
-    ESTILISTAS {
-        int id_estilista PK
-        uuid id_usuario FK
-        string nombre_completo
-        string especialidad
-        string avatar_url
-        string estado_disponibilidad
-        boolean activo
-    }
-
-    ESTILISTA_SERVICIOS {
-        int id_estilista_servicio PK
-        int id_estilista FK
-        int id_servicio FK
-    }
-
-    HORARIOS_ESTILISTA {
-        int id_horario PK
-        int id_estilista FK
-        int dia_semana
-        time hora_inicio
-        time hora_fin
-        boolean activo
-    }
-
-    ESTACIONES_TRABAJO {
-        int id_estacion PK
-        string codigo
-        string nombre
-        boolean activa
-    }
-
-    RESERVAS {
-        int id_reserva PK
-        string codigo_reserva UK
-        int id_cliente FK
-        int id_estilista FK
-        int id_servicio FK
-        int id_estacion FK
-        date fecha_cita
-        time hora_inicio
-        time hora_fin
-        decimal monto_total
-        string estado
-        boolean es_walk_in
-        string nombre_walk_in
-        string telefono_walk_in
-        timestamptz fecha_creacion
-    }
-
-    HISTORIAL_ESTADO_RESERVA {
-        int id_historial PK
-        int id_reserva FK
-        uuid id_usuario_cambio FK
-        string estado_anterior
-        string estado_nuevo
-        timestamptz fecha_cambio
-        string observaciones
-    }
-```
-
----
-
-## 3. Diagrama de Clases del Modelo de Dominio (C# / Supabase Client)
-
-Representa las entidades con sus tipos correspondientes a PostgreSQL / Supabase:
-
-```mermaid
-classDiagram
-    class Rol {
-        +int IdRol
-        +string Nombre
-        +string Descripcion
-        +ICollection~Usuario~ Usuarios
-    }
-
-    class Usuario {
-        +Guid IdUsuario
-        +int IdRol
-        +string NombreCompleto
-        +string Correo
-        +string Telefono
-        +bool Activo
-        +DateTimeOffset FechaRegistro
-        +Rol Rol
-        +Cliente Cliente
-        +Estilista Estilista
-    }
-
-    class Cliente {
-        +int IdCliente
-        +Guid IdUsuario
-        +DateTime? FechaNacimiento
-        +string NivelFidelidad
-        +string TipoCabello
-        +int? IdEstilistaPreferido
-        +Usuario Usuario
-        +Estilista EstilistaPreferido
-        +ICollection~Reserva~ Reservas
-    }
-
-    class Estilista {
-        +int IdEstilista
-        +Guid? IdUsuario
-        +string NombreCompleto
-        +string Especialidad
-        +string AvatarUrl
-        +string EstadoDisponibilidad
-        +bool Activo
-        +Usuario Usuario
-        +ICollection~EstilistaServicio~ EstilistaServicios
-        +ICollection~HorarioEstilista~ Horarios
-        +ICollection~Reserva~ Reservas
-    }
-
-    class CategoriaServicio {
-        +int IdCategoria
-        +string Nombre
-        +string Descripcion
-        +bool Activo
-        +ICollection~Servicio~ Servicios
-    }
-
-    class Servicio {
-        +int IdServicio
-        +string CodigoServicio
-        +int IdCategoria
-        +string Nombre
-        +string Descripcion
-        +decimal Precio
-        +int DuracionMinutos
-        +string ImagenUrl
-        +bool Activo
-        +CategoriaServicio Categoria
-        +ICollection~EstilistaServicio~ EstilistaServicios
-        +ICollection~Reserva~ Reservas
-    }
-
-    class EstilistaServicio {
-        +int IdEstilistaServicio
-        +int IdEstilista
-        +int IdServicio
-        +Estilista Estilista
-        +Servicio Servicio
-    }
-
-    class HorarioEstilista {
-        +int IdHorario
-        +int IdEstilista
-        +int DiaSemana
-        +TimeSpan HoraInicio
-        +TimeSpan HoraFin
-        +bool Activo
-        +Estilista Estilista
-    }
-
-    class EstacionTrabajo {
-        +int IdEstacion
-        +string Codigo
-        +string Nombre
-        +bool Activa
-        +ICollection~Reserva~ Reservas
-    }
-
-    class Reserva {
-        +int IdReserva
-        +string CodigoReserva
-        +int? IdCliente
-        +int IdEstilista
-        +int IdServicio
-        +int? IdEstacion
-        +DateTime FechaCita
-        +TimeSpan HoraInicio
-        +TimeSpan HoraFin
-        +decimal MontoTotal
-        +string Estado
-        +bool EsWalkIn
-        +string NombreWalkIn
-        +string TelefonoWalkIn
-        +DateTimeOffset FechaCreacion
-        +Cliente Cliente
-        +Estilista Estilista
-        +Servicio Servicio
-        +EstacionTrabajo Estacion
-        +ICollection~HistorialEstadoReserva~ HistorialEstados
-    }
-
-    class HistorialEstadoReserva {
-        +int IdHistorial
-        +int IdReserva
-        +Guid IdUsuarioCambio
-        +string EstadoAnterior
-        +string EstadoNuevo
-        +DateTimeOffset FechaCambio
-        +string Observaciones
-        +Reserva Reserva
-        +Usuario UsuarioCambio
-    }
-
-    Rol "1" -- "*" Usuario : tiene
-    Usuario "1" -- "0..1" Cliente : extiende
-    Usuario "1" -- "0..1" Estilista : extiende
-    Cliente "1" -- "*" Reserva : agenda
-    Estilista "1" -- "*" Reserva : atiende
-    Servicio "1" -- "*" Reserva : reservado en
-    CategoriaServicio "1" -- "*" Servicio : categoriza
-    Estilista "1" -- "*" HorarioEstilista : disponibilidad
-    Estilista "1" -- "*" EstilistaServicio : habilidades
-    Servicio "1" -- "*" EstilistaServicio : cubierto por
-    EstacionTrabajo "1" -- "*" Reserva : asignada
-    Reserva "1" -- "*" HistorialEstadoReserva : auditoria
-    Usuario "1" -- "*" HistorialEstadoReserva : audita
-```
-
----
-
-## 4. Script DDL para Supabase (PostgreSQL + RLS + Triggers)
-
-```sql
--- =============================================
--- SHUSHINE STUDIO - SCRIPT DE BASE DE DATOS (SUPABASE / POSTGRESQL)
--- =============================================
-
--- Extensiones requeridas
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
--- 1. Tabla de Roles
-CREATE TABLE public.roles (
-    id_rol BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nombre VARCHAR(50) NOT NULL UNIQUE,
-    descripcion VARCHAR(200) NULL
-);
-
--- Insertar roles por defecto
-INSERT INTO public.roles (nombre, descripcion) VALUES
-('Cliente', 'Usuario final que consulta y solicita citas'),
-('Administrador', 'Control total de configuraciones y usuarios'),
-('Recepcionista', 'Gestiona agenda y atención presencial/walk-ins');
-
--- 2. Tabla de Usuarios (Vinculada a auth.users de Supabase)
-CREATE TABLE public.usuarios (
-    id_usuario UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-    id_rol BIGINT NOT NULL REFERENCES public.roles(id_rol),
-    nombre_completo VARCHAR(150) NOT NULL,
-    correo VARCHAR(150) NOT NULL UNIQUE,
-    telefono VARCHAR(20) NOT NULL,
-    activo BOOLEAN NOT NULL DEFAULT TRUE,
-    fecha_registro TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
--- 3. Tabla de Estilistas
-CREATE TABLE public.estilistas (
-    id_estilista BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    id_usuario UUID NULL UNIQUE REFERENCES public.usuarios(id_usuario) ON DELETE SET NULL,
-    nombre_completo VARCHAR(150) NOT NULL,
-    especialidad VARCHAR(150) NOT NULL,
-    avatar_url VARCHAR(300) NULL,
-    estado_disponibilidad VARCHAR(30) NOT NULL DEFAULT 'Activo',
-    activo BOOLEAN NOT NULL DEFAULT TRUE
-);
-
--- 4. Tabla de Clientes
-CREATE TABLE public.clientes (
-    id_cliente BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    id_usuario UUID NOT NULL UNIQUE REFERENCES public.usuarios(id_usuario) ON DELETE CASCADE,
-    fecha_nacimiento DATE NULL,
-    nivel_fidelidad VARCHAR(50) NOT NULL DEFAULT 'Nivel Oro',
-    tipo_cabello VARCHAR(100) NULL,
-    id_estilista_preferido BIGINT NULL REFERENCES public.estilistas(id_estilista) ON DELETE SET NULL,
-    notas_preferencias VARCHAR(500) NULL
-);
-
--- 5. Categorías de Servicio
-CREATE TABLE public.categorias_servicio (
-    id_categoria BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL UNIQUE,
-    descripcion VARCHAR(255) NULL,
-    activo BOOLEAN NOT NULL DEFAULT TRUE
-);
-
--- 6. Servicios
-CREATE TABLE public.servicios (
-    id_servicio BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    codigo_servicio VARCHAR(20) NOT NULL UNIQUE,
-    id_categoria BIGINT NOT NULL REFERENCES public.categorias_servicio(id_categoria),
-    nombre VARCHAR(150) NOT NULL,
-    descripcion TEXT NOT NULL,
-    precio DECIMAL(10,2) NOT NULL,
-    duracion_minutos INT NOT NULL,
-    imagen_url VARCHAR(300) NULL,
-    activo BOOLEAN NOT NULL DEFAULT TRUE
-);
-
--- 7. EstilistaServicios (Tabla Intermedia N:M)
-CREATE TABLE public.estilista_servicios (
-    id_estilista_servicio BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    id_estilista BIGINT NOT NULL REFERENCES public.estilistas(id_estilista) ON DELETE CASCADE,
-    id_servicio BIGINT NOT NULL REFERENCES public.servicios(id_servicio) ON DELETE CASCADE,
-    CONSTRAINT uq_estilista_servicio UNIQUE (id_estilista, id_servicio)
-);
-
--- 8. Horarios de Estilista
-CREATE TABLE public.horarios_estilista (
-    id_horario BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    id_estilista BIGINT NOT NULL REFERENCES public.estilistas(id_estilista) ON DELETE CASCADE,
-    dia_semana INT NOT NULL CHECK (dia_semana BETWEEN 1 AND 7),
-    hora_inicio TIME NOT NULL,
-    hora_fin TIME NOT NULL,
-    activo BOOLEAN NOT NULL DEFAULT TRUE
-);
-
--- 9. Estaciones de Trabajo
-CREATE TABLE public.estaciones_trabajo (
-    id_estacion BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    codigo VARCHAR(10) NOT NULL UNIQUE,
-    nombre VARCHAR(50) NOT NULL,
-    activa BOOLEAN NOT NULL DEFAULT TRUE
-);
-
--- 10. Reservas (Citas)
-CREATE TABLE public.reservas (
-    id_reserva BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    codigo_reserva VARCHAR(20) NOT NULL UNIQUE,
-    id_cliente BIGINT NULL REFERENCES public.clientes(id_cliente) ON DELETE SET NULL,
-    id_estilista BIGINT NOT NULL REFERENCES public.estilistas(id_estilista),
-    id_servicio BIGINT NOT NULL REFERENCES public.servicios(id_servicio),
-    id_estacion BIGINT NULL REFERENCES public.estaciones_trabajo(id_estacion) ON DELETE SET NULL,
-    fecha_cita DATE NOT NULL,
-    hora_inicio TIME NOT NULL,
-    hora_fin TIME NOT NULL,
-    monto_total DECIMAL(10,2) NOT NULL,
-    estado VARCHAR(30) NOT NULL DEFAULT 'Pendiente' CHECK (estado IN ('Pendiente', 'Completada', 'Cancelada', 'No Asistió')),
-    es_walk_in BOOLEAN NOT NULL DEFAULT FALSE,
-    nombre_walk_in VARCHAR(150) NULL,
-    telefono_walk_in VARCHAR(20) NULL,
-    notas VARCHAR(500) NULL,
-    fecha_creacion TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
--- 11. Historial de Cambios de Estado
-CREATE TABLE public.historial_estado_reserva (
-    id_historial BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    id_reserva BIGINT NOT NULL REFERENCES public.reservas(id_reserva) ON DELETE CASCADE,
-    id_usuario_cambio UUID NOT NULL REFERENCES public.usuarios(id_usuario),
-    estado_anterior VARCHAR(30) NOT NULL,
-    estado_nuevo VARCHAR(30) NOT NULL,
-    fecha_cambio TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    observaciones VARCHAR(255) NULL
-);
-
--- =============================================
--- ÍNDICES DE RENDIMIENTO Y REALTIME
--- =============================================
-CREATE INDEX ix_reservas_disponibilidad ON public.reservas(id_estilista, fecha_cita, hora_inicio, hora_fin, estado);
-CREATE INDEX ix_servicios_categoria ON public.servicios(id_categoria, activo);
-
--- =============================================
--- TRIGGER: SINCRONIZAR AUTH.USERS -> PUBLIC.USUARIOS Y PUBLIC.CLIENTES
--- =============================================
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-DECLARE
-    v_rol_cliente BIGINT;
-BEGIN
-    SELECT id_rol INTO v_rol_cliente FROM public.roles WHERE nombre = 'Cliente' LIMIT 1;
-
-    INSERT INTO public.usuarios (id_usuario, id_rol, nombre_completo, correo, telefono)
-    VALUES (
-        NEW.id,
-        COALESCE(v_rol_cliente, 1),
-        COALESCE(NEW.raw_user_meta_data->>'nombre_completo', 'Usuario Registrado'),
-        NEW.email,
-        COALESCE(NEW.raw_user_meta_data->>'telefono', '')
-    );
-
-    INSERT INTO public.clientes (id_usuario, nivel_fidelidad)
-    VALUES (NEW.id, 'Nivel Oro');
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE OR REPLACE TRIGGER on_auth_user_created
-    AFTER INSERT ON auth.users
-    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
-
--- =============================================
--- ROW LEVEL SECURITY (RLS) - POLÍTICAS DE SEGURIDAD SUPABASE
--- =============================================
-ALTER TABLE public.usuarios ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.clientes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.reservas ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.servicios ENABLE ROW LEVEL SECURITY;
-
--- Catálogo de servicios visible para todos
-CREATE POLICY "Servicios son públicos" ON public.servicios
-    FOR SELECT USING (activo = true);
-
--- Clientes solo pueden ver sus propias reservas
-CREATE POLICY "Clientes ven sus propias reservas" ON public.reservas
-    FOR SELECT USING (
-        id_cliente IN (
-            SELECT c.id_cliente FROM public.clientes c WHERE c.id_usuario = auth.uid()
-        )
-    );
-
--- Permitir a clientes crear reservas asociadas a su cuenta
-CREATE POLICY "Clientes pueden crear reservas" ON public.reservas
-    FOR INSERT WITH CHECK (
-        id_cliente IN (
-            SELECT c.id_cliente FROM public.clientes c WHERE c.id_usuario = auth.uid()
-        )
-    );
-
--- Habilitar replicación Realtime en reservas para actualización en vivo
-ALTER PUBLICATION supabase_realtime ADD TABLE public.reservas;
+| Bucket | Finalidad | Acceso Lectura | Acceso Escritura | Tamaño Máx. | Formatos |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **`servicios-imagenes`** | Fichas ilustrativas del catálogo | Público (`anon`) | Solo Admin (`role = Admin`) | 5 MB | JPG, PNG, WebP |
+| **`categorias-imagenes`** | Banners e íconos de categorías | Público (`anon`) | Solo Admin (`role = Admin`) | 2 MB | JPG, PNG, WebP |
+| **`personal-avatares`** | Avatares y fotos del personal | Público (`anon`) | Solo Admin (`role = Admin`) | 2 MB | JPG, PNG, WebP |
+| **`personal-portafolio`** | Galería de trabajos realizados | Público (`anon`) | Solo Admin (`role = Admin`) | 5 MB | JPG, PNG, WebP |
+| **`productos-imagenes`** | Fotos de productos de inventario | Público (`anon`) | Solo Admin (`role = Admin`) | 5 MB | JPG, PNG, WebP |
+| **`disenos-referencias`** | Referencias privadas para cotizar | Privado (Propietaria + Admin) | Solo Cliente (`/uid/*`) y Admin | 5 MB | JPG, PNG, WebP |
