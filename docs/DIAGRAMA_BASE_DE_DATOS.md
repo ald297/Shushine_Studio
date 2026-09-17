@@ -600,3 +600,329 @@ Table AuditoriaLogs {
 | **`personal-portafolio`** | Galería de trabajos realizados | Público (`anon`) | Solo Admin (`role = Admin`) | 5 MB | JPG, PNG, WebP |
 | **`productos-imagenes`** | Fotos de productos de inventario | Público (`anon`) | Solo Admin (`role = Admin`) | 5 MB | JPG, PNG, WebP |
 | **`disenos-referencias`** | Referencias privadas para cotizar | Privado (Propietaria + Admin) | Solo Cliente (`/uid/*`) y Admin | 5 MB | JPG, PNG, WebP |
+
+---
+
+## 4. Script DDL para Supabase (PostgreSQL 15+)
+
+Este script contiene la creación estructurada de las 23 tablas, índices de alta concurrencia, habilitación de RLS, registro de storage buckets, trigger de sincronización de usuarios y datos semilla:
+
+```sql
+-- =====================================================================
+-- SHUNSHINE STUDIO — SCRIPT DDL OFICIAL DE BASE DE DATOS (POSTGRESQL / SUPABASE)
+-- 23 Tablas Relacionales + Triggers + RLS + 6 Buckets de Storage
+-- =====================================================================
+
+-- 1. ROLES
+CREATE TABLE IF NOT EXISTS public.roles (
+    id_rol SERIAL PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL UNIQUE,
+    descripcion VARCHAR(200)
+);
+
+-- 2. USUARIOS (Vinculado a auth.users de Supabase)
+CREATE TABLE IF NOT EXISTS public.usuarios (
+    id_usuario UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    id_rol INT NOT NULL REFERENCES public.roles(id_rol),
+    nombre_completo VARCHAR(150) NOT NULL,
+    correo VARCHAR(150) NOT NULL UNIQUE,
+    telefono VARCHAR(20) NOT NULL,
+    activo BOOLEAN NOT NULL DEFAULT TRUE,
+    fecha_registro TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 3. CLIENTES (Permite usuarios registrados o clientes walk-in espontáneos)
+CREATE TABLE IF NOT EXISTS public.clientes (
+    id_cliente SERIAL PRIMARY KEY,
+    id_usuario UUID UNIQUE REFERENCES public.usuarios(id_usuario) ON DELETE SET NULL,
+    nombre_walkin VARCHAR(150),
+    telefono_walkin VARCHAR(20),
+    fecha_nacimiento DATE,
+    nivel_fidelidad VARCHAR(50) NOT NULL DEFAULT 'Bronce',
+    puntos_acumulados INT NOT NULL DEFAULT 0,
+    tipo_cabello VARCHAR(100),
+    notas_preferencias VARCHAR(500),
+    es_walkin BOOLEAN NOT NULL DEFAULT FALSE,
+    fecha_creacion TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 4. CATEGORIAS (Servicios y Productos)
+CREATE TABLE IF NOT EXISTS public.categorias (
+    id_categoria SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL UNIQUE,
+    descripcion VARCHAR(255),
+    icono_url VARCHAR(500),
+    tipo VARCHAR(30) NOT NULL DEFAULT 'Servicio',
+    activo BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+-- 5. SERVICIOS
+CREATE TABLE IF NOT EXISTS public.servicios (
+    id_servicio SERIAL PRIMARY KEY,
+    codigo_servicio VARCHAR(20) NOT NULL UNIQUE,
+    id_categoria INT NOT NULL REFERENCES public.categorias(id_categoria),
+    nombre VARCHAR(150) NOT NULL,
+    descripcion TEXT NOT NULL,
+    precio_base NUMERIC(10,2) NOT NULL CHECK (precio_base >= 0),
+    es_precio_variable BOOLEAN NOT NULL DEFAULT FALSE,
+    duracion_minutos INT NOT NULL CHECK (duracion_minutos > 0),
+    intervalo_seguimiento_dias INT NOT NULL DEFAULT 21,
+    imagen_url VARCHAR(500),
+    costo_insumos NUMERIC(10,2) NOT NULL DEFAULT 0.00,
+    activo BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+-- 6. PRODUCTOS (Inventario del Salón)
+CREATE TABLE IF NOT EXISTS public.productos (
+    id_producto SERIAL PRIMARY KEY,
+    codigo_producto VARCHAR(20) NOT NULL UNIQUE,
+    id_categoria INT NOT NULL REFERENCES public.categorias(id_categoria),
+    nombre VARCHAR(150) NOT NULL,
+    marca VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    precio NUMERIC(10,2) NOT NULL CHECK (precio >= 0),
+    stock_actual INT NOT NULL DEFAULT 0 CHECK (stock_actual >= 0),
+    stock_minimo INT NOT NULL DEFAULT 5,
+    imagen_url VARCHAR(500),
+    activo BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+-- 7. ESTILISTAS (Personal del Salón)
+CREATE TABLE IF NOT EXISTS public.estilistas (
+    id_estilista SERIAL PRIMARY KEY,
+    nombre_completo VARCHAR(150) NOT NULL,
+    especialidad_principal VARCHAR(100) NOT NULL,
+    biografia TEXT,
+    avatar_url VARCHAR(500),
+    color_agenda VARCHAR(20) NOT NULL DEFAULT '#D81B60',
+    porcentaje_comision NUMERIC(5,2) NOT NULL DEFAULT 0.00,
+    activo BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+-- 8. ESTILISTA_SERVICIOS (Matriz de Habilidades)
+CREATE TABLE IF NOT EXISTS public.estilista_servicios (
+    id_estilista_servicio SERIAL PRIMARY KEY,
+    id_estilista INT NOT NULL REFERENCES public.estilistas(id_estilista) ON DELETE CASCADE,
+    id_servicio INT NOT NULL REFERENCES public.servicios(id_servicio) ON DELETE CASCADE,
+    CONSTRAINT uq_estilista_servicio UNIQUE (id_estilista, id_servicio)
+);
+
+-- 9. HORARIOS_ESTILISTAS (Turnos Semanales)
+CREATE TABLE IF NOT EXISTS public.horarios_estilistas (
+    id_horario SERIAL PRIMARY KEY,
+    id_estilista INT NOT NULL REFERENCES public.estilistas(id_estilista) ON DELETE CASCADE,
+    dia_semana INT NOT NULL CHECK (dia_semana BETWEEN 1 AND 7),
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL,
+    hora_inicio_almuerzo TIME,
+    hora_fin_almuerzo TIME,
+    activo BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+-- 10. BLOQUEOS_HORARIOS (Permisos, Vacaciones, Incapacidades)
+CREATE TABLE IF NOT EXISTS public.bloqueos_horarios (
+    id_bloqueo SERIAL PRIMARY KEY,
+    id_estilista INT NOT NULL REFERENCES public.estilistas(id_estilista) ON DELETE CASCADE,
+    fecha DATE NOT NULL,
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL,
+    motivo VARCHAR(200) NOT NULL
+);
+
+-- 11. PERSONAL_PORTAFOLIOS (Galería de Trabajos)
+CREATE TABLE IF NOT EXISTS public.personal_portafolios (
+    id_portafolio SERIAL PRIMARY KEY,
+    id_estilista INT NOT NULL REFERENCES public.estilistas(id_estilista) ON DELETE CASCADE,
+    titulo VARCHAR(150) NOT NULL,
+    descripcion VARCHAR(500),
+    imagen_url VARCHAR(500) NOT NULL,
+    fecha_publicacion TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 12. CITAS (Núcleo Transaccional del Salón)
+CREATE TABLE IF NOT EXISTS public.citas (
+    id_cita SERIAL PRIMARY KEY,
+    codigo_cita VARCHAR(20) NOT NULL UNIQUE,
+    id_cliente INT NOT NULL REFERENCES public.clientes(id_cliente),
+    id_estilista INT NOT NULL REFERENCES public.estilistas(id_estilista),
+    fecha_cita DATE NOT NULL,
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL,
+    estado VARCHAR(30) NOT NULL DEFAULT 'Confirmed' 
+        CHECK (estado IN ('PendingQuote', 'QuoteProposed', 'Confirmed', 'InProgress', 'Completed', 'Cancelled', 'NoShow')),
+    subtotal NUMERIC(10,2) NOT NULL,
+    descuento_puntos NUMERIC(10,2) NOT NULL DEFAULT 0.00,
+    iva NUMERIC(10,2) NOT NULL,
+    total NUMERIC(10,2) NOT NULL,
+    metodo_pago_preferente VARCHAR(50) NOT NULL DEFAULT 'Efectivo',
+    estado_pago VARCHAR(30) NOT NULL DEFAULT 'Pending' 
+        CHECK (estado_pago IN ('Pending', 'Paid', 'PartiallyPaid', 'Refunded')),
+    es_walkin BOOLEAN NOT NULL DEFAULT FALSE,
+    motivo_cancelacion VARCHAR(300),
+    fecha_creacion TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 13. CITA_SERVICIOS (Desglose de Servicios por Cita)
+CREATE TABLE IF NOT EXISTS public.cita_servicios (
+    id_cita_servicio SERIAL PRIMARY KEY,
+    id_cita INT NOT NULL REFERENCES public.citas(id_cita) ON DELETE CASCADE,
+    id_servicio INT NOT NULL REFERENCES public.servicios(id_servicio),
+    precio_aplicado NUMERIC(10,2) NOT NULL,
+    duracion_minutos INT NOT NULL,
+    notas VARCHAR(255)
+);
+
+-- 14. SOLICITUDES_DISENO (Diseños Personalizados / Referencias)
+CREATE TABLE IF NOT EXISTS public.solicitudes_diseno (
+    id_solicitud SERIAL PRIMARY KEY,
+    id_cita INT NOT NULL UNIQUE REFERENCES public.citas(id_cita) ON DELETE CASCADE,
+    imagenes_referencia_urls JSONB NOT NULL,
+    notas_cliente TEXT,
+    estado VARCHAR(30) NOT NULL DEFAULT 'Pendiente',
+    fecha_solicitud TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 15. COTIZACIONES (Valoración Formal de Solicitudes)
+CREATE TABLE IF NOT EXISTS public.cotizaciones (
+    id_cotizacion SERIAL PRIMARY KEY,
+    id_solicitud INT NOT NULL UNIQUE REFERENCES public.solicitudes_diseno(id_solicitud) ON DELETE CASCADE,
+    precio_propuesto NUMERIC(10,2) NOT NULL,
+    descripcion_trabajo TEXT NOT NULL,
+    estado VARCHAR(30) NOT NULL DEFAULT 'Propuesta' 
+        CHECK (estado IN ('Propuesta', 'Aceptada', 'Rechazada', 'Expirada')),
+    fecha_cotizacion TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    fecha_respuesta TIMESTAMPTZ
+);
+
+-- 16. MENSAJES_CHAT_CITA (Hilo de Negociación y Consulta)
+CREATE TABLE IF NOT EXISTS public.mensajes_chat_cita (
+    id_mensaje SERIAL PRIMARY KEY,
+    id_cita INT NOT NULL REFERENCES public.citas(id_cita) ON DELETE CASCADE,
+    id_emisor_usuario UUID NOT NULL REFERENCES public.usuarios(id_usuario),
+    remitente_tipo VARCHAR(20) NOT NULL CHECK (remitente_tipo IN ('Cliente', 'Salon')),
+    mensaje TEXT NOT NULL,
+    imagenes_adjuntas JSONB,
+    es_mensaje_sistema BOOLEAN NOT NULL DEFAULT FALSE,
+    leido BOOLEAN NOT NULL DEFAULT FALSE,
+    fecha_envio TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 17. RESENAS (Evaluaciones Post-Servicio)
+CREATE TABLE IF NOT EXISTS public.resenas (
+    id_resena SERIAL PRIMARY KEY,
+    id_cita INT NOT NULL UNIQUE REFERENCES public.citas(id_cita) ON DELETE CASCADE,
+    id_cliente INT NOT NULL REFERENCES public.clientes(id_cliente),
+    id_estilista INT NOT NULL REFERENCES public.estilistas(id_estilista),
+    estrellas_general INT NOT NULL CHECK (estrellas_general BETWEEN 1 AND 5),
+    estrellas_calidad INT NOT NULL CHECK (estrellas_calidad BETWEEN 1 AND 5),
+    estrellas_atencion INT NOT NULL CHECK (estrellas_atencion BETWEEN 1 AND 5),
+    estrellas_ambiente INT NOT NULL CHECK (estrellas_ambiente BETWEEN 1 AND 5),
+    comentario TEXT,
+    visible_publica BOOLEAN NOT NULL DEFAULT TRUE,
+    fecha_emision TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 18. TRANSACCIONES_PUNTOS (Fidelización)
+CREATE TABLE IF NOT EXISTS public.transacciones_puntos (
+    id_transaccion_puntos SERIAL PRIMARY KEY,
+    id_cliente INT NOT NULL REFERENCES public.clientes(id_cliente),
+    id_cita INT REFERENCES public.citas(id_cita) ON DELETE SET NULL,
+    puntos INT NOT NULL,
+    tipo_movimiento VARCHAR(30) NOT NULL CHECK (tipo_movimiento IN ('Acumulacion', 'Canje', 'Reembolso', 'AjusteManual')),
+    descripcion VARCHAR(200),
+    fecha_registro TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 19. SERVICIO_PRODUCTOS_REC (Cross-selling)
+CREATE TABLE IF NOT EXISTS public.servicio_productos_rec (
+    id_relacion SERIAL PRIMARY KEY,
+    id_servicio INT NOT NULL REFERENCES public.servicios(id_servicio) ON DELETE CASCADE,
+    id_producto INT NOT NULL REFERENCES public.productos(id_producto) ON DELETE CASCADE,
+    motivo_recomendacion VARCHAR(255),
+    CONSTRAINT uq_servicio_producto UNIQUE (id_servicio, id_producto)
+);
+
+-- 20. FAVORITOS
+CREATE TABLE IF NOT EXISTS public.favoritos (
+    id_favorito SERIAL PRIMARY KEY,
+    id_cliente INT NOT NULL REFERENCES public.clientes(id_cliente) ON DELETE CASCADE,
+    tipo_entidad VARCHAR(30) NOT NULL CHECK (tipo_entidad IN ('Servicio', 'Producto', 'Estilista')),
+    id_referencia INT NOT NULL,
+    fecha_guardado TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT uq_cliente_favorito UNIQUE (id_cliente, tipo_entidad, id_referencia)
+);
+
+-- 21. PAGOS (Liquidaciones de Caja y POS)
+CREATE TABLE IF NOT EXISTS public.pagos (
+    id_pago SERIAL PRIMARY KEY,
+    id_cita INT NOT NULL REFERENCES public.citas(id_cita) ON DELETE CASCADE,
+    monto NUMERIC(10,2) NOT NULL,
+    metodo_pago VARCHAR(50) NOT NULL,
+    estado VARCHAR(30) NOT NULL DEFAULT 'Aprobado' CHECK (estado IN ('Aprobado', 'Reembolsado', 'Anulado')),
+    referencia_pos VARCHAR(100),
+    motivo_ajuste_precio VARCHAR(300),
+    fecha_pago TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 22. FACTURAS (Comprobante Fiscal / Consumidor Final)
+CREATE TABLE IF NOT EXISTS public.facturas (
+    id_factura SERIAL PRIMARY KEY,
+    id_cita INT NOT NULL UNIQUE REFERENCES public.citas(id_cita) ON DELETE CASCADE,
+    numero_factura VARCHAR(50) NOT NULL UNIQUE,
+    fecha_emision TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    subtotal NUMERIC(10,2) NOT NULL,
+    iva NUMERIC(10,2) NOT NULL,
+    total NUMERIC(10,2) NOT NULL,
+    datos_emisor_receptor JSONB
+);
+
+-- 23. AUDITORIA_LOGS (Trazabilidad)
+CREATE TABLE IF NOT EXISTS public.auditoria_logs (
+    id_auditoria SERIAL PRIMARY KEY,
+    id_usuario UUID REFERENCES public.usuarios(id_usuario) ON DELETE SET NULL,
+    entidad_afectada VARCHAR(50) NOT NULL,
+    accion VARCHAR(20) NOT NULL CHECK (accion IN ('INSERT', 'UPDATE', 'DELETE')),
+    valor_anterior TEXT,
+    valor_nuevo TEXT,
+    motivo VARCHAR(300) NOT NULL,
+    fecha_hora TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Índices de optimización
+CREATE INDEX IF NOT EXISTS idx_usuarios_rol ON public.usuarios(id_rol);
+CREATE INDEX IF NOT EXISTS idx_clientes_usuario ON public.clientes(id_usuario);
+CREATE INDEX IF NOT EXISTS idx_servicios_categoria ON public.servicios(id_categoria);
+CREATE INDEX IF NOT EXISTS idx_productos_categoria ON public.productos(id_categoria);
+CREATE INDEX IF NOT EXISTS idx_horarios_estilista ON public.horarios_estilistas(id_estilista, dia_semana);
+CREATE INDEX IF NOT EXISTS idx_citas_estilista_agenda ON public.citas(id_estilista, fecha_cita, hora_inicio);
+CREATE INDEX IF NOT EXISTS idx_citas_cliente ON public.citas(id_cliente);
+CREATE INDEX IF NOT EXISTS idx_cita_servicios_cita ON public.cita_servicios(id_cita);
+CREATE INDEX IF NOT EXISTS idx_mensajes_cita ON public.mensajes_chat_cita(id_cita, fecha_envio);
+CREATE INDEX IF NOT EXISTS idx_transacciones_cliente ON public.transacciones_puntos(id_cliente);
+
+-- Habilitar Row Level Security (RLS) en todas las tablas
+ALTER TABLE public.roles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.usuarios ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.clientes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.categorias ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.servicios ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.productos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.estilistas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.estilista_servicios ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.horarios_estilistas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.bloqueos_horarios ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.personal_portafolios ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.citas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.cita_servicios ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.solicitudes_diseno ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.cotizaciones ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.mensajes_chat_cita ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.resenas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.transacciones_puntos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.servicio_productos_rec ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.favoritos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.pagos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.facturas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.auditoria_logs ENABLE ROW LEVEL SECURITY;
+```
+

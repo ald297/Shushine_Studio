@@ -11,12 +11,14 @@
 
 | Componente | Tecnología | Detalle y Versión |
 | :--- | :--- | :--- |
-| **Frontend Móvil** | **Flutter (Dart)** | Aplicación nativa multiplataforma (iOS & Android). |
-| **Backend API** | **C# ASP.NET Core** | Web API RESTful (.NET 8 / 9). |
-| **Base de Datos** | **Supabase (PostgreSQL)** | Base de datos relacional alojada en la nube. |
-| **BaaS (Auth)** | **Supabase Auth** | Autenticación, registro, login y emisión de JWT tokens seguros. |
+| **Frontend Móvil** | **Flutter (Dart)** | Aplicación nativa multiplataforma (iOS & Android) con Clean Architecture + BLoC. |
+| **Backend API** | **Java Spring Boot 3.3.3** | Web API RESTful con arquitectura en capas bajo paquete de dominio propio (`com.shushinestudio`). |
+| **Base de Datos** | **Supabase (PostgreSQL)** | PostgreSQL relacional en la nube (AWS Pooler directo, 16-23 tablas normalizadas). |
+| **Seguridad & Auth** | **Spring Security 6 / JJWT** | Autenticación basada en JWT con roles estipulados (`ADMIN`, `CLIENTE`) y autorización granular. |
 | **Control de Versiones & CI/CD** | **Azure DevOps / Git** | Repositorios, control de ramas, pull requests y tableros Kanban. |
-| **Documentación de API** | **OpenAPI / Swagger** | Contrato de interfaz interactivo autogenerado por ASP.NET Core. |
+| **Documentación de API** | **OpenAPI / Swagger UI** | Contrato interactivo con soporte nativo de Bearer Token JWT (`SwaggerConfig`). |
+| **Mapeo de Datos** | **ModelMapper** | Desacoplamiento total entre Entidades de base de datos y DTOs por operación. |
+| **Testing** | **JUnit 5 / Flutter Test** | Pruebas unitarias de servicios (`t1_crear` a `t6_eliminar`) y BLoCs. |
 
 ---
 
@@ -81,9 +83,17 @@ Para asegurar escalabilidad, testeabilidad y mantenimiento limpio, la aplicació
 
 ### 3.3 Aislamiento de Base de Datos y Supabase
 * **La app móvil tiene prohibido consultar directamente las tablas de Supabase** (PostgreSQL) usando clientes directos de base de datos.
-* El SDK de Supabase en el cliente móvil se utiliza **única y exclusivamente para Supabase Auth** (registro, inicio de sesión, recuperación de contraseña y refresco de tokens).
-* Todas las operaciones de lectura y escritura del negocio (catálogo, reservas, estilistas, horarios, clientes) se realizan a través de la **Web API en C#**.
+* El SDK de Supabase en el cliente móvil se utiliza para autenticación y almacenamiento de medios en Storage.
+* Todas las operaciones de lectura y escritura del negocio (catálogo, reservas, estilistas, horarios, clientes) se realizan a través de la **Web API**.
 * En Supabase, se debe activar **Row Level Security (RLS)** en todas las tablas del esquema `public` para denegar consultas anónimas o directas no autorizadas desde clientes móviles.
+
+### 3.4 Estándares Arquitectónicos Oficiales de la API Backend (Spring Boot 3.3.3)
+* **Semillero de Datos Automático (`DataInitializer`):** El backend verifica si la base de datos PostgreSQL en Supabase está vacía y puebla automáticamente los roles oficiales de Shushine Studio (`ADMIN`, `CLIENTE`, `RECEPCIONISTA`), usuarios de prueba (`admin`/`admin123`, `cliente`/`cliente123`) y catálogo inicial de belleza, para permitir evaluación inmediata por el docente.
+* **Segregación de DTOs por Acción:** Queda estrictamente prohibido exponer entidades de base de datos en controladores. Se deben emplear DTOs especializados (`*Guardar`, `*Modificar`, `*Salida`, `*CambiarEstado`).
+* **Endpoints Duales:** Cada módulo debe ofrecer endpoints paginados (`Pageable` con `page`, `size`, `sort`) para volumen de datos y endpoints de listado rápido (`/lista`) para selectores móviles en Flutter.
+* **Swagger con Bearer Token Integrado:** La documentación OpenAPI debe incluir el esquema de seguridad HTTP Bearer para autorizar pruebas directamente en el navegador con un clic.
+* **Pruebas Unitarias de Servicios:** Cada servicio de negocio debe contar con su clase de pruebas unitarias cubriendo el ciclo CRUD (`t1_crear`, `t2_obtenerTodos`, `t3_obtenerTodosPaginados`, `t4_obtenerPorId`, `t5_editar`, `t6_eliminarPorId`).
+* **Identidad y Paquete Propio:** El código del backend se organiza bajo el paquete raíz `com.shushinestudio`, adaptando los patrones pedagógicos de la guía de ESFE AGAPE a la lógica real del salón sin incurrir en duplicaciones arbitrarias.
 
 ---
 

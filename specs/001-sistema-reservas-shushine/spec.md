@@ -7,9 +7,27 @@
 
 ---
 
+## Alcance y Delimitación del MVP (Feature 001 vs Fases Futuras)
+
+Para garantizar foco en la entrega y calidad técnica evaluable, el proyecto se organiza en fases claramente delimitadas:
+* **Alcance de Feature 001 (MVP Core - Esta Entrega):**
+  1. **US1:** Autenticación y Perfil de Usuario con JWT y roles oficiales (`ADMIN`, `CLIENTE`).
+  2. **US2:** Catálogo Categorizado de Servicios con precios, tiempos y fotos de Supabase Storage.
+  3. **US3:** Motor de Disponibilidad horaria en tiempo real por estilista.
+  4. **US4:** Creación Transaccional de Citas con control de concurrencia y código correlativo (`SHU-YYYY-NNNN`).
+  5. **US5:** Agenda Timeline para estilistas/administración y atención de clientes espontáneos (*Walk-in*).
+  6. **US6:** Registro de Pagos (Efectivo/Tarjeta), Facturación con IVA (13%) y Dashboard gerencial de métricas.
+* **Módulos Avanzados (Backlog Fases 2 y 3 - Documentados en `DOCUMENTO_EVOLUCION_SHUNSHINE_STUDIO.md`):**
+  - Chat bidireccional en tiempo real por cita (`MensajesChatCita`).
+  - Módulo de Cotización de Diseños Personalizados con subida de referencias a Storage (`SolicitudesDiseno` y `Cotizaciones`).
+  - Acumulación y redención de puntos de fidelidad (`TransaccionesPuntos` / `NivelCliente`).
+  - Módulo de Reseñas y Calificaciones post-servicio.
+
+---
+
 ## User Scenarios & Testing *(mandatory)*
 
-### User Story 1 - Autenticación Híbrida y Gestión de Perfil de Usuario (Priority: P1) 🎯 MVP Core
+### User Story 1 - Autenticación y Gestión de Perfil de Usuario (Priority: P1) 🎯 MVP Core
 Como cliente o miembro del personal del salón, quiero autenticarme de manera segura mediante mi correo y contraseña o registro rápido, para acceder a mis citas, gestionar mi perfil y contar con una sesión protegida.
 
 * **Why this priority**: Es el punto de entrada mandatorio del sistema. Sin autenticación y emisión de tokens seguros, ninguna consulta transaccional ni reservación puede ser atribuida de forma confiable al cliente.
@@ -37,7 +55,7 @@ Como cliente del salón, quiero explorar el catálogo de servicios organizados p
 ### User Story 3 - Motor de Disponibilidad y Selección de Estilistas (Priority: P3)
 Como cliente, quiero seleccionar un estilista calificado (o elegir "Cualquier profesional disponible") y una fecha en el calendario, para ver en tiempo real las franjas horarias disponibles calculadas por la API.
 
-* **Why this priority**: Es el núcleo inteligente del salón. La API en C# debe ser la autoridad única que cruce horarios laborales, descansos y citas previas para no permitir citas sobrepuestas.
+* **Why this priority**: Es el núcleo inteligente del salón. La Web API en Spring Boot debe ser la autoridad única que cruce horarios laborales, descansos y citas previas para no permitir citas sobrepuestas.
 * **Independent Test**: Puede probarse enviando una fecha y el ID de un estilista al endpoint `/api/stylists/{id}/availability`, verificando que devuelva únicamente bloques horarios libres de 30 o 45 minutos que no colisionen con citas existentes ni bloqueos.
 * **Acceptance Scenarios**:
   1. **Given** un servicio seleccionado de 60 minutos, **When** el cliente elige una fecha y un estilista, **Then** la API calcula y retorna los slots horarios continuos donde el estilista tiene agenda libre según su horario laboral.
@@ -95,13 +113,13 @@ Como administrador del salón, quiero registrar pagos en múltiples métodos (Ef
 
 ### Functional Requirements
 
-- **FR-001**: El sistema DEBE autenticar usuarios mediante correo y contraseña utilizando Supabase Auth y validación de firma criptográfica JWT en la API C#.
-- **FR-002**: El sistema DEBE sincronizar automáticamente los nuevos usuarios de `auth.users` hacia las tablas `public.usuarios` y `public.clientes` mediante el trigger `on_auth_user_created`.
-- **FR-003**: La API C# DEBE ser la única autoridad de negocio responsable de calcular disponibilidad horaria, montos, impuestos y transacciones.
-- **FR-004**: La aplicación móvil NO DEBE realizar consultas directas a las tablas de Supabase; todas las operaciones de negocio deben cursarse a través de la Web API C#.
+- **FR-001**: El sistema DEBE autenticar usuarios mediante correo/login y contraseña (cifrada con BCrypt) con emisión de tokens JWT seguros en la API (Spring Boot), soportando los roles oficiales de Shushine Studio (`ADMIN`, `CLIENTE`, `RECEPCIONISTA`).
+- **FR-002**: El sistema DEBE sincronizar y poblar automáticamente mediante un semillero (`DataInitializer`) los roles base, usuarios de demostración (`admin` y `cliente`) y catálogo inicial si la base de datos PostgreSQL en Supabase está vacía.
+- **FR-003**: La Web API DEBE ser la única autoridad de negocio responsable de calcular disponibilidad horaria, montos, impuestos y transacciones.
+- **FR-004**: La aplicación móvil NO DEBE realizar consultas directas a las tablas de PostgreSQL de negocio; todas las operaciones deben cursarse exclusivamente a través de la Web API.
 - **FR-005**: El sistema DEBE categorizar los servicios del salón y permitir su consulta filtrada por categoría, rango de precio y búsqueda textual.
 - **FR-006**: El sistema DEBE calcular franjas horarias disponibles considerando: horario laboral del estilista, pausas/almuerzo, citas previas agendadas y bloqueos de calendario.
-- **FR-007**: El sistema DEBE garantizar atomicidad transaccional (ACID) al crear una cita, impidiendo sobreventa o doble reserva de un mismo bloque horario.
+- **FR-007**: El sistema DEBE garantizar atomicidad transaccional (ACID con `@Transactional`) al crear una cita, impidiendo sobreventa o doble reserva de un mismo bloque horario.
 - **FR-008**: Toda respuesta de error emitida por la API DEBE estructurarse bajo el estándar RFC 7807 Problem Details (`application/problem+json`).
 - **FR-009**: El sistema DEBE permitir citas con múltiples servicios secuenciales, calculando la duración total acumulada y asignando el tiempo de cabina correspondiente.
 - **FR-010**: El sistema DEBE soportar estados de cita: `Pendiente`, `Confirmada`, `En_Progreso`, `Completada`, `Cancelada`, `No_Asistio`.
@@ -110,8 +128,8 @@ Como administrador del salón, quiero registrar pagos en múltiples métodos (Ef
 - **FR-013**: El sistema DEBE registrar transacciones de pago soportando Efectivo, Tarjeta de Crédito/Débito y Transferencia Bancaria.
 - **FR-014**: El sistema DEBE emitir facturas con número correlativo único, fecha de emisión, subtotal, IVA (13%) y total desglosado.
 - **FR-015**: El sistema DEBE proveer un endpoint de Dashboard gerencial con métricas de citas del día, ingresos totales, estilistas activos y ticket promedio.
-- **FR-016**: La app móvil DEBE gestionar sus estados reactivos mediante el patrón BLoC (`flutter_bloc`) desacoplado de los widgets de presentación.
-- **FR-017**: Las imágenes de servicios y avatares de estilistas DEBEN almacenarse en buckets públicos de Supabase Storage (`servicios-imagenes`, `estilistas-avatares`).
+- **FR-016**: La app móvil DEBE gestionar sus estados reactivos mediante el patrón BLoC (`flutter_bloc`) desacoplado de los widgets de presentación, almacenando el JWT de forma segura en Keystore/Keychain vía `flutter_secure_storage`.
+- **FR-017**: Las imágenes de servicios y avatares de estilistas DEBEN almacenarse en buckets públicos de Supabase Storage (`servicios-imagenes`, `estilistas-avatares`, `categorias-imagenes`).
 
 ---
 

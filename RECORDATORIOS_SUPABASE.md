@@ -1,4 +1,4 @@
-# 📋 Recordatorios y Guía de Configuración en Supabase — Shushine Studio
+# 📋 Recordatorios y Guía de Configuración en Supabase — Shunshine Studio
 
 > **Ubicación:** Raíz del proyecto (`RECORDATORIOS_SUPABASE.md`)  
 > **Objetivo:** Documentar todas las acciones manuales, configuraciones del panel y scripts SQL que deben ejecutarse en la consola de **Supabase** para garantizar la integración fluida con la **Web API C#** y la **App Móvil Flutter**.
@@ -12,7 +12,7 @@
 3. [Inyección de Roles en el JWT (Supabase Auth Hook)](#3-inyección-de-roles-en-el-jwt-supabase-auth-hook)
 4. [Protección RLS (Row Level Security)](#4-protección-rls-row-level-security)
 5. [Ajustes de Autenticación en el Dashboard](#5-ajustes-de-autenticación-en-el-dashboard)
-6. [Almacenamiento de Archivos (Supabase Storage)](#6-almacenamiento-de-archivos-supabase-storage)
+6. [Almacenamiento de Archivos (Supabase Storage - 6 Buckets)](#6-almacenamiento-de-archivos-supabase-storage---6-buckets)
 7. [Extracción de Secretos para Variables de Entorno](#7-extracción-de-secretos-para-variables-de-entorno)
 
 ---
@@ -20,8 +20,9 @@
 ## 1. Ejecución del Script DDL de Base de Datos
 
 * **Dónde:** Panel de Supabase $\rightarrow$ Menú lateral **SQL Editor** $\rightarrow$ **+ New query**.
-* **Qué hacer:** Copiar y ejecutar todo el script DDL documentado en [`docs/DIAGRAMA_BASE_DE_DATOS.md`](./docs/DIAGRAMA_BASE_DE_DATOS.md#4-script-ddl-para-supabase-postgresql).
-* **Verificación:** Ir a **Table Editor** y comprobar que existan las 12 tablas (`roles`, `usuarios`, `clientes`, `estilistas`, `servicios`, `reservas`, etc.).
+* **Qué hacer:** Copiar y ejecutar todo el script DDL documentado en [`docs/DIAGRAMA_BASE_DE_DATOS.md`](./docs/DIAGRAMA_BASE_DE_DATOS.md#4-script-ddl-para-supabase-postgresql-15) o [`docs/migration_23_tables_shunshine.sql`](./docs/migration_23_tables_shunshine.sql).
+* **Verificación:** Ir a **Table Editor** y comprobar que existan las **23 tablas**:
+  * `roles`, `usuarios`, `clientes`, `categorias`, `servicios`, `productos`, `estilistas`, `estilista_servicios`, `horarios_estilistas`, `bloqueos_horarios`, `personal_portafolios`, `citas`, `cita_servicios`, `solicitudes_diseno`, `cotizaciones`, `mensajes_chat_cita`, `resenas`, `transacciones_puntos`, `servicio_productos_rec`, `favoritos`, `pagos`, `facturas`, `auditoria_logs`.
 
 ---
 
@@ -41,9 +42,7 @@ await supabase.auth.signUp(
 ```
 Supabase crea el usuario en la tabla interna `auth.users`, pero **no** en `public.usuarios` ni en `public.clientes`. Sin un trigger, el usuario existirá para iniciar sesión pero no tendrá perfil de cliente en la base de datos del negocio.
 
-### ✅ La Solución (Ejecutar en el SQL Editor de Supabase)
-
-Ejecuta la siguiente función y trigger en el **SQL Editor**:
+### ✅ La Solución (Ejecutada automáticamente en la migración oficial)
 
 ```sql
 -- 1. Función que inserta automáticamente en public.usuarios y public.clientes
@@ -55,20 +54,20 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
     v_id_rol_cliente INT;
-    v_id_usuario INT;
     v_nombre_completo VARCHAR(150);
     v_telefono VARCHAR(20);
+    v_cliente_existente_id INT;
 BEGIN
-    -- Obtener el id del rol 'Cliente'
+    -- Obtener el ID del rol 'Cliente'
     SELECT id_rol INTO v_id_rol_cliente FROM public.roles WHERE nombre = 'Cliente' LIMIT 1;
     
-    -- Extraer metadatos enviados desde la app móvil (si vienen nulos, colocar valores por defecto)
+    -- Extraer metadatos de auth.users
     v_nombre_completo := COALESCE(NEW.raw_user_meta_data->>'nombre_completo', split_part(NEW.email, '@', 1));
     v_telefono := COALESCE(NEW.raw_user_meta_data->>'telefono', '');
 
-    -- Insertar en public.usuarios vinculando el UUID de auth.users
+    -- Insertar en public.usuarios con id_usuario = NEW.id (UUID)
     INSERT INTO public.usuarios (
-        auth_user_id,
+        id_usuario,
         id_rol,
         nombre_completo,
         correo,
@@ -84,18 +83,39 @@ BEGIN
         v_telefono,
         TRUE,
         NOW()
-    )
-    RETURNING id_usuario INTO v_id_usuario;
-
-    -- Crear automáticamente el perfil en public.clientes
-    INSERT INTO public.clientes (
-        id_usuario,
-        nivel_fidelidad
-    )
-    VALUES (
-        v_id_usuario,
-        'Nivel Oro'
     );
+
+    -- Verificar si ya existía un cliente walk-in con el mismo teléfono para asociarlo retrospectivamente
+    IF v_telefono <> '' THEN
+        SELECT id_cliente INTO v_cliente_existente_id 
+        FROM public.clientes 
+        WHERE telefono_walkin = v_telefono AND id_usuario IS NULL 
+        LIMIT 1;
+    END IF;
+
+    IF v_cliente_existente_id IS NOT NULL THEN
+        -- Vincular cliente walk-in existente a la nueva cuenta
+        UPDATE public.clientes 
+        SET id_usuario = NEW.id,
+            es_walkin = FALSE
+        WHERE id_cliente = v_cliente_existente_id;
+    ELSE
+        -- Crear nuevo perfil de cliente
+        INSERT INTO public.clientes (
+            id_usuario,
+            nivel_fidelidad,
+            puntos_acumulados,
+            es_walkin,
+            fecha_creacion
+        )
+        VALUES (
+            NEW.id,
+            'Bronce',
+            0,
+            FALSE,
+            NOW()
+        );
+    END IF;
 
     RETURN NEW;
 END;
@@ -114,11 +134,11 @@ CREATE TRIGGER on_auth_user_created
 ## 3. Inyección de Roles en el JWT (Supabase Auth Hook)
 
 ### ⚠️ El Problema
-Por defecto, el token JWT de Supabase contiene claims como `sub`, `email` y `aud`, pero **no incluye el claim `"role"` con el rol del negocio** (`Cliente`, `Administrador`, `Estilista`). Esto complica la autorización en ASP.NET Core con atributos como `[Authorize(Roles = "Administrador")]`.
+Por defecto, el token JWT de Supabase contiene claims como `sub`, `email` y `aud`, pero **no incluye el claim `"role"` con el rol del negocio** (`Cliente`, `Administrador`, `Recepcionista`). Esto complica la autorización en ASP.NET Core con atributos como `[Authorize(Roles = "Administrador")]`.
 
 ### ✅ La Solución (Auth Hook en PostgreSQL)
 
-Supabase permite usar un **Custom Access Token Hook** para inyectar claims en el JWT antes de emitirlo. Ejecuta este script en el SQL Editor:
+Supabase permite usar un **Custom Access Token Hook** para inyectar claims en el JWT antes de emitirlo.
 
 ```sql
 -- Función Hook para agregar rol y id_usuario a los claims del JWT
@@ -130,9 +150,7 @@ AS $$
 DECLARE
     claims jsonb;
     user_role text;
-    internal_user_id int;
 BEGIN
-    -- Consultar el nombre del rol en nuestra tabla public.usuarios
     SELECT r.nombre
     INTO user_role
     FROM public.usuarios u
@@ -142,10 +160,7 @@ BEGIN
     claims := event->'claims';
 
     IF user_role IS NOT NULL THEN
-        -- Inyectar 'role' e 'id_usuario' directamente en los claims
         claims := jsonb_set(claims, '{user_role}', to_jsonb(user_role));
-        claims := jsonb_set(claims, '{internal_user_id}', to_jsonb(internal_user_id));
-        -- Inyectar también en standard claim de roles
         claims := jsonb_set(claims, '{role}', to_jsonb(user_role));
     END IF;
 
@@ -169,8 +184,8 @@ REVOKE EXECUTE ON FUNCTION public.custom_access_token_hook FROM authenticated, a
 ## 4. Protección RLS (Row Level Security)
 
 * La app móvil posee la clave pública `anon_key` para conectarse a Supabase Auth.
-* Para evitar que un usuario malintencionado haga llamadas HTTP directas a la API REST de Supabase (`https://<id>.supabase.co/rest/v1/...`) y se salte la API en C#:
-  * **Verificación:** Asegurarse de que en **Authentication $\rightarrow$ Policies** todas las tablas del esquema `public` tengan la etiqueta **"RLS Enabled"** y **0 políticas anónimas**.
+* Para evitar que un usuario haga llamadas HTTP directas a la API REST de Supabase (`https://<id>.supabase.co/rest/v1/...`) y se salte la lógica de negocio de la API en C#:
+  * **Verificación:** Todas las 23 tablas del esquema `public` tienen la etiqueta **"RLS Enabled"** y **0 políticas anónimas directas de escritura**.
   * La **Web API en C# se conecta por PostgreSQL Connection String** (rol `postgres`), por lo cual tiene acceso total para transacciones y validaciones de negocio, ignorando las restricciones que bloquean al cliente móvil directo.
 
 ---
@@ -179,7 +194,7 @@ REVOKE EXECUTE ON FUNCTION public.custom_access_token_hook FROM authenticated, a
 
 Ir a **Authentication** $\rightarrow$ **Providers** $\rightarrow$ **Email**:
 1. **Confirm email:** 
-   * Para **Desarrollo/Testing**: Se recomienda desactivar temporalmente el toggle *"Confirm email"* para que Alex y Camila puedan registrar clientes y probar el login inmediatamente sin esperar correos de activación.
+   * Para **Desarrollo/Testing**: Desactivar temporalmente el toggle *"Confirm email"* para que Alex y Camila puedan registrar clientes y probar el login inmediatamente sin esperar correos de activación.
    * Para **Producción**: Activar *"Confirm email"*.
 2. **Secure password requirements:**
    * Longitud mínima recomendada: 6 u 8 caracteres.
@@ -188,15 +203,18 @@ Ir a **Authentication** $\rightarrow$ **Providers** $\rightarrow$ **Email**:
 
 ---
 
-## 6. Almacenamiento de Archivos (Supabase Storage)
+## 6. Almacenamiento de Archivos (Supabase Storage - 6 Buckets)
 
-Para alojar fotos del catálogo de servicios y fotos de perfil de estilistas:
-1. Ir a **Storage** en el menú lateral de Supabase.
-2. Crear dos Buckets nuevos:
-   * 📁 `servicios-imagenes` (Marcar como **Public bucket** para que las URLs sean accesibles directamente por la app móvil).
-   * 📁 `estilistas-avatares` (Marcar como **Public bucket**).
-3. Configurar política de lectura pública:
-   * Policy: `Allow public read access` en ambos buckets.
+Se encuentran configurados los 6 buckets en Supabase Storage:
+
+| Bucket | Finalidad | Acceso Lectura | Acceso Escritura | Tamaño Máx. | Formatos |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **`servicios-imagenes`** | Fichas ilustrativas del catálogo | Público (`anon`) | Solo Admin (`role = Admin`) | 5 MB | JPG, PNG, WebP |
+| **`categorias-imagenes`** | Banners e íconos de categorías | Público (`anon`) | Solo Admin (`role = Admin`) | 2 MB | JPG, PNG, WebP |
+| **`personal-avatares`** | Avatares y fotos del personal | Público (`anon`) | Solo Admin (`role = Admin`) | 2 MB | JPG, PNG, WebP |
+| **`personal-portafolio`** | Galería de trabajos realizados | Público (`anon`) | Solo Admin (`role = Admin`) | 5 MB | JPG, PNG, WebP |
+| **`productos-imagenes`** | Fotos de productos de inventario | Público (`anon`) | Solo Admin (`role = Admin`) | 5 MB | JPG, PNG, WebP |
+| **`disenos-referencias`** | Referencias privadas para cotizar | Privado (Propietaria + Admin) | Solo Cliente (`/uid/*`) y Admin | 5 MB | JPG, PNG, WebP |
 
 ---
 
@@ -228,7 +246,7 @@ SUPABASE_ANON_KEY=eyJhbGciOi...
 API_BASE_URL=http://localhost:5000/api
 ```
 
-### Formato URI para Prisma / Scripts de Migración:
+### Formato URI para Scripts de Migración y Herramientas:
 ```bash
 postgresql://postgres.acikahicfjtojuvqcvxv:<TU_PASSWORD_DB>@aws-0-us-east-1.pooler.supabase.com:5432/postgres
 ```

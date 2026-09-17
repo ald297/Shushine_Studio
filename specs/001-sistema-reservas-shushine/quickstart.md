@@ -1,102 +1,119 @@
-# Quickstart Validation Guide: Sistema Móvil de Gestión y Reservas Shushine Studio
+# Guía Rápida de Pruebas y Validación: Shushine Studio API & Móvil
 
-**Feature**: `001-sistema-reservas-shushine`  
-**Date**: 2026-09-11  
-**Status**: Ready for Execution  
+> **Propósito:** Guía paso a paso para que el docente de ESFE AGAPE o cualquier evaluador pueda ejecutar el backend, validar los datos del semillero automático (`DataInitializer`), probar los endpoints interactivos con JWT en Swagger UI, ejecutar las pruebas unitarias y conectar la aplicación móvil en Flutter.
 
 ---
 
 ## 1. Prerrequisitos de Entorno
 
-* **.NET SDK:** .NET 8.0 o 9.0 instalado (`dotnet --version`).
+* **Java SDK:** Java 21 LTS (`java -version`) con Maven o Wrapper (`mvnw`), y/o **.NET SDK:** .NET 8.0/9.0 (`dotnet --version`).
 * **Flutter SDK:** Flutter 3.19+ con Dart 3.3+ (`flutter --version`).
-* **Supabase CLI / Acceso:** Organización activa en Supabase con PostgreSQL y Supabase Auth habilitados.
-* **Herramientas de prueba:** `curl` o Postman / ThunderClient para validación HTTP, y un emulador Android/iOS o navegador Chrome para Flutter.
+* **Navegador Web:** Chrome / Brave / Edge para Swagger UI y consola H2.
+* **Dispositivo / Emulador:** Emulador Android / iOS o dispositivo físico para la app móvil.
 
 ---
 
-## 2. Configuración Inicial del Proyecto
+## 2. Puesta en Marcha del Backend y Semillero Automático
 
-### 2.1 Variables de Entorno del Backend (ASP.NET Core)
-En la carpeta del proyecto de API o mediante `dotnet user-secrets`:
+Al iniciar el backend, el componente **`DataInitializer`** detecta automáticamente si las tablas en **PostgreSQL Supabase** están vacías e inserta:
+* **Roles estipulados de Shushine Studio:** `ADMIN` y `CLIENTE` (con soporte para `RECEPCIONISTA`).
+* **Usuarios de prueba:**
+  * **Administrador del Salón:** Usuario: `admin` | Contraseña: `admin123` (Rol: `ADMIN`)
+  * **Cliente del Salón:** Usuario: `cliente` | Contraseña: `cliente123` (Rol: `CLIENTE`)
+* **Datos de prueba del salón:** Categorías de belleza (*"Corte y Peinado"*, *"Colorimetría"*, *"Uñas y Manicura"*, *"Cuidado Facial"*), servicios base con duración y tarifas, estilistas y citas de demostración.
+
+### 2.1 Ejecutar el Backend
+
 ```bash
-dotnet user-secrets set "ConnectionStrings:SupabasePostgres" "Host=aws-0-us-east-1.pooler.supabase.com;Port=6543;Database=postgres;Username=postgres.acikahicfjtojuvqcvxv;Password=TU_PASSWORD_AQUI;SSL Mode=Require;Trust Server Certificate=true"
-dotnet user-secrets set "Jwt:Authority" "https://acikahicfjtojuvqcvxv.supabase.co/auth/v1"
-dotnet user-secrets set "Jwt:Audience" "authenticated"
+# En el directorio del backend (Java 21 / Spring Boot 3.3.3):
+./mvnw spring-boot:run
 ```
 
-### 2.2 Variables de Compilación en Flutter
-Ejecutar la app móvil pasando los parámetros seguros de Supabase:
-```bash
-flutter run --dart-define=SUPABASE_URL=https://acikahicfjtojuvqcvxv.supabase.co \
-            --dart-define=SUPABASE_ANON_KEY=TU_ANON_KEY_PUBLICA \
-            --dart-define=API_BASE_URL=http://localhost:5000/api
-```
+* **Puerto por defecto:** `http://localhost:8080`
+* **Conexión a Base de Datos:** PostgreSQL en Supabase (AWS Pooler directo).
 
 ---
 
-## 3. Escenarios de Validación de Punta a Punta (E2E)
+## 3. Pruebas Interactivas de Endpoints con Swagger UI
 
-### Escenario 1: Verificación de Catálogo de Servicios (Público)
-```bash
-# 1. Consultar categorías activas
-curl -X GET "http://localhost:5000/api/categories" -H "Accept: application/json"
+El proyecto cuenta con **OpenAPI / Swagger UI con soporte Bearer Token** idéntico a la guía de referencia de ESFE AGAPE.
 
-# 2. Consultar servicios filtrados por categoría de cabello (ID: 1)
-curl -X GET "http://localhost:5000/api/services?categoryId=1" -H "Accept: application/json"
+### Paso 1: Abrir Swagger UI
+Abrir en el navegador:
 ```
-* **Resultado Esperado:** Código HTTP `200 OK` con arreglo de categorías y servicios con precios y tiempos de duración en minutos.
+http://localhost:8080/swagger-ui/index.html
+```
+
+### Paso 2: Autenticación y Obtención de Token JWT
+1. En Swagger, buscar la sección **`Auth`** y desplegar `POST /api/auth/login`.
+2. Presionar **"Try it out"** y enviar las credenciales del Administrador:
+   ```json
+   {
+     "login": "admin",
+     "clave": "admin123"
+   }
+   ```
+3. Presionar **"Execute"**. En la respuesta (código `200 OK`) se recibirá:
+   ```json
+   {
+     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+   }
+   ```
+4. Copiar únicamente el valor del token.
+
+### Paso 3: Autorizar la Sesión en Swagger
+1. Subir al inicio de la página de Swagger y hacer clic en el botón verde **"Authorize"** (con el candado).
+2. Pegar el token copiado en el campo `Value` y hacer clic en **"Authorize"**.
+3. Cerrar el modal. Ahora todas las peticiones incluirán automáticamente la cabecera:
+   `Authorization: Bearer <token>`
+
+### Paso 4: Probar Endpoints CRUD y Paginados
+* **Consultar Categorías (Paginado):** Desplegar `GET /api/categorias`, indicar `page = 0`, `size = 10` y presionar **"Execute"**.
+* **Consultar Categorías (Lista Rápida):** Desplegar `GET /api/categorias/lista` y presionar **"Execute"**.
+* **Crear Nuevo Servicio / Categoría:** Desplegar `POST /api/categorias` con el DTO `CategoriaGuardar`:
+  ```json
+  {
+    "nombre": "Tratamientos Capilares Avanzados"
+  }
+  ```
+* **Verificar Control de Roles (RBAC):**
+  * Si te autenticas con el usuario `user` (`user123`), las peticiones `GET` responderán `200 OK`, mientras que peticiones `POST`, `PUT` o `DELETE` responderán `403 Forbidden`.
 
 ---
 
-### Escenario 2: Verificación del Motor de Disponibilidad de Estilistas
+## 4. Ejecución de la Suite de Pruebas Unitarias
+
+Siguiendo el estándar de la guía de ESFE AGAPE, la lógica de negocio en la capa de servicios cuenta con pruebas unitarias secuenciales (`t1_crear` a `t6_eliminarPorId`):
+
 ```bash
-# Consultar disponibilidad de un estilista para una fecha específica con servicio de 60 minutos
-curl -X GET "http://localhost:5000/api/stylists/1/availability?date=2026-09-15&serviceDuration=60" \
-     -H "Accept: application/json"
+# Ejecutar todas las pruebas unitarias:
+./mvnw test
+
+# O en .NET:
+dotnet test
 ```
-* **Resultado Esperado:** Código HTTP `200 OK` con los slots horarios libres (`09:00`, `10:00`, etc.) excluyendo horas de almuerzo y citas previamente registradas.
+
+### Verificación de Pruebas:
+* `t1_crear()`: Valida que el servicio cree la entidad a partir del DTO `Guardar` y no retorne nulo.
+* `t2_obtenerTodos()`: Valida que la lista general contenga registros.
+* `t3_obtenerTodosPaginados()`: Valida que el objeto `Page<T>` retorne elementos con metadatos.
+* `t4_obtenerPorId()`: Valida la búsqueda individual por identificador.
+* `t5_editar()`: Valida la modificación de datos mediante el DTO `Modificar`.
+* `t6_eliminarPorId()`: Valida que la eliminación no lance excepciones.
 
 ---
 
-### Escenario 3: Creación Transaccional de Cita con Token JWT de Supabase
-```bash
-# Enviar reserva con token de autenticación
-curl -X POST "http://localhost:5000/api/appointments" \
-     -H "Authorization: Bearer <SUPABASE_JWT_TOKEN>" \
-     -H "Content-Type: application/json" \
-     -d '{
-       "stylistId": 1,
-       "appointmentDate": "2026-09-15",
-       "startTime": "10:00:00",
-       "serviceIds": [1],
-       "notes": "Prueba de validacion rapida"
-     }'
-```
-* **Resultado Esperado:** Código HTTP `201 Created` con el código generado (ej. `'SHU-2026-0001'`), estado `'Confirmada'`, subtotal y desglose de IVA (13%).
+## 5. Conexión de la Aplicación Móvil (Flutter)
 
----
+La app móvil en Flutter consume los mismos endpoints que Swagger mediante su cliente HTTP con **`Dio`**:
 
-### Escenario 4: Verificación de Prevención de Doble Reserva (Control de Concurrencia)
 ```bash
-# Reintentar la misma petición con el mismo estilista, fecha y hora inmediatamente
-curl -X POST "http://localhost:5000/api/appointments" \
-     -H "Authorization: Bearer <SUPABASE_JWT_TOKEN>" \
-     -H "Content-Type: application/json" \
-     -d '{
-       "stylistId": 1,
-       "appointmentDate": "2026-09-15",
-       "startTime": "10:00:00",
-       "serviceIds": [1]
-     }'
+# Ejecutar la app móvil configurando la URL base de la API:
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080/api
+# (Usar 10.0.2.2 para emulador Android local, o la IP local de tu PC para dispositivo físico)
 ```
-* **Resultado Esperado:** Código HTTP `409 Conflict` estructurado en formato RFC 7807 (`application/problem+json`):
-```json
-{
-  "type": "https://httpstatuses.io/409",
-  "title": "Conflict",
-  "status": 409,
-  "detail": "El estilista seleccionado ya no tiene disponible la franja horaria solicitada.",
-  "instance": "/api/appointments"
-}
-```
+
+1. La pantalla de **Login** de Flutter consume `POST /api/auth/login`.
+2. El token JWT retornado es almacenado de forma segura en `FlutterSecureStorage`.
+3. El interceptor `ErrorInterceptor` de Dio adjunta automáticamente el token en cada llamada subsecuente (`GET /api/servicios`, `POST /api/citas`, etc.).
+4. Si el token expira (error 401), el interceptor redirige al usuario a la pantalla de Login de forma transparente.

@@ -4,20 +4,20 @@
 
 ### I. Clean Architecture & Layer Decoupling (NON-NEGOTIABLE)
 - **Frontend (Flutter):** Divided strictly into `Presentation` (Widgets & BLoCs), `Domain` (Entities, UseCases, Repo Contracts - Pure Dart), and `Data` (DTOs, DataSources, Repo Implementations).
-- **Backend (ASP.NET Core):** Strict separation of `Controllers` (thin, routing & validation), `Application/Services` (business logic & transactions), and `Infrastructure/Data` (EF Core with Npgsql).
+- **Backend (Spring Boot 3.3.3):** Strict separation of `Controllers` (thin, routing & validation), `Services` (business logic, transaction management & DTO mapping via ModelMapper), `Repositories` (Spring Data JPA), and `Models` under domain package `com.shushinestudio`.
 - **Dependency Inversion:** High-level policy must never depend on low-level details; dependencies always point inward.
 
 ### II. Single Source of Truth (Backend Authority)
-- The C# ASP.NET Core Web API is the **sole authority** for business logic, price/tax calculation, stylist availability computation, and concurrency management.
+- The Spring Boot Web API is the **sole authority** for business logic, price/tax calculation, stylist availability computation, and concurrency management.
 - The mobile app is a presentation client. It collects user input and renders API responses. It **never** computes availability or approves appointments on its own.
 
 ### III. Database Isolation & Security First
-- The mobile client **never** queries `public.*` PostgreSQL tables directly. All business reads and writes pass through the C# Web API.
-- Supabase SDK on the mobile client is strictly restricted to **Supabase Auth** (login, register, token refresh).
-- Row Level Security (RLS) is enabled across all public tables to prevent unauthorized direct client access.
+- The mobile client **never** queries `public.*` PostgreSQL tables directly. All business reads and writes pass through the Web API.
+- All authentication uses JWT issued and validated by the backend with Spring Security 6 and BCrypt password encryption, using Supabase Storage for media assets.
+- Row Level Security (RLS) is enabled across all public tables in Supabase PostgreSQL to prevent unauthorized direct client access.
 
 ### IV. Standardized Contracts & Error Handling (RFC 7807)
-- All client-server communication adheres strictly to documented **OpenAPI/Swagger** contracts using `camelCase` JSON.
+- All client-server communication adheres strictly to documented **OpenAPI/Swagger** contracts using `camelCase` JSON and Bearer JWT authentication.
 - Error handling conforms strictly to **RFC 7807 Problem Details** (`application/problem+json`). Arbitrary error payloads are strictly prohibited.
 - The mobile HTTP interceptor automatically handles `401 Unauthorized` via token refresh or redirects to login.
 
@@ -39,9 +39,9 @@
 
 ## Architectural Constraints & Technology Stack
 
-- **Mobile:** Flutter (Dart) with `flutter_bloc` state management and `dio` HTTP client.
-- **Backend:** C# ASP.NET Core (.NET 8/9), Entity Framework Core with `Npgsql.EntityFrameworkCore.PostgreSQL`.
-- **Database & BaaS:** Supabase (PostgreSQL relacional + Supabase Auth + Supabase Storage).
+- **Mobile:** Flutter (Dart) with `flutter_bloc` state management, `dio` HTTP client, and `flutter_secure_storage`.
+- **Backend:** Java 21 LTS, Spring Boot 3.3.3 under package `com.shushinestudio`, Spring Data JPA, Spring Security 6, JJWT 0.12.6, and ModelMapper.
+- **Database & Storage:** Supabase (PostgreSQL relacional directo via AWS Pooler + Supabase Storage).
 - **DevOps & Boards:** Azure DevOps (Azure Boards Scrum, Azure Repos Git).
 
 ## Governance
