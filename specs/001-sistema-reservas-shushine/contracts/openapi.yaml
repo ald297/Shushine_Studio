@@ -13,10 +13,48 @@ info:
 servers:
   - url: https://api.shushinestudio.com/api
     description: Servidor de Producción / Staging
-  - url: http://localhost:5000/api
-    description: Servidor Local de Desarrollo
+  - url: http://localhost:8080/api
+    description: Servidor Local de Desarrollo (Spring Boot)
 
 paths:
+  /auth/login:
+    post:
+      summary: Iniciar sesión con credenciales y obtener token JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Autenticación exitosa y retorno de token JWT
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /auth/registro:
+    post:
+      summary: Registrar una nueva cuenta de cliente y obtener token JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Cuenta creada con éxito y retorno de token JWT
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
   /auth/me:
     get:
       summary: Obtener perfil del usuario autenticado
@@ -250,6 +288,56 @@ components:
       bearerFormat: JWT
 
   schemas:
+    LoginRequest:
+      type: object
+      required:
+        - login
+        - clave
+      properties:
+        login:
+          type: string
+          example: 'admin'
+        clave:
+          type: string
+          format: password
+          example: 'admin123'
+
+    RegisterRequest:
+      type: object
+      required:
+        - nombre
+        - apellido
+        - login
+        - clave
+        - rolId
+      properties:
+        nombre:
+          type: string
+          example: 'Camila'
+        apellido:
+          type: string
+          example: 'Calderón'
+        telefono:
+          type: string
+          example: '70001234'
+        login:
+          type: string
+          example: 'cliente'
+        clave:
+          type: string
+          format: password
+          example: 'cliente123'
+        rolId:
+          type: integer
+          example: 2
+
+    AuthTokenResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+
     ProblemDetails:
       type: object
       properties:

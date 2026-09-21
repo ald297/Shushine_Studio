@@ -27,7 +27,14 @@ build/
 .env.local
 .env.*.local
 appsettings.Development.json
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
 appsettings.Local.json
 *.secrets.json
-
-
