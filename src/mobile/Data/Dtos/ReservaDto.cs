@@ -8,63 +8,103 @@ public class ReservaDto
     [JsonPropertyName("id")]
     public long Id { get; set; }
 
+    [JsonPropertyName("codigoCita")]
+    public string CodigoCita { get; set; } = string.Empty;
+
     [JsonPropertyName("codigoReserva")]
-    public string CodigoReserva { get; set; } = string.Empty;
+    public string? CodigoReservaFallback { get; set; }
 
-    [JsonPropertyName("servicioId")]
-    public long ServicioId { get; set; }
+    [JsonPropertyName("clienteId")]
+    public long ClienteId { get; set; }
 
-    [JsonPropertyName("servicioNombre")]
-    public string ServicioNombre { get; set; } = string.Empty;
+    [JsonPropertyName("clienteNombre")]
+    public string? ClienteNombre { get; set; }
+
+    [JsonPropertyName("clienteTelefono")]
+    public string? ClienteTelefono { get; set; }
 
     [JsonPropertyName("estilistaId")]
     public long EstilistaId { get; set; }
 
     [JsonPropertyName("estilistaNombre")]
-    public string EstilistaNombre { get; set; } = string.Empty;
+    public string? EstilistaNombre { get; set; }
 
-    [JsonPropertyName("fechaHoraInicio")]
-    public DateTime FechaHoraInicio { get; set; }
+    [JsonPropertyName("fechaCita")]
+    public string FechaCita { get; set; } = string.Empty;
 
-    [JsonPropertyName("fechaHoraFin")]
-    public DateTime FechaHoraFin { get; set; }
+    [JsonPropertyName("horaInicio")]
+    public string HoraInicio { get; set; } = string.Empty;
 
-    [JsonPropertyName("total")]
-    public decimal Total { get; set; }
+    [JsonPropertyName("horaFin")]
+    public string HoraFin { get; set; } = string.Empty;
 
     [JsonPropertyName("estado")]
     public string Estado { get; set; } = "PENDIENTE";
 
+    [JsonPropertyName("subtotal")]
+    public decimal Subtotal { get; set; }
+
+    [JsonPropertyName("iva")]
+    public decimal Iva { get; set; }
+
+    [JsonPropertyName("total")]
+    public decimal Total { get; set; }
+
+    [JsonPropertyName("metodoPagoPreferente")]
+    public string? MetodoPagoPreferente { get; set; }
+
+    [JsonPropertyName("estadoPago")]
+    public string? EstadoPago { get; set; }
+
+    [JsonPropertyName("notasCliente")]
+    public string? NotasCliente { get; set; }
+
     [JsonPropertyName("notas")]
-    public string? Notas { get; set; }
+    public string? NotasFallback { get; set; }
+
+    [JsonPropertyName("serviciosNombres")]
+    public List<string>? ServiciosNombres { get; set; }
 
     public Reserva ToEntity() => new()
     {
         Id = Id,
-        CodigoReserva = CodigoReserva,
-        ServicioId = ServicioId,
-        ServicioNombre = ServicioNombre,
+        CodigoCita = !string.IsNullOrEmpty(CodigoCita) ? CodigoCita : (CodigoReservaFallback ?? string.Empty),
+        ClienteId = ClienteId,
+        ClienteNombre = ClienteNombre ?? string.Empty,
+        ClienteTelefono = ClienteTelefono,
         EstilistaId = EstilistaId,
-        EstilistaNombre = EstilistaNombre,
-        FechaHoraInicio = FechaHoraInicio,
-        FechaHoraFin = FechaHoraFin,
-        Total = Total,
+        EstilistaNombre = EstilistaNombre ?? string.Empty,
+        FechaCita = FechaCita,
+        HoraInicio = HoraInicio,
+        HoraFin = HoraFin,
         Estado = Estado,
-        Notas = Notas
+        Subtotal = Subtotal,
+        Iva = Iva,
+        Total = Total,
+        MetodoPagoPreferente = MetodoPagoPreferente ?? "Efectivo",
+        EstadoPago = EstadoPago ?? "PENDIENTE",
+        Notas = NotasCliente ?? NotasFallback,
+        ServiciosNombres = ServiciosNombres ?? new List<string>()
     };
 }
 
 public class CrearReservaRequestDto
 {
-    [JsonPropertyName("servicioId")]
-    public long ServicioId { get; set; }
-
     [JsonPropertyName("estilistaId")]
-    public long? EstilistaId { get; set; }
+    public long EstilistaId { get; set; }
 
-    [JsonPropertyName("fechaHoraInicio")]
-    public DateTime FechaHoraInicio { get; set; }
+    [JsonPropertyName("fechaCita")]
+    public string FechaCita { get; set; } = string.Empty; // "yyyy-MM-dd"
 
-    [JsonPropertyName("notas")]
-    public string? Notas { get; set; }
+    [JsonPropertyName("horaInicio")]
+    public string HoraInicio { get; set; } = string.Empty; // "HH:mm"
+
+    [JsonPropertyName("servicioIds")]
+    public List<int> ServicioIds { get; set; } = new();
+
+    [JsonPropertyName("notasCliente")]
+    public string? NotasCliente { get; set; }
+
+    [JsonPropertyName("metodoPagoPreferente")]
+    public string MetodoPagoPreferente { get; set; } = "Efectivo";
 }

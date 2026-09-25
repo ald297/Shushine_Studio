@@ -66,7 +66,9 @@ public static class MauiProgram
 		builder.Services.AddTransient<GetServiciosCatalogUseCase>();
 		builder.Services.AddTransient<GetEstilistasUseCase>();
 		builder.Services.AddTransient<GetDisponibilidadUseCase>();
+		builder.Services.AddTransient<GetMyAppointmentsUseCase>();
 		builder.Services.AddTransient<CreateAppointmentUseCase>();
+		builder.Services.AddTransient<CancelAppointmentUseCase>();
 
 		// ==========================================
 		// 5. ViewModels (Presentation Layer)
