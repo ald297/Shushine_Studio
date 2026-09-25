@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Builder
@@ -13,7 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UsuarioToken {
     private String token;
-    private Integer id;
+    private UUID id;
     private String login;
     private String nombre;
     private String rol;

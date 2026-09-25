@@ -102,10 +102,10 @@ Como administrador del salón, quiero registrar pagos en múltiples métodos (Ef
 ## Edge Cases
 
 - **Colisión Concurrente de Slots:** Dos clientes presionan "Confirmar" exactamente al mismo tiempo sobre el mismo estilista y horario. *Solución:* Nivel de aislamiento serializable o bloqueo pesimista en base de datos (`SELECT FOR UPDATE`), devolviendo error RFC 7807 (409 Conflict) al segundo usuario.
-- **Expiración de Sesión en Flujo de Pago:** El token JWT expira mientras el usuario está en la pantalla de confirmación. *Solución:* Interceptor de Dio intercepta el 401, solicita refresco a Supabase Auth en segundo plano y reintenta la petición original transparentemente.
+- **Expiración de Sesión en Flujo de Pago:** El token JWT expira mientras el usuario está en la pantalla de confirmación. *Solución:* DelegatingHandler en HttpClient intercepta el 401, solicita refresco a Supabase Auth en segundo plano y reintenta la petición original transparentemente.
 - **Cancelación Tardía:** Un cliente intenta cancelar su cita faltando menos de 2 horas para la hora pactada. *Solución:* La API valida la política de tiempo mínimo y rechaza la cancelación con mensaje indicando que debe comunicarse por vía telefónica con el salón.
 - **Indisponibilidad Imprevista del Estilista:** Un estilista reporta incapacidad médica. *Solución:* El administrador registra un `bloqueo_horario` sobre el estilista, notificando a las citas afectadas para reasignación o reprogramación.
-- **Pérdida de Conectividad Móvil:** La app pierde señal durante el envío de una reserva. *Solución:* Manejo de timeouts (10s), reintentos controlados con idempotency key y persistencia de estado local con BLoC para no duplicar reservas.
+- **Pérdida de Conectividad Móvil:** La app pierde señal durante el envío de una reserva. *Solución:* Manejo de timeouts (10s), reintentos controlados con idempotency key y persistencia de estado local en el ViewModel para no duplicar reservas.
 
 ---
 
@@ -128,7 +128,7 @@ Como administrador del salón, quiero registrar pagos en múltiples métodos (Ef
 - **FR-013**: El sistema DEBE registrar transacciones de pago soportando Efectivo, Tarjeta de Crédito/Débito y Transferencia Bancaria.
 - **FR-014**: El sistema DEBE emitir facturas con número correlativo único, fecha de emisión, subtotal, IVA (13%) y total desglosado.
 - **FR-015**: El sistema DEBE proveer un endpoint de Dashboard gerencial con métricas de citas del día, ingresos totales, estilistas activos y ticket promedio.
-- **FR-016**: La app móvil DEBE gestionar sus estados reactivos mediante el patrón BLoC (`flutter_bloc`) desacoplado de los widgets de presentación, almacenando el JWT de forma segura en Keystore/Keychain vía `flutter_secure_storage`.
+- **FR-016**: La app móvil DEBE gestionar sus estados reactivos mediante el patrón MVVM (`CommunityToolkit.Mvvm`) desacoplado de las vistas XAML, almacenando el JWT de forma segura en almacenamiento protegido vía `Microsoft.Maui.Storage.SecureStorage`.
 - **FR-017**: Las imágenes de servicios y avatares de estilistas DEBEN almacenarse en buckets públicos de Supabase Storage (`servicios-imagenes`, `estilistas-avatares`, `categorias-imagenes`).
 
 ---

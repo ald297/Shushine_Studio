@@ -64,30 +64,30 @@ backlog_tree = [
                 ]
             },
             {
-                "title": "US-1.02: Inicialización de la Web API en C# ASP.NET Core",
+                "title": "US-1.02: Inicialización de la Web API en Java Spring Boot 3.3.3",
                 "assigned": ALEX,
                 "points": 5,
-                "desc": "Crear la solución en .NET 8/9 con Clean Architecture y soporte para Npgsql, Swagger y RFC 7807.",
-                "criteria": "Conexion Npgsql exitosa. Middleware RFC 7807 activo. Validacion JWT Supabase operativa. Swagger OpenAPI disponible.",
+                "desc": "Crear el proyecto Spring Boot 3.3.3 con arquitectura en capas (com.shushinestudio), JPA, Swagger y RFC 7807.",
+                "criteria": "Conexión PostgreSQL en Supabase exitosa. ExceptionHandler RFC 7807 activo. Validación JWT operativa. Swagger OpenAPI disponible.",
                 "tasks": [
-                    {"title": "TSK-1.02.1: Scaffolding de solución .NET 8/9 con Clean Architecture", "assigned": ALEX, "hours": 4, "desc": "Crear proyectos Api, Application, Domain, Infrastructure y referencias."},
-                    {"title": "TSK-1.02.2: Configurar DbContext con Npgsql EF Core y conexión a Supabase", "assigned": ALEX, "hours": 4, "desc": "Instalar Npgsql.EntityFrameworkCore.PostgreSQL y mapear entidades."},
-                    {"title": "TSK-1.02.3: Configurar autenticación JwtBearer en Program.cs", "assigned": ALEX, "hours": 3, "desc": "Configurar JwtBearerOptions con URL de Supabase y JWT Secret."},
-                    {"title": "TSK-1.02.4: Configurar middleware global de excepciones y formato RFC 7807", "assigned": ALEX, "hours": 3, "desc": "Registrar AddProblemDetails() y ExceptionHandler global."},
+                    {"title": "TSK-1.02.1: Scaffolding de solución Java Spring Boot 3.3.3 con arquitectura en capas", "assigned": ALEX, "hours": 4, "desc": "Crear proyecto Maven con paquete com.shushinestudio (controladores, servicios, repositorios, modelos, DTOs)."},
+                    {"title": "TSK-1.02.2: Configurar DataSource con Spring Data JPA / PostgreSQL y conexión a Supabase", "assigned": ALEX, "hours": 4, "desc": "Configurar application.properties con HikariCP Pooler y mapear entidades JPA."},
+                    {"title": "TSK-1.02.3: Configurar Spring Security 6 y filtro JwtAuthenticationFilter", "assigned": ALEX, "hours": 3, "desc": "Configurar SecurityFilterChain con validación de tokens JJWT y autorización por roles."},
+                    {"title": "TSK-1.02.4: Configurar controlador global de excepciones con estándar RFC 7807 (ProblemDetail)", "assigned": ALEX, "hours": 3, "desc": "Implementar @RestControllerAdvice global para capturar excepciones de negocio y retornar ProblemDetail."},
                     {"title": "TSK-1.02.5: Configurar Swagger / OpenAPI con soporte para Bearer Token", "assigned": ALEX, "hours": 2, "desc": "Habilitar interfaz interactiva Swagger para pruebas de endpoints protegidos."}
                 ]
             },
             {
-                "title": "US-1.03: Inicialización de la App Móvil con Flutter y Clean Architecture",
+                "title": "US-1.03: Inicialización de la App Móvil con .NET MAUI y Clean Architecture (MVVM)",
                 "assigned": CAMILA,
                 "points": 3,
-                "desc": "Inicializar el proyecto Flutter configurando flutter_bloc, dio, get_it y temas visuales.",
-                "criteria": "Tema oficial configurado. Dio con interceptor RFC 7807 e inyeccion de token. Inyector GetIt operativo.",
+                "desc": "Inicializar el proyecto .NET MAUI configurando CommunityToolkit.Mvvm, HttpClient, DI y recursos de estilo.",
+                "criteria": "Tema oficial configurado. DelegatingHandler con interceptor RFC 7807 e inyección de token. Inyector DI operativo.",
                 "tasks": [
-                    {"title": "TSK-1.03.1: Inicializar proyecto Flutter y estructura Clean Architecture", "assigned": CAMILA, "hours": 3, "desc": "Crear estructura core, features, data, domain, presentation."},
-                    {"title": "TSK-1.03.2: Implementar AppTheme con paleta oficial de colores y fuentes", "assigned": CAMILA, "hours": 3, "desc": "Configurar colores Rosa, Blush, Lavanda y estilos de componentes."},
-                    {"title": "TSK-1.03.3: Configurar cliente Dio con interceptor de autenticación y errores RFC 7807", "assigned": CAMILA, "hours": 4, "desc": "Crear ErrorInterceptor para deserializar ProblemDetails y manejar 401."},
-                    {"title": "TSK-1.03.4: Configurar inyección de dependencias centralizada con GetIt", "assigned": CAMILA, "hours": 2, "desc": "Configurar injection_container.dart para DataSources y Repositorios."}
+                    {"title": "TSK-1.03.1: Inicializar proyecto .NET MAUI y estructura Clean Architecture (MVVM)", "assigned": CAMILA, "hours": 3, "desc": "Crear estructura Core, Data, Domain y Presentation (Views/ViewModels)."},
+                    {"title": "TSK-1.03.2: Implementar ResourceDictionary de estilos con paleta oficial de colores y fuentes", "assigned": CAMILA, "hours": 3, "desc": "Configurar colores Rosa, Blush, Lavanda y estilos XAML de controles."},
+                    {"title": "TSK-1.03.3: Configurar HttpClient con DelegatingHandler para autenticación y errores RFC 7807", "assigned": CAMILA, "hours": 4, "desc": "Crear DelegatingHandler para interceptar ProblemDetails y manejar 401."},
+                    {"title": "TSK-1.03.4: Configurar inyección de dependencias en MauiProgram.cs", "assigned": CAMILA, "hours": 2, "desc": "Registrar DataSources, Repositorios, ViewModels y Views en MauiProgram.cs."}
                 ]
             },
             {
@@ -120,8 +120,8 @@ backlog_tree = [
                 "desc": "Crear cuenta de cliente ingresando nombre completo, correo, teléfono y contraseña.",
                 "criteria": "Registro exitoso via Supabase Auth. Trigger crea registros en usuarios y clientes. Validación de correo duplicado.",
                 "tasks": [
-                    {"title": "TSK-2.01.1: Maquetar RegistroClienteView con validaciones de formulario", "assigned": CAMILA, "hours": 4, "desc": "Crear interfaz declarativa de registro según Wireframe Pág. 5."},
-                    {"title": "TSK-2.01.2: Implementar AuthBloc para registro con Supabase Auth", "assigned": CAMILA, "hours": 4, "desc": "Conectar evento RegisterSubmitted con supabase.auth.signUp() y metadatos."},
+                    {"title": "TSK-2.01.1: Maquetar RegistroClientePage (XAML) con validaciones de formulario", "assigned": CAMILA, "hours": 4, "desc": "Crear interfaz declarativa XAML de registro según Wireframe Pág. 5."},
+                    {"title": "TSK-2.01.2: Implementar AuthViewModel para registro con Supabase Auth", "assigned": CAMILA, "hours": 4, "desc": "Conectar RegisterCommand con supabase.Auth.SignUp() y metadatos."},
                     {"title": "TSK-2.01.3: Validar en PostgreSQL inserción de usuario y perfil de cliente", "assigned": ALEX, "hours": 3, "desc": "Comprobar integridad referencial y asignación de rol Cliente por defecto."},
                     {"title": "TSK-2.01.4: Pruebas de QA de validación de campos y manejo de errores", "assigned": CAMILA, "hours": 2, "desc": "Probar campos vacíos, correos duplicados y contraseñas débiles."}
                 ]
@@ -133,10 +133,10 @@ backlog_tree = [
                 "desc": "Iniciar sesión con credenciales, obtener JWT y mantener sesión activa de forma segura.",
                 "criteria": "Login exitoso emite JWT con claims. Token persistido de forma segura. Refresco automático ante 401.",
                 "tasks": [
-                    {"title": "TSK-2.02.1: Maquetar LoginClienteView con toggles de visibilidad", "assigned": CAMILA, "hours": 3, "desc": "Diseñar vista de login según Wireframe Pág. 6."},
+                    {"title": "TSK-2.02.1: Maquetar LoginClientePage (XAML) con toggles de visibilidad", "assigned": CAMILA, "hours": 3, "desc": "Diseñar vista XAML de login según Wireframe Pág. 6."},
                     {"title": "TSK-2.02.2: Implementar Custom Access Token Hook en Supabase", "assigned": ALEX, "hours": 3, "desc": "Inyectar claims role e internal_user_id en el JWT emitido por Supabase."},
-                    {"title": "TSK-2.02.3: Implementar login en AuthBloc y persistencia segura de token", "assigned": CAMILA, "hours": 4, "desc": "Guardar tokens en flutter_secure_storage y emitir estado Authenticated."},
-                    {"title": "TSK-2.02.4: Implementar flujo de refresco automático ante 401 en Dio", "assigned": CAMILA, "hours": 3, "desc": "Reintentar petición con refresh_token o redirigir a Login si expiró."}
+                    {"title": "TSK-2.02.3: Implementar login en AuthViewModel y persistencia segura de token", "assigned": CAMILA, "hours": 4, "desc": "Guardar tokens en SecureStorage y gestionar estado IsAuthenticated."},
+                    {"title": "TSK-2.02.4: Implementar flujo de refresco automático ante 401 en DelegatingHandler", "assigned": CAMILA, "hours": 3, "desc": "Reintentar petición con refresh_token o redirigir a Login si expiró."}
                 ]
             },
             {
@@ -146,9 +146,9 @@ backlog_tree = [
                 "desc": "Visualizar y editar datos personales, fidelidad y diagnóstico capilar del cliente.",
                 "criteria": "GET /api/perfil devuelve ficha completa. PUT /api/perfil actualiza campos de contacto y preferencias.",
                 "tasks": [
-                    {"title": "TSK-2.03.1: Implementar endpoints GET y PUT /api/perfil en C#", "assigned": ALEX, "hours": 4, "desc": "Crear PerfilController y lógica de actualización en Clientes."},
-                    {"title": "TSK-2.03.2: Maquetar PerfilClienteView según Wireframe Pág. 14", "assigned": CAMILA, "hours": 4, "desc": "Diseñar avatar, badge Nivel Oro y formulario de ficha capilar."},
-                    {"title": "TSK-2.03.3: Implementar PerfilBloc conectando con la API", "assigned": CAMILA, "hours": 3, "desc": "Gestionar estados de carga y guardado de perfil."},
+                    {"title": "TSK-2.03.1: Implementar endpoints GET y PUT /api/perfil en Java Spring Boot", "assigned": ALEX, "hours": 4, "desc": "Crear PerfilController y lógica de actualización en Clientes."},
+                    {"title": "TSK-2.03.2: Maquetar PerfilClientePage (XAML) según Wireframe Pág. 14", "assigned": CAMILA, "hours": 4, "desc": "Diseñar avatar, badge Nivel Oro y formulario de ficha capilar en XAML."},
+                    {"title": "TSK-2.03.3: Implementar PerfilViewModel conectando con la API", "assigned": CAMILA, "hours": 3, "desc": "Gestionar estados de carga y guardado de perfil con CommunityToolkit.Mvvm."},
                     {"title": "TSK-2.03.4: Pruebas de QA de persistencia de perfil y ficha estética", "assigned": CAMILA, "hours": 2, "desc": "Verificar persistencia de cambios en base de datos."}
                 ]
             }
@@ -171,9 +171,9 @@ backlog_tree = [
                 "desc": "Explorar catálogo clasificado por categorías (Cabello, Uñas, Maquillaje, Spa).",
                 "criteria": "GET /api/servicios devuelve solo activos. Filtrado instantáneo por chip de categoría en app móvil.",
                 "tasks": [
-                    {"title": "TSK-3.01.1: Implementar GET /api/servicios con filtro por categoría en C#", "assigned": ALEX, "hours": 4, "desc": "Crear ServiciosController con consultas optimizadas."},
-                    {"title": "TSK-3.01.2: Maquetar CatalogoServiciosView según Wireframe Pág. 7", "assigned": CAMILA, "hours": 4, "desc": "Diseñar chips de categorías y tarjetas de servicios."},
-                    {"title": "TSK-3.01.3: Implementar CatalogoBloc con filtrado reactivo", "assigned": CAMILA, "hours": 3, "desc": "Controlar estados Loading, Loaded y Filtered."},
+                    {"title": "TSK-3.01.1: Implementar GET /api/servicios con filtro por categoría en Java Spring Boot", "assigned": ALEX, "hours": 4, "desc": "Crear ServicioController con consultas optimizadas."},
+                    {"title": "TSK-3.01.2: Maquetar CatalogoServiciosPage (XAML) según Wireframe Pág. 7", "assigned": CAMILA, "hours": 4, "desc": "Diseñar chips de categorías y CollectionView de servicios en XAML."},
+                    {"title": "TSK-3.01.3: Implementar CatalogoViewModel con filtrado reactivo", "assigned": CAMILA, "hours": 3, "desc": "Controlar estados IsBusy, Loaded y colección filtrada."},
                     {"title": "TSK-3.01.4: Pruebas de QA de carga de catálogo y renderizado de imágenes", "assigned": CAMILA, "hours": 2, "desc": "Verificar carga rápida de imágenes desde Supabase Storage."}
                 ]
             },
@@ -184,9 +184,9 @@ backlog_tree = [
                 "desc": "Visualizar descripción detallada, tiempo estimado y protocolo paso a paso del servicio.",
                 "criteria": "GET /api/servicios/{id} devuelve protocolo completo. Navegación fluida hacia reserva.",
                 "tasks": [
-                    {"title": "TSK-3.02.1: Implementar GET /api/servicios/{id} detallado en C#", "assigned": ALEX, "hours": 2, "desc": "Retornar descripción completa, duración y protocolo."},
-                    {"title": "TSK-3.02.2: Maquetar DetalleServicioView según Wireframe Pág. 8", "assigned": CAMILA, "hours": 3, "desc": "Diseñar cabecera con foto, badge de precio y pasos de protocolo."},
-                    {"title": "TSK-3.02.3: Conectar botón Continuar transmitiendo ID de servicio", "assigned": CAMILA, "hours": 2, "desc": "Almacenar servicio seleccionado en ReservaBloc."}
+                    {"title": "TSK-3.02.1: Implementar GET /api/servicios/{id} detallado en Java Spring Boot", "assigned": ALEX, "hours": 2, "desc": "Retornar descripción completa, duración y protocolo."},
+                    {"title": "TSK-3.02.2: Maquetar DetalleServicioPage (XAML) según Wireframe Pág. 8", "assigned": CAMILA, "hours": 3, "desc": "Diseñar cabecera con foto, badge de precio y pasos de protocolo en XAML."},
+                    {"title": "TSK-3.02.3: Conectar botón Continuar transmitiendo ID de servicio", "assigned": CAMILA, "hours": 2, "desc": "Almacenar servicio seleccionado en ReservaViewModel."}
                 ]
             },
             {
@@ -196,9 +196,9 @@ backlog_tree = [
                 "desc": "Ver estilistas capacitados para el servicio o elegir opción de asignación automática más rápida.",
                 "criteria": "GET /api/estilistas filtra por habilidad. Opción 'Cualquiera disponible' pasa null a la API.",
                 "tasks": [
-                    {"title": "TSK-3.03.1: Implementar GET /api/estilistas?servicioId={id} en C#", "assigned": ALEX, "hours": 4, "desc": "Filtrar estilistas activos vinculados en estilista_servicios."},
-                    {"title": "TSK-3.03.2: Maquetar SeleccionEstilistaView según Wireframe Pág. 9", "assigned": CAMILA, "hours": 4, "desc": "Diseñar tarjetas de estilistas y card destacada de autoasignación."},
-                    {"title": "TSK-3.03.3: Manejar estado de selección en ReservaBloc", "assigned": CAMILA, "hours": 3, "desc": "Manejar selección individual o asignación automática."}
+                    {"title": "TSK-3.03.1: Implementar GET /api/estilistas?servicioId={id} en Java Spring Boot", "assigned": ALEX, "hours": 4, "desc": "Filtrar estilistas activos vinculados en estilista_servicios."},
+                    {"title": "TSK-3.03.2: Maquetar SeleccionEstilistaPage (XAML) según Wireframe Pág. 9", "assigned": CAMILA, "hours": 4, "desc": "Diseñar tarjetas de estilistas y card destacada de autoasignación en XAML."},
+                    {"title": "TSK-3.03.3: Manejar estado de selección en ReservaViewModel", "assigned": CAMILA, "hours": 3, "desc": "Manejar selección individual o asignación automática."}
                 ]
             },
             {
@@ -208,10 +208,10 @@ backlog_tree = [
                 "desc": "Calcular en tiempo real slots libres considerando turnos, citas existentes y duración del servicio.",
                 "criteria": "GET /api/disponibilidad cruza jornada laboral y reservas. Bloques ocupados deshabilitados en UI.",
                 "tasks": [
-                    {"title": "TSK-3.04.1: Desarrollar AvailabilityService con algoritmo de slots en C#", "assigned": ALEX, "hours": 8, "desc": "Cruzar horarios_estilista con reservas existentes y segmentar intervalos."},
-                    {"title": "TSK-3.04.2: Implementar endpoint GET /api/disponibilidad en C#", "assigned": ALEX, "hours": 4, "desc": "Exponer endpoint REST con validación de parámetros de fecha y servicio."},
-                    {"title": "TSK-3.04.3: Maquetar SeleccionHorarioView según Wireframe Pág. 10", "assigned": CAMILA, "hours": 5, "desc": "Diseñar calendario mensual interactivo y grilla de horarios."},
-                    {"title": "TSK-3.04.4: Conectar DisponibilidadBloc con la grilla de slots", "assigned": CAMILA, "hours": 3, "desc": "Pintar bloques libres en verde/rosa y deshabilitar ocupados."},
+                    {"title": "TSK-3.04.1: Desarrollar AvailabilityService con algoritmo de slots en Java Spring Boot", "assigned": ALEX, "hours": 8, "desc": "Cruzar horarios_estilista con reservas existentes y segmentar intervalos."},
+                    {"title": "TSK-3.04.2: Implementar endpoint GET /api/disponibilidad en Java Spring Boot", "assigned": ALEX, "hours": 4, "desc": "Exponer endpoint REST con validación de parámetros de fecha y servicio."},
+                    {"title": "TSK-3.04.3: Maquetar SeleccionHorarioPage (XAML) según Wireframe Pág. 10", "assigned": CAMILA, "hours": 5, "desc": "Diseñar calendario mensual interactivo y grilla de horarios en XAML."},
+                    {"title": "TSK-3.04.4: Conectar DisponibilidadViewModel con la grilla de slots", "assigned": CAMILA, "hours": 3, "desc": "Pintar bloques libres en verde/rosa y deshabilitar ocupados."},
                     {"title": "TSK-3.04.5: Pruebas integradas de casos límite de disponibilidad", "assigned": ALEX, "hours": 3, "desc": "Probar solapamientos, límites de jornada y múltiples reservas consecutivas."}
                 ]
             }
@@ -234,10 +234,10 @@ backlog_tree = [
                 "desc": "Confirmar reserva con transacción ACID garantizando prevención de doble reserva (Overbooking).",
                 "criteria": "POST /api/reservas transaccional. Asignación de estación de trabajo. Retorno 409 Conflict si el slot se ocupó.",
                 "tasks": [
-                    {"title": "TSK-4.01.1: Implementar CreateAppointmentUseCase con transacción ACID en C#", "assigned": ALEX, "hours": 6, "desc": "Bloqueo pesimista/serializable en PostgreSQL para prevenir concurrencia."},
-                    {"title": "TSK-4.01.2: Implementar asignación de estación de trabajo libre en C#", "assigned": ALEX, "hours": 3, "desc": "Asignar cabina/estación disponible según categoría del servicio."},
-                    {"title": "TSK-4.01.3: Maquetar ResumenReservaView según Wireframe Pág. 11", "assigned": CAMILA, "hours": 4, "desc": "Diseñar desglose de servicio, estilista, fecha, hora, subtotal e impuestos."},
-                    {"title": "TSK-4.01.4: Conectar botón Confirmar con POST /api/reservas en Flutter", "assigned": CAMILA, "hours": 4, "desc": "Manejar respuesta 201 Created y capturar 409 Conflict mostrando alerta amigable."}
+                    {"title": "TSK-4.01.1: Implementar CreateAppointmentUseCase con transacción ACID en Java Spring Boot", "assigned": ALEX, "hours": 6, "desc": "Bloqueo pesimista/serializable en PostgreSQL para prevenir concurrencia."},
+                    {"title": "TSK-4.01.2: Implementar asignación de estación de trabajo libre en Java Spring Boot", "assigned": ALEX, "hours": 3, "desc": "Asignar cabina/estación disponible según categoría del servicio."},
+                    {"title": "TSK-4.01.3: Maquetar ResumenReservaPage (XAML) según Wireframe Pág. 11", "assigned": CAMILA, "hours": 4, "desc": "Diseñar desglose de servicio, estilista, fecha, hora, subtotal e impuestos en XAML."},
+                    {"title": "TSK-4.01.4: Conectar botón Confirmar con POST /api/reservas en .NET MAUI", "assigned": CAMILA, "hours": 4, "desc": "Manejar respuesta 201 Created y capturar 409 Conflict mostrando alerta amigable."}
                 ]
             },
             {
@@ -247,9 +247,9 @@ backlog_tree = [
                 "desc": "Visualizar comprobante de confirmación con código alfanumérico único de reserva.",
                 "criteria": "Generación de código único (#SHU-XXXX). Pantalla visual de comprobante y navegación.",
                 "tasks": [
-                    {"title": "TSK-4.02.1: Implementar generador de código de reserva único en C#", "assigned": ALEX, "hours": 2, "desc": "Generar código no repetible con prefijo de marca #SHU-XXXX."},
-                    {"title": "TSK-4.02.2: Maquetar ConfirmacionReservaView según Wireframe Pág. 12", "assigned": CAMILA, "hours": 3, "desc": "Diseñar ticket de comprobante con código, dirección y avisos."},
-                    {"title": "TSK-4.02.3: Configurar navegación hacia Mis Citas o Catálogo", "assigned": CAMILA, "hours": 2, "desc": "Vincular botones de acción hacia pestañas correspondientes."}
+                    {"title": "TSK-4.02.1: Implementar generador de código de reserva único en Java Spring Boot", "assigned": ALEX, "hours": 2, "desc": "Generar código no repetible con prefijo de marca #SHU-XXXX."},
+                    {"title": "TSK-4.02.2: Maquetar ConfirmacionReservaPage (XAML) según Wireframe Pág. 12", "assigned": CAMILA, "hours": 3, "desc": "Diseñar ticket de comprobante con código, dirección y avisos en XAML."},
+                    {"title": "TSK-4.02.3: Configurar navegación Shell hacia Mis Citas o Catálogo", "assigned": CAMILA, "hours": 2, "desc": "Vincular botones de acción hacia pestañas correspondientes."}
                 ]
             },
             {
@@ -260,8 +260,8 @@ backlog_tree = [
                 "criteria": "GET /api/reservas/cliente/{id} validado por claims de usuario. Pestañas Próximas y Pasadas en UI.",
                 "tasks": [
                     {"title": "TSK-4.03.1: Implementar GET /api/reservas/cliente/{id} con filtro de seguridad", "assigned": ALEX, "hours": 4, "desc": "Validar que el id coincida con el claim internal_user_id (RNF04)."},
-                    {"title": "TSK-4.03.2: Maquetar HistorialCitasView según Wireframe Pág. 13", "assigned": CAMILA, "hours": 4, "desc": "Diseñar pestañas Citas Futuras y Citas Pasadas."},
-                    {"title": "TSK-4.03.3: Conectar HistorialBloc y renderizado de tarjetas con estado", "assigned": CAMILA, "hours": 3, "desc": "Renderizar badges cromáticos (Verde: Confirmada, Amarillo: Pendiente)."}
+                    {"title": "TSK-4.03.2: Maquetar HistorialCitasPage (XAML) según Wireframe Pág. 13", "assigned": CAMILA, "hours": 4, "desc": "Diseñar pestañas Citas Futuras y Citas Pasadas en XAML."},
+                    {"title": "TSK-4.03.3: Conectar HistorialViewModel y renderizado de tarjetas con estado", "assigned": CAMILA, "hours": 3, "desc": "Renderizar badges cromáticos (Verde: Confirmada, Amarillo: Pendiente)."}
                 ]
             },
             {
@@ -271,9 +271,9 @@ backlog_tree = [
                 "desc": "Cancelar cita pendiente con anticipación o iniciar flujo de cambio de horario.",
                 "criteria": "PUT /api/reservas/{id}/cancelar valida límite de 2h. Liberación inmediata de slot.",
                 "tasks": [
-                    {"title": "TSK-4.04.1: Implementar PUT /api/reservas/{id}/cancelar en C#", "assigned": ALEX, "hours": 3, "desc": "Validar límite de tiempo previo de cancelación y cambiar estado."},
-                    {"title": "TSK-4.04.2: Implementar modal de confirmación de cancelación en Flutter", "assigned": CAMILA, "hours": 3, "desc": "Diseñar diálogo con advertencia de políticas del salón."},
-                    {"title": "TSK-4.04.3: Conectar flujo de reprogramación hacia selector de horario", "assigned": CAMILA, "hours": 3, "desc": "Reutilizar SeleccionHorarioView pasando la reserva a modificar."},
+                    {"title": "TSK-4.04.1: Implementar PUT /api/reservas/{id}/cancelar en Java Spring Boot", "assigned": ALEX, "hours": 3, "desc": "Validar límite de tiempo previo de cancelación y cambiar estado."},
+                    {"title": "TSK-4.04.2: Implementar modal de confirmación de cancelación en .NET MAUI", "assigned": CAMILA, "hours": 3, "desc": "Diseñar diálogo con advertencia de políticas del salón."},
+                    {"title": "TSK-4.04.3: Conectar flujo de reprogramación hacia selector de horario", "assigned": CAMILA, "hours": 3, "desc": "Reutilizar SeleccionHorarioPage pasando la reserva a modificar."},
                     {"title": "TSK-4.04.4: Pruebas de QA de cancelación y liberación de disponibilidad", "assigned": CAMILA, "hours": 2, "desc": "Verificar que el slot cancelado vuelve a aparecer libre para otros usuarios."}
                 ]
             }
@@ -296,10 +296,10 @@ backlog_tree = [
                 "desc": "Visualizar panel con contadores del día, ocupación de estaciones e ingresos proyectados.",
                 "criteria": "GET /api/admin/dashboard protegido por rol Administrador. Métricas de ingresos y estaciones.",
                 "tasks": [
-                    {"title": "TSK-5.01.1: Implementar consultas de métricas en AdminDashboardController en C#", "assigned": ALEX, "hours": 5, "desc": "Calcular citas del día, % capacidad, ingresos proyectados y ocupación."},
-                    {"title": "TSK-5.01.2: Proteger endpoints administrativos con [Authorize(Roles = 'Administrador')]", "assigned": ALEX, "hours": 2, "desc": "Verificar rechazo 403 Forbidden para usuarios con rol Cliente."},
-                    {"title": "TSK-5.01.3: Maquetar DashboardAdminView según Wireframe Pág. 15", "assigned": CAMILA, "hours": 5, "desc": "Diseñar tarjetas de KPIs, gráficos de ocupación y monitores de cabinas."},
-                    {"title": "TSK-5.01.4: Conectar AdminDashboardBloc con la API", "assigned": CAMILA, "hours": 3, "desc": "Gestionar carga y refresco automático de métricas diarias."}
+                    {"title": "TSK-5.01.1: Implementar consultas de métricas en AdminDashboardController en Java Spring Boot", "assigned": ALEX, "hours": 5, "desc": "Calcular citas del día, % capacidad, ingresos proyectados y ocupación."},
+                    {"title": "TSK-5.01.2: Proteger endpoints administrativos con @PreAuthorize(\"hasRole('ADMIN')\")", "assigned": ALEX, "hours": 2, "desc": "Verificar rechazo 403 Forbidden para usuarios con rol CLIENTE."},
+                    {"title": "TSK-5.01.3: Maquetar DashboardAdminPage (XAML) según Wireframe Pág. 15", "assigned": CAMILA, "hours": 5, "desc": "Diseñar tarjetas de KPIs, gráficos de ocupación y monitores de cabinas en XAML."},
+                    {"title": "TSK-5.01.4: Conectar AdminDashboardViewModel con la API", "assigned": CAMILA, "hours": 3, "desc": "Gestionar carga y refresco automático de métricas diarias."}
                 ]
             },
             {
@@ -309,8 +309,8 @@ backlog_tree = [
                 "desc": "Visualizar agenda tipo Timeline agrupada por estilista para gestionar la jornada.",
                 "criteria": "GET /api/admin/agenda devuelve citas estructuradas por estilista. Bloques libres interactivos.",
                 "tasks": [
-                    {"title": "TSK-5.02.1: Implementar endpoint GET /api/admin/agenda en C#", "assigned": ALEX, "hours": 6, "desc": "Estructurar respuesta agrupando cronograma de citas y descansos por empleado."},
-                    {"title": "TSK-5.02.2: Maquetar vista Timeline multi-columna según Wireframe Pág. 16", "assigned": CAMILA, "hours": 6, "desc": "Diseñar grilla interactiva con bloques de citas proporcionales al tiempo."},
+                    {"title": "TSK-5.02.1: Implementar endpoint GET /api/admin/agenda en Java Spring Boot", "assigned": ALEX, "hours": 6, "desc": "Estructurar respuesta agrupando cronograma de citas y descansos por empleado."},
+                    {"title": "TSK-5.02.2: Maquetar vista Timeline multi-columna (XAML) según Wireframe Pág. 16", "assigned": CAMILA, "hours": 6, "desc": "Diseñar grilla interactiva con bloques de citas proporcionales al tiempo en XAML."},
                     {"title": "TSK-5.02.3: Conectar selector de fecha y refresco dinámico", "assigned": CAMILA, "hours": 3, "desc": "Permitir navegar entre fechas para consultar agendas pasadas y futuras."}
                 ]
             },
@@ -321,8 +321,8 @@ backlog_tree = [
                 "desc": "Registrar citas espontáneas para clientes sin cuenta ocupando espacios libres de la agenda.",
                 "criteria": "POST /api/reservas/walk-in registra es_walk_in = true. Refresco automático de Timeline.",
                 "tasks": [
-                    {"title": "TSK-5.03.1: Implementar endpoint POST /api/reservas/walk-in en C#", "assigned": ALEX, "hours": 4, "desc": "Permitir id_cliente nulo y guardar nombre_walk_in y telefono_walk_in."},
-                    {"title": "TSK-5.03.2: Maquetar formulario modal rápido de Walk-in en Flutter", "assigned": CAMILA, "hours": 4, "desc": "Invocar modal al presionar bloque libre '+ Walk-in Client' en el Timeline."},
+                    {"title": "TSK-5.03.1: Implementar endpoint POST /api/reservas/walk-in en Java Spring Boot", "assigned": ALEX, "hours": 4, "desc": "Permitir id_cliente nulo y guardar nombre_walk_in y telefono_walk_in."},
+                    {"title": "TSK-5.03.2: Maquetar formulario modal rápido de Walk-in en .NET MAUI", "assigned": CAMILA, "hours": 4, "desc": "Invocar modal al presionar bloque libre '+ Walk-in Client' en el Timeline."},
                     {"title": "TSK-5.03.3: Refresco inmediato de la agenda tras registro", "assigned": CAMILA, "hours": 3, "desc": "Ocupar visualmente el slot sin recargar toda la pantalla."}
                 ]
             },
@@ -333,8 +333,8 @@ backlog_tree = [
                 "desc": "Actualizar estados de citas (Pendiente, Completada, Cancelada, No Asistió) con registro de auditoría.",
                 "criteria": "PUT /api/admin/reservas/{id}/estado actualiza y guarda en historial_estado_reserva.",
                 "tasks": [
-                    {"title": "TSK-5.04.1: Implementar actualización y auditoría en historial_estado_reserva en C#", "assigned": ALEX, "hours": 3, "desc": "Guardar id_usuario_cambio, estado_anterior y estado_nuevo en transacción."},
-                    {"title": "TSK-5.04.2: Maquetar EstadoReservaView según Wireframe Pág. 17", "assigned": CAMILA, "hours": 3, "desc": "Diseñar selector de estado y campo de texto para observaciones de auditoría."},
+                    {"title": "TSK-5.04.1: Implementar actualización y auditoría en historial_estado_reserva en Java Spring Boot", "assigned": ALEX, "hours": 3, "desc": "Guardar id_usuario_cambio, estado_anterior y estado_nuevo en transacción."},
+                    {"title": "TSK-5.04.2: Maquetar EstadoReservaPage (XAML) según Wireframe Pág. 17", "assigned": CAMILA, "hours": 3, "desc": "Diseñar selector de estado y campo de texto para observaciones de auditoría en XAML."},
                     {"title": "TSK-5.04.3: Pruebas de QA de trazabilidad de cambios de estado", "assigned": CAMILA, "hours": 2, "desc": "Verificar registro de auditoría en la base de datos tras cada cambio."}
                 ]
             },
@@ -345,8 +345,8 @@ backlog_tree = [
                 "desc": "Modificar precios, duración y activar/desactivar servicios del salón.",
                 "criteria": "POST/PUT /api/servicios/{id} operativo. Reflejo inmediato en la app pública.",
                 "tasks": [
-                    {"title": "TSK-5.05.1: Implementar endpoints de mantenimiento de catálogo en C#", "assigned": ALEX, "hours": 3, "desc": "Crear endpoints de creación, edición y toggle de activación de servicios."},
-                    {"title": "TSK-5.05.2: Maquetar AdministracionCatalogoView según Wireframe Pág. 18", "assigned": CAMILA, "hours": 3, "desc": "Diseñar switches on/off y modal de edición de tarifas."},
+                    {"title": "TSK-5.05.1: Implementar endpoints de mantenimiento de catálogo en Java Spring Boot", "assigned": ALEX, "hours": 3, "desc": "Crear endpoints de creación, edición y toggle de activación de servicios."},
+                    {"title": "TSK-5.05.2: Maquetar AdministracionCatalogoPage (XAML) según Wireframe Pág. 18", "assigned": CAMILA, "hours": 3, "desc": "Diseñar switches on/off y modal de edición de tarifas en XAML."},
                     {"title": "TSK-5.05.3: Pruebas de QA de reactividad en catálogo público", "assigned": CAMILA, "hours": 2, "desc": "Comprobar que un servicio desactivado desaparece del catálogo del cliente."}
                 ]
             },
@@ -357,8 +357,8 @@ backlog_tree = [
                 "desc": "Marcar estilistas como inactivos temporales por imprevistos para bloquear su agenda.",
                 "criteria": "PUT /api/estilistas/{id}/estado actualiza disponibilidad. Exclusión automática del motor de cálculo.",
                 "tasks": [
-                    {"title": "TSK-5.06.1: Implementar endpoint PUT /api/estilistas/{id}/estado en C#", "assigned": ALEX, "hours": 2, "desc": "Actualizar campo estado_disponibilidad en estilistas."},
-                    {"title": "TSK-5.06.2: Maquetar EstadoEstilistaView según Wireframe Pág. 19", "assigned": CAMILA, "hours": 3, "desc": "Diseñar lista de estilistas con toggles de disponibilidad."},
+                    {"title": "TSK-5.06.1: Implementar endpoint PUT /api/estilistas/{id}/estado en Java Spring Boot", "assigned": ALEX, "hours": 2, "desc": "Actualizar campo estado_disponibilidad en estilistas."},
+                    {"title": "TSK-5.06.2: Maquetar EstadoEstilistaPage (XAML) según Wireframe Pág. 19", "assigned": CAMILA, "hours": 3, "desc": "Diseñar lista de estilistas con toggles de disponibilidad en XAML."},
                     {"title": "TSK-5.06.3: Verificar bloqueo automático en motor de disponibilidad", "assigned": ALEX, "hours": 2, "desc": "Comprobar que el estilista inactivo no genera slots libres en fechas futuras."}
                 ]
             }
@@ -378,11 +378,11 @@ backlog_tree = [
                 "title": "US-6.01: Pruebas Unitarias y de Integración Automatizadas",
                 "assigned": CAMILA,
                 "points": 5,
-                "desc": "Desarrollar pruebas automatizadas con xUnit en backend y bloc_test en frontend.",
-                "criteria": "Pruebas de algoritmo de disponibilidad en C#. Pruebas de estados de BLoC en Flutter.",
+                "desc": "Desarrollar pruebas automatizadas con JUnit 5 / Mockito en backend y xUnit / Moq en frontend.",
+                "criteria": "Pruebas de algoritmo de disponibilidad en JUnit 5. Pruebas de estados de ViewModels en .NET MAUI.",
                 "tasks": [
-                    {"title": "TSK-6.01.1: Implementar pruebas unitarias con xUnit en C#", "assigned": ALEX, "hours": 5, "desc": "Probar AvailabilityService, validaciones de entrada y manejo de errores."},
-                    {"title": "TSK-6.01.2: Implementar pruebas de BLoC con bloc_test en Flutter", "assigned": CAMILA, "hours": 5, "desc": "Probar transiciones de estado en AuthBloc, CatalogoBloc y ReservaBloc."}
+                    {"title": "TSK-6.01.1: Implementar pruebas unitarias con JUnit 5 y Mockito en Java", "assigned": ALEX, "hours": 5, "desc": "Probar AvailabilityService, validaciones de entrada y manejo de errores."},
+                    {"title": "TSK-6.01.2: Implementar pruebas unitarias de ViewModels con xUnit / Moq en .NET MAUI", "assigned": CAMILA, "hours": 5, "desc": "Probar transiciones de estado y comandos en AuthViewModel, CatalogoViewModel y ReservaViewModel."}
                 ]
             },
             {
@@ -400,11 +400,11 @@ backlog_tree = [
                 "title": "US-6.03: Despliegue en la Nube y Generación de Entregables",
                 "assigned": ALEX,
                 "points": 6,
-                "desc": "Publicar Web API en Azure App Service y compilar APK release de Flutter para entrega académica.",
-                "criteria": "API accesible bajo HTTPS con Swagger activo. APK Flutter Release compilado y conectado.",
+                "desc": "Publicar Web API en Azure App Service y compilar APK release de .NET MAUI para entrega académica.",
+                "criteria": "API accesible bajo HTTPS con Swagger activo. APK .NET MAUI Release compilado y conectado.",
                 "tasks": [
-                    {"title": "TSK-6.03.1: Desplegar Web API C# en Azure App Service", "assigned": ALEX, "hours": 4, "desc": "Configurar App Service, Application Insights y variables de entorno de producción."},
-                    {"title": "TSK-6.03.2: Compilar APK Release de Flutter apuntando a Azure", "assigned": CAMILA, "hours": 4, "desc": "Compilar artefacto final con flutter build apk --release --dart-define-from-file."},
+                    {"title": "TSK-6.03.1: Desplegar Web API Java Spring Boot en la Nube / App Service", "assigned": ALEX, "hours": 4, "desc": "Configurar entorno de ejecución JVM, contenedor/App Service y variables de producción."},
+                    {"title": "TSK-6.03.2: Compilar APK Release de .NET MAUI apuntando a Azure", "assigned": CAMILA, "hours": 4, "desc": "Compilar artefacto final con dotnet publish -f net8.0-android -c Release."},
                     {"title": "TSK-6.03.3: Preparar reporte final y entorno de demostración académica", "assigned": ALEX, "hours": 3, "desc": "Documentar métricas, evidencias y preparar presentación para docentes de ESFE AGAPE."}
                 ]
             }

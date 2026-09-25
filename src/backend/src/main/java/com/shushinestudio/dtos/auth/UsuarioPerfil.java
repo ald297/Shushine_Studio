@@ -6,13 +6,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UsuarioPerfil {
-    private Integer id;
+    private UUID id;
     private String login;
     private String nombre;
     private String apellido;

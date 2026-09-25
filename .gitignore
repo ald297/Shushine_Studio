@@ -38,3 +38,8 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 appsettings.Local.json
 *.secrets.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class

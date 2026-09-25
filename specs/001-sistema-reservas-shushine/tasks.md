@@ -15,10 +15,10 @@
 **Propósito**: Inicialización de los proyectos de backend y frontend móvil, repositorios y persistencia base.
 
 - [X] T001 [P] Inicializar proyecto de Backend con arquitectura en capas (Java 21 Spring Boot 3.3.3 - `com.shushinestudio`) y dependencias base (`pom.xml`)
-- [X] T002 [P] Inicializar proyecto Flutter con configuración base multiplataforma en `src/mobile/pubspec.yaml`
+- [X] T002 [P] Inicializar proyecto .NET MAUI con configuración base multiplataforma en `src/mobile/`
 - [X] T003 [P] Configurar script DDL y aplicar esquema relacional de 16-23 tablas en base de datos PostgreSQL Supabase (`docs/migration_23_tables_shunshine.sql`)
 - [X] T004 Configurar buckets de almacenamiento público en Supabase Storage (`servicios-imagenes`, `estilistas-avatares`, `categorias-imagenes`)
-- [X] T005 [P] Configurar linters y formateadores de código (`src/mobile/analysis_options.yaml`)
+- [X] T005 [P] Configurar análisis estático y reglas de código en .NET MAUI (`.editorconfig`)
 
 ---
 
@@ -33,10 +33,10 @@
 - [X] T008 [P] Configurar filtros de seguridad JWT (`JwtAuthenticationFilter`) y autorización granular por roles (`SecurityConfig`)
 - [X] T009 [P] Implementar semillero automático de datos de prueba (`DataInitializer`) que cree roles (`ADMIN`, `USER`), usuarios por defecto (`admin`/`admin123`, `user`/`user123`) y catálogo inicial si la BD está vacía
 - [X] T010 [P] Implementar configuración de mapeo de DTOs (`ModelMapperConfig` / `AutoMapper`) para aislar entidades de datos expuestos
-- [X] T011 [P] Configurar cliente HTTP Dio con timeout y headers base en `src/mobile/lib/core/network/dio_client.dart`
-- [X] T012 [P] Implementar `ErrorInterceptor` de Dio para manejo centralizado de respuestas RFC 7807 y detección de 401 en `src/mobile/lib/core/network/error_interceptor.dart`
-- [X] T013 Configurar inyector de dependencias (Service Locator) con `GetIt` en `src/mobile/lib/core/di/injection_container.dart`
-- [X] T014 Crear entidades de base y clases de resultado `Either<Failure, T>` en `src/mobile/lib/core/error/failures.dart`
+- [X] T011 [P] Configurar cliente HTTP con `HttpClientFactory`, timeout y headers base en `src/mobile/Core/Network/`
+- [X] T012 [P] Implementar `ErrorDelegatingHandler` para manejo centralizado de respuestas RFC 7807 y detección de 401 en `src/mobile/Core/Network/`
+- [X] T013 Configurar inyector de dependencias en `src/mobile/MauiProgram.cs` (`IServiceCollection`)
+- [X] T014 Crear entidades base y contratos de repositorio en `src/mobile/Domain/`
 
 **Checkpoint**: Cimientos listos — base de datos inicializada con usuarios de prueba y Swagger disponible para pruebas.
 
@@ -49,9 +49,7 @@
 
 ### Tests para User Story 1
 - [X] T015 [P] [US1] Pruebas unitarias para generación y validación de tokens en `src/backend/src/test/java/com/shushinestudio/seguridad/JwtServiceTest.java`
-- [X] T016 [P] [US1] Pruebas unitarias para el `AuthBloc` en Flutter en `src/mobile/test/presentation/blocs/auth_bloc_test.dart`
-
-### Implementación Backend (Alex Alfaro)
+- [X] T016 [P] [US1] Pruebas unitarias para el `AuthViewModel` en .NET MAUI con xUnit
 - [X] T017 [P] [US1] Crear entidades JPA `Usuario`, `Rol` y `Cliente` en `src/backend/src/main/java/com/shushinestudio/modelos/`
 - [X] T018 [P] [US1] Crear repositorios `UsuarioRepository` y `RolRepository` en `src/backend/src/main/java/com/shushinestudio/repositorios/`
 - [X] T019 [US1] Crear DTOs `UsuarioLogin`, `UsuarioRegistrar` y `UsuarioToken` en `src/backend/src/main/java/com/shushinestudio/dtos/auth/`
@@ -59,13 +57,13 @@
 - [X] T021 [US1] Crear controlador `AuthController` con endpoints `/api/auth/login`, `/api/auth/registro` y `/api/auth/me` en `src/backend/src/main/java/com/shushinestudio/controladores/AuthController.java`
 
 ### Implementación Móvil (Camila Calderón)
-- [X] T022 [P] [US1] Configurar cliente `flutter_secure_storage` para almacenamiento protegido del token en `src/mobile/lib/core/auth/token_storage.dart`
-- [X] T023 [P] [US1] Implementar modelo `UserDto` con serialización en `src/mobile/lib/data/models/user_dto.dart`
-- [X] T024 [US1] Implementar `AuthRemoteDataSource` y `AuthRepositoryImpl` en `src/mobile/lib/data/repositories/auth_repository_impl.dart`
-- [X] T025 [US1] Implementar casos de uso `LoginUseCase` y `GetCurrentUserUseCase` en `src/mobile/lib/domain/usecases/auth/`
-- [X] T026 [US1] Crear `AuthBloc` (eventos y estados de sesión) en `src/mobile/lib/presentation/blocs/auth/auth_bloc.dart`
-- [X] T027 [US1] Maquetar pantallas de Login y Registro conforme a wireframes en `src/mobile/lib/presentation/screens/auth/login_screen.dart`
-- [X] T028 [US1] Maquetar pantalla de Perfil de Usuario en `src/mobile/lib/presentation/screens/profile/profile_screen.dart`
+- [X] T022 [P] [US1] Configurar `SecureStorage` para almacenamiento protegido del token en `src/mobile/Core/Auth/TokenStorage.cs`
+- [X] T023 [P] [US1] Implementar modelo `UserDto` con serialización en `src/mobile/Data/Models/UserDto.cs`
+- [X] T024 [US1] Implementar `AuthRemoteDataSource` y `AuthRepositoryImpl` en `src/mobile/Data/Repositories/AuthRepositoryImpl.cs`
+- [X] T025 [US1] Implementar casos de uso `LoginUseCase` y `GetCurrentUserUseCase` en `src/mobile/Domain/UseCases/Auth/`
+- [X] T026 [US1] Crear `AuthViewModel` (comandos y propiedades reactivas con MVVM Toolkit) en `src/mobile/Presentation/ViewModels/Auth/`
+- [X] T027 [US1] Maquetar páginas XAML de Login y Registro conforme a wireframes en `src/mobile/Presentation/Views/Auth/`
+- [X] T028 [US1] Maquetar página de Perfil de Usuario en `src/mobile/Presentation/Views/Profile/ProfilePage.xaml`
 
 **Checkpoint**: Flujo de autenticación e identidad completo e independiente.
 
@@ -74,7 +72,7 @@
 ## Phase 4: User Story 2 - Catálogo Categorizado de Servicios y Búsqueda (Priority: P2)
 
 **Goal**: Exploración ágil del catálogo de servicios clasificados por categorías con precios, duración e imágenes de Supabase Storage.  
-**Independent Test**: Consultar `/api/categorias` y `/api/servicios/lista`, verificando renderizado de tarjetas en Flutter.
+**Independent Test**: Consultar `/api/categorias` y `/api/servicios/lista`, verificando renderizado de tarjetas en .NET MAUI.
 
 ### Implementación Backend (Alex Alfaro)
 - [X] T029 [P] [US2] Crear entidades `Categoria` y `Servicio` en `src/backend/src/main/java/com/shushinestudio/modelos/`
@@ -85,12 +83,12 @@
 - [X] T034 [US2] Pruebas unitarias CRUD de servicios (`t1_crear` a `t6_eliminar`) en `src/backend/src/test/java/com/shushinestudio/servicios/CategoriaServiceTest.java`
 
 ### Implementación Móvil (Camila Calderón)
-- [X] T035 [P] [US2] Crear DTOs y Entidades de Catálogo en `src/mobile/lib/data/models/service_dto.dart`
-- [X] T036 [US2] Implementar `CatalogRemoteDataSource` con Dio en `src/mobile/lib/data/datasources/catalog_remote_datasource.dart`
-- [X] T037 [US2] Implementar `CatalogRepositoryImpl` y caso de uso `GetServicesCatalogUseCase` en `src/mobile/lib/domain/`
-- [X] T038 [US2] Crear `CatalogBloc` para filtrado y búsqueda reactiva en `src/mobile/lib/presentation/blocs/catalog/catalog_bloc.dart`
-- [X] T039 [US2] Maquetar pantalla de Catálogo con carrusel de categorías en `src/mobile/lib/presentation/screens/catalog/catalog_screen.dart`
-- [X] T040 [US2] Maquetar pantalla de Ficha de Detalle de Servicio en `src/mobile/lib/presentation/screens/catalog/service_detail_screen.dart`
+- [X] T035 [P] [US2] Crear DTOs y Entidades de Catálogo en `src/mobile/Data/Models/ServiceDto.cs`
+- [X] T036 [US2] Implementar `CatalogRemoteDataSource` con `HttpClient` en `src/mobile/Data/DataSources/CatalogRemoteDataSource.cs`
+- [X] T037 [US2] Implementar `CatalogRepositoryImpl` y caso de uso `GetServicesCatalogUseCase` en `src/mobile/Domain/`
+- [X] T038 [US2] Crear `CatalogViewModel` para filtrado y búsqueda reactiva en `src/mobile/Presentation/ViewModels/Catalog/`
+- [X] T039 [US2] Maquetar página de Catálogo con carrusel de categorías en `src/mobile/Presentation/Views/Catalog/CatalogPage.xaml`
+- [X] T040 [US2] Maquetar página de Ficha de Detalle de Servicio en `src/mobile/Presentation/Views/Catalog/ServiceDetailPage.xaml`
 
 **Checkpoint**: Catálogo navegable y listo para enlazar a reservas.
 
@@ -110,11 +108,11 @@
 - [X] T046 [US3] Agregar pruebas unitarias del motor de disponibilidad en `src/backend/src/test/java/com/shushinestudio/servicios/DisponibilidadServiceTest.java`
 
 ### Implementación Móvil (Camila Calderón)
-- [X] T047 [P] [US3] Crear modelos `StylistDto` y `TimeSlotDto` en `src/mobile/lib/data/models/stylist_dto.dart`
-- [X] T048 [US3] Implementar `StylistRemoteDataSource` y repositorio en `src/mobile/lib/data/repositories/stylist_repository_impl.dart`
-- [X] T049 [US3] Crear caso de uso `GetStylistAvailabilityUseCase` en `src/mobile/lib/domain/usecases/stylists/`
-- [X] T050 [US3] Implementar `BookingBloc` (manejo de selección de estilista, fecha y hora) en `src/mobile/lib/presentation/blocs/booking/booking_bloc.dart`
-- [X] T051 [US3] Maquetar selector de estilistas y calendario de slots horarios en `src/mobile/lib/presentation/screens/booking/select_datetime_screen.dart`
+- [X] T047 [P] [US3] Crear modelos `StylistDto` y `TimeSlotDto` en `src/mobile/Data/Models/StylistDto.cs`
+- [X] T048 [US3] Implementar `StylistRemoteDataSource` y repositorio en `src/mobile/Data/Repositories/StylistRepositoryImpl.cs`
+- [X] T049 [US3] Crear caso de uso `GetStylistAvailabilityUseCase` en `src/mobile/Domain/UseCases/Stylists/`
+- [X] T050 [US3] Implementar `BookingViewModel` (manejo de selección de estilista, fecha y hora) en `src/mobile/Presentation/ViewModels/Booking/`
+- [X] T051 [US3] Maquetar selector de estilistas y calendario de slots horarios en `src/mobile/Presentation/Views/Booking/SelectDateTimePage.xaml`
 
 **Checkpoint**: Disponibilidad en tiempo real verificable desde móvil.
 
@@ -133,12 +131,12 @@
 - [X] T056 [US4] Pruebas de integración para validar prevención de doble reserva concurrente en `src/backend/src/test/java/com/shushinestudio/servicios/CitaConcurrenciaTest.java`
 
 ### Implementación Móvil (Camila Calderón)
-- [X] T057 [P] [US4] Crear modelos `AppointmentDto` y `AppointmentDetailDto` en `src/mobile/lib/data/models/appointment_dto.dart`
-- [X] T058 [US4] Implementar `AppointmentRemoteDataSource` y repositorio en `src/mobile/lib/data/repositories/appointment_repository_impl.dart`
-- [X] T059 [US4] Implementar casos de uso `CreateAppointmentUseCase` y `GetMyAppointmentsUseCase` en `src/mobile/lib/domain/usecases/appointments/`
-- [X] T060 [US4] Maquetar pantalla de Resumen de Reserva con desglose de costos e impuestos en `src/mobile/lib/presentation/screens/booking/booking_summary_screen.dart`
-- [X] T061 [US4] Maquetar pantalla de Confirmación Exitosa de Cita en `src/mobile/lib/presentation/screens/booking/booking_success_screen.dart`
-- [X] T062 [US4] Maquetar pantalla de Mis Citas con tabs de citas activas e historial en `src/mobile/lib/presentation/screens/appointments/my_appointments_screen.dart`
+- [X] T057 [P] [US4] Crear modelos `AppointmentDto` y `AppointmentDetailDto` en `src/mobile/Data/Models/AppointmentDto.cs`
+- [X] T058 [US4] Implementar `AppointmentRemoteDataSource` y repositorio en `src/mobile/Data/Repositories/AppointmentRepositoryImpl.cs`
+- [X] T059 [US4] Implementar casos de uso `CreateAppointmentUseCase` y `GetMyAppointmentsUseCase` en `src/mobile/Domain/UseCases/Appointments/`
+- [X] T060 [US4] Maquetar pantalla de Resumen de Reserva con desglose de costos e impuestos en `src/mobile/Presentation/Views/Booking/BookingSummaryPage.xaml`
+- [X] T061 [US4] Maquetar pantalla de Confirmación Exitosa de Cita en `src/mobile/Presentation/Views/Booking/BookingSuccessPage.xaml`
+- [X] T062 [US4] Maquetar pantalla de Mis Citas con tabs de citas activas e historial en `src/mobile/Presentation/Views/Appointments/MyAppointmentsPage.xaml`
 
 **Checkpoint**: Motor de reservas transaccional 100% operativo.
 
@@ -155,9 +153,9 @@
 - [X] T065 [US5] Implementar transición de estados de cita (`PENDIENTE` -> `CONFIRMADA` -> `EN_PROCESO` -> `COMPLETADA`) en `src/backend/src/main/java/com/shushinestudio/servicios/implementaciones/CitaService.java`
 
 ### Implementación Móvil (Camila Calderón)
-- [X] T066 [P] [US5] Crear `TimelineBloc` para gestión de agenda de estilista en `src/mobile/lib/presentation/blocs/timeline/timeline_bloc.dart`
-- [X] T067 [US5] Maquetar pantalla de Agenda Timeline interactiva con filtros de día en `src/mobile/lib/presentation/screens/admin/stylist_timeline_screen.dart`
-- [X] T068 [US5] Maquetar modal/pantalla de Registro Rápido de Walk-in en `src/mobile/lib/presentation/screens/admin/register_walkin_dialog.dart`
+- [X] T066 [P] [US5] Crear `TimelineViewModel` para gestión de agenda de estilista en `src/mobile/Presentation/ViewModels/Timeline/`
+- [X] T067 [US5] Maquetar pantalla de Agenda Timeline interactiva con filtros de día en `src/mobile/Presentation/Views/Admin/StylistTimelinePage.xaml`
+- [X] T068 [US5] Maquetar modal/pantalla de Registro Rápido de Walk-in en `src/mobile/Presentation/Views/Admin/RegisterWalkinPopup.xaml`
 
 **Checkpoint**: Operatividad del salón en cabina cubierta.
 
@@ -175,9 +173,9 @@
 - [X] T072 [US6] Crear `PagoController` y `DashboardController` en `src/backend/src/main/java/com/shushinestudio/controladores/`
 
 ### Implementación Móvil (Camila Calderón)
-- [X] T073 [P] [US6] Crear modelos `InvoiceDto` y `DashboardMetricsDto` en `src/mobile/lib/data/models/`
-- [X] T074 [US6] Maquetar pantalla de Cobro y Factura en `src/mobile/lib/presentation/screens/checkout/invoice_screen.dart`
-- [X] T075 [US6] Maquetar Dashboard de Métricas Gerenciales del Salón en `src/mobile/lib/presentation/screens/admin/admin_dashboard_screen.dart`
+- [X] T073 [P] [US6] Crear modelos `InvoiceDto` y `DashboardMetricsDto` en `src/mobile/Data/Models/`
+- [X] T074 [US6] Maquetar pantalla de Cobro y Factura en `src/mobile/Presentation/Views/Checkout/InvoicePage.xaml`
+- [X] T075 [US6] Maquetar Dashboard de Métricas Gerenciales del Salón en `src/mobile/Presentation/Views/Admin/AdminDashboardPage.xaml`
 
 **Checkpoint**: Ciclo contable y administrativo cerrado.
 
@@ -190,7 +188,7 @@
 - [X] T076 [P] Auditar y verificar que ningún secreto, JWT key o contraseña figure en el repositorio
 - [X] T077 [P] Documentar endpoints y probar contrato Swagger interactivo en `http://localhost:8080/swagger-ui/index.html`
 - [X] T078 Ejecutar pruebas de carga concurrentes para revalidar prevención de doble reserva
-- [X] T079 [P] Compilar y verificar artefacto APK Release en Flutter (`flutter build apk --release`)
+- [X] T079 [P] Compilar y verificar paquete Release de .NET MAUI (`dotnet build -c Release`)
 - [X] T080 Validar escenarios del documento [quickstart.md](./quickstart.md) de punta a punta
 
 ---
@@ -201,7 +199,7 @@
 [Phase 1: Setup]
        │
        ▼
-[Phase 2: Foundational] ◄─── (BLOQUEANTE: Todos los componentes base de API y Flutter)
+[Phase 2: Foundational] ◄─── (BLOQUEANTE: Todos los componentes base de API y .NET MAUI)
        │
        ├───────────────────────────────┐
        ▼                               ▼
@@ -228,4 +226,4 @@
 ## Estrategia de Trabajo en Pareja (Alex y Camila)
 
 * **Alex Fernando Alfaro Diaz (Backend):** Fases 1 a 8 en `src/backend/` desarrollando controladores REST, servicios con interfaces, repositorios Spring Data JPA, DTOs segregados, seguridad con Spring Security/JJWT, semillero `DataInitializer`, transacciones ACID y pruebas unitarias con JUnit 5.
-* **Camila Antonia Calderon Cortez (Móvil / QA):** Fases 1 a 8 en `src/mobile/` implementando Clean Architecture, BLoCs, integración con Dio, widgets conforme a los wireframes y plan de pruebas.
+* **Camila Antonia Calderon Cortez (Móvil / QA):** Fases 1 a 8 en `src/mobile/` implementando Clean Architecture, ViewModels (`CommunityToolkit.Mvvm`), integración con HttpClient, páginas XAML conforme a los wireframes y plan de pruebas.

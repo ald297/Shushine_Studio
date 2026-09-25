@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -19,9 +20,15 @@ import java.util.List;
 public class Usuario implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id_usuario")
-    private Integer id;
+    private UUID id;
+
+    @Column(name = "nombre_completo")
+    private String nombreCompleto;
+
+    @Column(name = "correo")
+    private String correo;
 
     @Column(nullable = false, length = 100)
     private String nombre;
@@ -84,6 +91,16 @@ public class Usuario implements UserDetails {
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.nombreCompleto == null) {
+            this.nombreCompleto = (this.nombre != null ? this.nombre : "") + (this.apellido != null ? " " + this.apellido : "");
+        }
+        if (this.correo == null) {
+            this.correo = (this.login != null ? this.login : "user") + "@shushinestudio.com";
+        }
     }
 
     @Override

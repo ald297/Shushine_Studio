@@ -132,7 +132,7 @@ CLIENTE
 
 #### Máquina Oficial de Estados de la Cita
 
-| Estado Backend (C# / BD) | Estado Visible (UI Flutter) | Descripción y Transición | Actor que la ejecuta |
+| Estado Backend (API / BD) | Estado Visible (UI .NET MAUI) | Descripción y Transición | Actor que la ejecuta |
 |:---|:---|:---|:---|
 | `PendingQuote` | Pendiente de Valoración | Cita creada con diseño de referencia. En espera de propuesta de precio. | Cliente al agendar |
 | `QuoteProposed` | Cotización Propuesta | Admin evaluó las referencias y propuso un precio formal. En espera de respuesta. | Admin |
@@ -881,7 +881,7 @@ Los módulos de Shunshine Studio no son funcionalidades independientes. Están p
 
 `
             APLICACIÓN MÓVIL
-            (Flutter + Dart + BLoC)
+         (.NET MAUI + C# + MVVM)
                     │
                     │ 1. Login o Registro
                     ▼
@@ -890,7 +890,7 @@ Los módulos de Shunshine Studio no son funcionalidades independientes. Están p
                     │
                     │ 2. JWT en header: Authorization: Bearer <token>
                     ▼
-        ASP.NET CORE WEB API (.NET 8 o 9)
+        JAVA SPRING BOOT 3.3.3 WEB API
         (Única fuente de verdad del negocio)
         Valida JWT, ejecuta lógica, controla
         disponibilidad, reservas, cotizaciones,
@@ -901,7 +901,7 @@ Los módulos de Shunshine Studio no son funcionalidades independientes. Están p
         SUPABASE POSTGRESQL
         (Row Level Security activo en todas las tablas)
 
-        Imágenes: Flutter → Supabase Storage
+        Imágenes: .NET MAUI → Supabase Storage
         (La URL de la imagen se guarda en PostgreSQL)
 `
 
@@ -909,8 +909,8 @@ Los módulos de Shunshine Studio no son funcionalidades independientes. Están p
 
 | Capa | Tecnología | Responsabilidad principal |
 |:---|:---|:---|
-| Frontend Móvil | Flutter + Dart + BLoC | UI, estados de pantalla, consumo de API, autenticación con Supabase Auth |
-| Backend API | ASP.NET Core Web API | Disponibilidad, reservas, cotizaciones, pagos, validaciones, concurrencia, reportes |
+| Frontend Móvil | .NET MAUI + C# + MVVM | UI (XAML), estados de pantalla, consumo de API, autenticación con Supabase Auth |
+| Backend API | Java Spring Boot 3.3.3 | Disponibilidad, reservas, cotizaciones, pagos, validaciones, concurrencia, reportes |
 | Base de Datos | Supabase PostgreSQL | Persistencia con Row Level Security activo |
 | Autenticación | Supabase Auth | Emisión y verificación de JWT con claims de rol |
 | Almacenamiento | Supabase Storage | Imágenes de servicios, productos, personal, portafolios y referencias de diseños |
@@ -919,14 +919,14 @@ Los módulos de Shunshine Studio no son funcionalidades independientes. Están p
 
 ### Regla crítica de aislamiento
 
-La aplicación Flutter tiene PROHIBIDO consultar directamente las tablas de PostgreSQL de negocio mediante el cliente de base de datos o PostgREST. Todo acceso a datos de negocio pasa exclusivamente por la Web API de C#. El único uso del SDK de Supabase en Flutter es la autenticación.
+La aplicación .NET MAUI tiene PROHIBIDO consultar directamente las tablas de PostgreSQL de negocio mediante el cliente de base de datos o PostgREST. Todo acceso a datos de negocio pasa exclusivamente por la Web API. El único uso del SDK de Supabase en .NET MAUI es la autenticación.
 
-### Clean Architecture en Flutter
+### Clean Architecture en .NET MAUI
 
 `
-presentation/   UI, widgets, BLoC y Cubit
+presentation/   UI (XAML), Views / Pages, ViewModels (MVVM Toolkit)
 domain/         Entidades, casos de uso, interfaces de repositorio
-data/           DTOs, data sources HTTP (Dio), implementaciones de repositorio
+data/           DTOs, data sources HTTP (HttpClient), implementaciones de repositorio
 core/           Networking, manejo de errores, constantes, tema, utilidades
 `
 
@@ -979,7 +979,7 @@ Todos los archivos multimedia e imágenes del sistema se gestionan en Supabase S
 #### Reglas de Almacenamiento
 1. **Aislamiento en `disenos-referencias`:** Ninguna clienta puede acceder ni listar imágenes de diseño subidas por otra persona. La política de Storage valida que el prefijo de la ruta coincida estrictamente con `auth.uid()`.
 2. **Validación de tipos MIME:** El backend y el Storage descartan archivos ejecutables, PDFs o scripts; únicamente se admiten formatos gráficos comprimidos.
-3. **Optimización de carga:** Flutter utiliza almacenamiento en caché de imágenes (`cached_network_image`) para evitar peticiones repetitivas a Supabase Storage y optimizar consumo de datos móviles.
+3. **Optimización de carga:** .NET MAUI utiliza almacenamiento en caché de imágenes nativo para evitar peticiones repetitivas a Supabase Storage y optimizar consumo de datos móviles.
 
 ---
 
@@ -1078,7 +1078,7 @@ Decisiones de diseño y arquitectura que no deben modificarse sin revisión expl
 11. El backend verifica disponibilidad antes de confirmar cualquier reserva, independientemente del frontend.
 12. Las nuevas categorías, servicios, productos y miembros del personal pueden agregarse sin modificar el código.
 13. La arquitectura de pagos está preparada para incorporar pasarela online en el futuro.
-14. La aplicación Flutter no consulta directamente las tablas de PostgreSQL. Todo pasa por la Web API de C#.
+14. La aplicación .NET MAUI no consulta directamente las tablas de PostgreSQL. Todo pasa por la Web API.
 
 ---
 

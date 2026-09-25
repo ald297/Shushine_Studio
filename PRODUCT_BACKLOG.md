@@ -12,15 +12,15 @@
 
 ### 1.1 Asignación de Roles y Responsabilidades
 * **Alex Fernando Alfaro Diaz (Backend / Scrum Master):**
-  * Responsable de la arquitectura y desarrollo de la Web API RESTful en C# ASP.NET Core (.NET 8/9).
-  * Persistencia en PostgreSQL con Entity Framework Core (`Npgsql`).
+  * Responsable de la arquitectura y desarrollo de la Web API RESTful en Java 21 Spring Boot 3.3.3 (`com.shushinestudio`).
+  * Persistencia en PostgreSQL con Spring Data JPA e Hibernate (conexión a Supabase).
   * Implementación del motor de cálculo de disponibilidad y transacciones ACID contra concurrencia.
-  * Configuración de base de datos en Supabase, seguridad, tokens JWT, pipelines CI/CD y despliegue en Azure.
+  * Configuración de base de datos en Supabase, seguridad Spring Security 6 / JJWT, pipelines CI/CD y despliegue en Azure / Cloud.
 * **Camila Antonia Calderon Cortez (Frontend Móvil / QA - Tester):**
-  * Responsable del diseño y maquetación visual de la app móvil en Flutter (Dart) conforme a los wireframes oficiales.
-  * Gestión de estados reactivos con `flutter_bloc` y consumo de API con `Dio`.
+  * Responsable del diseño y maquetación visual de la app móvil en .NET MAUI (C# / XAML) conforme a los wireframes oficiales.
+  * Gestión de estados reactivos con MVVM (`CommunityToolkit.Mvvm`) y consumo de API con `HttpClient`.
   * Diseño y ejecución del plan de aseguramiento de calidad (QA), pruebas automatizadas y pruebas funcionales.
-  * Generación de entregables y compilación de artefactos APK Release.
+  * Generación de entregables y compilación de artefactos y paquetes de aplicación (.NET MAUI Release).
 
 ### 1.2 Escala de Estimación y Priorización
 * **Estimación:** Serie de Fibonacci para *Story Points* (1, 2, 3, 5, 8, 13).
@@ -37,9 +37,9 @@
 
 ### 1.4 Definition of Done (DoD) — Cuándo una Historia se considera Terminada
 1. **Código:** Escrito en inglés para lógica y nomenclatura, textos de UI en español neutro ([AGENTS.md](./AGENTS.md)).
-2. **Backend:** Endpoint documentado y probado en Swagger/OpenAPI, con validación FluentValidation y manejo de errores RFC 7807.
-3. **Frontend Móvil:** Implementado bajo Clean Architecture con `flutter_bloc` y estados reactivos (`Initial`, `Loading`, `Success`, `Error`).
-4. **Seguridad:** Tokens JWT de Supabase validados en C#; sin secretos ni URLs quemadas en duro en el repositorio.
+2. **Backend:** Endpoint documentado y probado en Swagger/OpenAPI, con DTOs especializados y manejo de errores RFC 7807.
+3. **Frontend Móvil:** Implementado bajo Clean Architecture con MVVM (`CommunityToolkit.Mvvm`) y estados reactivos (`IsBusy`, `ErrorMessage`, `ObservableCollection`).
+4. **Seguridad:** Tokens JWT validados; sin secretos ni URLs quemadas en duro en el repositorio.
 5. **Control de Versiones:** Pull Request en Azure DevOps revisado y aprobado por el compañero de equipo en la rama `develop`.
 
 ---
@@ -48,7 +48,7 @@
 
 | Sprint | Duración | Objetivo Principal | Historias | Puntos Totales | Horas Estimadas |
 | :---: | :---: | :--- | :--- | :---: | :---: |
-| **Sprint 0** | 1 semana | Setup de arquitectura, Supabase, API C#, App Flutter y CI/CD en Azure DevOps. | US-1.01 a US-1.04 | 13 pts | 34h |
+| **Sprint 0** | 1 semana | Setup de arquitectura, Supabase, Backend API, App .NET MAUI y CI/CD en Azure DevOps. | US-1.01 a US-1.04 | 13 pts | 34h |
 | **Sprint 1** | 2 semanas | Autenticación híbrida con Supabase Auth, manejo de JWT y perfil de usuario. | US-2.01 a US-2.03 | 16 pts | 37h |
 | **Sprint 2** | 2 semanas | Catálogo categorizado, fichas de servicios y motor de cálculo de disponibilidad. | US-3.01 a US-3.04 | 21 pts | 47h |
 | **Sprint 3** | 2 semanas | Motor transaccional de reservas, control de concurrencia e historial de citas. | US-4.01 a US-4.04 | 24 pts | 48h |
@@ -70,7 +70,7 @@
 * **Descripción:**  
   *Como* desarrollador,  
   *quiero* desplegar el esquema relacional en PostgreSQL de Supabase con RLS, triggers y buckets de almacenamiento,  
-  *para* que la API de C# y la app móvil tengan un entorno de persistencia seguro y reactivo.
+  *para* que la Web API en Java Spring Boot y la app móvil tengan un entorno de persistencia seguro y reactivo.
 * **Criterios de Aceptación:**
   * **Dado** el script DDL de Supabase, **cuando** se ejecute en el SQL Editor, **entonces** deben crearse las 12 tablas con sus llaves foráneas e índices.
   * **Dado** que la app móvil usa `anon_key`, **cuando** un usuario intente consultar tablas directamente vía PostgREST, **entonces** RLS debe denegar el acceso.
@@ -82,41 +82,41 @@
   * `TSK-1.01.3` [Alex Alfaro / 2h]: Configurar políticas de Row Level Security (RLS) en todas las tablas del esquema `public`.
   * `TSK-1.01.4` [Camila Calderón / 2h]: Crear buckets de almacenamiento en Supabase Storage (`servicios-imagenes`, `estilistas-avatares`) y verificar políticas de lectura pública.
 
-#### US-1.02: Inicialización de la Web API en C# ASP.NET Core
+#### US-1.02: Inicialización de la Web API en Java Spring Boot 3.3.3
 * **Prioridad:** Must have | **Estimación:** 5 SP | **Asignado Principal:** Alex Alfaro
-* **Trazabilidad:** [AGENTS.md](./AGENTS.md) (Sección 2, 4, 5.4)
+* **Trazabilidad:** [AGENTS.md](./AGENTS.md) (Sección 2, 3.4, 4, 5.4)
 * **Descripción:**  
   *Como* desarrollador backend,  
-  *quiero* crear la solución en .NET 8/9 con Clean Architecture y soporte para Npgsql, Swagger y RFC 7807,  
+  *quiero* crear el proyecto Spring Boot 3.3.3 con arquitectura en capas (`com.shushinestudio`), Spring Data JPA, Springdoc OpenAPI y RFC 7807,  
   *para* exponer endpoints RESTful robustos y tipados para el consumo móvil.
 * **Criterios de Aceptación:**
-  * **Dado** el proyecto de API, **cuando** se inicie, **entonces** debe conectarse exitosamente a PostgreSQL mediante Entity Framework Core y `Npgsql`.
-  * **Dado** el estándar RFC 7807, **cuando** ocurra cualquier error no controlado o validación fallida, **entonces** la API debe responder con `ProblemDetails` (`application/problem+json`).
-  * **Dado** el middleware de autenticación, **cuando** reciba una petición con `Bearer <token>`, **entonces** debe validar la firma contra Supabase Authority / JWT Secret.
-  * **Dado** el entorno de desarrollo, **cuando** se ingrese a `/swagger`, **entonces** debe visualizarse la documentación interactiva OpenAPI.
+  * **Dado** el proyecto de API, **cuando** se inicie, **entonces** debe conectarse exitosamente a PostgreSQL en Supabase mediante Spring Data JPA e HikariCP Pooler.
+  * **Dado** el estándar RFC 7807, **cuando** ocurra cualquier error no controlado o validación fallida, **entonces** la API debe responder con `ProblemDetail` (`application/problem+json`) vía `@RestControllerAdvice`.
+  * **Dado** el filtro de seguridad `JwtAuthenticationFilter`, **cuando** reciba una petición con `Bearer <token>`, **entonces** debe validar la firma criptográfica del JWT emitido por Supabase / Auth.
+  * **Dado** el entorno de desarrollo, **cuando** se ingrese a `/swagger-ui.html`, **entonces** debe visualizarse la documentación interactiva OpenAPI con soporte para Bearer Token.
 * **Tareas Técnicas Desglosadas:**
-  * `TSK-1.02.1` [Alex Alfaro / 4h]: Inicializar solución en .NET 8/9 con estructura Clean Architecture (`Api`, `Application`, `Domain`, `Infrastructure`).
-  * `TSK-1.02.2` [Alex Alfaro / 4h]: Configurar DbContext con `Npgsql.EntityFrameworkCore.PostgreSQL` y cadena de conexión a Supabase.
-  * `TSK-1.02.3` [Alex Alfaro / 3h]: Configurar autenticación JwtBearer en `Program.cs` validando tokens de Supabase.
-  * `TSK-1.02.4` [Alex Alfaro / 3h]: Configurar middleware global de excepciones y formato estandarizado RFC 7807 Problem Details.
-  * `TSK-1.02.5` [Alex Alfaro / 2h]: Configurar Swagger/OpenAPI con esquema de seguridad `Bearer JWT` para pruebas interactivas.
+  * `TSK-1.02.1` [Alex Alfaro / 4h]: Scaffolding de solución Java Spring Boot 3.3.3 con arquitectura en capas (`com.shushinestudio`: controladores, servicios, repositorios, modelos, DTOs).
+  * `TSK-1.02.2` [Alex Alfaro / 4h]: Configurar DataSource con Spring Data JPA / PostgreSQL y cadena de conexión segura a Supabase.
+  * `TSK-1.02.3` [Alex Alfaro / 3h]: Configurar Spring Security 6 y filtro `JwtAuthenticationFilter` validando tokens de Supabase y roles (`ADMIN`, `CLIENTE`).
+  * `TSK-1.02.4` [Alex Alfaro / 3h]: Configurar controlador global de excepciones (`@RestControllerAdvice`) y formato estandarizado RFC 7807 (`ProblemDetail`).
+  * `TSK-1.02.5` [Alex Alfaro / 2h]: Configurar Swagger/OpenAPI (`springdoc-openapi`) con esquema de seguridad `Bearer JWT` para pruebas interactivas.
 
-#### US-1.03: Inicialización de la App Móvil con Flutter y Clean Architecture
+#### US-1.03: Inicialización de la App Móvil con .NET MAUI y Clean Architecture
 * **Prioridad:** Must have | **Estimación:** 3 SP | **Asignado Principal:** Camila Calderón
 * **Trazabilidad:** [AGENTS.md](./AGENTS.md) (Sección 2, 5.4)
 * **Descripción:**  
   *Como* desarrolladora móvil,  
-  *quiero* inicializar el proyecto Flutter configurando `flutter_bloc`, `dio`, `get_it` y el sistema de temas visuales,  
+  *quiero* inicializar el proyecto .NET MAUI configurando `CommunityToolkit.Mvvm`, `HttpClient`, `IServiceCollection` y el sistema de temas visuales XAML,  
   *para* maquetar las vistas del salón con navegación fluida y arquitectura desacoplada.
 * **Criterios de Aceptación:**
-  * **Dado** el proyecto Flutter, **cuando** se ejecute en Android/iOS, **entonces** debe renderizar el Splash/Tema base con la paleta cromática oficial (Rosa principal, Soft Blush, Lavanda).
-  * **Dado** el cliente HTTP `Dio`, **cuando** se configure, **entonces** debe inyectar automáticamente el token JWT en el header `Authorization` e incluir un `ErrorInterceptor` para deserializar RFC 7807.
-  * **Dado** el gestor de dependencias `GetIt`, **cuando** se registren servicios y datasources, **entonces** las vistas no deben instanciar clases directamente.
+  * **Dado** el proyecto .NET MAUI, **cuando** se ejecute en Android/iOS/Windows, **entonces** debe renderizar el Splash/Tema base con la paleta cromática oficial (Rosa principal, Soft Blush, Lavanda).
+  * **Dado** el cliente HTTP (`HttpClient` / `DelegatingHandler`), **cuando** se configure, **entonces** debe inyectar automáticamente el token JWT en el header `Authorization` e incluir un `ErrorDelegatingHandler` para deserializar RFC 7807.
+  * **Dado** el contenedor de inyección de dependencias en `MauiProgram.cs` (`IServiceCollection`), **cuando** se registren servicios, repositorios y ViewModels, **entonces** las páginas no deben instanciar clases directamente.
 * **Tareas Técnicas Desglosadas:**
-  * `TSK-1.03.1` [Camila Calderón / 3h]: Inicializar proyecto Flutter y definir estructura de directorios por capas (`core`, `features`, `theme`).
-  * `TSK-1.03.2` [Camila Calderón / 3h]: Implementar `AppTheme` con paleta oficial de colores, fuentes de Google Fonts y estilos de botones/inputs.
-  * `TSK-1.03.3` [Camila Calderón / 4h]: Configurar cliente HTTP con `Dio`, interceptor de autenticación e interceptor de errores RFC 7807.
-  * `TSK-1.03.4` [Camila Calderón / 2h]: Configurar inyección de dependencias centralizada mediante `GetIt` (`injection_container.dart`).
+  * `TSK-1.03.1` [Camila Calderón / 3h]: Inicializar proyecto .NET MAUI y definir estructura de directorios por capas (`Presentation`, `Domain`, `Data`, `Core`).
+  * `TSK-1.03.2` [Camila Calderón / 3h]: Implementar `Resources/Styles` en XAML con paleta oficial de colores, tipografía y estilos de controles.
+  * `TSK-1.03.3` [Camila Calderón / 4h]: Configurar cliente HTTP con `HttpClient`, manejador de autenticación y manejo de errores RFC 7807.
+  * `TSK-1.03.4` [Camila Calderón / 2h]: Configurar inyección de dependencias centralizada en `MauiProgram.cs` (`IServiceCollection`).
 
 #### US-1.04: Configuración de Repositorio, GitFlow y Tableros en Azure DevOps
 * **Prioridad:** Should have | **Estimación:** 2 SP | **Asignado Principal:** Alex Alfaro
@@ -141,16 +141,13 @@
 * **Prioridad:** Must have | **Estimación:** 5 SP | **Asignado Principal:** Camila Calderón & Alex Alfaro
 * **Trazabilidad:** RF01, Wireframe Pág. 5 (`RegistroClienteView`)
 * **Descripción:**  
-  *Como* cliente nuevo,  
-  *quiero* crear mi cuenta ingresando nombre completo, correo, teléfono y contraseña,  
-  *para* poder acceder a los servicios y agendar citas en el salón.
-* **Criterios de Aceptación:**
-  * **Dado** el formulario `RegistroClienteView`, **cuando** el usuario ingrese datos válidos y presione *"Registrarse"*, **entonces** Flutter invoca `supabase.auth.signUp()` con metadatos personales.
+  *Como* cliente nue  * **Criterios de Aceptación:**
+  * **Dado** el formulario `RegistroClienteView`, **cuando** el usuario ingrese datos válidos y presione *"Registrarse"*, **entonces** la app en .NET MAUI invoca `supabase.auth.signUp()` con metadatos personales.
   * **Dado** que el usuario fue creado en `auth.users`, **cuando** se active el trigger de PostgreSQL, **entonces** se insertan automáticamente sus registros vinculados en `public.usuarios` y `public.clientes`.
   * **Dado** un correo electrónico previamente registrado, **cuando** se intente duplicar, **entonces** la app muestra un mensaje en español: *"Este correo ya está registrado"*.
 * **Tareas Técnicas Desglosadas:**
-  * `TSK-2.01.1` [Camila Calderón / 4h]: Maquetar `RegistroClienteView` con campos validados (nombre, correo, teléfono, contraseña).
-  * `TSK-2.01.2` [Camila Calderón / 4h]: Implementar `AuthBloc` (evento `RegisterSubmitted`) llamando al SDK de Supabase Auth con metadatos.
+  * `TSK-2.01.1` [Camila Calderón / 4h]: Maquetar `RegistroClienteView` con campos validados en XAML (nombre, correo, teléfono, contraseña).
+  * `TSK-2.01.2` [Camila Calderón / 4h]: Implementar `RegisterViewModel` (comando `RegisterCommand`) llamando al servicio de autenticación con metadatos.
   * `TSK-2.01.3` [Alex Alfaro / 3h]: Validar en PostgreSQL que el trigger cree el usuario en `public.usuarios` con rol `Cliente` y su fila en `public.clientes`.
   * `TSK-2.01.4` [Camila Calderón / 2h]: Pruebas de QA de validación de entradas inválidas y notificación amigable de correo duplicado.
 
@@ -163,13 +160,13 @@
   *para* interactuar con la app sin tener que digitar mis credenciales en cada ingreso.
 * **Criterios de Aceptación:**
   * **Dado** `LoginClienteView`, **cuando** las credenciales sean correctas, **entonces** Supabase Auth emite el `access_token` (JWT) con el rol inyectado mediante el Custom Access Token Hook.
-  * **Dado** el token en el cliente móvil, **cuando** se almacene en almacenamiento seguro (`flutter_secure_storage`), **entonces** la app navega al catálogo principal.
-  * **Dado** que el token expira durante una petición a la API C#, **cuando** el interceptor de Dio detecte `401 Unauthorized`, **entonces** debe ejecutar `refreshSession()` de Supabase; si falla, redirigir al login y limpiar sesión local.
+  * **Dado** el token en el cliente móvil, **cuando** se almacene en almacenamiento seguro (`SecureStorage`), **entonces** la app navega al catálogo principal.
+  * **Dado** que el token expira durante una petición a la Web API, **cuando** el manejador HTTP detecte `401 Unauthorized`, **entonces** debe ejecutar `refreshSession()` de Supabase; si falla, redirigir al login y limpiar sesión en `SecureStorage`.
 * **Tareas Técnicas Desglosadas:**
-  * `TSK-2.02.1` [Camila Calderón / 3h]: Maquetar `LoginClienteView` con toggles de visibilidad de password y validación reactiva.
+  * `TSK-2.02.1` [Camila Calderón / 3h]: Maquetar `LoginClienteView` en XAML con toggles de visibilidad de password y validación reactiva.
   * `TSK-2.02.2` [Alex Alfaro / 3h]: Implementar función `custom_access_token_hook` en Supabase para inyectar claims (`role`, `internal_user_id`).
-  * `TSK-2.02.3` [Camila Calderón / 4h]: Implementar flujo de login en `AuthBloc` y persistencia segura de token con `flutter_secure_storage`.
-  * `TSK-2.02.4` [Camila Calderón / 3h]: Implementar lógica de refresco de token en `ErrorInterceptor` de `Dio` ante respuesta 401.
+  * `TSK-2.02.3` [Camila Calderón / 4h]: Implementar flujo de login en `LoginViewModel` y persistencia segura de token con `SecureStorage`.
+  * `TSK-2.02.4` [Camila Calderón / 3h]: Implementar lógica de refresco de token en `ErrorDelegatingHandler` ante respuesta 401.
 
 #### US-2.03: Visualización y Edición del Perfil de Cliente y Ficha Estética
 * **Prioridad:** Should have | **Estimación:** 6 SP | **Asignado Principal:** Camila Calderón & Alex Alfaro
@@ -182,9 +179,9 @@
   * **Dado** un usuario autenticado, **cuando** la app llame a `GET /api/perfil`, **entonces** la API devuelve nombre, correo, teléfono, fecha de nacimiento, tipo de cabello y nivel de fidelidad (Oro/Plata/Bronce).
   * **Dado** el formulario de edición en `PerfilClienteView`, **cuando** el usuario actualice su teléfono o notas de preferencias, **entonces** `PUT /api/perfil` persiste los cambios en `public.clientes`.
 * **Tareas Técnicas Desglosadas:**
-  * `TSK-2.03.1` [Alex Alfaro / 4h]: Implementar controlador `PerfilController` con endpoints `GET /api/perfil` y `PUT /api/perfil` en C#.
+  * `TSK-2.03.1` [Alex Alfaro / 4h]: Implementar controlador `PerfilController` con endpoints `GET /api/perfil` y `PUT /api/perfil`.
   * `TSK-2.03.2` [Camila Calderón / 4h]: Maquetar `PerfilClienteView` con avatar, insignia de fidelidad y formulario de preferencias.
-  * `TSK-2.03.3` [Camila Calderón / 3h]: Implementar `PerfilBloc` conectando DataSource y Repository con la API.
+  * `TSK-2.03.3` [Camila Calderón / 3h]: Implementar `ProfileViewModel` conectando DataSource y Repository con la API.
   * `TSK-2.03.4` [Camila Calderón / 2h]: Pruebas de QA de actualización de datos personales y verificación en base de datos.
 
 ---
@@ -203,9 +200,9 @@
   * **Dado** el endpoint `GET /api/servicios?categoriaId={id}`, **cuando** se consulte, **entonces** retorna únicamente servicios con `activo = true` con su código (`SRV-C01`), nombre, precio, duración en minutos e URL de imagen.
   * **Dado** `CatalogoServiciosView`, **cuando** el cliente seleccione el chip de filtro "Uñas", **entonces** la lista se filtra de forma instantánea sin recargas completas.
 * **Tareas Técnicas Desglosadas:**
-  * `TSK-3.01.1` [Alex Alfaro / 4h]: Implementar `ServiciosController` en C# con `GET /api/servicios` y filtrado por categoría.
-  * `TSK-3.01.2` [Camila Calderón / 4h]: Maquetar `CatalogoServiciosView` con selector horizontal de categorías y tarjetas de servicio.
-  * `TSK-3.01.3` [Camila Calderón / 3h]: Implementar `CatalogoBloc` con manejo de estados (`Loading`, `Loaded`, `Filtered`).
+  * `TSK-3.01.1` [Alex Alfaro / 4h]: Implementar `ServiciosController` con `GET /api/servicios` y filtrado por categoría.
+  * `TSK-3.01.2` [Camila Calderón / 4h]: Maquetar `CatalogoServiciosView` en XAML con selector horizontal de categorías y tarjetas de servicio.
+  * `TSK-3.01.3` [Camila Calderón / 3h]: Implementar `CatalogViewModel` con manejo de estados y colecciones observables filtradas.
   * `TSK-3.01.4` [Camila Calderón / 2h]: Pruebas de QA de carga de catálogo y renderizado de imágenes desde Supabase Storage.
 
 #### US-3.02: Ficha Técnica y Detalle del Tratamiento
@@ -217,11 +214,11 @@
   *para* conocer las condiciones y preparación antes de reservar.
 * **Criterios de Aceptación:**
   * **Dado** el identificador del servicio, **cuando** se consulte `GET /api/servicios/{id}`, **entonces** la API devuelve la ficha completa incluyendo precio, tiempo y protocolo descriptivo.
-  * **Dado** `DetalleServicioView`, **cuando** el cliente presione *"Continuar con la reserva $\rightarrow$"*, **entonces** la app transiciona al selector de estilistas pasando el servicio en el estado del BLoC.
+  * **Dado** `DetalleServicioView`, **cuando** el cliente presione *"Continuar con la reserva $\rightarrow$"*, **entonces** la app transiciona al selector de estilistas pasando el servicio en el ViewModel de navegación.
 * **Tareas Técnicas Desglosadas:**
   * `TSK-3.02.1` [Alex Alfaro / 2h]: Implementar endpoint `GET /api/servicios/{id}` retornando DTO detallado de servicio.
   * `TSK-3.02.2` [Camila Calderón / 3h]: Maquetar `DetalleServicioView` con foto destacada, precio, tiempo y protocolo paso a paso.
-  * `TSK-3.02.3` [Camila Calderón / 2h]: Conectar transición hacia el flujo de reserva transmitiendo el ID del servicio en el Bloc.
+  * `TSK-3.02.3` [Camila Calderón / 2h]: Conectar transición hacia el flujo de reserva transmitiendo el ID del servicio en el ViewModel.
 
 #### US-3.03: Selección de Estilistas y Asignación Automática ("Cualquiera Disponible")
 * **Prioridad:** Must have | **Estimación:** 5 SP | **Asignado Principal:** Camila Calderón & Alex Alfaro
@@ -232,11 +229,11 @@
   *para* elegir a mi estilista preferido o conseguir el horario más próximo.
 * **Criterios de Aceptación:**
   * **Dado** el endpoint `GET /api/estilistas?servicioId={id}`, **cuando** se consulte, **entonces** la API retorna únicamente estilistas activos vinculados en `estilista_servicios`.
-  * **Dado** `SeleccionEstilistaView`, **cuando** el cliente elija la tarjeta destacada *"Cualquier estilista disponible (Asignación automática más rápida)"*, **entonces** el BLoC almacena `idEstilista = null` para delegar la asignación algorítmica a la API.
+  * **Dado** `SeleccionEstilistaView`, **cuando** el cliente elija la tarjeta destacada *"Cualquier estilista disponible (Asignación automática más rápida)"*, **entonces** el ViewModel almacena `idEstilista = null` para delegar la asignación algorítmica a la API.
 * **Tareas Técnicas Desglosadas:**
   * `TSK-3.03.1` [Alex Alfaro / 4h]: Implementar endpoint `GET /api/estilistas?servicioId={id}` cruzando tabla `estilista_servicios`.
   * `TSK-3.03.2` [Camila Calderón / 4h]: Maquetar `SeleccionEstilistaView` con tarjetas de personal y opción especial destacada "Cualquier estilista disponible".
-  * `TSK-3.03.3` [Camila Calderón / 3h]: Gestionar estado de selección en `ReservaBloc` (`EstilistaSelected` vs `AutoAssignSelected`).
+  * `TSK-3.03.3` [Camila Calderón / 3h]: Gestionar estado de selección en `BookingViewModel` (`SelectedStylist` vs `AutoAssignSelected`).
 
 #### US-3.04: Motor de Cálculo de Disponibilidad Dinámica de Horarios
 * **Prioridad:** Must have | **Estimación:** 8 SP | **Asignado Principal:** Alex Alfaro (Backend) & Camila Calderón (UI)
@@ -253,10 +250,10 @@
     4. Si se solicitó "Cualquier estilista", cruzar la unión de todos los estilistas disponibles para el servicio.
   * **Dado** `SeleccionHorarioView`, **cuando** el cliente pulse una fecha, **entonces** los bloques libres se colorean en verde menta/rosa y los ocupados quedan deshabilitados en gris.
 * **Tareas Técnicas Desglosadas:**
-  * `TSK-3.04.1` [Alex Alfaro / 8h]: Desarrollar `AvailabilityService` en C# implementando el algoritmo de segmentación de slots temporales y cruce de reservas.
-  * `TSK-3.04.2` [Alex Alfaro / 4h]: Implementar endpoint `GET /api/disponibilidad` con caché en memoria para fechas consultadas frecuentemente.
-  * `TSK-3.04.3` [Camila Calderón / 5h]: Maquetar `SeleccionHorarioView` con calendario interactivo y selector de bloques horarios.
-  * `TSK-3.04.4` [Camila Calderón / 3h]: Conectar `DisponibilidadBloc` deshabilitando visualmente los slots no disponibles.
+  * `TSK-3.04.1` [Alex Alfaro / 8h]: Desarrollar `AvailabilityService` en Java Spring Boot implementando el algoritmo de segmentación de slots temporales y cruce de reservas.
+  * `TSK-3.04.2` [Alex Alfaro / 4h]: Implementar endpoint `GET /api/disponibilidad` con consultas optimizadas para fechas consultadas frecuentemente.
+  * `TSK-3.04.3` [Camila Calderón / 5h]: Maquetar `SeleccionHorarioView` en XAML con calendario interactivo y selector de bloques horarios.
+  * `TSK-3.04.4` [Camila Calderón / 3h]: Conectar `AvailabilityViewModel` deshabilitando visualmente los slots no disponibles.
   * `TSK-3.04.5` [Alex & Camila / 3h]: Pruebas integradas de casos límite (horarios de almuerzo, citas continuas y días no laborables).
 
 ---
@@ -277,10 +274,10 @@
     * Si el slot sigue desocupado: aprueba la reserva, asigna estación de trabajo libre y devuelve `201 Created` con el código generado.
     * Si otro usuario confirmó milisegundos antes el mismo slot: hace *Rollback* y devuelve `409 Conflict` (RFC 7807) con el mensaje: *"El estilista ya no tiene disponible la franja horaria solicitada"*.
 * **Tareas Técnicas Desglosadas:**
-  * `TSK-4.01.1` [Alex Alfaro / 6h]: Implementar `CreateAppointmentUseCase` con transacción ACID en EF Core y bloqueo pesimista contra solapamientos.
-  * `TSK-4.01.2` [Alex Alfaro / 3h]: Implementar asignación automática de estación de trabajo libre (`estaciones_trabajo`) según categoría del servicio.
-  * `TSK-4.01.3` [Camila Calderón / 4h]: Maquetar `ResumenReservaView` con ficha descriptiva de costos, impuestos y botón de confirmación.
-  * `TSK-4.01.4` [Camila Calderón / 4h]: Conectar `ReservaBloc` con `POST /api/reservas` y manejar respuestas de éxito y error `409 Conflict`.
+  * `TSK-4.01.1` [Alex Alfaro / 6h]: Implementar `CreateAppointmentUseCase` con transacción ACID en backend y bloqueo contra solapamientos.
+  * `TSK-4.01.2` [Alex Alfaro / 3h]: Implementar asignación automática de estación de trabajo libre según categoría del servicio.
+  * `TSK-4.01.3` [Camila Calderón / 4h]: Maquetar `ResumenReservaView` en XAML con ficha descriptiva de costos, impuestos y botón de confirmación.
+  * `TSK-4.01.4` [Camila Calderón / 4h]: Conectar `BookingViewModel` con `POST /api/reservas` y manejar respuestas de éxito y error `409 Conflict`.
 
 #### US-4.02: Comprobante y Confirmación de Cita con Código Único
 * **Prioridad:** Must have | **Estimación:** 3 SP | **Asignado Principal:** Camila Calderón & Alex Alfaro
@@ -294,7 +291,7 @@
   * **Dado** los botones de acción, **cuando** el cliente pulse *"Ver en Mis Citas"*, **entonces** navega a la pestaña de historial; si pulsa *"Volver al Inicio"*, regresa al catálogo.
 * **Tareas Técnicas Desglosadas:**
   * `TSK-4.02.1` [Alex Alfaro / 2h]: Desarrollar generador de código de reserva alfanumérico único (`#SHU-XXXX`) garantizando no duplicidad.
-  * `TSK-4.02.2` [Camila Calderón / 3h]: Maquetar `ConfirmacionReservaView` con tarjeta tipo comprobante de cita y detalles de la sucursal.
+  * `TSK-4.02.2` [Camila Calderón / 3h]: Maquetar `ConfirmacionReservaView` en XAML con tarjeta tipo comprobante de cita y detalles de la sucursal.
   * `TSK-4.02.3` [Camila Calderón / 2h]: Configurar redirecciones hacia *"Mis Citas"* o pantalla principal.
 
 #### US-4.03: Historial de Citas del Cliente (Próximas y Pasadas)
@@ -309,8 +306,8 @@
   * **Dado** `HistorialCitasView`, **cuando** el cliente cambie entre pestañas, **entonces** *Citas Futuras* muestra reservas en estado `Pendiente`, y *Citas Pasadas* muestra citas `Completadas` o `Canceladas`.
 * **Tareas Técnicas Desglosadas:**
   * `TSK-4.03.1` [Alex Alfaro / 4h]: Implementar endpoint `GET /api/reservas/cliente/{id}` con validación de claims contra accesos no autorizados.
-  * `TSK-4.03.2` [Camila Calderón / 4h]: Maquetar `HistorialCitasView` con pestañas *"Citas Futuras"* y *"Citas Pasadas"*.
-  * `TSK-4.03.3` [Camila Calderón / 3h]: Conectar `HistorialBloc` y renderizar tarjetas con badges de estado.
+  * `TSK-4.03.2` [Camila Calderón / 4h]: Maquetar `HistorialCitasView` en XAML con pestañas *"Citas Futuras"* y *"Citas Pasadas"*.
+  * `TSK-4.03.3` [Camila Calderón / 3h]: Conectar `AppointmentsHistoryViewModel` y renderizar tarjetas con badges de estado.
 
 #### US-4.04: Cancelación y Solicitud de Reprogramación de Citas
 * **Prioridad:** Should have | **Estimación:** 5 SP | **Asignado Principal:** Camila Calderón & Alex Alfaro
@@ -324,7 +321,7 @@
   * **Dado** que la cita está a menos de 2 horas de su inicio, **cuando** el cliente intente cancelarla, **entonces** la API rechaza la acción con `400 Bad Request` indicando la política de cancelación del salón.
 * **Tareas Técnicas Desglosadas:**
   * `TSK-4.04.1` [Alex Alfaro / 3h]: Implementar endpoint `PUT /api/reservas/{id}/cancelar` con regla de validación de límite de 2 horas.
-  * `TSK-4.04.2` [Camila Calderón / 3h]: Implementar modal de confirmación de cancelación en Flutter.
+  * `TSK-4.04.2` [Camila Calderón / 3h]: Implementar modal de confirmación de cancelación en .NET MAUI.
   * `TSK-4.04.3` [Camila Calderón / 3h]: Conectar flujo de reprogramación redirigiendo al usuario al selector de horario.
   * `TSK-4.04.4` [Camila Calderón / 2h]: Pruebas de QA de cancelación y liberación inmediata de slots en la agenda.
 
@@ -348,10 +345,10 @@
     4. Ocupación de estaciones de trabajo (`Corte`, `Color`, `Peinado`, `Uñas`, `Spa`).
   * **Dado** un usuario con rol `Cliente`, **cuando** intente consultar este endpoint, **entonces** la API responde de inmediato con `403 Forbidden`.
 * **Tareas Técnicas Desglosadas:**
-  * `TSK-5.01.1` [Alex Alfaro / 5h]: Implementar `AdminDashboardController` en C# con consultas agregadas en EF Core para métricas e ingresos.
-  * `TSK-5.01.2` [Alex Alfaro / 2h]: Configurar filtro de autorización `[Authorize(Roles = "Administrador")]`.
-  * `TSK-5.01.3` [Camila Calderón / 5h]: Maquetar `DashboardAdminView` con tarjetas de KPI y monitores de capacidad y cabinas.
-  * `TSK-5.01.4` [Camila Calderón / 3h]: Conectar `AdminDashboardBloc` con la API.
+  * `TSK-5.01.1` [Alex Alfaro / 5h]: Implementar `AdminDashboardController` con consultas para métricas e ingresos.
+  * `TSK-5.01.2` [Alex Alfaro / 2h]: Configurar filtro de autorización de rol de Administrador.
+  * `TSK-5.01.3` [Camila Calderón / 5h]: Maquetar `DashboardAdminView` en XAML con tarjetas de KPI y monitores de capacidad.
+  * `TSK-5.01.4` [Camila Calderón / 3h]: Conectar `AdminDashboardViewModel` con la API.
 
 #### US-5.02: Agenda Diaria Interactiva en Formato Timeline Multi-Estilista
 * **Prioridad:** Must have | **Estimación:** 8 SP | **Asignado Principal:** Camila Calderón & Alex Alfaro
@@ -365,7 +362,7 @@
   * **Dado** la vista en la app, **cuando** el recepcionista visualice la pantalla, **entonces** los bloques ocupados muestran nombre de cliente y servicio, y los bloques libres muestran un botón interactivo `+ Walk-in Client (Libre)`.
 * **Tareas Técnicas Desglosadas:**
   * `TSK-5.02.1` [Alex Alfaro / 6h]: Implementar endpoint `GET /api/admin/agenda` agrupando reservas cronológicas por estilista.
-  * `TSK-5.02.2` [Camila Calderón / 6h]: Maquetar vista Timeline multi-columna con bloques visuales de citas y espacios libres interactivos.
+  * `TSK-5.02.2` [Camila Calderón / 6h]: Maquetar vista Timeline multi-columna en XAML con bloques visuales de citas y espacios libres interactivos.
   * `TSK-5.02.3` [Camila Calderón / 3h]: Conectar selector de fecha para cambiar el día de visualización de la agenda.
 
 #### US-5.03: Registro Rápido de Clientes Presenciales ("Walk-in Clients")
@@ -380,7 +377,7 @@
   * **Dado** el registro exitoso, **cuando** se refresque la agenda Timeline, **entonces** el slot libre pasa a estar ocupado por el cliente presencial.
 * **Tareas Técnicas Desglosadas:**
   * `TSK-5.03.1` [Alex Alfaro / 4h]: Implementar endpoint `POST /api/reservas/walk-in` guardando datos en campos `nombre_walk_in` y `telefono_walk_in`.
-  * `TSK-5.03.2` [Camila Calderón / 4h]: Maquetar formulario modal rápido invocado desde los bloques libres de la agenda.
+  * `TSK-5.03.2` [Camila Calderón / 4h]: Maquetar formulario modal rápido en XAML invocado desde los bloques libres de la agenda.
   * `TSK-5.03.3` [Camila Calderón / 3h]: Refrescar automáticamente la vista Timeline tras registrar una cita presencial.
 
 #### US-5.04: Gestión del Ciclo de Vida y Auditoría de Estados de Citas
@@ -395,7 +392,7 @@
   * **Dado** el cambio de estado, **cuando** se ejecute la actualización, **entonces** la API inserta automáticamente una fila en `public.historial_estado_reserva` con `id_usuario_cambio`, fecha y estado anterior/nuevo.
 * **Tareas Técnicas Desglosadas:**
   * `TSK-5.04.1` [Alex Alfaro / 3h]: Implementar `PUT /api/admin/reservas/{id}/estado` con guardado automático en `historial_estado_reserva`.
-  * `TSK-5.04.2` [Camila Calderón / 3h]: Maquetar `EstadoReservaView` con selector de estados operativos y campo de observaciones.
+  * `TSK-5.04.2` [Camila Calderón / 3h]: Maquetar `EstadoReservaView` en XAML con selector de estados operativos y campo de observaciones.
   * `TSK-5.04.3` [Camila Calderón / 2h]: Pruebas de QA de cambio de estado y verificación de auditoría en base de datos.
 
 #### US-5.05: Mantenimiento de Catálogo de Servicios y Precios
@@ -410,7 +407,7 @@
   * **Dado** un servicio desactivado, **cuando** un cliente consulte el catálogo móvil, **entonces** este servicio no se renderiza.
 * **Tareas Técnicas Desglosadas:**
   * `TSK-5.05.1` [Alex Alfaro / 3h]: Implementar endpoints `POST /api/servicios` y `PUT /api/servicios/{id}` para creación y edición de tarifas.
-  * `TSK-5.05.2` [Camila Calderón / 3h]: Maquetar `AdministracionCatalogoView` con switches on/off y modal de edición de precios.
+  * `TSK-5.05.2` [Camila Calderón / 3h]: Maquetar `AdministracionCatalogoView` en XAML con switches on/off y modal de edición de precios.
   * `TSK-5.05.3` [Camila Calderón / 2h]: Pruebas de actualización y reflejo inmediato en el catálogo del cliente.
 
 #### US-5.06: Control de Disponibilidad y Turnos de Estilistas
@@ -424,7 +421,7 @@
   * **Dado** `EstadoEstilistaView`, **cuando** se marque un estilista como inactivo temporal, **entonces** el motor de cálculo de disponibilidad de la US-3.04 omite sus slots para citas futuras.
 * **Tareas Técnicas Desglosadas:**
   * `TSK-5.06.1` [Alex Alfaro / 2h]: Implementar endpoint `PUT /api/estilistas/{id}/estado` actualizando `estado_disponibilidad`.
-  * `TSK-5.06.2` [Camila Calderón / 3h]: Maquetar `EstadoEstilistaView` con lista de profesionales y selectores de disponibilidad.
+  * `TSK-5.06.2` [Camila Calderón / 3h]: Maquetar `EstadoEstilistaView` en XAML con lista de profesionales y selectores de disponibilidad.
   * `TSK-5.06.3` [Alex & Camila / 2h]: Verificar que estilistas inactivos queden automáticamente excluidos del cálculo de disponibilidad de citas.
 
 ---
@@ -436,14 +433,14 @@
 * **Prioridad:** Must have | **Estimación:** 5 SP | **Asignado Principal:** Camila Calderón (QA) & Alex Alfaro (Backend)
 * **Descripción:**  
   *Como* equipo de desarrollo,  
-  *quiero* implementar pruebas automatizadas con xUnit en C# y `bloc_test` en Flutter,  
+  *quiero* implementar pruebas automatizadas en backend con JUnit 5 / Mockito y pruebas unitarias con xUnit / Moq para ViewModels en .NET MAUI,  
   *para* asegurar que los casos de uso principales funcionen sin regresiones.
 * **Criterios de Aceptación:**
-  * **Backend:** Pruebas unitarias para el algoritmo de cálculo de disponibilidad horaria y validadores de FluentValidation.
-  * **Frontend:** Pruebas de BLoC para el flujo completo de reserva (`CitasBloc`: estados `Loading` $\rightarrow$ `AppointmentCreated`).
+  * **Backend:** Pruebas unitarias con JUnit 5 para el ciclo CRUD de servicios (`t1_crear` a `t6_eliminar`) y el algoritmo de disponibilidad horaria.
+  * **Frontend:** Pruebas de ViewModels para el flujo completo de reserva (`ReservaViewModel`: estados `IsBusy` $\rightarrow$ `AppointmentCreated`).
 * **Tareas Técnicas Desglosadas:**
-  * `TSK-6.01.1` [Alex Alfaro / 5h]: Crear proyecto `ShushineStudio.Api.Tests` en xUnit con pruebas unitarias para `AvailabilityService` y validaciones FluentValidation.
-  * `TSK-6.01.2` [Camila Calderón / 5h]: Implementar pruebas automatizadas con `bloc_test` para `AuthBloc` y `ReservaBloc` en Flutter.
+  * `TSK-6.01.1` [Alex Alfaro / 5h]: Implementar pruebas unitarias de backend con JUnit 5 y Mockito para `AvailabilityService` y validaciones de negocio.
+  * `TSK-6.01.2` [Camila Calderón / 5h]: Implementar pruebas automatizadas con xUnit/Moq para `AuthViewModel` y `ReservaViewModel` en .NET MAUI.
 
 #### US-6.02: Pruebas de Estrés y Concurrencia Transaccional (RNF02)
 * **Prioridad:** Must have | **Estimación:** 5 SP | **Asignado Principal:** Camila Calderón & Alex Alfaro
@@ -452,7 +449,7 @@
   *quiero* simular peticiones simultáneas de reserva sobre el mismo slot de estilista con k6 o Apache JMeter,  
   *para* certificar que el sistema jamás produzca una doble reserva (*Overbooking*).
 * **Criterios de Aceptación:**
-  * **Dado** 50 peticiones concurrentes enviadas en el mismo segundo para el mismo estilista, fecha y hora, **cuando** la API las procese, **entonces** exactamente 1 petición debe retornar `201 Created` y las 49 restantes deben retornar `409 Conflict` bajo el formato RFC 7807.
+  * **Dado** 50 peticiones concurrentes enviadas en el mismo segundo para el mismo estilista, fecha y hora, **cuando** la API las procese, **entonces** exactamente 1 petición debe retornar `201 Created` y las 49 restantes deben retornar `409 Conflict` bajo el formato RFC 7807 (`ProblemDetail`).
 * **Tareas Técnicas Desglosadas:**
   * `TSK-6.02.1` [Alex Alfaro / 4h]: Crear script de prueba de carga con k6 simulando 50 peticiones concurrentes en el mismo milisegundo.
   * `TSK-6.02.2` [Camila Calderón & Alex Alfaro / 4h]: Ejecutar prueba de carga, capturar evidencias de logs y verificar 1 respuesta 201 y 49 respuestas 409 Conflict.
@@ -461,24 +458,24 @@
 * **Prioridad:** Must have | **Estimación:** 6 SP | **Asignado Principal:** Alex Alfaro & Camila Calderón
 * **Descripción:**  
   *Como* equipo de desarrollo,  
-  *quiero* publicar la Web API en Azure App Service y compilar el APK release de Flutter con variables de entorno protegidas,  
+  *quiero* desplegar la Web API Java Spring Boot y compilar el paquete Release de .NET MAUI con variables de entorno protegidas,  
   *para* presentar la solución funcional ante los docentes de ESFE AGAPE / MEGATEC.
 * **Criterios de Aceptación:**
   * La Web API se encuentra accesible bajo HTTPS con Swagger activo en producción/staging.
-  * La app móvil en Flutter se conecta de forma transparente con Supabase y la API en Azure.
+  * La app móvil en .NET MAUI se conecta de forma transparente con Supabase y la API.
 * **Tareas Técnicas Desglosadas:**
-  * `TSK-6.03.1` [Alex Alfaro / 4h]: Publicar Web API en Azure App Service configurando App Settings y cadena de conexión segura.
-  * `TSK-6.03.2` [Camila Calderón / 4h]: Compilar APK Release de Flutter apuntando a la URL pública de Azure.
+  * `TSK-6.03.1` [Alex Alfaro / 4h]: Publicar Web API en el entorno cloud / App Service configurando variables de entorno y conexión segura a Supabase.
+  * `TSK-6.03.2` [Camila Calderón / 4h]: Compilar paquete Release de .NET MAUI apuntando a la URL pública de la API.
   * `TSK-6.03.3` [Alex & Camila / 3h]: Redactar reporte final y preparar entorno para demostración académica en vivo.
 
 ---
 
 ## 4. Matriz de Trazabilidad Cruzada
 
-| Código RF / RNF | Historia de Usuario (US) | Vista / Wireframe | Endpoint API C# | Tabla BD Principal | Responsables |
+| Código RF / RNF | Historia de Usuario (US) | Vista / Wireframe | Endpoint API (Spring Boot) | Tabla BD Principal | Responsables |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **RF01** | US-2.01 (Registro) | `RegistroClienteView` (Pág. 5) | `POST /api/auth/registro` | `usuarios`, `clientes` | Camila (UI) / Alex (BD) |
-| **RF02** | US-2.02 (Login JWT) | `LoginClienteView` (Pág. 6) | Supabase Auth + C# Middleware | `usuarios`, `roles` | Camila (UI) / Alex (Hook) |
+| **RF02** | US-2.02 (Login JWT) | `LoginClienteView` (Pág. 6) | Supabase Auth + Spring Security JWT | `usuarios`, `roles` | Camila (UI) / Alex (Hook) |
 | **RF03** | US-3.01 (Catálogo) | `CatalogoServiciosView` (Pág. 7) | `GET /api/servicios` | `servicios`, `categorias_servicio` | Alex (API) / Camila (UI) |
 | **RF04** | US-3.03 (Estilistas) | `SeleccionEstilistaView` (Pág. 9) | `GET /api/estilistas` | `estilistas`, `estilista_servicios` | Alex (API) / Camila (UI) |
 | **RF05** | US-3.04 (Disponibilidad) | `SeleccionHorarioView` (Pág. 10) | `GET /api/disponibilidad` | `horarios_estilista`, `reservas` | Alex (Reglas) / Camila (UI) |
@@ -489,7 +486,7 @@
 | **RF10** | US-5.03 (Walk-in Clients) | `WalkInClientView` (Pág. 16) | `POST /api/reservas/walk-in` | `reservas` | Alex (API) / Camila (UI) |
 | **RF11** | US-5.04 (Estado Reserva) | `EstadoReservaView` (Pág. 17) | `PUT /api/admin/reservas/{id}/estado` | `reservas`, `historial_estado_reserva` | Alex (API) / Camila (UI) |
 | **RF12** | US-5.05 / US-5.06 (Mantenimiento) | `AdministracionCatalogoView` (Pág. 18-19) | `PUT /api/servicios/{id}` | `servicios`, `estilistas` | Alex (API) / Camila (UI) |
-| **RNF01** | US-1.02 / US-2.02 (RBAC) | Todas las vistas protegidas | Filtros `[Authorize(Roles = "...")]` | `roles`, JWT Claims | Alex (Backend) |
+| **RNF01** | US-1.02 / US-2.02 (RBAC) | Todas las vistas protegidas | `@PreAuthorize("hasRole('...')")` | `roles`, JWT Claims | Alex (Backend) |
 | **RNF02** | US-4.01 / US-6.02 (Concurrencia) | `ResumenReservaView` (Pág. 11) | `POST /api/reservas` (Transacción ACID) | `reservas` (`ix_reservas_disponibilidad`) | Alex (Backend) / Camila (QA) |
 | **RNF03** | US-3.04 (Disponibilidad Dinámica) | `SeleccionHorarioView` (Pág. 10) | `GET /api/disponibilidad` | `horarios_estilista`, `reservas` | Alex (Backend) |
 | **RNF04** | US-4.03 (Privacidad de Datos) | `HistorialCitasView` (Pág. 13) | `GET /api/reservas/cliente/{id}` | Token Claims `internal_user_id` | Alex (Backend) |

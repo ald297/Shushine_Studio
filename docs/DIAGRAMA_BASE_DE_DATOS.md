@@ -4,7 +4,7 @@
 > **Institución:** Escuela Superior Franciscana Especializada – AGAPE (ESFE AGAPE / MEGATEC)  
 > **Carrera:** Técnico en Ingeniería de Desarrollo de Software | **Módulo:** Construcción de APIs Web  
 > **Equipo:** Alex Fernando Alfaro Diaz (Backend / Scrum Master) & Camila Antonia Calderon Cortez (Móvil / QA)  
-> **Motor de Persistencia:** PostgreSQL 15+ (Supabase) | **ORM:** Entity Framework Core (`Npgsql`)  
+> **Motor de Persistencia:** PostgreSQL 15+ (Supabase) | **ORM:** Spring Data JPA / Hibernate (HikariCP)  
 > **Estado:** Modelo Completo Expandido (23 Tablas Relacionales + 6 Buckets de Storage)  
 
 ---

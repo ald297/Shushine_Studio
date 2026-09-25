@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Profile"
+             x:Class="ShushineStudio.Mobile.Presentation.Views.Profile.ProfilePage"
+             x:DataType="vm:ProfileViewModel"
+             BackgroundColor="{StaticResource BackgroundColor}"
+             Title="Mi Perfil">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="20">
+            
+            <!-- Avatar y Saludo -->
+            <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                <Border StrokeShape="RoundRectangle 50" 
+                        HeightRequest="90" 
+                        WidthRequest="90"
+                        Stroke="{StaticResource PrimaryColor}"
+                        StrokeThickness="2"
+                        BackgroundColor="{StaticResource SecondaryLight}">
+                    <Label Text="👩‍🦰" FontSize="44" HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+                <Label Text="{Binding Nombre}" 
+                       FontSize="20" 
+                       FontAttributes="Bold" 
+                       HorizontalOptions="Center" />
+                <Label Text="{Binding Email}" 
+                       FontSize="13" 
+                       TextColor="{StaticResource TextColorSecondary}" 
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <!-- Tarjeta: Fidelidad y Descuento -->
+            <Border Style="{StaticResource CardBorderStyle}" BackgroundColor="{StaticResource SecondaryLight}">
+                <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12">
+                    <Label Grid.Column="0" Text="✨" FontSize="28" VerticalOptions="Center" />
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                        <Label Text="Membresía Shushine" FontSize="12" TextColor="{StaticResource PrimaryDark}" FontAttributes="Bold" />
+                        <Label Text="{Binding NivelFidelidad}" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!-- Tarjeta: Ficha Técnica Capilar -->
+            <Border Style="{StaticResource CardBorderStyle}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Ficha Técnica &amp; Preferencias" 
+                           FontAttributes="Bold" 
+                           FontSize="16" 
+                           TextColor="{StaticResource PrimaryColor}" />
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Tipo de Cabello / Diagnóstico:" FontSize="12" TextColor="{StaticResource TextColorSecondary}" />
+                        <Label Text="{Binding TipoCabello}" FontSize="14" FontAttributes="Bold" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Botón Cerrar Sesión -->
+            <Button Text="Cerrar Sesión" 
+                    Command="{Binding CerrarSesionCommand}" 
+                    Style="{StaticResource SecondaryButtonStyle}" 
+                    Margin="0,15,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

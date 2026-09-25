@@ -1,7 +1,7 @@
 # 📋 Recordatorios y Guía de Configuración en Supabase — Shunshine Studio
 
 > **Ubicación:** Raíz del proyecto (`RECORDATORIOS_SUPABASE.md`)  
-> **Objetivo:** Documentar todas las acciones manuales, configuraciones del panel y scripts SQL que deben ejecutarse en la consola de **Supabase** para garantizar la integración fluida con la **Web API C#** y la **App Móvil Flutter**.
+> **Objetivo:** Documentar todas las acciones manuales, configuraciones del panel y scripts SQL que deben ejecutarse en la consola de **Supabase** para garantizar la integración fluida con la **Web API** y la **App Móvil .NET MAUI**.
 
 ---
 
@@ -29,15 +29,17 @@
 ## 2. Sincronización Automática de Usuarios (Trigger PostgreSQL)
 
 ### ⚠️ El Problema
-Cuando un cliente se registra en Flutter mediante:
-```dart
-await supabase.auth.signUp(
-  email: email,
-  password: password,
-  data: {
-    'nombre_completo': 'María López',
-    'telefono': '7012-3456',
-  },
+Cuando un cliente se registra en .NET MAUI mediante C#:
+```csharp
+var session = await supabaseClient.Auth.SignUp(
+    email, 
+    password, 
+    new SignUpOptions { 
+        Data = new Dictionary<string, object> { 
+            { "nombre_completo", "María López" }, 
+            { "telefono", "7012-3456" } 
+        } 
+    }
 );
 ```
 Supabase crea el usuario en la tabla interna `auth.users`, pero **no** en `public.usuarios` ni en `public.clientes`. Sin un trigger, el usuario existirá para iniciar sesión pero no tendrá perfil de cliente en la base de datos del negocio.
@@ -134,7 +136,7 @@ CREATE TRIGGER on_auth_user_created
 ## 3. Inyección de Roles en el JWT (Supabase Auth Hook)
 
 ### ⚠️ El Problema
-Por defecto, el token JWT de Supabase contiene claims como `sub`, `email` y `aud`, pero **no incluye el claim `"role"` con el rol del negocio** (`Cliente`, `Administrador`, `Recepcionista`). Esto complica la autorización en ASP.NET Core con atributos como `[Authorize(Roles = "Administrador")]`.
+Por defecto, el token JWT de Supabase contiene claims como `sub`, `email` y `aud`, pero **no incluye el claim `"role"` con el rol del negocio** (`ADMIN`, `CLIENTE`, `RECEPCIONISTA`). Esto complica la autorización en Spring Security con anotaciones como `@PreAuthorize("hasRole('ADMIN')")`.
 
 ### ✅ La Solución (Auth Hook en PostgreSQL)
 
@@ -199,7 +201,7 @@ Ir a **Authentication** $\rightarrow$ **Providers** $\rightarrow$ **Email**:
 2. **Secure password requirements:**
    * Longitud mínima recomendada: 6 u 8 caracteres.
 3. **URL Configuration:**
-   * Site URL: `http://localhost` (o el scheme de Flutter para deep linking si se usa en el futuro).
+   * Site URL: `http://localhost` (o el scheme de .NET MAUI para deep linking si se usa en el futuro).
 
 ---
 
@@ -222,7 +224,7 @@ Se encuentran configurados los 6 buckets en Supabase Storage:
 
 Copiar los valores desde **Project Settings $\rightarrow$ Database (Connection String)** y colocarlos en los archivos locales (protegidos por `.gitignore`):
 
-### Para el Backend C# (`appsettings.Development.json` o `dotnet user-secrets`):
+### Para el Backend (`application.properties` o `appsettings.Development.json`):
 ```json
 {
   "ConnectionStrings": {
@@ -239,11 +241,11 @@ Copiar los valores desde **Project Settings $\rightarrow$ Database (Connection S
 }
 ```
 
-### Para el Frontend Flutter (`--dart-define` o `.env.local`):
+### Para el Frontend .NET MAUI (`appsettings.json` o `.env.local` / `SecureStorage`):
 ```env
 SUPABASE_URL=https://acikahicfjtojuvqcvxv.supabase.co
 SUPABASE_ANON_KEY=eyJhbGciOi...
-API_BASE_URL=http://localhost:5000/api
+API_BASE_URL=http://localhost:8080/api
 ```
 
 ### Formato URI para Scripts de Migración y Herramientas:
