@@ -8,75 +8,201 @@
              BackgroundColor="{StaticResource BackgroundColor}"
              Title="Mis Citas">
 
-    <RefreshView IsRefreshing="{Binding IsBusy}" Command="{Binding LoadCitasCommand}">
-        <ScrollView>
-            <VerticalStackLayout Padding="20" Spacing="20">
-                
-                <Label Text="Tus Reservaciones"
-                       Style="{StaticResource HeaderLabelStyle}" />
+    <Grid RowDefinitions="Auto, Auto, *">
+        
+        <!-- Cabecera -->
+        <VerticalStackLayout Grid.Row="0" Padding="20,14,20,6" Spacing="4">
+            <Label Text="Tus Reservaciones"
+                   Style="{StaticResource HeaderLabelStyle}"
+                   FontSize="22" />
+            <Label Text="Consulta tus citas programadas y tu histórico de atención en el salón."
+                   Style="{StaticResource SubheaderLabelStyle}"
+                   FontSize="13" />
+        </VerticalStackLayout>
 
-                <!-- Sección: Citas Próximas -->
+        <!-- Selector de Pestañas: Próximas Citas vs Historial Pasado (Wireframe Pág. 13) -->
+        <Grid Grid.Row="1" ColumnDefinitions="*, *" Margin="20,8,20,12" ColumnSpacing="10">
+            <Border Grid.Column="0" 
+                    StrokeShape="RoundRectangle 12" 
+                    Padding="12,10"
+                    Stroke="{StaticResource PrimaryColor}"
+                    BackgroundColor="{StaticResource SurfaceColor}">
                 <Label Text="Próximas Citas" 
                        FontAttributes="Bold" 
-                       FontSize="16" 
-                       TextColor="{StaticResource PrimaryColor}" />
+                       FontSize="13" 
+                       TextColor="{StaticResource PrimaryDark}" 
+                       HorizontalOptions="Center" />
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding VerFuturasCommand}" />
+                </Border.GestureRecognizers>
+            </Border>
 
-                <CollectionView ItemsSource="{Binding CitasProximas}" SelectionMode="None">
-                    <CollectionView.EmptyView>
-                        <Label Text="No tienes citas agendadas próximamente." 
-                               TextColor="{StaticResource TextColorSecondary}" 
-                               Padding="10" />
-                    </CollectionView.EmptyView>
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="entities:Reserva">
-                            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12">
-                                <VerticalStackLayout Spacing="8">
-                                    <Grid ColumnDefinitions="*, Auto">
-                                        <Label Grid.Column="0" 
-                                               Text="{Binding ServicioNombre}" 
-                                               FontAttributes="Bold" 
-                                               FontSize="16" />
-                                        <Border Grid.Column="1" 
-                                                StrokeShape="RoundRectangle 8" 
-                                                BackgroundColor="{StaticResource SecondaryLight}" 
-                                                Padding="8,4">
-                                            <Label Text="{Binding Estado}" 
-                                                   FontSize="11" 
-                                                   FontAttributes="Bold" 
-                                                   TextColor="{StaticResource PrimaryDark}" />
-                                        </Border>
-                                    </Grid>
+            <Border Grid.Column="1" 
+                    StrokeShape="RoundRectangle 12" 
+                    Padding="12,10"
+                    Stroke="{StaticResource BorderColor}"
+                    BackgroundColor="{StaticResource SurfaceColor}">
+                <Label Text="Historial Pasado" 
+                       FontAttributes="Bold" 
+                       FontSize="13" 
+                       TextColor="{StaticResource TextColorSecondary}" 
+                       HorizontalOptions="Center" />
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding VerPasadasCommand}" />
+                </Border.GestureRecognizers>
+            </Border>
+        </Grid>
 
-                                    <Label Text="{Binding EstilistaNombre, StringFormat='Atendido por: {0}'}" 
-                                           FontSize="13" 
-                                           TextColor="{StaticResource TextColorSecondary}" />
-                                    <Label Text="{Binding FechaHoraInicio, StringFormat='📅 {0:dd/MM/yyyy - hh:mm tt}'}" 
-                                           FontSize="13" 
-                                           TextColor="{StaticResource TextColorPrimary}" />
-
-                                    <Grid ColumnDefinitions="*, Auto" Margin="0,5,0,0">
-                                        <Label Grid.Column="0" 
-                                               Text="{Binding Total, StringFormat='Total: ${0:F2}'}" 
-                                               FontAttributes="Bold" 
-                                               TextColor="{StaticResource PrimaryColor}" 
-                                               VerticalOptions="Center" />
-                                        <Button Grid.Column="1" 
-                                                Text="Cancelar Cita" 
-                                                FontSize="12" 
-                                                HeightRequest="36" 
-                                                Padding="12,0" 
-                                                BackgroundColor="{StaticResource ErrorColor}" 
-                                                TextColor="White" 
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyAppointmentsViewModel}}, Path=CancelarCitaCommand}" 
-                                                CommandParameter="{Binding .}" />
-                                    </Grid>
+        <!-- Contenido de las Citas -->
+        <RefreshView Grid.Row="2" IsRefreshing="{Binding IsBusy}" Command="{Binding LoadCitasCommand}">
+            <ScrollView Padding="20,0,20,15">
+                <VerticalStackLayout Spacing="14">
+                    
+                    <!-- 1. Lista de Citas Próximas -->
+                    <VerticalStackLayout IsVisible="{Binding MostrarFuturas}" Spacing="12">
+                        <CollectionView ItemsSource="{Binding CitasProximas}" SelectionMode="None">
+                            <CollectionView.EmptyView>
+                                <VerticalStackLayout Padding="35" Spacing="10" VerticalOptions="Center">
+                                    <Label Text="📅" FontSize="36" HorizontalOptions="Center" />
+                                    <Label Text="No tienes citas agendadas próximamente." 
+                                           FontAttributes="Bold"
+                                           TextColor="{StaticResource TextColorPrimary}" 
+                                           HorizontalOptions="Center" />
+                                    <Label Text="¡Explora nuestro catálogo y reserva tu momento de relax!" 
+                                           FontSize="12"
+                                           TextColor="{StaticResource TextColorSecondary}" 
+                                           HorizontalOptions="Center" />
                                 </VerticalStackLayout>
-                            </Border>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                            </CollectionView.EmptyView>
+                            
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="entities:Reserva">
+                                    <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12" Padding="16">
+                                        <VerticalStackLayout Spacing="10">
+                                            
+                                            <!-- Código y Badge de Estado -->
+                                            <Grid ColumnDefinitions="*, Auto">
+                                                <VerticalStackLayout Grid.Column="0" Spacing="1">
+                                                    <Label Text="{Binding CodigoReserva}" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
+                                                    <Label Text="{Binding ServicioNombre}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                                                </VerticalStackLayout>
 
-            </VerticalStackLayout>
-        </ScrollView>
-    </RefreshView>
+                                                <Border Grid.Column="1" 
+                                                        StrokeShape="RoundRectangle 8" 
+                                                        BackgroundColor="{StaticResource SecondaryLight}" 
+                                                        Padding="8,4">
+                                                    <Label Text="{Binding Estado}" 
+                                                           FontSize="11" 
+                                                           FontAttributes="Bold" 
+                                                           TextColor="{StaticResource PrimaryDark}" />
+                                                </Border>
+                                            </Grid>
+
+                                            <!-- Estilista y Fecha/Hora -->
+                                            <Label Text="{Binding EstilistaNombre, StringFormat='Atención con: {0}'}" 
+                                                   FontSize="13" 
+                                                   TextColor="{StaticResource TextColorSecondary}" />
+                                            <Label Text="{Binding FechaHoraInicio, StringFormat='📅 {0:dd/MM/yyyy - hh:mm tt}'}" 
+                                                   FontSize="13" 
+                                                   FontAttributes="Bold"
+                                                   TextColor="{StaticResource TextColorPrimary}" />
+
+                                            <BoxView HeightRequest="1" Color="{StaticResource BorderColor}" Margin="0,2" />
+
+                                            <!-- Total y Botón Cancelar -->
+                                            <Grid ColumnDefinitions="*, Auto">
+                                                <Label Grid.Column="0" 
+                                                       Text="{Binding Total, StringFormat='Total: ${0:F2}'}" 
+                                                       FontAttributes="Bold" 
+                                                       FontSize="15"
+                                                       TextColor="{StaticResource PrimaryDark}" 
+                                                       VerticalOptions="Center" />
+                                                <Button Grid.Column="1" 
+                                                        Text="Cancelar Cita" 
+                                                        FontSize="12" 
+                                                        HeightRequest="36" 
+                                                        Padding="12,0" 
+                                                        BackgroundColor="#E74C3C" 
+                                                        TextColor="White" 
+                                                        CornerRadius="8"
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyAppointmentsViewModel}}, Path=CancelarCitaCommand}" 
+                                                        CommandParameter="{Binding .}" />
+                                            </Grid>
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+
+                    <!-- 2. Lista de Citas Pasadas (Historial) -->
+                    <VerticalStackLayout IsVisible="{Binding MostrarFuturas, Converter={x:Null}}" Spacing="12">
+                        <CollectionView ItemsSource="{Binding CitasPasadas}" SelectionMode="None">
+                            <CollectionView.EmptyView>
+                                <VerticalStackLayout Padding="35" Spacing="10" VerticalOptions="Center">
+                                    <Label Text="📋" FontSize="36" HorizontalOptions="Center" />
+                                    <Label Text="Aún no tienes historial de citas pasadas." 
+                                           FontAttributes="Bold"
+                                           TextColor="{StaticResource TextColorPrimary}" 
+                                           HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </CollectionView.EmptyView>
+                            
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="entities:Reserva">
+                                    <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12" Padding="16">
+                                        <VerticalStackLayout Spacing="10">
+                                            
+                                            <Grid ColumnDefinitions="*, Auto">
+                                                <VerticalStackLayout Grid.Column="0" Spacing="1">
+                                                    <Label Text="{Binding CodigoReserva}" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" />
+                                                    <Label Text="{Binding ServicioNombre}" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                                                </VerticalStackLayout>
+
+                                                <Border Grid.Column="1" 
+                                                        StrokeShape="RoundRectangle 8" 
+                                                        BackgroundColor="{StaticResource BackgroundColor}" 
+                                                        Padding="8,4">
+                                                    <Label Text="{Binding Estado}" 
+                                                           FontSize="11" 
+                                                           FontAttributes="Bold" 
+                                                           TextColor="{StaticResource TextColorSecondary}" />
+                                                </Border>
+                                            </Grid>
+
+                                            <Label Text="{Binding EstilistaNombre, StringFormat='Atendida por: {0}'}" 
+                                                   FontSize="12" 
+                                                   TextColor="{StaticResource TextColorSecondary}" />
+                                            <Label Text="{Binding FechaHoraInicio, StringFormat='📅 {0:dd/MM/yyyy}'}" 
+                                                   FontSize="12" 
+                                                   TextColor="{StaticResource TextColorSecondary}" />
+
+                                            <Grid ColumnDefinitions="*, Auto">
+                                                <Label Grid.Column="0" 
+                                                       Text="{Binding Total, StringFormat='${0:F2}'}" 
+                                                       FontAttributes="Bold" 
+                                                       FontSize="14"
+                                                       TextColor="{StaticResource TextColorPrimary}" 
+                                                       VerticalOptions="Center" />
+                                                <Button Grid.Column="1" 
+                                                        Text="Volver a Agendar" 
+                                                        FontSize="11" 
+                                                        HeightRequest="34" 
+                                                        Padding="12,0" 
+                                                        Style="{StaticResource SecondaryButtonStyle}"
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyAppointmentsViewModel}}, Path=ReprogramarCitaCommand}" 
+                                                        CommandParameter="{Binding .}" />
+                                            </Grid>
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+
+    </Grid>
 </ContentPage>

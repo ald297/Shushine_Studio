@@ -4,7 +4,12 @@ public class Reserva
 {
     public long Id { get; set; }
     public string CodigoCita { get; set; } = string.Empty;
-    public string CodigoReserva => CodigoCita; // Alias de retrocompatibilidad
+
+    public string CodigoReserva
+    {
+        get => !string.IsNullOrEmpty(CodigoCita) ? CodigoCita : "#SHU-0000";
+        set => CodigoCita = value;
+    }
 
     public long ClienteId { get; set; }
     public string ClienteNombre { get; set; } = string.Empty;
@@ -13,27 +18,44 @@ public class Reserva
     public long EstilistaId { get; set; }
     public string EstilistaNombre { get; set; } = string.Empty;
 
+    public long ServicioId { get; set; }
+
     public string FechaCita { get; set; } = string.Empty; // "yyyy-MM-dd"
     public string HoraInicio { get; set; } = string.Empty; // "HH:mm"
     public string HoraFin { get; set; } = string.Empty; // "HH:mm"
 
+    private DateTime? _fechaHoraInicio;
     public DateTime FechaHoraInicio
     {
         get
         {
+            if (_fechaHoraInicio.HasValue) return _fechaHoraInicio.Value;
             if (DateTime.TryParse($"{FechaCita} {HoraInicio}", out var dt))
                 return dt;
             return DateTime.MinValue;
         }
+        set
+        {
+            _fechaHoraInicio = value;
+            FechaCita = value.ToString("yyyy-MM-dd");
+            HoraInicio = value.ToString("HH:mm");
+        }
     }
 
+    private DateTime? _fechaHoraFin;
     public DateTime FechaHoraFin
     {
         get
         {
+            if (_fechaHoraFin.HasValue) return _fechaHoraFin.Value;
             if (DateTime.TryParse($"{FechaCita} {HoraFin}", out var dt))
                 return dt;
             return DateTime.MinValue;
+        }
+        set
+        {
+            _fechaHoraFin = value;
+            HoraFin = value.ToString("HH:mm");
         }
     }
 
@@ -48,12 +70,16 @@ public class Reserva
 
     public List<string> ServiciosNombres { get; set; } = new();
 
-    // Propiedades calculadas para presentación XAML
+    private string? _servicioNombre;
+    public string ServicioNombre
+    {
+        get => !string.IsNullOrEmpty(_servicioNombre) ? _servicioNombre : ServiciosResumen;
+        set => _servicioNombre = value;
+    }
+
     public string ServiciosResumen => ServiciosNombres != null && ServiciosNombres.Count > 0
         ? string.Join(", ", ServiciosNombres)
         : "Servicio de Belleza";
-
-    public string ServicioNombre => ServiciosResumen; // Alias para vistas previas
 
     public string TotalFormateado => $"${Total:N2}";
     public string SubtotalFormateado => $"${Subtotal:N2}";

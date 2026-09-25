@@ -8,28 +8,52 @@
              BackgroundColor="{StaticResource BackgroundColor}"
              Title="Servicios de Belleza">
 
-    <Grid RowDefinitions="Auto, Auto, *">
+    <Grid RowDefinitions="Auto, Auto, Auto, *">
         
-        <!-- Cabecera de Búsqueda y Bienvenida -->
-        <VerticalStackLayout Grid.Row="0" Padding="20,15,20,5" Spacing="4">
+        <!-- 1. Cabecera de Bienvenida -->
+        <VerticalStackLayout Grid.Row="0" Padding="20,12,20,4" Spacing="4">
+            <Label Text="Shushine Studio"
+                   FontSize="14"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource PrimaryColor}" />
             <Label Text="Nuestros Tratamientos"
-                   Style="{StaticResource HeaderLabelStyle}" />
+                   Style="{StaticResource HeaderLabelStyle}"
+                   FontSize="24" />
             <Label Text="Elige tu servicio favorito y agenda tu cita al instante"
-                   Style="{StaticResource SubheaderLabelStyle}" />
+                   Style="{StaticResource SubheaderLabelStyle}"
+                   FontSize="13" />
         </VerticalStackLayout>
 
-        <!-- Filtros Rápidos por Categoría (Chips) -->
-        <ScrollView Grid.Row="1" Orientation="Horizontal" HorizontalScrollBarVisibility="Never" Padding="20,10">
-            <HorizontalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Categorias}">
+        <!-- 2. Barra de Búsqueda de Tratamientos (US-3.01 / Wireframe Pág. 7) -->
+        <Border Grid.Row="1" 
+                Style="{StaticResource InputContainerStyle}" 
+                Margin="20,8,20,6"
+                Padding="8,0">
+            <Grid ColumnDefinitions="Auto, *">
+                <Label Grid.Column="0" Text="🔍" FontSize="16" VerticalOptions="Center" Margin="4,0,8,0" />
+                <Entry Grid.Column="1"
+                       Placeholder="Buscar tinte, manicura, corte..."
+                       Text="{Binding SearchText}"
+                       ClearButtonVisibility="WhileEditing" />
+            </Grid>
+        </Border>
+
+        <!-- 3. Selector Horizontal de Categorías (Chips) -->
+        <ScrollView Grid.Row="2" 
+                    Orientation="Horizontal" 
+                    HorizontalScrollBarVisibility="Never" 
+                    Padding="20,6,20,8">
+            <HorizontalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding Categorias}">
                 <BindableLayout.ItemTemplate>
                     <DataTemplate x:DataType="x:String">
-                        <Border StrokeShape="RoundRectangle 20"
+                        <Border StrokeShape="RoundRectangle 18"
                                 Stroke="{StaticResource PrimaryColor}"
                                 BackgroundColor="{StaticResource SurfaceColor}"
-                                Padding="16,8">
+                                Padding="14,6">
                             <Label Text="{Binding .}" 
+                                   FontSize="13"
                                    FontAttributes="Bold"
-                                   TextColor="{StaticResource PrimaryColor}" />
+                                   TextColor="{StaticResource PrimaryDark}" />
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer 
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, Path=FilterByCategoriaCommand}"
@@ -41,21 +65,27 @@
             </HorizontalStackLayout>
         </ScrollView>
 
-        <!-- Lista de Servicios en CollectionView -->
-        <RefreshView Grid.Row="2"
+        <!-- 4. Listado de Servicios en CollectionView -->
+        <RefreshView Grid.Row="3"
                      IsRefreshing="{Binding IsBusy}"
                      Command="{Binding LoadServiciosCommand}">
             <CollectionView ItemsSource="{Binding Servicios}"
                             SelectionMode="None"
                             Margin="20,0,20,10">
                 <CollectionView.ItemsLayout>
-                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="16" />
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="14" />
                 </CollectionView.ItemsLayout>
                 
                 <CollectionView.EmptyView>
                     <VerticalStackLayout Padding="40" Spacing="10" VerticalOptions="Center">
-                        <Label Text="No se encontraron servicios en esta categoría."
+                        <Label Text="✨" FontSize="36" HorizontalOptions="Center" />
+                        <Label Text="No encontramos servicios con ese criterio."
                                HorizontalOptions="Center"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextColorPrimary}" />
+                        <Label Text="Intenta seleccionar otra categoría o cambiar tu búsqueda."
+                               HorizontalOptions="Center"
+                               FontSize="12"
                                TextColor="{StaticResource TextColorSecondary}" />
                     </VerticalStackLayout>
                 </CollectionView.EmptyView>
@@ -63,25 +93,25 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="entities:Servicio">
                         <Border Style="{StaticResource CardBorderStyle}" Padding="0">
-                            <Grid ColumnDefinitions="110, *" Padding="12" ColumnSpacing="14">
+                            <Grid ColumnDefinitions="95, *" Padding="12" ColumnSpacing="12">
                                 
-                                <!-- Placeholder / Foto del Tratamiento -->
+                                <!-- Icono / Foto del Tratamiento -->
                                 <Border Grid.Column="0" 
                                         StrokeShape="RoundRectangle 12" 
-                                        HeightRequest="95" 
-                                        WidthRequest="95"
+                                        HeightRequest="90" 
+                                        WidthRequest="90"
                                         BackgroundColor="{StaticResource SecondaryLight}">
-                                    <Label Text="💅" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    <Label Text="✨" FontSize="34" HorizontalOptions="Center" VerticalOptions="Center" />
                                 </Border>
 
                                 <!-- Información del Servicio -->
-                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="5">
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="4">
                                     <Label Text="{Binding CategoriaNombre}" 
                                            FontSize="11" 
                                            FontAttributes="Bold" 
                                            TextColor="{StaticResource PrimaryColor}" />
                                     <Label Text="{Binding Nombre}" 
-                                           FontSize="16" 
+                                           FontSize="15" 
                                            FontAttributes="Bold" 
                                            TextColor="{StaticResource TextColorPrimary}" 
                                            LineBreakMode="TailTruncation" />
@@ -91,18 +121,28 @@
                                            MaxLines="2" 
                                            LineBreakMode="TailTruncation" />
 
-                                    <!-- Precio y Duración -->
+                                    <!-- Precio, Duración y Botón Seleccionar -->
                                     <Grid ColumnDefinitions="*, Auto" Margin="0,4,0,0">
-                                        <Label Grid.Column="0" 
-                                               Text="{Binding Precio, StringFormat='${0:F2}'}" 
-                                               FontSize="16" 
-                                               FontAttributes="Bold" 
-                                               TextColor="{StaticResource PrimaryDark}" />
-                                        <Label Grid.Column="1" 
-                                               Text="{Binding DuracionMinutos, StringFormat='⏱ {0} min'}" 
-                                               FontSize="12" 
-                                               TextColor="{StaticResource TextColorSecondary}" 
-                                               VerticalOptions="Center" />
+                                        <HorizontalStackLayout Grid.Column="0" Spacing="10" VerticalOptions="Center">
+                                            <Label Text="{Binding Precio, StringFormat='${0:F2}'}" 
+                                                   FontSize="16" 
+                                                   FontAttributes="Bold" 
+                                                   TextColor="{StaticResource PrimaryDark}" />
+                                            <Label Text="{Binding DuracionMinutos, StringFormat='⏱ {0} min'}" 
+                                                   FontSize="12" 
+                                                   TextColor="{StaticResource TextColorSecondary}" 
+                                                   VerticalOptions="Center" />
+                                        </HorizontalStackLayout>
+
+                                        <Border Grid.Column="1" 
+                                                StrokeShape="RoundRectangle 8"
+                                                BackgroundColor="{StaticResource PrimaryColor}"
+                                                Padding="10,4">
+                                            <Label Text="Reservar ➔" 
+                                                   TextColor="White" 
+                                                   FontSize="11" 
+                                                   FontAttributes="Bold" />
+                                        </Border>
                                     </Grid>
                                 </VerticalStackLayout>
 

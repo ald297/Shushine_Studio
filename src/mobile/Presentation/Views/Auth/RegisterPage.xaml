@@ -5,74 +5,152 @@
              x:Class="ShushineStudio.Mobile.Presentation.Views.Auth.RegisterPage"
              x:DataType="vm:RegisterViewModel"
              BackgroundColor="{StaticResource BackgroundColor}"
+             Shell.NavBarIsVisible="true"
              Title="{Binding Title}">
 
     <ScrollView>
-        <VerticalStackLayout Padding="30" Spacing="20">
+        <VerticalStackLayout Padding="24" Spacing="20">
             
-            <Label Text="Crear Cuenta"
-                   Style="{StaticResource HeaderLabelStyle}"
-                   FontSize="26" />
-            <Label Text="Completa tus datos para agendar citas y obtener descuentos exclusivos."
-                   TextColor="{StaticResource TextColorSecondary}" />
+            <!-- Cabecera de Registro -->
+            <VerticalStackLayout Spacing="6" Margin="0,10,0,0">
+                <Label Text="Crear Cuenta"
+                       Style="{StaticResource HeaderLabelStyle}"
+                       FontSize="28" />
+                <Label Text="Únete a la experiencia de Shushine Studio y reserva tus tratamientos favoritos."
+                       Style="{StaticResource SubheaderLabelStyle}"
+                       FontSize="14" />
+            </VerticalStackLayout>
 
+            <!-- Formulario de Registro en Tarjeta -->
             <Border Style="{StaticResource CardBorderStyle}" Padding="20">
                 <VerticalStackLayout Spacing="14">
                     
-                    <!-- Nombre Completo -->
+                    <!-- Campo Nombre Completo -->
                     <VerticalStackLayout Spacing="6">
-                        <Label Text="Nombre y Apellidos" FontSize="13" TextColor="{StaticResource TextColorSecondary}" />
+                        <Label Text="Nombre y Apellidos *" 
+                               FontSize="13" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextColorPrimary}" />
                         <Border Style="{StaticResource InputContainerStyle}">
-                            <Entry Placeholder="Camila Calderón"
-                                   Text="{Binding Nombre}" />
+                            <Entry Placeholder="ej. Camila Calderón"
+                                   Text="{Binding Nombre}"
+                                   ReturnType="Next" />
                         </Border>
                     </VerticalStackLayout>
 
-                    <!-- Correo -->
+                    <!-- Campo Correo Electrónico -->
                     <VerticalStackLayout Spacing="6">
-                        <Label Text="Correo Electrónico" FontSize="13" TextColor="{StaticResource TextColorSecondary}" />
+                        <Label Text="Correo Electrónico *" 
+                               FontSize="13" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextColorPrimary}" />
                         <Border Style="{StaticResource InputContainerStyle}">
                             <Entry Placeholder="ejemplo@correo.com"
                                    Text="{Binding Email}"
-                                   Keyboard="Email" />
+                                   Keyboard="Email"
+                                   ReturnType="Next" />
                         </Border>
                     </VerticalStackLayout>
 
-                    <!-- Teléfono -->
+                    <!-- Campo Teléfono / WhatsApp -->
                     <VerticalStackLayout Spacing="6">
-                        <Label Text="Teléfono / WhatsApp" FontSize="13" TextColor="{StaticResource TextColorSecondary}" />
+                        <Label Text="Teléfono / WhatsApp" 
+                               FontSize="13" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextColorPrimary}" />
                         <Border Style="{StaticResource InputContainerStyle}">
-                            <Entry Placeholder="+503 7000-0000"
+                            <Entry Placeholder="7000-0000"
                                    Text="{Binding Telefono}"
-                                   Keyboard="Telephone" />
+                                   Keyboard="Telephone"
+                                   ReturnType="Next" />
                         </Border>
                     </VerticalStackLayout>
 
-                    <!-- Contraseña -->
+                    <!-- Campo Contraseña -->
                     <VerticalStackLayout Spacing="6">
-                        <Label Text="Contraseña" FontSize="13" TextColor="{StaticResource TextColorSecondary}" />
+                        <Label Text="Contraseña (mínimo 6 caracteres) *" 
+                               FontSize="13" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextColorPrimary}" />
                         <Border Style="{StaticResource InputContainerStyle}">
-                            <Entry Placeholder="Mínimo 8 caracteres"
-                                   Text="{Binding Password}"
-                                   IsPassword="true" />
+                            <Grid ColumnDefinitions="*, Auto">
+                                <Entry Grid.Column="0"
+                                       Placeholder="••••••••"
+                                       Text="{Binding Password}"
+                                       IsPassword="{Binding IsPasswordHidden}"
+                                       ReturnType="Next" />
+                                <ImageButton Grid.Column="1"
+                                             Source="eye.png"
+                                             Command="{Binding TogglePasswordVisibilityCommand}"
+                                             HeightRequest="24"
+                                             WidthRequest="24"
+                                             VerticalOptions="Center" />
+                            </Grid>
                         </Border>
                     </VerticalStackLayout>
+
+                    <!-- Campo Confirmar Contraseña -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Confirmar Contraseña *" 
+                               FontSize="13" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextColorPrimary}" />
+                        <Border Style="{StaticResource InputContainerStyle}">
+                            <Grid ColumnDefinitions="*, Auto">
+                                <Entry Grid.Column="0"
+                                       Placeholder="••••••••"
+                                       Text="{Binding ConfirmPassword}"
+                                       IsPassword="{Binding IsPasswordHidden}"
+                                       ReturnType="Done" />
+                                <ImageButton Grid.Column="1"
+                                             Source="eye.png"
+                                             Command="{Binding TogglePasswordVisibilityCommand}"
+                                             HeightRequest="24"
+                                             WidthRequest="24"
+                                             VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Checkbox de Términos y Condiciones -->
+                    <HorizontalStackLayout Spacing="10" Margin="0,6,0,4" VerticalOptions="Center">
+                        <CheckBox IsChecked="{Binding AcceptTerms}" 
+                                  Color="{StaticResource PrimaryColor}" 
+                                  VerticalOptions="Center" />
+                        <Label Text="Acepto los Términos y Condiciones del Salón"
+                               FontSize="12"
+                               TextColor="{StaticResource TextColorSecondary}"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
 
                     <!-- Botón Registrarse -->
-                    <Button Text="Crear mi Cuenta"
+                    <Button Text="Registrarse"
                             Command="{Binding RegisterCommand}"
                             Style="{StaticResource PrimaryButtonStyle}"
-                            Margin="0,15,0,0" />
+                            IsEnabled="{Binding IsBusy, Converter={x:Null}}"
+                            Margin="0,10,0,0" />
 
+                    <!-- Indicador de Carga Reactivo -->
                     <ActivityIndicator IsRunning="{Binding IsBusy}"
-                                       IsVisible="{Binding IsBusy}" />
+                                       IsVisible="{Binding IsBusy}"
+                                       HeightRequest="30" />
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Volver -->
-            <Button Text="¿Ya tienes cuenta? Inicia Sesión"
-                    Command="{Binding NavigateBackToLoginCommand}"
-                    Style="{StaticResource SecondaryButtonStyle}" />
+            <!-- Pie: Enlace de retorno al Login -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="6" Margin="0,10,0,20">
+                <Label Text="¿Ya tienes una cuenta?" 
+                       TextColor="{StaticResource TextColorSecondary}" 
+                       FontSize="14" />
+                <Label Text="Inicia sesión aquí"
+                       TextColor="{StaticResource PrimaryColor}"
+                       FontAttributes="Bold"
+                       FontSize="14">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateBackToLoginCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </HorizontalStackLayout>
 
         </VerticalStackLayout>
     </ScrollView>

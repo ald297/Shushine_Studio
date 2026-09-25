@@ -5,24 +5,29 @@
              x:Class="ShushineStudio.Mobile.Presentation.Views.Profile.ProfilePage"
              x:DataType="vm:ProfileViewModel"
              BackgroundColor="{StaticResource BackgroundColor}"
-             Title="Mi Perfil">
+             Title="{Binding Title}">
 
     <ScrollView>
-        <VerticalStackLayout Padding="24" Spacing="20">
+        <VerticalStackLayout Padding="22" Spacing="20">
             
-            <!-- Avatar y Saludo -->
-            <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                <Border StrokeShape="RoundRectangle 50" 
-                        HeightRequest="90" 
-                        WidthRequest="90"
+            <!-- Cabecera de Avatar y Saludo -->
+            <VerticalStackLayout Spacing="10" HorizontalOptions="Center" Margin="0,10,0,0">
+                <Border StrokeShape="RoundRectangle 55" 
+                        HeightRequest="100" 
+                        WidthRequest="100"
                         Stroke="{StaticResource PrimaryColor}"
-                        StrokeThickness="2"
-                        BackgroundColor="{StaticResource SecondaryLight}">
-                    <Label Text="👩‍🦰" FontSize="44" HorizontalOptions="Center" VerticalOptions="Center" />
+                        StrokeThickness="3"
+                        BackgroundColor="{StaticResource SecondaryLight}"
+                        HorizontalOptions="Center">
+                    <Label Text="🌸" 
+                           FontSize="46" 
+                           HorizontalOptions="Center" 
+                           VerticalOptions="Center" />
                 </Border>
                 <Label Text="{Binding Nombre}" 
-                       FontSize="20" 
+                       FontSize="22" 
                        FontAttributes="Bold" 
+                       TextColor="{StaticResource TextColorPrimary}"
                        HorizontalOptions="Center" />
                 <Label Text="{Binding Email}" 
                        FontSize="13" 
@@ -30,37 +35,170 @@
                        HorizontalOptions="Center" />
             </VerticalStackLayout>
 
-            <!-- Tarjeta: Fidelidad y Descuento -->
-            <Border Style="{StaticResource CardBorderStyle}" BackgroundColor="{StaticResource SecondaryLight}">
-                <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12">
-                    <Label Grid.Column="0" Text="✨" FontSize="28" VerticalOptions="Center" />
-                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
-                        <Label Text="Membresía Shushine" FontSize="12" TextColor="{StaticResource PrimaryDark}" FontAttributes="Bold" />
-                        <Label Text="{Binding NivelFidelidad}" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+            <!-- Tarjeta: Insignia de Nivel de Fidelidad (Wireframe Pág. 14) -->
+            <Border Style="{StaticResource CardBorderStyle}" 
+                    BackgroundColor="{StaticResource SecondaryLight}"
+                    Stroke="{StaticResource SecondaryColor}"
+                    Padding="18">
+                <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12">
+                    <Label Grid.Column="0" 
+                           Text="👑" 
+                           FontSize="32" 
+                           VerticalOptions="Center" />
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                        <Label Text="Membresía Shushine" 
+                               FontSize="12" 
+                               TextColor="{StaticResource PrimaryDark}" 
+                               FontAttributes="Bold" />
+                        <Label Text="{Binding NivelFidelidad}" 
+                               FontSize="15" 
+                               FontAttributes="Bold" 
+                               TextColor="{StaticResource TextColorPrimary}" />
                     </VerticalStackLayout>
+                    <Border Grid.Column="2" 
+                            StrokeShape="RoundRectangle 12"
+                            BackgroundColor="{StaticResource PrimaryColor}"
+                            Padding="10,6"
+                            VerticalOptions="Center">
+                        <Label Text="{Binding PuntosFidelidad, StringFormat='{0} pts'}" 
+                               TextColor="White" 
+                               FontSize="12" 
+                               FontAttributes="Bold" />
+                    </Border>
                 </Grid>
             </Border>
 
-            <!-- Tarjeta: Ficha Técnica Capilar -->
+            <!-- Tarjeta: Datos Personales y Contacto -->
             <Border Style="{StaticResource CardBorderStyle}">
-                <VerticalStackLayout Spacing="12">
-                    <Label Text="Ficha Técnica &amp; Preferencias" 
-                           FontAttributes="Bold" 
-                           FontSize="16" 
-                           TextColor="{StaticResource PrimaryColor}" />
+                <VerticalStackLayout Spacing="14">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0" 
+                               Text="Datos de Contacto" 
+                               Style="{StaticResource HeaderLabelStyle}"
+                               FontSize="17" />
+                        <Button Grid.Column="1"
+                                Text="{Binding IsEditing, Converter={x:Null}}"
+                                Command="{Binding ToggleEditCommand}"
+                                HeightRequest="34"
+                                FontSize="12"
+                                Padding="12,0"
+                                CornerRadius="8"
+                                Style="{StaticResource SecondaryButtonStyle}" />
+                    </Grid>
 
+                    <!-- Nombre -->
                     <VerticalStackLayout Spacing="4">
-                        <Label Text="Tipo de Cabello / Diagnóstico:" FontSize="12" TextColor="{StaticResource TextColorSecondary}" />
-                        <Label Text="{Binding TipoCabello}" FontSize="14" FontAttributes="Bold" />
+                        <Label Text="Nombre Completo" FontSize="12" TextColor="{StaticResource TextColorSecondary}" FontAttributes="Bold" />
+                        <Border Style="{StaticResource InputContainerStyle}" IsVisible="{Binding IsEditing}">
+                            <Entry Text="{Binding Nombre}" />
+                        </Border>
+                        <Label Text="{Binding Nombre}" 
+                               FontSize="14" 
+                               TextColor="{StaticResource TextColorPrimary}"
+                               IsVisible="{Binding IsEditing, Converter={x:Null}}" />
+                    </VerticalStackLayout>
+
+                    <!-- Teléfono -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Teléfono / WhatsApp" FontSize="12" TextColor="{StaticResource TextColorSecondary}" FontAttributes="Bold" />
+                        <Border Style="{StaticResource InputContainerStyle}" IsVisible="{Binding IsEditing}">
+                            <Entry Text="{Binding Telefono}" Keyboard="Telephone" />
+                        </Border>
+                        <Label Text="{Binding Telefono}" 
+                               FontSize="14" 
+                               TextColor="{StaticResource TextColorPrimary}"
+                               IsVisible="{Binding IsEditing, Converter={x:Null}}" />
+                    </VerticalStackLayout>
+
+                    <!-- Fecha de Cumpleaños -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Fecha de Cumpleaños" FontSize="12" TextColor="{StaticResource TextColorSecondary}" FontAttributes="Bold" />
+                        <Label Text="{Binding FechaNacimiento}" 
+                               FontSize="14" 
+                               TextColor="{StaticResource TextColorPrimary}" />
                     </VerticalStackLayout>
                 </VerticalStackLayout>
             </Border>
+
+            <!-- Tarjeta: Ficha Técnica & Preferencias de Belleza (Wireframe Pág. 14) -->
+            <Border Style="{StaticResource CardBorderStyle}">
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="Ficha Estética &amp; Preferencias" 
+                           Style="{StaticResource HeaderLabelStyle}"
+                           FontSize="17"
+                           TextColor="{StaticResource PrimaryColor}" />
+
+                    <!-- Diagnóstico Capilar -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Tipo de Cabello / Diagnóstico:" 
+                               FontSize="12" 
+                               TextColor="{StaticResource TextColorSecondary}" 
+                               FontAttributes="Bold" />
+                        <Border Style="{StaticResource InputContainerStyle}" IsVisible="{Binding IsEditing}">
+                            <Entry Text="{Binding TipoCabello}" />
+                        </Border>
+                        <Label Text="{Binding TipoCabello}" 
+                               FontSize="14" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextColorPrimary}"
+                               IsVisible="{Binding IsEditing, Converter={x:Null}}" />
+                    </VerticalStackLayout>
+
+                    <!-- Alergias o Sensibilidades -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Alergias / Sensibilidades:" 
+                               FontSize="12" 
+                               TextColor="{StaticResource TextColorSecondary}" 
+                               FontAttributes="Bold" />
+                        <Border Style="{StaticResource InputContainerStyle}" IsVisible="{Binding IsEditing}">
+                            <Entry Text="{Binding Alergias}" />
+                        </Border>
+                        <Label Text="{Binding Alergias}" 
+                               FontSize="14" 
+                               TextColor="{StaticResource TextColorPrimary}"
+                               IsVisible="{Binding IsEditing, Converter={x:Null}}" />
+                    </VerticalStackLayout>
+
+                    <!-- Estilista Habitual -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Estilista de Confianza:" 
+                               FontSize="12" 
+                               TextColor="{StaticResource TextColorSecondary}" 
+                               FontAttributes="Bold" />
+                        <Label Text="{Binding EstilistaPreferido}" 
+                               FontSize="14" 
+                               TextColor="{StaticResource TextColorPrimary}" />
+                    </VerticalStackLayout>
+
+                    <!-- Notas Especiales -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Notas para el Personal del Salón:" 
+                               FontSize="12" 
+                               TextColor="{StaticResource TextColorSecondary}" 
+                               FontAttributes="Bold" />
+                        <Border Style="{StaticResource InputContainerStyle}" IsVisible="{Binding IsEditing}">
+                            <Editor Text="{Binding NotasPreferencias}" AutoSize="TextChanges" />
+                        </Border>
+                        <Label Text="{Binding NotasPreferencias}" 
+                               FontSize="13" 
+                               TextColor="{StaticResource TextColorSecondary}"
+                               IsVisible="{Binding IsEditing, Converter={x:Null}}" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Botón Guardar Cambios (Visible cuando edita) -->
+            <Button Text="Guardar Cambios"
+                    Command="{Binding GuardarCambiosCommand}"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    IsVisible="{Binding IsEditing}"
+                    Margin="0,6,0,0" />
 
             <!-- Botón Cerrar Sesión -->
             <Button Text="Cerrar Sesión" 
                     Command="{Binding CerrarSesionCommand}" 
                     Style="{StaticResource SecondaryButtonStyle}" 
-                    Margin="0,15,0,0" />
+                    Margin="0,10,0,25" />
 
         </VerticalStackLayout>
     </ScrollView>

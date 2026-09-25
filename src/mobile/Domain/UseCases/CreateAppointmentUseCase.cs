@@ -3,6 +3,15 @@ using ShushineStudio.Mobile.Domain.Repositories;
 
 namespace ShushineStudio.Mobile.Domain.UseCases;
 
+public class CreateAppointmentRequest
+{
+    public long ServicioId { get; set; }
+    public long EstilistaId { get; set; }
+    public DateTime FechaHoraInicio { get; set; }
+    public string? Notas { get; set; }
+    public string MetodoPago { get; set; } = "Efectivo";
+}
+
 public class CreateAppointmentUseCase
 {
     private readonly IReservaRepository _repository;
@@ -10,6 +19,21 @@ public class CreateAppointmentUseCase
     public CreateAppointmentUseCase(IReservaRepository repository)
     {
         _repository = repository;
+    }
+
+    public async Task<Reserva?> ExecuteAsync(CreateAppointmentRequest request)
+    {
+        if (request == null) return null;
+        var horaInicio = request.FechaHoraInicio.ToString("HH:mm");
+        var servicioIds = new List<int> { (int)request.ServicioId };
+        return await _repository.CrearReservaAsync(
+            request.EstilistaId,
+            request.FechaHoraInicio.Date,
+            horaInicio,
+            servicioIds,
+            request.Notas,
+            request.MetodoPago
+        );
     }
 
     public async Task<Reserva?> ExecuteAsync(
@@ -30,10 +54,6 @@ public class CreateAppointmentUseCase
         DateTime fechaHora,
         string? notas)
     {
-        var targetEstilista = estilistaId ?? 1;
-        var horaInicio = fechaHora.ToString("HH:mm");
-        var servicioIds = new List<int> { (int)servicioId };
-
-        return await _repository.CrearReservaAsync(targetEstilista, fechaHora.Date, horaInicio, servicioIds, notas);
+        return await _repository.CrearReservaAsync(servicioId, estilistaId, fechaHora, notas);
     }
 }
