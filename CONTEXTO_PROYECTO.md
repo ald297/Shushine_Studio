@@ -46,10 +46,10 @@ Sistema integral móvil y web para la administración y reserva de citas en salo
 
 ### Stack Tecnológico Oficial
 
-* **Frontend Móvil:** Flutter (Dart) — Clean Architecture con BLoC.
-* **Backend API:** C# ASP.NET Core Web API (RESTful, .NET 8/9).
+* **Frontend Móvil:** .NET MAUI (C# / XAML) — Clean Architecture con MVVM.
+* **Backend API:** Web API RESTful (Java Spring Boot 3.3.3).
 * **Base de Datos & BaaS:** Supabase (PostgreSQL relacional en la nube + Supabase Auth).
-* **Seguridad y Autenticación:** Supabase Auth (JWT emitido en cliente) + Autorización RBAC en ASP.NET Core.
+* **Seguridad y Autenticación:** JWT + RBAC (Roles: `ADMIN`, `CLIENTE`, `RECEPCIONISTA`).
 * **Control de Versiones:** Azure DevOps / Git.
 
 ---

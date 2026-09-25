@@ -7,7 +7,7 @@
 
 ## Summary
 
-Implementación integral del sistema móvil de reservas y gestión operativa para el salón de belleza Shushine Studio. Combina una aplicación móvil en Flutter bajo Clean Architecture y BLoC para la experiencia del cliente y estilistas, con una Web API RESTful construida con la arquitectura de capas y patrones de la guía oficial de ESFE AGAPE (`JavaControlProyectosAPI`): DTOs estandarizados por acción (`Guardar`, `Modificar`, `Salida`, `CambiarEstado`), semillero automático (`DataInitializer`), endpoints paginados (`Pageable`) y listas rápidas, documentación OpenAPI/Swagger con Bearer JWT interactivo, y pruebas unitarias de servicios.
+Implementación integral del sistema móvil de reservas y gestión operativa para el salón de belleza Shushine Studio. Combina una aplicación móvil en .NET MAUI bajo Clean Architecture y MVVM (`CommunityToolkit.Mvvm`) para la experiencia del cliente y estilistas, con una Web API RESTful construida con la arquitectura de capas y patrones de la guía oficial de ESFE AGAPE (`JavaControlProyectosAPI`): DTOs estandarizados por acción (`Guardar`, `Modificar`, `Salida`, `CambiarEstado`), semillero automático (`DataInitializer`), endpoints paginados (`Pageable`) y listas rápidas, documentación OpenAPI/Swagger con Bearer JWT interactivo, y pruebas unitarias de servicios.
 
 ---
 
@@ -15,22 +15,22 @@ Implementación integral del sistema móvil de reservas y gestión operativa par
 
 * **Language/Version:** 
   * Backend: Java 21 LTS (Spring Boot 3.3.3, paquete propio `com.shushinestudio`).
-  * Mobile: Dart 3.3+ / Flutter 3.19+.
+  * Mobile: .NET 8 / 9 (.NET MAUI, C# 12 / XAML).
 * **Primary Dependencies:**
   * Backend:
     * Java Spring Boot: `spring-boot-starter-web`, `spring-boot-starter-data-jpa`, `spring-boot-starter-security`, `org.postgresql:postgresql`, `io.jsonwebtoken:jjwt-api:0.12.6`, `org.modelmapper:modelmapper:3.2.1`, `org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0`, `org.projectlombok:lombok`.
-  * Mobile: `flutter_bloc` (8.1+), `dio` (5.4+), `supabase_flutter` (2.3+), `flutter_secure_storage` (9.0+), `get_it`, `intl`, `equatable`.
+  * Mobile: `CommunityToolkit.Mvvm`, `Microsoft.Maui.Storage`, `System.Net.Http.Json`, `Supabase-csharp`, `Microsoft.Extensions.DependencyInjection`.
 * **Storage & Cloud:** 
   * Base de Datos Única: PostgreSQL 15+ alojado en Supabase (AWS Pooler, tablas relacionales normalizadas).
   * Supabase Storage (buckets públicos `servicios-imagenes`, `estilistas-avatares`, `categorias-imagenes`).
   * Autenticación JWT con roles estipulados de Shushine Studio: `ADMIN` (Administrador) y `CLIENTE` (Cliente), con soporte opcional para `RECEPCIONISTA`.
 * **Testing Frameworks:**
   * Backend: `JUnit 5`, `SpringBootTest`, `Mockito`.
-  * Mobile: `flutter_test`, `bloc_test`, `mocktail`.
+  * Mobile: `xUnit` / `NUnit`, `Moq`.
 * **Target Platform:**
   * Backend: Contenedores Linux / Azure App Service / Localhost (Puerto 8080).
-  * Mobile: Multiplataforma nativo (Android SDK 24+ e iOS 13+).
-* **Project Type:** Web API RESTful desacoplada + Aplicación Móvil Híbrida.
+  * Mobile: Multiplataforma nativo (Android SDK 24+, iOS 15+, Windows 11).
+* **Project Type:** Web API RESTful desacoplada + Aplicación Móvil Nativa Multiplataforma.
 * **Performance Goals:** Cálculo de disponibilidad en `<300ms`, tiempo total de reserva en `<90s`, 0.0% de sobreventa de franjas horarias.
 * **Constraints:** Semillero de datos (`DataInitializer`) directo a PostgreSQL en Supabase, endpoints con soporte `Pageable` y `/lista`, estricto cumplimiento del estándar RFC 7807 (`application/problem+json`), código en inglés y UI en español.
 
@@ -41,8 +41,8 @@ Implementación integral del sistema móvil de reservas y gestión operativa par
 *GATE: Evaluación obligatoria según los principios de [.specify/memory/constitution.md](../../.specify/memory/constitution.md)*
 
 | Principio Constitucional | Estado | Justificación |
-| :--- | :---: | :--- |
-| **I. Clean Architecture & Layer Decoupling** | ✅ PASS | Frontend dividido en `presentation`, `domain`, `data`; Backend en `Api`, `Application`, `Domain`, `Infrastructure`. |
+| :--- | :--- | :--- |
+| **I. Clean Architecture & Layer Decoupling** | ✅ PASS | Frontend dividido en `Presentation` (Pages/ViewModels), `Domain` (Entities/Use Cases), `Data` (DTOs/DataSources); Backend en arquitectura de capas (`controladores`, `servicios`, `repositorios`, `modelos`, `dtos`). |
 | **II. Single Source of Truth (Backend)** | ✅ PASS | La Web API de Spring Boot es la única autorizada para calcular slots de disponibilidad, precios e impuestos y gestionar concurrencia. |
 | **III. Database Isolation & Security First** | ✅ PASS | Móvil no consulta la base de datos directamente; todas las lecturas/escrituras de negocio van por la Web API. RLS activo. |
 | **IV. Standardized Contracts & RFC 7807** | ✅ PASS | OpenAPI 3.0 documentado en `contracts/openapi.yaml`. Respuestas de error estandarizadas en `ProblemDetails`. |
@@ -86,13 +86,13 @@ src/
 │   └── tests/                          # Pruebas unitarias de servicios (t1_crear a t6_eliminar)
 │
 └── mobile/
-    ├── lib/
-    │   ├── core/                       # Inyección de dependencias, Interceptores Dio, Constantes
-    │   ├── presentation/               # Vistas (Screens), Widgets, BLoCs / Cubits
-    │   ├── domain/                     # Entities, Use Cases, Repository Contracts (Dart puro)
-    │   ├── data/                       # DTOs, DataSources (Remote/Local), Repository Implementations
-    │   └── main.dart                   # Inicialización de servicios, DI y MaterialApp
-    └── test/                           # Pruebas unitarias de BLoCs y Use Cases
+    ├── App.xaml / AppShell.xaml        # Definición de aplicación y navegación Shell
+    ├── MauiProgram.cs                  # Inyección de dependencias y configuración de servicios
+    ├── Core/                           # Handlers HTTP, constantes, utilidades, SecureStorage
+    ├── Presentation/                   # Pages (XAML), ViewModels (CommunityToolkit.Mvvm), Converters
+    ├── Domain/                         # Entities, Use Cases, Repository Contracts (C# puro)
+    ├── Data/                           # DTOs, DataSources (Remote/Local), Repository Implementations
+    └── Tests/                          # Pruebas unitarias de ViewModels y Use Cases con xUnit / Moq
 ```
 
 ---

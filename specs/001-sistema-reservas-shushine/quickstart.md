@@ -1,15 +1,15 @@
 # Guía Rápida de Pruebas y Validación: Shushine Studio API & Móvil
 
-> **Propósito:** Guía paso a paso para que el docente de ESFE AGAPE o cualquier evaluador pueda ejecutar el backend, validar los datos del semillero automático (`DataInitializer`), probar los endpoints interactivos con JWT en Swagger UI, ejecutar las pruebas unitarias y conectar la aplicación móvil en Flutter.
+> **Propósito:** Guía paso a paso para que el docente de ESFE AGAPE o cualquier evaluador pueda ejecutar el backend, validar los datos del semillero automático (`DataInitializer`), probar los endpoints interactivos con JWT en Swagger UI, ejecutar las pruebas unitarias y conectar la aplicación móvil en .NET MAUI.
 
 ---
 
 ## 1. Prerrequisitos de Entorno
 
 * **Java SDK:** Java 21 LTS (`java -version`) con Maven o Wrapper (`mvnw`), y/o **.NET SDK:** .NET 8.0/9.0 (`dotnet --version`).
-* **Flutter SDK:** Flutter 3.19+ con Dart 3.3+ (`flutter --version`).
+* **.NET MAUI Workload:** Workload de .NET MAUI instalado (`dotnet workload install maui`).
 * **Navegador Web:** Chrome / Brave / Edge para Swagger UI y consola H2.
-* **Dispositivo / Emulador:** Emulador Android / iOS o dispositivo físico para la app móvil.
+* **Dispositivo / Emulador:** Emulador Android / iOS, Windows o dispositivo físico para la app móvil.
 
 ---
 
@@ -71,11 +71,11 @@ http://localhost:8080/swagger-ui/index.html
 * **Consultar Categorías (Paginado):** Desplegar `GET /api/categorias`, indicar `page = 0`, `size = 10` y presionar **"Execute"**.
 * **Consultar Categorías (Lista Rápida):** Desplegar `GET /api/categorias/lista` y presionar **"Execute"**.
 * **Crear Nuevo Servicio / Categoría:** Desplegar `POST /api/categorias` con el DTO `CategoriaGuardar`:
-  ```json
-  {
-    "nombre": "Tratamientos Capilares Avanzados"
-  }
-  ```
+   ```json
+   {
+     "nombre": "Tratamientos Capilares Avanzados"
+   }
+   ```
 * **Verificar Control de Roles (RBAC):**
   * Si te autenticas con el usuario `user` (`user123`), las peticiones `GET` responderán `200 OK`, mientras que peticiones `POST`, `PUT` o `DELETE` responderán `403 Forbidden`.
 
@@ -103,17 +103,17 @@ dotnet test
 
 ---
 
-## 5. Conexión de la Aplicación Móvil (Flutter)
+## 5. Conexión de la Aplicación Móvil (.NET MAUI)
 
-La app móvil en Flutter consume los mismos endpoints que Swagger mediante su cliente HTTP con **`Dio`**:
+La app móvil en .NET MAUI consume los mismos endpoints que Swagger mediante su cliente HTTP con **`HttpClient`** y delegados:
 
 ```bash
-# Ejecutar la app móvil configurando la URL base de la API:
-flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080/api
-# (Usar 10.0.2.2 para emulador Android local, o la IP local de tu PC para dispositivo físico)
+# Ejecutar la app móvil en .NET MAUI:
+dotnet build -t:Run -f net8.0-android
+# (O ejecutar en Windows / iOS mediante Visual Studio / CLI)
 ```
 
-1. La pantalla de **Login** de Flutter consume `POST /api/auth/login`.
-2. El token JWT retornado es almacenado de forma segura en `FlutterSecureStorage`.
-3. El interceptor `ErrorInterceptor` de Dio adjunta automáticamente el token en cada llamada subsecuente (`GET /api/servicios`, `POST /api/citas`, etc.).
-4. Si el token expira (error 401), el interceptor redirige al usuario a la pantalla de Login de forma transparente.
+1. La página de **Login** de .NET MAUI consume `POST /api/auth/login`.
+2. El token JWT retornado es almacenado de forma segura en `Microsoft.Maui.Storage.SecureStorage`.
+3. El manejador HTTP `ErrorDelegatingHandler` adjunta automáticamente el token en cada llamada subsecuente (`GET /api/servicios`, `POST /api/citas`, etc.).
+4. Si el token expira (error 401), el interceptor redirige al usuario a la pantalla de Login de forma transparente.ige al usuario a la pantalla de Login de forma transparente.

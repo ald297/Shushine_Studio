@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Catalog"
+             xmlns:entities="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
+             x:Class="ShushineStudio.Mobile.Presentation.Views.Catalog.CatalogPage"
+             x:DataType="vm:CatalogViewModel"
+             BackgroundColor="{StaticResource BackgroundColor}"
+             Title="Servicios de Belleza">
+
+    <Grid RowDefinitions="Auto, Auto, *">
+        
+        <!-- Cabecera de Búsqueda y Bienvenida -->
+        <VerticalStackLayout Grid.Row="0" Padding="20,15,20,5" Spacing="4">
+            <Label Text="Nuestros Tratamientos"
+                   Style="{StaticResource HeaderLabelStyle}" />
+            <Label Text="Elige tu servicio favorito y agenda tu cita al instante"
+                   Style="{StaticResource SubheaderLabelStyle}" />
+        </VerticalStackLayout>
+
+        <!-- Filtros Rápidos por Categoría (Chips) -->
+        <ScrollView Grid.Row="1" Orientation="Horizontal" HorizontalScrollBarVisibility="Never" Padding="20,10">
+            <HorizontalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Categorias}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                        <Border StrokeShape="RoundRectangle 20"
+                                Stroke="{StaticResource PrimaryColor}"
+                                BackgroundColor="{StaticResource SurfaceColor}"
+                                Padding="16,8">
+                            <Label Text="{Binding .}" 
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource PrimaryColor}" />
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer 
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, Path=FilterByCategoriaCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </HorizontalStackLayout>
+        </ScrollView>
+
+        <!-- Lista de Servicios en CollectionView -->
+        <RefreshView Grid.Row="2"
+                     IsRefreshing="{Binding IsBusy}"
+                     Command="{Binding LoadServiciosCommand}">
+            <CollectionView ItemsSource="{Binding Servicios}"
+                            SelectionMode="None"
+                            Margin="20,0,20,10">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="16" />
+                </CollectionView.ItemsLayout>
+                
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="40" Spacing="10" VerticalOptions="Center">
+                        <Label Text="No se encontraron servicios en esta categoría."
+                               HorizontalOptions="Center"
+                               TextColor="{StaticResource TextColorSecondary}" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="entities:Servicio">
+                        <Border Style="{StaticResource CardBorderStyle}" Padding="0">
+                            <Grid ColumnDefinitions="110, *" Padding="12" ColumnSpacing="14">
+                                
+                                <!-- Placeholder / Foto del Tratamiento -->
+                                <Border Grid.Column="0" 
+                                        StrokeShape="RoundRectangle 12" 
+                                        HeightRequest="95" 
+                                        WidthRequest="95"
+                                        BackgroundColor="{StaticResource SecondaryLight}">
+                                    <Label Text="💅" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+
+                                <!-- Información del Servicio -->
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="5">
+                                    <Label Text="{Binding CategoriaNombre}" 
+                                           FontSize="11" 
+                                           FontAttributes="Bold" 
+                                           TextColor="{StaticResource PrimaryColor}" />
+                                    <Label Text="{Binding Nombre}" 
+                                           FontSize="16" 
+                                           FontAttributes="Bold" 
+                                           TextColor="{StaticResource TextColorPrimary}" 
+                                           LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding Descripcion}" 
+                                           FontSize="12" 
+                                           TextColor="{StaticResource TextColorSecondary}" 
+                                           MaxLines="2" 
+                                           LineBreakMode="TailTruncation" />
+
+                                    <!-- Precio y Duración -->
+                                    <Grid ColumnDefinitions="*, Auto" Margin="0,4,0,0">
+                                        <Label Grid.Column="0" 
+                                               Text="{Binding Precio, StringFormat='${0:F2}'}" 
+                                               FontSize="16" 
+                                               FontAttributes="Bold" 
+                                               TextColor="{StaticResource PrimaryDark}" />
+                                        <Label Grid.Column="1" 
+                                               Text="{Binding DuracionMinutos, StringFormat='⏱ {0} min'}" 
+                                               FontSize="12" 
+                                               TextColor="{StaticResource TextColorSecondary}" 
+                                               VerticalOptions="Center" />
+                                    </Grid>
+                                </VerticalStackLayout>
+
+                            </Grid>
+                            
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer 
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, Path=SelectServicioCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+    </Grid>
+</ContentPage>

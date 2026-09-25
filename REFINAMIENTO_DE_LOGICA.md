@@ -20,7 +20,7 @@
 
 ## 2. Resumen Ejecutivo del Refinamiento
 
-Este documento complementa el [DOCUMENTO_EVOLUCION_SHUNSHINE_STUDIO.md](./DOCUMENTO_EVOLUCION_SHUNSHINE_STUDIO.md) y el SDD (*Software Design Document*), estableciendo las definiciones técnicas exactas, reglas de transición, casos borde (*edge cases*) y ajustes de base de datos acordados para garantizar que el desarrollo en **C# ASP.NET Core** y **Flutter** sea 100% robusto, predecible e interoperable.
+Este documento complementa el [DOCUMENTO_EVOLUCION_SHUNSHINE_STUDIO.md](./DOCUMENTO_EVOLUCION_SHUNSHINE_STUDIO.md) y el SDD (*Software Design Document*), estableciendo las definiciones técnicas exactas, reglas de transición, casos borde (*edge cases*) y ajustes de base de datos acordados para garantizar que el desarrollo en la **Web API** y la app móvil en **.NET MAUI** sea 100% robusto, predecible e interoperable.
 
 ---
 
@@ -120,7 +120,7 @@ Para registrar clientes que llegan directamente al salón sin reserva previa, **
 ### 3.5 Refinamiento 5: Chat Interno Contextual por Cita e Identidad del Salón
 
 #### Identidad y Reglas de Envío
-* **Remitente Oficial del Salón:** Dado que el personal (*Staff*) no posee credenciales individuales en el sistema, todos los mensajes enviados por el personal administrativo o recepción se presentan en la interfaz de Flutter bajo la insignia comercial:  
+* **Remitente Oficial del Salón:** Dado que el personal (*Staff*) no posee credenciales individuales en el sistema, todos los mensajes enviados por el personal administrativo o recepción se presentan en la interfaz de .NET MAUI bajo la insignia comercial:  
   🏷️ **"Shunshine Studio (Recepción)"** con el isotipo oficial del salón.
 * **Ciclo de Vida y Modo Solo Lectura (Read-Only):**
   * **Citas Activas (`PendingQuote`, `QuoteProposed`, `Confirmed`, `InProgress`):** Chat bidireccional completamente habilitado.

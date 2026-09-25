@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Auth"
+             x:Class="ShushineStudio.Mobile.Presentation.Views.Auth.LoginPage"
+             x:DataType="vm:LoginViewModel"
+             BackgroundColor="{StaticResource BackgroundColor}"
+             Shell.NavBarIsVisible="false">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="30" Spacing="25" VerticalOptions="Center">
+            
+            <!-- Cabecera de Marca -->
+            <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                <Label Text="Shushine Studio"
+                       FontSize="32"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource PrimaryColor}"
+                       HorizontalOptions="Center" />
+                <Label Text="Tu espacio exclusivo de belleza y bienestar"
+                       FontSize="14"
+                       TextColor="{StaticResource TextColorSecondary}"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <!-- Tarjeta de Formulario -->
+            <Border Style="{StaticResource CardBorderStyle}" Padding="24">
+                <VerticalStackLayout Spacing="16">
+                    <Label Text="Bienvenida de nuevo"
+                           Style="{StaticResource HeaderLabelStyle}"
+                           FontSize="20" />
+
+                    <!-- Campo Correo -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Correo Electrónico" FontSize="13" TextColor="{StaticResource TextColorSecondary}" />
+                        <Border Style="{StaticResource InputContainerStyle}">
+                            <Entry Placeholder="ejemplo@correo.com"
+                                   Text="{Binding Email}"
+                                   Keyboard="Email" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Campo Contraseña -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Contraseña" FontSize="13" TextColor="{StaticResource TextColorSecondary}" />
+                        <Border Style="{StaticResource InputContainerStyle}">
+                            <Grid ColumnDefinitions="*, Auto">
+                                <Entry Grid.Column="0"
+                                       Placeholder="••••••••"
+                                       Text="{Binding Password}"
+                                       IsPassword="{Binding IsPasswordHidden}" />
+                                <ImageButton Grid.Column="1"
+                                             Source="eye.png"
+                                             Command="{Binding TogglePasswordVisibilityCommand}"
+                                             HeightRequest="24"
+                                             WidthRequest="24"
+                                             VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Botón Ingresar -->
+                    <Button Text="Iniciar Sesión"
+                            Command="{Binding LoginCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Margin="0,10,0,0" />
+
+                    <!-- Indicador de carga -->
+                    <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                       IsVisible="{Binding IsBusy}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Pie de Pantalla: Registro -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="5">
+                <Label Text="¿Aún no tienes cuenta?" TextColor="{StaticResource TextColorSecondary}" />
+                <Label Text="Regístrate aquí"
+                       TextColor="{StaticResource PrimaryColor}"
+                       FontAttributes="Bold">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToRegisterCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,6 +39,7 @@ class CitaConcurrenciaTest {
     private UsuarioRepository usuarioRepository;
     private CitaService citaService;
 
+    private final UUID testUserId = UUID.randomUUID();
     private Usuario usuarioCliente;
     private Cliente cliente;
     private Estilista estilista;
@@ -59,7 +61,7 @@ class CitaConcurrenciaTest {
         ReflectionTestUtils.setField(citaService, "usuarioRepository", usuarioRepository);
 
         usuarioCliente = Usuario.builder()
-                .id(1)
+                .id(testUserId)
                 .login("cliente")
                 .nombre("Camila")
                 .apellido("Calderón")
@@ -105,7 +107,7 @@ class CitaConcurrenciaTest {
                 .build();
 
         when(usuarioRepository.findByLogin("cliente")).thenReturn(Optional.of(usuarioCliente));
-        when(clienteRepository.findByUsuarioId(1)).thenReturn(Optional.of(cliente));
+        when(clienteRepository.findByUsuarioId(testUserId)).thenReturn(Optional.of(cliente));
         when(estilistaRepository.findById(1)).thenReturn(Optional.of(estilista));
         when(servicioRepository.findAllById(List.of(1))).thenReturn(List.of(servicio));
         // No hay solapamiento previo
@@ -144,7 +146,7 @@ class CitaConcurrenciaTest {
                 .build();
 
         when(usuarioRepository.findByLogin("cliente")).thenReturn(Optional.of(usuarioCliente));
-        when(clienteRepository.findByUsuarioId(1)).thenReturn(Optional.of(cliente));
+        when(clienteRepository.findByUsuarioId(testUserId)).thenReturn(Optional.of(cliente));
         when(estilistaRepository.findById(1)).thenReturn(Optional.of(estilista));
         when(servicioRepository.findAllById(List.of(1))).thenReturn(List.of(servicio));
 
@@ -172,7 +174,7 @@ class CitaConcurrenciaTest {
                 .build();
 
         when(usuarioRepository.findByLogin("cliente")).thenReturn(Optional.of(usuarioCliente));
-        when(clienteRepository.findByUsuarioId(1)).thenReturn(Optional.of(cliente));
+        when(clienteRepository.findByUsuarioId(testUserId)).thenReturn(Optional.of(cliente));
         when(estilistaRepository.findById(1)).thenReturn(Optional.of(estilista));
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->

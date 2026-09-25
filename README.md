@@ -22,10 +22,10 @@ Todo el contexto, requerimientos funcionales y no funcionales, especificación d
 * **Módulo:** Construcción de APIs Web
 * **Equipo:** Alex Fernando Alfaro Diaz (Backend / Scrum Master) & Camila Antonia Calderon Cortez (Móvil / QA)
 * **Stack Tecnológico Oficial:**
-  - **Móvil:** Flutter (Dart) — Clean Architecture + BLoC
-  - **Backend:** C# ASP.NET Core Web API (RESTful)
+  - **Móvil:** .NET MAUI (C# / XAML) — Clean Architecture + MVVM
+  - **Backend:** Java Spring Boot 3.3.3 / Web API RESTful
   - **Base de Datos:** Supabase (PostgreSQL)
-  - **Autenticación & BaaS:** Supabase Auth (JWT) + RBAC en ASP.NET Core
+  - **Autenticación & BaaS:** Supabase Auth (JWT) / Spring Security
   - **Control de Versiones:** Azure DevOps / Git
   - **Reglas del Proyecto:** [AGENTS.md](./AGENTS.md) / [.cursorrules](./.cursorrules)
   - **Guía de Supabase:** [RECORDATORIOS_SUPABASE.md](./RECORDATORIOS_SUPABASE.md)

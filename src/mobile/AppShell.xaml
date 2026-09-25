@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="ShushineStudio.Mobile.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:auth="clr-namespace:ShushineStudio.Mobile.Presentation.Views.Auth"
+    xmlns:catalog="clr-namespace:ShushineStudio.Mobile.Presentation.Views.Catalog"
+    xmlns:appointments="clr-namespace:ShushineStudio.Mobile.Presentation.Views.Appointments"
+    xmlns:profile="clr-namespace:ShushineStudio.Mobile.Presentation.Views.Profile"
+    Shell.FlyoutBehavior="Disabled"
+    Shell.TabBarBackgroundColor="{StaticResource SurfaceColor}"
+    Shell.TabBarForegroundColor="{StaticResource PrimaryColor}"
+    Shell.TabBarUnselectedColor="{StaticResource TextColorSecondary}"
+    Shell.TabBarTitleColor="{StaticResource PrimaryColor}">
+
+    <!-- Pantalla de Login fuera de las pestañas -->
+    <ShellContent
+        Title="Iniciar Sesión"
+        Route="LoginPage"
+        ContentTemplate="{DataTemplate auth:LoginPage}" />
+
+    <!-- Barra de Pestañas Principal -->
+    <TabBar Route="MainTabs">
+        <Tab Title="Catálogo" Icon="scissors.png">
+            <ShellContent
+                Route="CatalogPage"
+                ContentTemplate="{DataTemplate catalog:CatalogPage}" />
+        </Tab>
+
+        <Tab Title="Mis Citas" Icon="calendar.png">
+            <ShellContent
+                Route="MyAppointmentsPage"
+                ContentTemplate="{DataTemplate appointments:MyAppointmentsPage}" />
+        </Tab>
+
+        <Tab Title="Perfil" Icon="user.png">
+            <ShellContent
+                Route="ProfilePage"
+                ContentTemplate="{DataTemplate profile:ProfilePage}" />
+        </Tab>
+    </TabBar>
+
+</Shell>
