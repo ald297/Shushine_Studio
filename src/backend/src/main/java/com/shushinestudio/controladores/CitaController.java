@@ -60,6 +60,16 @@ public class CitaController {
                     "title", "Bad Request",
                     "detail", e.getMessage()
             ));
+        } catch (Exception e) {
+            String msg = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
+            if (msg.contains("serialize") || msg.contains("lock") || msg.contains("concurren") || msg.contains("solapamiento") || msg.contains("conflict") || msg.contains("duplicate")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(java.util.Map.of(
+                        "status", 409,
+                        "title", "Conflict",
+                        "detail", "El estilista seleccionado ya no tiene disponible la franja horaria solicitada."
+                ));
+            }
+            throw new RuntimeException(e);
         }
     }
 
@@ -87,6 +97,16 @@ public class CitaController {
                     "title", "Bad Request",
                     "detail", e.getMessage()
             ));
+        } catch (Exception e) {
+            String msg = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
+            if (msg.contains("serialize") || msg.contains("lock") || msg.contains("concurren") || msg.contains("solapamiento") || msg.contains("conflict") || msg.contains("duplicate")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(java.util.Map.of(
+                        "status", 409,
+                        "title", "Conflict",
+                        "detail", "El estilista seleccionado ya no tiene disponible la franja horaria solicitada."
+                ));
+            }
+            throw new RuntimeException(e);
         }
     }
 
