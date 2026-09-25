@@ -56,6 +56,7 @@ public static class MauiProgram
 		// 3. Repositorios (Data Layer -> Domain Interfaces)
 		// ==========================================
 		builder.Services.AddScoped<IServicioRepository, ServicioRepository>();
+		builder.Services.AddScoped<IEstilistaRepository, EstilistaRepository>();
 		builder.Services.AddScoped<IReservaRepository, ReservaRepository>();
 		builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
@@ -63,6 +64,8 @@ public static class MauiProgram
 		// 4. Casos de Uso (Domain Layer)
 		// ==========================================
 		builder.Services.AddTransient<GetServiciosCatalogUseCase>();
+		builder.Services.AddTransient<GetEstilistasUseCase>();
+		builder.Services.AddTransient<GetDisponibilidadUseCase>();
 		builder.Services.AddTransient<CreateAppointmentUseCase>();
 
 		// ==========================================

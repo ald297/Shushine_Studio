@@ -15,14 +15,6 @@ public class Reserva
     public string? Notas { get; set; }
 }
 
-public class Estilista
-{
-    public long Id { get; set; }
-    public string NombreCompleto { get; set; } = string.Empty;
-    public string Especialidad { get; set; } = string.Empty;
-    public string? FotoUrl { get; set; }
-    public bool Disponible { get; set; } = true;
-}
 
 public class Usuario
 {
