@@ -85,7 +85,7 @@ Para maximizar la eficiencia y evitar bloqueos en el entorno local:
 ### 📍 FASE 1: Autenticación, Registro y Perfil de Usuario (Sprint 1)
 **Meta:** Garantizar el flujo de entrada del usuario y la persistencia de su sesión.
 
-* [ ] **Paso 1.1 — US-2.01: Registro de Clientes (`RegisterPage.xaml`)**
+* [x] **Paso 1.1 — US-2.01: Registro de Clientes (`RegisterPage.xaml`)** [COMPLETADO]
   * **Wireframe:** Pág. 5 (`RegistroClienteView`).
   * **Acciones en UI/XAML:**
     * Incorporar campos estipulados: Nombre Completo, Correo Electrónico, Teléfono (formato El Salvador `####-####`), Contraseña y Confirmación de Contraseña.
@@ -98,7 +98,7 @@ Para maximizar la eficiencia y evitar bloqueos en el entorno local:
     * Mostrar spinner `ActivityIndicator` reactivo mediante `IsBusy`.
     * Invocar `RegisterAsync()` y notificar errores legibles del backend (RFC 7807, ej. correo duplicado).
 
-* [ ] **Paso 1.2 — US-2.02: Inicio de Sesión (`LoginPage.xaml`)**
+* [x] **Paso 1.2 — US-2.02: Inicio de Sesión (`LoginPage.xaml`)** [COMPLETADO]
   * **Wireframe:** Pág. 6 (`LoginClienteView`).
   * **Acciones en UI/XAML:**
     * Logotipo y título con estilo Shushine Studio.
@@ -110,7 +110,7 @@ Para maximizar la eficiencia y evitar bloqueos en el entorno local:
     * Persistencia del token JWT en `SecureStorage` con rol asignado.
     * Redirección automática al catálogo principal (`//MainTabs/CatalogPage`).
 
-* [ ] **Paso 1.3 — US-2.03: Perfil del Cliente (`ProfilePage.xaml`)**
+* [x] **Paso 1.3 — US-2.03: Perfil del Cliente (`ProfilePage.xaml`)** [COMPLETADO]
   * **Wireframe:** Pág. 14 (`PerfilClienteView`).
   * **Acciones en UI/XAML:**
     * Avatar circular con iniciales o foto de perfil.
