@@ -3,32 +3,98 @@ namespace ShushineStudio.Mobile.Domain.Entities;
 public class Reserva
 {
     public long Id { get; set; }
-    public string CodigoReserva { get; set; } = string.Empty;
-    public long ServicioId { get; set; }
-    public string ServicioNombre { get; set; } = string.Empty;
+    public string CodigoCita { get; set; } = string.Empty;
+
+    public string CodigoReserva
+    {
+        get => !string.IsNullOrEmpty(CodigoCita) ? CodigoCita : "#SHU-0000";
+        set => CodigoCita = value;
+    }
+
+    public long ClienteId { get; set; }
+    public string ClienteNombre { get; set; } = string.Empty;
+    public string? ClienteTelefono { get; set; }
+
     public long EstilistaId { get; set; }
     public string EstilistaNombre { get; set; } = string.Empty;
-    public DateTime FechaHoraInicio { get; set; }
-    public DateTime FechaHoraFin { get; set; }
-    public decimal Total { get; set; }
+
+    public long ServicioId { get; set; }
+
+    public string FechaCita { get; set; } = string.Empty; // "yyyy-MM-dd"
+    public string HoraInicio { get; set; } = string.Empty; // "HH:mm"
+    public string HoraFin { get; set; } = string.Empty; // "HH:mm"
+
+    private DateTime? _fechaHoraInicio;
+    public DateTime FechaHoraInicio
+    {
+        get
+        {
+            if (_fechaHoraInicio.HasValue) return _fechaHoraInicio.Value;
+            if (DateTime.TryParse($"{FechaCita} {HoraInicio}", out var dt))
+                return dt;
+            return DateTime.MinValue;
+        }
+        set
+        {
+            _fechaHoraInicio = value;
+            FechaCita = value.ToString("yyyy-MM-dd");
+            HoraInicio = value.ToString("HH:mm");
+        }
+    }
+
+    private DateTime? _fechaHoraFin;
+    public DateTime FechaHoraFin
+    {
+        get
+        {
+            if (_fechaHoraFin.HasValue) return _fechaHoraFin.Value;
+            if (DateTime.TryParse($"{FechaCita} {HoraFin}", out var dt))
+                return dt;
+            return DateTime.MinValue;
+        }
+        set
+        {
+            _fechaHoraFin = value;
+            HoraFin = value.ToString("HH:mm");
+        }
+    }
+
     public string Estado { get; set; } = "PENDIENTE";
+    public decimal Subtotal { get; set; }
+    public decimal Iva { get; set; }
+    public decimal Total { get; set; }
+
+    public string MetodoPagoPreferente { get; set; } = "Efectivo";
+    public string EstadoPago { get; set; } = "PENDIENTE";
     public string? Notas { get; set; }
-}
 
-public class Estilista
-{
-    public long Id { get; set; }
-    public string NombreCompleto { get; set; } = string.Empty;
-    public string Especialidad { get; set; } = string.Empty;
-    public string? FotoUrl { get; set; }
-    public bool Disponible { get; set; } = true;
-}
+    public List<string> ServiciosNombres { get; set; } = new();
 
-public class Usuario
-{
-    public string Id { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
-    public string NombreCompleto { get; set; } = string.Empty;
-    public string Rol { get; set; } = "CLIENTE";
-    public string? Telefono { get; set; }
+    private string? _servicioNombre;
+    public string ServicioNombre
+    {
+        get => !string.IsNullOrEmpty(_servicioNombre) ? _servicioNombre : ServiciosResumen;
+        set => _servicioNombre = value;
+    }
+
+    public string ServiciosResumen => ServiciosNombres != null && ServiciosNombres.Count > 0
+        ? string.Join(", ", ServiciosNombres)
+        : "Servicio de Belleza";
+
+    public string TotalFormateado => $"${Total:N2}";
+    public string SubtotalFormateado => $"${Subtotal:N2}";
+    public string IvaFormateado => $"${Iva:N2}";
+
+    public string HorarioTexto => $"{HoraInicio} - {HoraFin}";
+
+    public string EstadoColor => Estado?.ToUpper() switch
+    {
+        "CONFIRMADA" => "#2E7D32", // Verde bosque
+        "COMPLETADA" => "#1565C0", // Azul primario
+        "CANCELADA" => "#C62828",  // Rojo alerta
+        "EN_PROCESO" => "#E65100", // Naranja
+        _ => "#F57C00"            // Ámbar pendiente
+    };
+
+    public bool PuedeCancelar => Estado?.ToUpper() is "PENDIENTE" or "CONFIRMADA";
 }

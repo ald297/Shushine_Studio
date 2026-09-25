@@ -6,7 +6,7 @@ using ShushineStudio.Mobile.Domain.Repositories;
 namespace ShushineStudio.Mobile.Data.Repositories;
 
 /// <summary>
-/// Repositorio de reservas conectado con la Web API y con fallback para pruebas locales continuas.
+/// Repositorio de reservas conectado con la Web API en Render y con contingencia local (Fallback).
 /// </summary>
 public class ReservaRepository : IReservaRepository
 {
@@ -17,7 +17,7 @@ public class ReservaRepository : IReservaRepository
         new Reserva
         {
             Id = 101,
-            CodigoReserva = "#SHU-8492",
+            CodigoCita = "#SHU-8492",
             ServicioId = 1,
             ServicioNombre = "Balayage Iluminador & Gloss",
             EstilistaId = 1,
@@ -31,7 +31,7 @@ public class ReservaRepository : IReservaRepository
         new Reserva
         {
             Id = 102,
-            CodigoReserva = "#SHU-7120",
+            CodigoCita = "#SHU-7120",
             ServicioId = 3,
             ServicioNombre = "Manicura Rusa & Esmaltado Semi",
             EstilistaId = 2,
@@ -53,7 +53,8 @@ public class ReservaRepository : IReservaRepository
     {
         try
         {
-            var dtos = await _httpClient.GetFromJsonAsync<List<ReservaDto>>("reservas/mis-citas");
+            // Endpoint oficial en Render: GET /api/citas/mis-citas
+            var dtos = await _httpClient.GetFromJsonAsync<List<ReservaDto>>("citas/mis-citas");
             if (dtos != null && dtos.Count > 0)
             {
                 return dtos.Select(d => d.ToEntity());
@@ -61,25 +62,34 @@ public class ReservaRepository : IReservaRepository
         }
         catch
         {
-            // Contingencia offline
+            // Contingencia offline si no hay conexión con la Web API
         }
 
         return FallbackReservas;
     }
 
-    public async Task<Reserva?> CrearReservaAsync(long servicioId, long? estilistaId, DateTime fechaHora, string? notas)
+    public async Task<Reserva?> CrearReservaAsync(
+        long estilistaId,
+        DateTime fechaCita,
+        string horaInicio,
+        List<int> servicioIds,
+        string? notas,
+        string metodoPago = "Efectivo")
     {
         try
         {
             var request = new CrearReservaRequestDto
             {
-                ServicioId = servicioId,
                 EstilistaId = estilistaId,
-                FechaHoraInicio = fechaHora,
-                Notas = notas
+                FechaCita = fechaCita.ToString("yyyy-MM-dd"),
+                HoraInicio = horaInicio,
+                ServicioIds = servicioIds,
+                NotasCliente = notas,
+                MetodoPagoPreferente = metodoPago
             };
 
-            var response = await _httpClient.PostAsJsonAsync("reservas", request);
+            // Endpoint oficial en Render: POST /api/citas
+            var response = await _httpClient.PostAsJsonAsync("citas", request);
             if (response.IsSuccessStatusCode)
             {
                 var dto = await response.Content.ReadFromJsonAsync<ReservaDto>();
@@ -88,38 +98,58 @@ public class ReservaRepository : IReservaRepository
         }
         catch
         {
-            // Contingencia
+            // Contingencia offline
         }
 
+        // Si la API falla o está offline, generar reserva simulada en Fallback para permitir pruebas
         var nuevaReserva = new Reserva
         {
             Id = Random.Shared.Next(200, 999),
-            CodigoReserva = $"#SHU-{Random.Shared.Next(1000, 9999)}",
-            ServicioId = servicioId,
+            CodigoCita = $"#SHU-{Random.Shared.Next(1000, 9999)}",
+            ServicioId = servicioIds.FirstOrDefault(),
             ServicioNombre = "Tratamiento de Salón",
-            EstilistaId = estilistaId ?? 1,
+            EstilistaId = estilistaId,
             EstilistaNombre = "Estilista Asignada",
-            FechaHoraInicio = fechaHora,
-            FechaHoraFin = fechaHora.AddHours(1),
+            FechaHoraInicio = DateTime.TryParse($"{fechaCita:yyyy-MM-dd} {horaInicio}", out var dt) ? dt : fechaCita,
+            FechaHoraFin = (DateTime.TryParse($"{fechaCita:yyyy-MM-dd} {horaInicio}", out var dtFin) ? dtFin : fechaCita).AddHours(1),
             Total = 35.00m,
             Estado = "PENDIENTE",
-            Notas = notas
+            Notas = notas,
+            MetodoPagoPreferente = metodoPago
         };
 
         FallbackReservas.Insert(0, nuevaReserva);
         return nuevaReserva;
     }
 
-    public async Task<bool> CancelarReservaAsync(long reservaId)
+    public async Task<Reserva?> CrearReservaAsync(
+        long servicioId,
+        long? estilistaId,
+        DateTime fechaHora,
+        string? notas)
+    {
+        var targetEstilista = estilistaId ?? 1;
+        var horaInicio = fechaHora.ToString("HH:mm");
+        var servicioIds = new List<int> { (int)servicioId };
+
+        return await CrearReservaAsync(targetEstilista, fechaHora.Date, horaInicio, servicioIds, notas, "Efectivo");
+    }
+
+    public async Task<bool> CancelarReservaAsync(long reservaId, string? motivo = null)
     {
         try
         {
-            var response = await _httpClient.PutAsync($"reservas/{reservaId}/cancelar", null);
+            // Endpoint oficial en Render: PUT /api/citas/{id}/cancelar
+            var url = string.IsNullOrEmpty(motivo)
+                ? $"citas/{reservaId}/cancelar"
+                : $"citas/{reservaId}/cancelar?motivo={Uri.EscapeDataString(motivo)}";
+
+            var response = await _httpClient.PutAsync(url, null);
             if (response.IsSuccessStatusCode) return true;
         }
         catch
         {
-            // Contingencia
+            // Contingencia offline
         }
 
         var match = FallbackReservas.FirstOrDefault(r => r.Id == reservaId);
