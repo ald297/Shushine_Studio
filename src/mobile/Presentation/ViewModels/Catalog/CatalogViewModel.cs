@@ -64,6 +64,6 @@ public partial class CatalogViewModel : BaseViewModel
     {
         if (servicio == null) return;
         
-        await Shell.Current.GoToAsync($"DetalleServicioPage?servicioId={servicio.Id}");
+        await Shell.Current.GoToAsync($"SeleccionHorarioPage?servicioId={servicio.Id}");
     }
 }

@@ -33,16 +33,17 @@
 
 ---
 
-### 🟡 Prioridad Media (Integración con Móvil .NET MAUI — Esta Semana)
+### 🟢 Prioridad Media (Integración con Móvil .NET MAUI) — COMPLETADA ✅
 
-#### Tarea 3: Apoyo en Conexión de Pantallas XAML en .NET MAUI (Scrum Master / Frontend)
-* **Objetivo:** Conectar el frontend móvil con la API en la nube ya desplegada en Render (`https://shushine-studio.onrender.com/api`).
-* **Pantallas y Flujos Clave:**
-  1. **Autenticación:** `LoginClientePage` y `RegistroClientePage` consumiendo `POST /api/auth/login`.
-  2. **Catálogo de Servicios:** `CatalogoServiciosPage` consumiendo `GET /api/servicios/lista`.
-  3. **Selector de Horarios:** `SeleccionHorarioPage` consumiendo `GET /api/estilistas/{id}/disponibilidad`.
-  4. **Confirmación de Reserva:** `ResumenReservaPage` enviando `POST /api/citas` y recibiendo código `#SHU-XXXX`.
-  5. **Historial de Citas:** `HistorialCitasPage` consumiendo `GET /api/citas/mis-citas`.
+#### Tarea 3: Conexión y ViewModels del Flujo de Reserva en .NET MAUI — COMPLETADA ✅
+* **Resultado:** Implementados `SeleccionHorarioViewModel.cs`, `BookingSummaryViewModel.cs`, `SeleccionHorarioPage.xaml` y `BookingSummaryPage.xaml`.
+* **Capacidades:**
+  1. Selección de estilistas activos y consulta dinámica de disponibilidad horaria (`GET /api/estilistas/{id}/disponibilidad`).
+  2. Desglose financiero automatizado (Subtotal, IVA 13% de ley en El Salvador, Total).
+  3. Selección de método de pago preferente y notas del cliente.
+  4. Agendamiento atómico de citas (`POST /api/citas`) con generación de código `#SHU-2026-XXXX`.
+  5. Manejo de concurrencia y excepciones RFC 7807 mediante `ErrorDelegatingHandler`.
+  6. Registro de rutas en `AppShell.xaml.cs` y servicios en `MauiProgram.cs`.
 
 #### Tarea 4: Compilación del Paquete Release Android APK (`TSK-6.03.2`)
 * **Objetivo:** Generar el instalador `.apk` de la aplicación móvil para instalarlo en el dispositivo del docente o emulador.
@@ -53,20 +54,20 @@
 
 ---
 
-### 🟢 Prioridad Baja (Cierre de Sprint y Documentación Final)
+### 🟢 Prioridad Baja (Cierre de Sprint y Documentación Final) — COMPLETADA ✅
 
-#### Tarea 5: Preparación de la Ficha de Demostración Docente (Demo Pitch) (`TSK-6.03.3`)
-* **Objetivo:** Crear una hoja resumen con los accesos directos para la presentación académica:
-  - Enlace oficial a Swagger UI: `https://shushine-studio.onrender.com/swagger-ui/index.html`.
-  - Credenciales demo sembradas:
-    - **Admin:** `admin` / `admin123`
-    - **Cliente:** `cliente` / `cliente123`
-  - Resumen de métricas de calidad y arquitectura pedagógica ESFE AGAPE.
+#### Tarea 5: Preparación de la Ficha de Demostración Docente (Demo Pitch) (`TSK-6.03.3`) — COMPLETADA ✅
+* **Resultado:** Guía oficial completa generada en [docs/DEMO_PITCH_DOCENTE.md](file:///home/alex/Desktop/Shushine_Studio/docs/DEMO_PITCH_DOCENTE.md).
+* **Contenido:**
+  - Enlace oficial a Swagger UI con Bearer Token: `https://shushine-studio.onrender.com/swagger-ui/index.html`.
+  - Credenciales sembradas (`admin`/`admin123`, `cliente`/`cliente123`, `recepcion`/`recepcion123`).
+  - Guion de defensa cronometrado (5 a 7 minutos).
+  - Certificación de cero sobreventa (RNF02) y banco de preguntas frecuentes del jurado.
 
 ---
 
 ## 📌 3. Próximos Pasos Inmediatos Disponibles
 
-1. **Ficha de Demostración Docente (`docs/DEMO_PITCH_DOCENTE.md`):** Generar el documento guía oficial para la evaluación del proyecto ante los evaluadores de ESFE AGAPE con Swagger UI, credenciales y guion de defensa.
-2. **ViewModels del Flujo de Reserva (`BookingSummaryViewModel` y `SeleccionHorarioViewModel`):** Dejar lista la lógica de presentación y navegación para que Camila solo aplique sus estilos XAML sin preocuparse por la lógica de negocio.
-3. **Instalación de Workloads para APK Android:** Ejecutar `dotnet workload restore` si se desea generar el paquete instalador `.apk` de manera local.
+1. **Ficha de Demostración Docente (`docs/DEMO_PITCH_DOCENTE.md`):** Completada y lista para la presentación ante evaluadores de ESFE AGAPE. ✅
+2. **ViewModels del Flujo de Reserva (`BookingSummaryViewModel` y `SeleccionHorarioViewModel`):** Implementados, registrados y enlazados con la Web API en Render. ✅
+3. **Instalación de Workloads para APK Android:** Opcional localmente si se desea generar el paquete `.apk` de manera anticipada.

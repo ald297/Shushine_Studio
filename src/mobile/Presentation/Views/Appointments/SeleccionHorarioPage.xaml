@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Appointments"
+             xmlns:entities="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
+             x:Class="ShushineStudio.Mobile.Presentation.Views.Appointments.SeleccionHorarioPage"
+             x:DataType="vm:SeleccionHorarioViewModel"
+             BackgroundColor="{StaticResource BackgroundColor}"
+             Title="Agendar Turno">
+
+    <Grid RowDefinitions="*, Auto">
+        <!-- Contenido Desplazable -->
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Padding="20" Spacing="20">
+
+                <!-- 1. Tarjeta Resumen del Servicio Seleccionado -->
+                <Border Style="{StaticResource CardBorderStyle}" Padding="16">
+                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="14">
+                        <Border Grid.Column="0"
+                                StrokeShape="RoundRectangle 12"
+                                HeightRequest="56"
+                                WidthRequest="56"
+                                BackgroundColor="{StaticResource SecondaryLight}">
+                            <Label Text="✨" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="3">
+                            <Label Text="{Binding ServicioSeleccionado.Nombre, FallbackValue='Cargando servicio...'}"
+                                   FontSize="17"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource TextColorPrimary}" />
+                            
+                            <Grid ColumnDefinitions="Auto, Auto" ColumnSpacing="12">
+                                <Label Grid.Column="0"
+                                       Text="{Binding ServicioSeleccionado.PrecioFormateado, FallbackValue='$0.00'}"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource PrimaryColor}"
+                                       FontSize="15" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding ServicioSeleccionado.DuracionFormateada, FallbackValue='0 min', StringFormat='⏱ {0}'}"
+                                       FontSize="13"
+                                       TextColor="{StaticResource TextColorSecondary}" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- 2. Sección: Selección de Estilista -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="1. Elige a tu Profesional"
+                           FontAttributes="Bold"
+                           FontSize="16"
+                           TextColor="{StaticResource TextColorPrimary}" />
+
+                    <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                        <HorizontalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Estilistas}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="entities:Estilista">
+                                    <Border StrokeShape="RoundRectangle 16"
+                                            Stroke="{StaticResource BorderColor}"
+                                            BackgroundColor="{StaticResource SurfaceColor}"
+                                            Padding="14,12"
+                                            WidthRequest="140">
+                                        <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                                            <!-- Avatar con Iniciales -->
+                                            <Border StrokeShape="RoundRectangle 24"
+                                                    HeightRequest="48"
+                                                    WidthRequest="48"
+                                                    BackgroundColor="{StaticResource SecondaryLight}"
+                                                    HorizontalOptions="Center">
+                                                <Label Text="{Binding Iniciales}"
+                                                       FontSize="16"
+                                                       FontAttributes="Bold"
+                                                       TextColor="{StaticResource PrimaryDark}"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center" />
+                                            </Border>
+
+                                            <Label Text="{Binding NombreCompleto}"
+                                                   FontAttributes="Bold"
+                                                   FontSize="13"
+                                                   HorizontalTextAlignment="Center"
+                                                   LineBreakMode="TailTruncation"
+                                                   TextColor="{StaticResource TextColorPrimary}" />
+
+                                            <Label Text="{Binding EspecialidadPrincipal}"
+                                                   FontSize="11"
+                                                   HorizontalTextAlignment="Center"
+                                                   TextColor="{StaticResource TextColorSecondary}" />
+                                        </VerticalStackLayout>
+
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SeleccionHorarioViewModel}}, Path=SelectEstilistaCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </HorizontalStackLayout>
+                    </ScrollView>
+                </VerticalStackLayout>
+
+                <!-- 3. Sección: Selector de Fecha -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="2. Fecha de tu Cita"
+                           FontAttributes="Bold"
+                           FontSize="16"
+                           TextColor="{StaticResource TextColorPrimary}" />
+
+                    <Border Style="{StaticResource InputContainerStyle}" Padding="16,4">
+                        <DatePicker Date="{Binding FechaSeleccionada, Mode=TwoWay}"
+                                    MinimumDate="{Binding FechaMinima}"
+                                    MaximumDate="{Binding FechaMaxima}"
+                                    Format="dddd, dd 'de' MMMM 'de' yyyy"
+                                    TextColor="{StaticResource TextColorPrimary}" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- 4. Sección: Franjas y Horarios Disponibles -->
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0"
+                               Text="3. Horario Disponible"
+                               FontAttributes="Bold"
+                               FontSize="16"
+                               TextColor="{StaticResource TextColorPrimary}" />
+
+                        <ActivityIndicator Grid.Column="1"
+                                           IsRunning="{Binding IsBusy}"
+                                           IsVisible="{Binding IsBusy}"
+                                           HeightRequest="20"
+                                           WidthRequest="20" />
+                    </Grid>
+
+                    <!-- Mensaje si no hay franjas o aviso -->
+                    <Border IsVisible="{Binding HasMensajeEstado}"
+                            StrokeShape="RoundRectangle 12"
+                            BackgroundColor="{StaticResource SecondaryLight}"
+                            Stroke="{StaticResource SecondaryColor}"
+                            Padding="14,10">
+                        <Label Text="{Binding MensajeEstado}"
+                               FontSize="13"
+                               TextColor="{StaticResource PrimaryDark}"
+                               HorizontalTextAlignment="Center" />
+                    </Border>
+
+                    <!-- Lista de Turnos -->
+                    <CollectionView ItemsSource="{Binding FranjasHorarias}" SelectionMode="None">
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout Orientation="Vertical" Span="3" HorizontalItemSpacing="10" VerticalItemSpacing="10" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="entities:FranjaHoraria">
+                                <Border StrokeShape="RoundRectangle 12"
+                                        Padding="8,12"
+                                        HorizontalOptions="Fill">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="BackgroundColor" Value="{StaticResource SurfaceColor}" />
+                                            <Setter Property="Stroke" Value="{StaticResource PrimaryColor}" />
+                                            <Style.Triggers>
+                                                <DataTrigger TargetType="Border" Binding="{Binding Disponible}" Value="False">
+                                                    <Setter Property="BackgroundColor" Value="#F2EFEF" />
+                                                    <Setter Property="Stroke" Value="{StaticResource BorderColor}" />
+                                                    <Setter Property="Opacity" Value="0.6" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+
+                                    <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                                        <Label Text="{Binding HoraInicio}"
+                                               FontSize="15"
+                                               FontAttributes="Bold"
+                                               HorizontalTextAlignment="Center"
+                                               TextColor="{StaticResource TextColorPrimary}" />
+                                        <Label Text="{Binding HoraFin}"
+                                               FontSize="11"
+                                               HorizontalTextAlignment="Center"
+                                               TextColor="{StaticResource TextColorSecondary}" />
+                                    </VerticalStackLayout>
+
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SeleccionHorarioViewModel}}, Path=SelectFranjaCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+
+                <!-- Resumen de Selección Actual -->
+                <Border IsVisible="{Binding CanContinuar}"
+                        StrokeShape="RoundRectangle 12"
+                        BackgroundColor="{StaticResource SurfaceDark}"
+                        Padding="14">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Turno Seleccionado:"
+                               FontSize="12"
+                               TextColor="{StaticResource TextColorSecondary}" />
+                        <Label Text="{Binding FranjaSeleccionada.HorarioTexto, StringFormat='⏰ {0}'}"
+                               FontSize="15"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource PrimaryColor}" />
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Barra Inferior Fija para Confirmar y Continuar -->
+        <Border Grid.Row="1"
+                StrokeShape="RoundRectangle 0"
+                Stroke="{StaticResource BorderColor}"
+                BackgroundColor="{StaticResource SurfaceColor}"
+                Padding="20,12">
+            <Button Text="Continuar al Resumen"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    Command="{Binding ContinuarCommand}"
+                    IsEnabled="{Binding CanContinuar}" />
+        </Border>
+    </Grid>
+
+</ContentPage>
