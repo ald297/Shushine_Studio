@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Booking"
+             xmlns:entities="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
+             x:Class="ShushineStudio.Mobile.Presentation.Views.Booking.StylistSelectionPage"
+             x:DataType="vm:StylistSelectionViewModel"
+             BackgroundColor="{StaticResource BackgroundColor}"
+             Title="{Binding Title}">
+
+    <Grid RowDefinitions="*, Auto">
+        
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Padding="20" Spacing="18">
+                
+                <!-- Resumen Superior del Servicio -->
+                <Border Style="{StaticResource CardBorderStyle}" BackgroundColor="{StaticResource SecondaryLight}">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="Tratamiento seleccionado" FontSize="11" TextColor="{StaticResource PrimaryDark}" FontAttributes="Bold" />
+                            <Label Text="{Binding Servicio.Nombre}" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                            <Label Text="{Binding Servicio.DuracionMinutos, StringFormat='⏱ {0} minutos'}" FontSize="12" TextColor="{StaticResource TextColorSecondary}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="1" 
+                               Text="{Binding Servicio.Precio, StringFormat='${0:F2}'}" 
+                               FontSize="17" 
+                               FontAttributes="Bold" 
+                               TextColor="{StaticResource PrimaryDark}" 
+                               VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Label Text="¿Quién te gustaría que te atienda?" 
+                       Style="{StaticResource HeaderLabelStyle}" 
+                       FontSize="18" />
+
+                <!-- Opción Especial Destacada: Cualquier Estilista (Wireframe Pág. 9) -->
+                <Border StrokeShape="RoundRectangle 16"
+                        Padding="16"
+                        Stroke="{StaticResource PrimaryColor}"
+                        StrokeThickness="2"
+                        BackgroundColor="{StaticResource SurfaceColor}">
+                    <Grid ColumnDefinitions="45, *">
+                        <Label Grid.Column="0" Text="⚡️" FontSize="28" VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="3">
+                            <Label Text="Cualquier estilista disponible" 
+                                   FontSize="15" 
+                                   FontAttributes="Bold" 
+                                   TextColor="{StaticResource PrimaryColor}" />
+                            <Label Text="Asignación automática más rápida para conseguir el horario más próximo." 
+                                   FontSize="12" 
+                                   TextColor="{StaticResource TextColorSecondary}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ElegirCualquieraCommand}" />
+                    </Border.GestureRecognizers>
+                </Border>
+
+                <Label Text="O selecciona una profesional de nuestro equipo:" 
+                       FontSize="13" 
+                       FontAttributes="Bold" 
+                       TextColor="{StaticResource TextColorSecondary}" 
+                       Margin="0,6,0,0" />
+
+                <!-- Lista de Estilistas Calificados -->
+                <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Estilistas}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="entities:Estilista">
+                            <Border Style="{StaticResource CardBorderStyle}" Padding="14">
+                                <Grid ColumnDefinitions="55, *, Auto" ColumnSpacing="12">
+                                    
+                                    <!-- Avatar -->
+                                    <Border Grid.Column="0" 
+                                            StrokeShape="RoundRectangle 25" 
+                                            HeightRequest="50" 
+                                            WidthRequest="50" 
+                                            BackgroundColor="{StaticResource SecondaryLight}">
+                                        <Label Text="👩‍🦰" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    </Border>
+
+                                    <!-- Datos de la Estilista -->
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                        <Label Text="{Binding NombreCompleto}" 
+                                               FontSize="15" 
+                                               FontAttributes="Bold" 
+                                               TextColor="{StaticResource TextColorPrimary}" />
+                                        <Label Text="{Binding Especialidad}" 
+                                               FontSize="12" 
+                                               TextColor="{StaticResource TextColorSecondary}" />
+                                        <Label Text="⭐️ 4.9 (Excelente reputación)" 
+                                               FontSize="11" 
+                                               TextColor="{StaticResource PrimaryDark}" />
+                                    </VerticalStackLayout>
+
+                                    <!-- Indicador de Selección -->
+                                    <Border Grid.Column="2" 
+                                            StrokeShape="RoundRectangle 10" 
+                                            BackgroundColor="{StaticResource BackgroundColor}"
+                                            Padding="10,6"
+                                            VerticalOptions="Center">
+                                        <Label Text="Elegir" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource PrimaryColor}" />
+                                    </Border>
+                                </Grid>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer 
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StylistSelectionViewModel}}, Path=SeleccionarEstilistaCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Botón Inferior -->
+        <Border Grid.Row="1" 
+                BackgroundColor="{StaticResource SurfaceColor}" 
+                StrokeThickness="1"
+                Stroke="{StaticResource BorderColor}"
+                Padding="20,12">
+            <Button Text="Continuar a Fecha y Hora ➔" 
+                    Command="{Binding ContinuarAFechaHoraCommand}" 
+                    Style="{StaticResource PrimaryButtonStyle}" />
+        </Border>
+
+    </Grid>
+</ContentPage>

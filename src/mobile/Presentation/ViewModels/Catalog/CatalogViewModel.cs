@@ -6,9 +6,14 @@ using ShushineStudio.Mobile.Domain.UseCases;
 
 namespace ShushineStudio.Mobile.Presentation.ViewModels.Catalog;
 
+/// <summary>
+/// ViewModel reactivo para el catálogo de servicios (US-3.01 / Wireframe Pág. 7).
+/// Permite búsqueda rápida por nombre y filtrado por chips de categorías.
+/// </summary>
 public partial class CatalogViewModel : BaseViewModel
 {
     private readonly GetServiciosCatalogUseCase _getCatalogUseCase;
+    private List<Servicio> _todosLosServicios = new();
 
     [ObservableProperty]
     private ObservableCollection<Servicio> servicios = new();
@@ -19,10 +24,14 @@ public partial class CatalogViewModel : BaseViewModel
     [ObservableProperty]
     private string categoriaSeleccionada = "Todos";
 
+    [ObservableProperty]
+    private string searchText = string.Empty;
+
     public CatalogViewModel(GetServiciosCatalogUseCase getCatalogUseCase)
     {
         _getCatalogUseCase = getCatalogUseCase;
         Title = "Catálogo de Belleza";
+        _ = LoadServiciosAsync();
     }
 
     [RelayCommand]
@@ -36,11 +45,9 @@ public partial class CatalogViewModel : BaseViewModel
             ErrorMessage = null;
 
             var items = await _getCatalogUseCase.ExecuteAsync();
-            Servicios.Clear();
-            foreach (var item in items)
-            {
-                Servicios.Add(item);
-            }
+            _todosLosServicios = items.ToList();
+
+            AplicarFiltros();
         }
         catch (Exception ex)
         {
@@ -53,10 +60,43 @@ public partial class CatalogViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task FilterByCategoriaAsync(string categoria)
+    private void FilterByCategoria(string categoria)
     {
+        if (string.IsNullOrWhiteSpace(categoria)) return;
         CategoriaSeleccionada = categoria;
-        await LoadServiciosAsync();
+        AplicarFiltros();
+    }
+
+    partial void OnSearchTextChanged(string value)
+    {
+        AplicarFiltros();
+    }
+
+    private void AplicarFiltros()
+    {
+        var filtrados = _todosLosServicios.AsEnumerable();
+
+        // 1. Filtrar por categoría
+        if (!string.IsNullOrWhiteSpace(CategoriaSeleccionada) && CategoriaSeleccionada != "Todos")
+        {
+            filtrados = filtrados.Where(s => 
+                string.Equals(s.CategoriaNombre, CategoriaSeleccionada, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // 2. Filtrar por texto de búsqueda
+        if (!string.IsNullOrWhiteSpace(SearchText))
+        {
+            var query = SearchText.Trim().ToLowerInvariant();
+            filtrados = filtrados.Where(s => 
+                s.Nombre.ToLowerInvariant().Contains(query) || 
+                (s.Descripcion != null && s.Descripcion.ToLowerInvariant().Contains(query)));
+        }
+
+        Servicios.Clear();
+        foreach (var item in filtrados)
+        {
+            Servicios.Add(item);
+        }
     }
 
     [RelayCommand]
@@ -64,6 +104,6 @@ public partial class CatalogViewModel : BaseViewModel
     {
         if (servicio == null) return;
         
-        await Shell.Current.GoToAsync($"DetalleServicioPage?servicioId={servicio.Id}");
+        await Shell.Current.GoToAsync($"ServiceDetailPage?servicioId={servicio.Id}");
     }
 }

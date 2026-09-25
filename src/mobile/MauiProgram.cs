@@ -8,10 +8,12 @@ using ShushineStudio.Mobile.Domain.Repositories;
 using ShushineStudio.Mobile.Domain.UseCases;
 using ShushineStudio.Mobile.Presentation.ViewModels.Appointments;
 using ShushineStudio.Mobile.Presentation.ViewModels.Auth;
+using ShushineStudio.Mobile.Presentation.ViewModels.Booking;
 using ShushineStudio.Mobile.Presentation.ViewModels.Catalog;
 using ShushineStudio.Mobile.Presentation.ViewModels.Profile;
 using ShushineStudio.Mobile.Presentation.Views.Appointments;
 using ShushineStudio.Mobile.Presentation.Views.Auth;
+using ShushineStudio.Mobile.Presentation.Views.Booking;
 using ShushineStudio.Mobile.Presentation.Views.Catalog;
 using ShushineStudio.Mobile.Presentation.Views.Profile;
 
@@ -71,6 +73,9 @@ public static class MauiProgram
 		builder.Services.AddTransient<LoginViewModel>();
 		builder.Services.AddTransient<RegisterViewModel>();
 		builder.Services.AddTransient<CatalogViewModel>();
+		builder.Services.AddTransient<ServiceDetailViewModel>();
+		builder.Services.AddTransient<StylistSelectionViewModel>();
+		builder.Services.AddTransient<SlotSelectionViewModel>();
 		builder.Services.AddTransient<MyAppointmentsViewModel>();
 		builder.Services.AddTransient<ProfileViewModel>();
 
@@ -80,6 +85,9 @@ public static class MauiProgram
 		builder.Services.AddTransient<LoginPage>();
 		builder.Services.AddTransient<RegisterPage>();
 		builder.Services.AddTransient<CatalogPage>();
+		builder.Services.AddTransient<ServiceDetailPage>();
+		builder.Services.AddTransient<StylistSelectionPage>();
+		builder.Services.AddTransient<SlotSelectionPage>();
 		builder.Services.AddTransient<MyAppointmentsPage>();
 		builder.Services.AddTransient<ProfilePage>();
 

@@ -126,7 +126,7 @@ Para maximizar la eficiencia y evitar bloqueos en el entorno local:
 ### 📍 FASE 2: Catálogo de Servicios y Selección de Citas (Sprint 2)
 **Meta:** Guiar al cliente en la selección de tratamientos, profesionales y horarios disponibles.
 
-* [ ] **Paso 2.1 — US-3.01: Catálogo de Servicios (`CatalogPage.xaml`)**
+* [x] **Paso 2.1 — US-3.01: Catálogo de Servicios (`CatalogPage.xaml`)** [COMPLETADO]
   * **Wireframe:** Pág. 7 (`CatalogoServiciosView`).
   * **Acciones en UI/XAML:**
     * Barra superior de búsqueda rápida por nombre de tratamiento.
@@ -136,7 +136,7 @@ Para maximizar la eficiencia y evitar bloqueos en el entorno local:
     * Invocación a `GetServiciosCatalogUseCase`.
     * Filtro en memoria reactivo por categoría seleccionada.
 
-* [ ] **Paso 2.2 — US-3.02: Detalle del Servicio (`ServiceDetailPage.xaml`)**
+* [x] **Paso 2.2 — US-3.02: Detalle del Servicio (`ServiceDetailPage.xaml`)** [COMPLETADO]
   * **Wireframe:** Pág. 8 (`DetalleServicioView`).
   * **Acciones en UI/XAML:**
     * Imagen de cabecera en alta resolución.
@@ -144,13 +144,13 @@ Para maximizar la eficiencia y evitar bloqueos en el entorno local:
     * Sección de descripción, beneficios y recomendaciones previas.
     * Botón flotante inferior: *"Continuar con la reserva ➔"*.
 
-* [ ] **Paso 2.3 — US-3.03: Selección de Estilista (`StylistSelectionPage.xaml`)**
+* [x] **Paso 2.3 — US-3.03: Selección de Estilista (`StylistSelectionPage.xaml`)** [COMPLETADO]
   * **Wireframe:** Pág. 9 (`SeleccionEstilistaView`).
   * **Acciones en UI/XAML:**
     * Tarjeta destacada superior: *"Cualquier estilista disponible (Asignación automática más rápida)"*.
     * Listado de tarjetas de estilistas calificados con foto, nombre, especialidad y estrellas de calificación.
 
-* [ ] **Paso 2.4 — US-3.04: Selección de Fecha y Franja Horaria (`SlotSelectionPage.xaml`)**
+* [x] **Paso 2.4 — US-3.04: Selección de Fecha y Franja Horaria (`SlotSelectionPage.xaml`)** [COMPLETADO]
   * **Wireframe:** Pág. 10 (`SeleccionHorarioView`).
   * **Acciones en UI/XAML:**
     * Selector interactivo de fecha (calendario horizontal de días).

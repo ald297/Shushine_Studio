@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Booking"
+             x:Class="ShushineStudio.Mobile.Presentation.Views.Booking.SlotSelectionPage"
+             x:DataType="vm:SlotSelectionViewModel"
+             BackgroundColor="{StaticResource BackgroundColor}"
+             Title="{Binding Title}">
+
+    <Grid RowDefinitions="*, Auto">
+        
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Padding="20" Spacing="18">
+                
+                <!-- Resumen Superior de Cita -->
+                <Border Style="{StaticResource CardBorderStyle}" BackgroundColor="{StaticResource SecondaryLight}">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="Servicio &amp; Profesional" FontSize="11" TextColor="{StaticResource PrimaryDark}" FontAttributes="Bold" />
+                            <Label Text="{Binding Servicio.Nombre}" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                            <Label Text="{Binding EstilistaNombre, StringFormat='Atención con: {0}'}" FontSize="12" TextColor="{StaticResource TextColorSecondary}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="1" 
+                               Text="{Binding Servicio.Precio, StringFormat='${0:F2}'}" 
+                               FontSize="17" 
+                               FontAttributes="Bold" 
+                               TextColor="{StaticResource PrimaryDark}" 
+                               VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- Selector de Fechas (Horizontal) -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Selecciona el Día" Style="{StaticResource HeaderLabelStyle}" FontSize="16" />
+                    
+                    <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                        <HorizontalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding DiasSemana}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:DayItem">
+                                    <Border StrokeShape="RoundRectangle 14"
+                                            Padding="14,10"
+                                            WidthRequest="65"
+                                            Stroke="{StaticResource PrimaryColor}"
+                                            BackgroundColor="{StaticResource SurfaceColor}">
+                                        <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                                            <Label Text="{Binding DiaNombre}" FontSize="11" TextColor="{StaticResource TextColorSecondary}" HorizontalOptions="Center" />
+                                            <Label Text="{Binding DiaNumero}" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource PrimaryColor}" HorizontalOptions="Center" />
+                                        </VerticalStackLayout>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SlotSelectionViewModel}}, Path=SeleccionarDiaCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </HorizontalStackLayout>
+                    </ScrollView>
+                </VerticalStackLayout>
+
+                <!-- Horarios Disponibles: Turno Mañana (Wireframe Pág. 10) -->
+                <VerticalStackLayout Spacing="8" Margin="0,4,0,0">
+                    <Label Text="🌅 Turno Mañana" FontAttributes="Bold" FontSize="14" TextColor="{StaticResource PrimaryDark}" />
+                    
+                    <FlexLayout BindableLayout.ItemsSource="{Binding SlotsManana}" Wrap="Wrap" JustifyContent="Start">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:TimeSlotItem">
+                                <Border StrokeShape="RoundRectangle 12"
+                                        Margin="0,0,10,10"
+                                        Padding="14,10"
+                                        Stroke="{StaticResource BorderColor}"
+                                        BackgroundColor="{StaticResource SurfaceColor}">
+                                    <Label Text="{Binding Hora}" 
+                                           FontSize="13" 
+                                           FontAttributes="Bold" 
+                                           TextColor="{StaticResource TextColorPrimary}" />
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer 
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SlotSelectionViewModel}}, Path=SeleccionarSlotCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+                </VerticalStackLayout>
+
+                <!-- Horarios Disponibles: Turno Tarde -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="🌇 Turno Tarde" FontAttributes="Bold" FontSize="14" TextColor="{StaticResource PrimaryDark}" />
+                    
+                    <FlexLayout BindableLayout.ItemsSource="{Binding SlotsTarde}" Wrap="Wrap" JustifyContent="Start">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:TimeSlotItem">
+                                <Border StrokeShape="RoundRectangle 12"
+                                        Margin="0,0,10,10"
+                                        Padding="14,10"
+                                        Stroke="{StaticResource BorderColor}"
+                                        BackgroundColor="{StaticResource SurfaceColor}">
+                                    <Label Text="{Binding Hora}" 
+                                           FontSize="13" 
+                                           FontAttributes="Bold" 
+                                           TextColor="{StaticResource TextColorPrimary}" />
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer 
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SlotSelectionViewModel}}, Path=SeleccionarSlotCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+                </VerticalStackLayout>
+
+                <!-- Horario Seleccionado Actualmente -->
+                <Border Style="{StaticResource CardBorderStyle}" Padding="14">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0" Text="Horario marcado para tu cita:" FontSize="13" TextColor="{StaticResource TextColorSecondary}" VerticalOptions="Center" />
+                        <Label Grid.Column="1" 
+                               Text="{Binding HoraSeleccionada}" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="{StaticResource PrimaryColor}" 
+                               VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Botón Inferior Continuar al Resumen -->
+        <Border Grid.Row="1" 
+                BackgroundColor="{StaticResource SurfaceColor}" 
+                StrokeThickness="1"
+                Stroke="{StaticResource BorderColor}"
+                Padding="20,12">
+            <Button Text="Continuar al Resumen de Reserva ➔" 
+                    Command="{Binding ContinuarAResumenCommand}" 
+                    Style="{StaticResource PrimaryButtonStyle}" />
+        </Border>
+
+    </Grid>
+</ContentPage>

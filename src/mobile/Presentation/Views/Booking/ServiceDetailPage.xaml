@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Booking"
+             x:Class="ShushineStudio.Mobile.Presentation.Views.Booking.ServiceDetailPage"
+             x:DataType="vm:ServiceDetailViewModel"
+             BackgroundColor="{StaticResource BackgroundColor}"
+             Title="{Binding Title}">
+
+    <Grid RowDefinitions="*, Auto">
+        
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Padding="20" Spacing="18">
+                
+                <!-- Cabecera Visual con Badge -->
+                <Border StrokeShape="RoundRectangle 20" 
+                        HeightRequest="180" 
+                        BackgroundColor="{StaticResource SecondaryLight}"
+                        Stroke="{StaticResource SecondaryColor}">
+                    <Grid>
+                        <Label Text="✨" FontSize="70" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Border HorizontalOptions="End" 
+                                VerticalOptions="Top" 
+                                Margin="14"
+                                StrokeShape="RoundRectangle 12"
+                                BackgroundColor="{StaticResource PrimaryColor}"
+                                Padding="12,6">
+                            <Label Text="{Binding Servicio.Precio, StringFormat='${0:F2}'}" 
+                                   TextColor="White" 
+                                   FontAttributes="Bold" 
+                                   FontSize="16" />
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- Título y Categoría -->
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="{Binding Servicio.CategoriaNombre}" 
+                           FontSize="13" 
+                           FontAttributes="Bold" 
+                           TextColor="{StaticResource PrimaryColor}" />
+                    <Label Text="{Binding Servicio.Nombre}" 
+                           Style="{StaticResource HeaderLabelStyle}" 
+                           FontSize="24" />
+                    <HorizontalStackLayout Spacing="16" Margin="0,4,0,0">
+                        <Label Text="{Binding Servicio.DuracionMinutos, StringFormat='⏱ Duración: {0} minutos'}" 
+                               FontSize="13" 
+                               TextColor="{StaticResource TextColorSecondary}" 
+                               FontAttributes="Bold" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Descripción del Servicio -->
+                <Border Style="{StaticResource CardBorderStyle}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Acerca de este Tratamiento" 
+                               Style="{StaticResource HeaderLabelStyle}" 
+                               FontSize="16" />
+                        <Label Text="{Binding Servicio.Descripcion}" 
+                               FontSize="14" 
+                               TextColor="{StaticResource TextColorPrimary}" 
+                               LineHeight="1.3" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Protocolo Paso a Paso (Wireframe Pág. 8) -->
+                <Border Style="{StaticResource CardBorderStyle}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Protocolo de Atención Paso a Paso" 
+                               Style="{StaticResource HeaderLabelStyle}" 
+                               FontSize="16"
+                               TextColor="{StaticResource PrimaryDark}" />
+                        <Label Text="{Binding Servicio.Protocolo}" 
+                               FontSize="13" 
+                               TextColor="{StaticResource TextColorPrimary}" 
+                               LineHeight="1.4" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Indicaciones y Recomendaciones -->
+                <Border Style="{StaticResource CardBorderStyle}" BackgroundColor="{StaticResource SecondaryLight}">
+                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="💡" FontSize="24" VerticalOptions="Start" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="Recomendación Shushine" FontAttributes="Bold" FontSize="13" TextColor="{StaticResource PrimaryDark}" />
+                            <Label Text="Por favor acude 5 minutos antes de la hora seleccionada para tu diagnóstico de bienvenida." 
+                                   FontSize="12" 
+                                   TextColor="{StaticResource TextColorPrimary}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Botón Inferior Continuar con la Reserva -->
+        <Border Grid.Row="1" 
+                BackgroundColor="{StaticResource SurfaceColor}" 
+                StrokeThickness="1"
+                Stroke="{StaticResource BorderColor}"
+                Padding="20,12">
+            <Button Text="Continuar con la reserva ➔" 
+                    Command="{Binding ContinuarAReservaCommand}" 
+                    Style="{StaticResource PrimaryButtonStyle}" />
+        </Border>
+
+    </Grid>
+</ContentPage>
