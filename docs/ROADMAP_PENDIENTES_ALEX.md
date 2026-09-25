@@ -65,7 +65,8 @@
 
 ---
 
-## 📌 3. Próximo Paso Inmediato
+## 📌 3. Próximos Pasos Inmediatos Disponibles
 
-1. Proporcionar un **PAT fresco de Azure DevOps** para sincronizar Azure Repos y mover las tareas a `Done` en Azure Boards.
-2. Ejecutar la **prueba de concurrencia y estrés RNF02** para certificar el bloqueo de doble reserva.
+1. **Ficha de Demostración Docente (`docs/DEMO_PITCH_DOCENTE.md`):** Generar el documento guía oficial para la evaluación del proyecto ante los evaluadores de ESFE AGAPE con Swagger UI, credenciales y guion de defensa.
+2. **ViewModels del Flujo de Reserva (`BookingSummaryViewModel` y `SeleccionHorarioViewModel`):** Dejar lista la lógica de presentación y navegación para que Camila solo aplique sus estilos XAML sin preocuparse por la lógica de negocio.
+3. **Instalación de Workloads para APK Android:** Ejecutar `dotnet workload restore` si se desea generar el paquete instalador `.apk` de manera local.
