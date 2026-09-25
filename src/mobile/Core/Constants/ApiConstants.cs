@@ -6,14 +6,12 @@ public static class ApiConstants
     // Para dispositivos físicos en la misma red local, usar la IP LAN de la máquina de desarrollo (ej. http://192.168.1.50:8080/api).
     public const string DefaultAndroidEmulatorBaseUrl = "http://10.0.2.2:8080/api";
     public const string DefaultIosSimulatorBaseUrl = "http://localhost:8080/api";
-    public const string ProductionBaseUrl = "https://api.shushinestudio.com/api";
+    public const string ProductionBaseUrl = "https://shushine-studio.onrender.com/api";
 
-    public static string BaseUrl => DeviceInfo.Platform == DevicePlatform.Android 
-        ? DefaultAndroidEmulatorBaseUrl 
-        : DefaultIosSimulatorBaseUrl;
+    public static string BaseUrl => ProductionBaseUrl;
 
     // Supabase
-    public const string SupabaseUrl = "https://xyzcompany.supabase.co";
+    public const string SupabaseUrl = "https://acikahicfjtojuvqcvxv.supabase.co";
     public const string SupabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
 
     // Storage Keys

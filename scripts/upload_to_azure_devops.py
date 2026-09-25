@@ -14,7 +14,7 @@ import urllib.error
 
 ORGANIZATION = "cc25003"
 PROJECT_NAME = "Shunshine Studio"
-PAT = "7ssaGsowBIx9Dmcp50xmZdMgfIto09s0D1PBiW1w7BIKjygSh1O8JQQJ99CIACAAAAAAAAAAAAASAZDO41gW"
+PAT = os.environ.get("AZURE_DEVOPS_PAT", "")
 
 ALEX = "Alex alfaro <lalafaro6@gmail.com>"
 CAMILA = "cami calderon <cc25003@esfe.agape.edu.sv>"

@@ -6,7 +6,7 @@ using ShushineStudio.Mobile.Domain.Repositories;
 namespace ShushineStudio.Mobile.Data.Repositories;
 
 /// <summary>
-/// Repositorio de servicios con soporte para Web API y catálogo local de contingencia (Offline Fallback).
+/// Repositorio de servicios con soporte para Web API en Render y catálogo local de contingencia (Offline Fallback).
 /// </summary>
 public class ServicioRepository : IServicioRepository
 {
@@ -103,9 +103,10 @@ public class ServicioRepository : IServicioRepository
     {
         try
         {
+            // Intentar endpoint de listado rápido optimizado de Render: servicios/lista
             var url = categoriaId.HasValue 
-                ? $"servicios?categoriaId={categoriaId.Value}" 
-                : "servicios";
+                ? $"servicios/lista?categoriaId={categoriaId.Value}" 
+                : "servicios/lista";
 
             var dtos = await _httpClient.GetFromJsonAsync<List<ServicioDto>>(url);
             if (dtos != null && dtos.Count > 0)
@@ -115,10 +116,29 @@ public class ServicioRepository : IServicioRepository
         }
         catch
         {
-            // Contingencia offline: asegura catálogo funcional si la API no está corriendo
+            // Fallback a endpoint estándar servicios
+            try
+            {
+                var url = categoriaId.HasValue 
+                    ? $"servicios?categoriaId={categoriaId.Value}" 
+                    : "servicios";
+
+                var dtos = await _httpClient.GetFromJsonAsync<List<ServicioDto>>(url);
+                if (dtos != null && dtos.Count > 0)
+                {
+                    return dtos.Select(d => d.ToEntity());
+                }
+            }
+            catch
+            {
+                // Silencioso para contingencia offline
+            }
         }
 
-        return FallbackServicios;
+        // Contingencia offline
+        return categoriaId.HasValue 
+            ? FallbackServicios.Where(s => s.CategoriaId == categoriaId.Value) 
+            : FallbackServicios;
     }
 
     public async Task<Servicio?> GetServicioByIdAsync(long id)
@@ -133,7 +153,7 @@ public class ServicioRepository : IServicioRepository
         }
         catch
         {
-            // Contingencia
+            // Contingencia offline
         }
 
         return FallbackServicios.FirstOrDefault(s => s.Id == id) ?? FallbackServicios.First();
@@ -143,7 +163,7 @@ public class ServicioRepository : IServicioRepository
     {
         try
         {
-            var categorias = await _httpClient.GetFromJsonAsync<List<string>>("servicios/categorias");
+            var categorias = await _httpClient.GetFromJsonAsync<List<string>>("categorias/nombres");
             if (categorias != null && categorias.Count > 0)
             {
                 return categorias;
@@ -151,7 +171,7 @@ public class ServicioRepository : IServicioRepository
         }
         catch
         {
-            // Contingencia
+            // Contingencia offline
         }
 
         return new List<string> { "Todos", "Cabello", "Uñas", "Maquillaje", "Spa" };

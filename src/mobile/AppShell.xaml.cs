@@ -1,4 +1,5 @@
 using ShushineStudio.Mobile.Presentation.Views.Admin;
+using ShushineStudio.Mobile.Presentation.Views.Appointments;
 using ShushineStudio.Mobile.Presentation.Views.Auth;
 using ShushineStudio.Mobile.Presentation.Views.Booking;
 
@@ -10,7 +11,7 @@ public partial class AppShell : Shell
 	{
 		InitializeComponent();
 
-		// Registro de Rutas para navegación con Shell.Current.GoToAsync()
+		// Registro de Rutas secundarias para navegación con Shell.Current.GoToAsync()
 		Routing.RegisterRoute("RegisterPage", typeof(RegisterPage));
 		Routing.RegisterRoute("ServiceDetailPage", typeof(ServiceDetailPage));
 		Routing.RegisterRoute("StylistSelectionPage", typeof(StylistSelectionPage));

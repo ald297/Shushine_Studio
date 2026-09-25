@@ -60,6 +60,7 @@ public static class MauiProgram
 		// 3. Repositorios (Data Layer -> Domain Interfaces)
 		// ==========================================
 		builder.Services.AddScoped<IServicioRepository, ServicioRepository>();
+		builder.Services.AddScoped<IEstilistaRepository, EstilistaRepository>();
 		builder.Services.AddScoped<IReservaRepository, ReservaRepository>();
 		builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
@@ -67,7 +68,11 @@ public static class MauiProgram
 		// 4. Casos de Uso (Domain Layer)
 		// ==========================================
 		builder.Services.AddTransient<GetServiciosCatalogUseCase>();
+		builder.Services.AddTransient<GetEstilistasUseCase>();
+		builder.Services.AddTransient<GetDisponibilidadUseCase>();
+		builder.Services.AddTransient<GetMyAppointmentsUseCase>();
 		builder.Services.AddTransient<CreateAppointmentUseCase>();
+		builder.Services.AddTransient<CancelAppointmentUseCase>();
 
 		// ==========================================
 		// 5. ViewModels (Presentation Layer)
@@ -78,9 +83,9 @@ public static class MauiProgram
 		builder.Services.AddTransient<ServiceDetailViewModel>();
 		builder.Services.AddTransient<StylistSelectionViewModel>();
 		builder.Services.AddTransient<SlotSelectionViewModel>();
-		builder.Services.AddTransient<MyAppointmentsViewModel>();
 		builder.Services.AddTransient<BookingSummaryViewModel>();
 		builder.Services.AddTransient<BookingConfirmationViewModel>();
+		builder.Services.AddTransient<MyAppointmentsViewModel>();
 		builder.Services.AddTransient<ProfileViewModel>();
 		builder.Services.AddTransient<AdminDashboardViewModel>();
 		builder.Services.AddTransient<TimelineAgendaViewModel>();
@@ -95,9 +100,9 @@ public static class MauiProgram
 		builder.Services.AddTransient<ServiceDetailPage>();
 		builder.Services.AddTransient<StylistSelectionPage>();
 		builder.Services.AddTransient<SlotSelectionPage>();
-		builder.Services.AddTransient<MyAppointmentsPage>();
 		builder.Services.AddTransient<BookingSummaryPage>();
 		builder.Services.AddTransient<BookingConfirmationPage>();
+		builder.Services.AddTransient<MyAppointmentsPage>();
 		builder.Services.AddTransient<ProfilePage>();
 		builder.Services.AddTransient<AdminDashboardPage>();
 		builder.Services.AddTransient<TimelineAgendaPage>();
