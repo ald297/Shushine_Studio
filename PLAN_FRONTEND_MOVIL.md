@@ -165,7 +165,7 @@ Para maximizar la eficiencia y evitar bloqueos en el entorno local:
 ### 📍 FASE 3: Transacción de Reservas y Gestión Personal (Sprint 3)
 **Meta:** Cerrar el ciclo de reserva con protección contra duplicidades y consulta de citas.
 
-* [ ] **Paso 3.1 — US-4.01: Resumen y Creación de Reserva (`BookingSummaryPage.xaml`)**
+* [x] **Paso 3.1 — US-4.01: Resumen y Creación de Reserva (`BookingSummaryPage.xaml`)** [COMPLETADO]
   * **Wireframe:** Pág. 11 (`ResumenReservaView`).
   * **Acciones en UI/XAML:**
     * Tarjeta de resumen: Servicio, Estilista asignado, Fecha y Hora seleccionada.
@@ -176,14 +176,14 @@ Para maximizar la eficiencia y evitar bloqueos en el entorno local:
     * Invocación a `CreateAppointmentUseCase`.
     * Manejo de error concurrente **409 Conflict** (si otro usuario tomó el cupo) con reintento amigable.
 
-* [ ] **Paso 3.2 — US-4.02: Comprobante de Confirmación (`BookingConfirmationPage.xaml`)**
+* [x] **Paso 3.2 — US-4.02: Comprobante de Confirmación (`BookingConfirmationPage.xaml`)** [COMPLETADO]
   * **Wireframe:** Pág. 12 (`ConfirmacionReservaView`).
   * **Acciones en UI/XAML:**
     * Icono de éxito con micro-animación.
     * Tarjeta tipo ticket con código de cita alfanumérico único (`#SHU-XXXX`).
     * Botones de acción: *"Ver en Mis Citas"* y *"Volver al Inicio"*.
 
-* [ ] **Paso 3.3 — US-4.03 & US-4.04: Historial de Citas y Cancelaciones (`MyAppointmentsPage.xaml`)**
+* [x] **Paso 3.3 — US-4.03 & US-4.04: Historial de Citas y Cancelaciones (`MyAppointmentsPage.xaml`)** [COMPLETADO]
   * **Wireframe:** Pág. 13 (`HistorialCitasView`).
   * **Acciones en UI/XAML:**
     * Pestañas superiores: *"Próximas Citas"* y *"Historial Pasado"*.

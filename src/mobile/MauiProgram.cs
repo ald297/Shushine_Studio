@@ -77,6 +77,8 @@ public static class MauiProgram
 		builder.Services.AddTransient<StylistSelectionViewModel>();
 		builder.Services.AddTransient<SlotSelectionViewModel>();
 		builder.Services.AddTransient<MyAppointmentsViewModel>();
+		builder.Services.AddTransient<BookingSummaryViewModel>();
+		builder.Services.AddTransient<BookingConfirmationViewModel>();
 		builder.Services.AddTransient<ProfileViewModel>();
 
 		// ==========================================
@@ -89,6 +91,8 @@ public static class MauiProgram
 		builder.Services.AddTransient<StylistSelectionPage>();
 		builder.Services.AddTransient<SlotSelectionPage>();
 		builder.Services.AddTransient<MyAppointmentsPage>();
+		builder.Services.AddTransient<BookingSummaryPage>();
+		builder.Services.AddTransient<BookingConfirmationPage>();
 		builder.Services.AddTransient<ProfilePage>();
 
 		return builder.Build();
