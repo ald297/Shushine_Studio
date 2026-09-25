@@ -27,6 +27,35 @@ public partial class ProfileViewModel : BaseViewModel
     }
 
     [RelayCommand]
+    public async Task CargarPerfilAsync()
+    {
+        if (IsBusy) return;
+
+        try
+        {
+            IsBusy = true;
+            var usuario = await _authRepository.GetCurrentUserAsync();
+            if (usuario != null)
+            {
+                if (!string.IsNullOrWhiteSpace(usuario.NombreCompleto))
+                    Nombre = usuario.NombreCompleto;
+                if (!string.IsNullOrWhiteSpace(usuario.Email))
+                    Email = usuario.Email;
+                if (!string.IsNullOrWhiteSpace(usuario.NivelFidelidad))
+                    NivelFidelidad = $"{usuario.NivelFidelidad} ({usuario.PuntosAcumulados} pts)";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
     private async Task CerrarSesionAsync()
     {
         if (Application.Current?.MainPage == null) return;

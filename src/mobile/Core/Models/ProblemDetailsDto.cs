@@ -24,7 +24,7 @@ public class ProblemDetailsDto
     public string? Instance { get; set; }
 
     [JsonPropertyName("errors")]
-    public Dictionary<string, string[]>? Errors { get; set; }
+    public Dictionary<string, object>? Errors { get; set; }
 
     /// <summary>
     /// Retorna el mensaje de error más específico para mostrar al usuario en español.
@@ -33,11 +33,22 @@ public class ProblemDetailsDto
     {
         if (Errors != null && Errors.Count > 0)
         {
-            foreach (var errorList in Errors.Values)
+            foreach (var errorVal in Errors.Values)
             {
-                if (errorList != null && errorList.Length > 0 && !string.IsNullOrWhiteSpace(errorList[0]))
+                if (errorVal is JsonElement element)
                 {
-                    return errorList[0];
+                    if (element.ValueKind == JsonValueKind.String)
+                        return element.GetString()!;
+                    if (element.ValueKind == JsonValueKind.Array && element.GetArrayLength() > 0)
+                        return element[0].GetString()!;
+                }
+                else if (errorVal is string str && !string.IsNullOrWhiteSpace(str))
+                {
+                    return str;
+                }
+                else if (errorVal is string[] arr && arr.Length > 0 && !string.IsNullOrWhiteSpace(arr[0]))
+                {
+                    return arr[0];
                 }
             }
         }

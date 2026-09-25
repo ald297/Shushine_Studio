@@ -7,6 +7,7 @@ public interface ITokenStorageService
     Task SaveTokenAsync(string token, string? refreshToken = null, string? role = null, string? userId = null);
     Task<string?> GetTokenAsync();
     Task<string?> GetRoleAsync();
+    Task<string?> GetUserIdAsync();
     Task<bool> HasValidTokenAsync();
     Task ClearAsync();
 }
@@ -32,6 +33,11 @@ public class TokenStorageService : ITokenStorageService
     public async Task<string?> GetRoleAsync()
     {
         return await SecureStorage.Default.GetAsync(ApiConstants.UserRoleKey);
+    }
+
+    public async Task<string?> GetUserIdAsync()
+    {
+        return await SecureStorage.Default.GetAsync(ApiConstants.UserIdKey);
     }
 
     public async Task<bool> HasValidTokenAsync()
