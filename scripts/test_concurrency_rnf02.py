@@ -75,11 +75,35 @@ def run_concurrency_test():
     token = get_token("cliente", "cliente123")
     print("✅ Token obtenido exitosamente.\n")
     
-    # Parámetros del slot horario a disputar
-    target_date = "2026-11-15"
-    target_time = "10:00"
+    # Obtener un slot verdaderamente disponible consultando la API
+    import datetime
+    # Probar días futuros a partir de hoy
+    base_date = datetime.date(2026, 12, 1)
+    target_date = None
+    target_time = None
     stylist_id = 1
-    
+
+    for day_offset in range(30):
+        check_date = (base_date + datetime.timedelta(days=day_offset)).strftime("%Y-%m-%d")
+        disp_url = f"{BASE_URL}/api/estilistas/{stylist_id}/disponibilidad?fecha={check_date}&servicioId=1"
+        req_disp = urllib.request.Request(disp_url, headers={"Authorization": f"Bearer {token}"})
+        try:
+            with urllib.request.urlopen(req_disp, context=CTX, timeout=10) as res_disp:
+                data_disp = json.loads(res_disp.read().decode("utf-8"))
+                for franja in data_disp.get("franjas", []):
+                    if franja.get("disponible") is True:
+                        target_date = check_date
+                        target_time = franja.get("horaInicio")
+                        break
+        except Exception as e:
+            continue
+        if target_date and target_time:
+            break
+
+    if not target_date or not target_time:
+        target_date = "2026-12-10"
+        target_time = "10:00"
+
     payload = {
         "estilistaId": stylist_id,
         "fechaCita": target_date,

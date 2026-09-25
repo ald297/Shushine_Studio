@@ -48,7 +48,7 @@ public class CitaController {
                     "title", "Conflict",
                     "detail", e.getMessage()
             ));
-        } catch (org.springframework.dao.DataIntegrityViolationException | org.springframework.dao.ConcurrencyFailureException e) {
+        } catch (org.springframework.dao.DataAccessException | jakarta.persistence.PersistenceException | org.springframework.transaction.TransactionException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(java.util.Map.of(
                     "status", 409,
                     "title", "Conflict",
@@ -75,7 +75,7 @@ public class CitaController {
                     "title", "Conflict",
                     "detail", e.getMessage()
             ));
-        } catch (org.springframework.dao.DataIntegrityViolationException | org.springframework.dao.ConcurrencyFailureException e) {
+        } catch (org.springframework.dao.DataAccessException | jakarta.persistence.PersistenceException | org.springframework.transaction.TransactionException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(java.util.Map.of(
                     "status", 409,
                     "title", "Conflict",
