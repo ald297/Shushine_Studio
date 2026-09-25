@@ -7,7 +7,12 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <RollForward>LatestMajor</RollForward>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
 
   <ItemGroup>
     <!-- Frameworks de pruebas xUnit + Moq (según AGENTS.md) -->

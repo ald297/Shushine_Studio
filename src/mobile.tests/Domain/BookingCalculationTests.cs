@@ -15,9 +15,9 @@ public class BookingCalculationTests
         CalcularMontos(decimal precioServicio)
     {
         var subtotal    = precioServicio;
-        var descuento   = Math.Round(subtotal * 0.10m, 2);          // 10% descuento bienvenida
+        var descuento   = Math.Round(subtotal * 0.10m, 2, MidpointRounding.AwayFromZero);          // 10% descuento bienvenida
         var baseImponible = subtotal - descuento;
-        var iva         = Math.Round(baseImponible * 0.13m, 2);     // IVA 13% El Salvador
+        var iva         = Math.Round(baseImponible * 0.13m, 2, MidpointRounding.AwayFromZero);     // IVA 13% El Salvador
         var total       = baseImponible + iva;
         return (subtotal, descuento, iva, total);
     }

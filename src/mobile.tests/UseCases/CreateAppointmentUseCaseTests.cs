@@ -154,14 +154,14 @@ public class CreateAppointmentUseCaseTests
         // Arrange
         const long reservaId = 101L;
         _mockRepository
-            .Setup(r => r.CancelarReservaAsync(reservaId))
+            .Setup(r => r.CancelarReservaAsync(reservaId, It.IsAny<string?>()))
             .ReturnsAsync(true);
 
         // Act
-        var resultado = await _mockRepository.Object.CancelarReservaAsync(reservaId);
+        var resultado = await _mockRepository.Object.CancelarReservaAsync(reservaId, null);
 
         // Assert
         resultado.Should().BeTrue("la cancelación de una reserva existente debe retornar true");
-        _mockRepository.Verify(r => r.CancelarReservaAsync(reservaId), Times.Once);
+        _mockRepository.Verify(r => r.CancelarReservaAsync(reservaId, It.IsAny<string?>()), Times.Once);
     }
 }
