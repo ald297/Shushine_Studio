@@ -12,9 +12,11 @@ import json
 import base64
 import urllib.request
 import urllib.error
+import urllib.parse
 
 ORGANIZATION = "cc25003"
 PROJECT = "Shunshine Studio"
+PROJECT_ENC = urllib.parse.quote(PROJECT)
 
 def get_pat():
     if len(sys.argv) > 1:
@@ -30,7 +32,7 @@ def search_and_update_work_items(pat):
     }
 
     # 1. Consultar work items asignados a Alex mediante WIQL
-    wiql_url = f"https://dev.azure.com/{ORGANIZATION}/{PROJECT}/_apis/wit/wiql?api-version=7.0"
+    wiql_url = f"https://dev.azure.com/{ORGANIZATION}/{PROJECT_ENC}/_apis/wit/wiql?api-version=7.0"
     query = {
         "query": f"SELECT [System.Id], [System.Title], [System.State], [System.WorkItemType] FROM WorkItems WHERE [System.AreaPath] UNDER '{PROJECT}' ORDER BY [System.Id]"
     }
@@ -58,7 +60,7 @@ def search_and_update_work_items(pat):
     # Procesar en lotes de 100
     for chunk in [ids[i:i+100] for i in range(0, len(ids), 100)]:
         ids_str = ",".join(chunk)
-        details_url = f"https://dev.azure.com/{ORGANIZATION}/{PROJECT}/_apis/wit/workitems?ids={ids_str}&api-version=7.0"
+        details_url = f"https://dev.azure.com/{ORGANIZATION}/{PROJECT_ENC}/_apis/wit/workitems?ids={ids_str}&api-version=7.0"
         det_req = urllib.request.Request(details_url, headers=headers)
         
         try:
@@ -79,10 +81,10 @@ def search_and_update_work_items(pat):
             # Si está asignado a Alex y es una tarea del backend ya completada
             is_alex = "Alex" in assigned or "ald297" in assigned or "alfaro" in assigned.lower()
             if is_alex and current_state not in ("Done", "Closed", "Resolved"):
-                new_state = "Done" if wi_type in ("Task", "User Story") else "Closed"
+                new_state = "Done"
                 
                 # Actualizar mediante JSON Patch
-                patch_url = f"https://dev.azure.com/{ORGANIZATION}/{PROJECT}/_apis/wit/workitems/{wi_id}?api-version=7.0"
+                patch_url = f"https://dev.azure.com/{ORGANIZATION}/{PROJECT_ENC}/_apis/wit/workitems/{wi_id}?api-version=7.0"
                 patch_headers = {
                     "Authorization": f"Basic {b64_auth}",
                     "Content-Type": "application/json-patch+json"
