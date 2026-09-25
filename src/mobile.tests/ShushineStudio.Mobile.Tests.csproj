@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>ShushineStudio.Mobile.Tests</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Frameworks de pruebas xUnit + Moq (según AGENTS.md) -->
+    <PackageReference Include="xunit" Version="2.9.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="FluentAssertions" Version="6.12.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+  </ItemGroup>
+
+  <!-- Referencia a archivos de dominio del proyecto móvil sin MAUI (solo domain + DTOs) -->
+  <ItemGroup>
+    <Compile Include="..\mobile\Domain\Entities\*.cs" LinkBase="Domain\Entities" />
+    <Compile Include="..\mobile\Domain\Repositories\IReservaRepository.cs" LinkBase="Domain\Repositories" />
+    <Compile Include="..\mobile\Domain\Repositories\IServicioRepository.cs" LinkBase="Domain\Repositories" />
+    <Compile Include="..\mobile\Domain\UseCases\CreateAppointmentUseCase.cs" LinkBase="Domain\UseCases" />
+    <Compile Include="..\mobile\Domain\UseCases\GetServiciosCatalogUseCase.cs" LinkBase="Domain\UseCases" />
+  </ItemGroup>
+
+</Project>

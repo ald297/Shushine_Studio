@@ -89,22 +89,20 @@ public partial class BookingSummaryViewModel : BaseViewModel
             IsBusy = true;
             ErrorMessage = null;
 
-            // Simular fecha y hora de inicio
             var fechaHoraInicio = DateTime.Today.AddDays(1).AddHours(10);
             if (DateTime.TryParse(Fecha, out var parsedDate))
             {
                 fechaHoraInicio = parsedDate.AddHours(10);
             }
 
-            var request = new Domain.UseCases.CreateAppointmentRequest
-            {
-                ServicioId = Servicio.Id,
-                EstilistaId = long.TryParse(EstilistaId, out var eId) ? eId : 1,
-                FechaHoraInicio = fechaHoraInicio,
-                Notas = "Reserva generada desde App Móvil .NET MAUI"
-            };
+            var estilistaIdLong = long.TryParse(EstilistaId, out var eId) ? (long?)eId : null;
 
-            var reserva = await _createAppointmentUseCase.ExecuteAsync(request);
+            var reserva = await _createAppointmentUseCase.ExecuteAsync(
+                Servicio.Id,
+                estilistaIdLong,
+                fechaHoraInicio,
+                "Reserva generada desde App Móvil .NET MAUI"
+            );
             var codigoGenerado = reserva?.CodigoReserva ?? $"#SHU-{Random.Shared.Next(1000, 9999)}";
 
             // Navegar a la pantalla de comprobante exitoso (US-4.02)

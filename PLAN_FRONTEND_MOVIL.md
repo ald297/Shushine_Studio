@@ -209,13 +209,13 @@ Para maximizar la eficiencia y evitar bloqueos en el entorno local:
 ### 📍 FASE 5: Calidad (QA), Pruebas Unitarias y Despliegue (Sprint 5)
 **Meta:** Asegurar la estabilidad para la entrega final y evaluación académica.
 
-* [ ] **Paso 5.1 — Pruebas Unitarias de ViewModels (`xUnit` / `Moq`):**
+* [x] **Paso 5.1 — Pruebas Unitarias de ViewModels (`xUnit` / `Moq`):** [COMPLETADO]
   * Pruebas de validación en `RegisterViewModel` (correo inválido, contraseñas no coincidentes).
   * Pruebas del ciclo de reserva en `BookingSummaryViewModel` (estados `IsBusy`, llamada al repositorio y manejo de errores 409).
-* [ ] **Paso 5.2 — Revisión de Calidad UI/UX:**
+* [x] **Paso 5.2 — Revisión de Calidad UI/UX:** [PENDIENTE VISUAL STUDIO]
   * Comparación lado a lado de cada pantalla maquetada contra el PDF de wireframes.
   * Verificación de contrastes de color, tamaños táctiles de botones (mínimo 44x44 dp) y comportamiento en modo oscuro/claro.
-* [ ] **Paso 5.3 — Preparación de Release:**
+* [ ] **Paso 5.3 — Preparación de Release:** [PENDIENTE — requiere compilar en Visual Studio 2022]
   * Compilación en modo `Release` en Visual Studio 2022.
   * Verificación de conexión con la Web API en producción/staging y Supabase.
 
