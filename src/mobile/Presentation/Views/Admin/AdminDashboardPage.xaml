@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+             xmlns:entities="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
+             x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminDashboardPage"
+             x:DataType="vm:AdminDashboardViewModel"
+             BackgroundColor="{StaticResource BackgroundColor}"
+             Title="Panel Operativo">
+
+    <RefreshView IsRefreshing="{Binding IsBusy}" Command="{Binding LoadDashboardCommand}">
+        <ScrollView>
+            <VerticalStackLayout Padding="20" Spacing="18">
+
+                <!-- Cabecera del día -->
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Shushine Studio"
+                           Style="{StaticResource HeaderLabelStyle}"
+                           FontSize="22" />
+                    <Label Text="{Binding FechaHoy}"
+                           Style="{StaticResource SubheaderLabelStyle}"
+                           FontSize="13" />
+                </VerticalStackLayout>
+
+                <!-- KPI Cards Row 1: Citas Hoy y % Capacidad (Wireframe Pág. 15) -->
+                <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+
+                    <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Padding="16,14">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="📋" FontSize="28" HorizontalOptions="Center" />
+                            <Label Text="{Binding CitasHoy}"
+                                   FontSize="32"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource PrimaryDark}"
+                                   HorizontalOptions="Center" />
+                            <Label Text="Citas Hoy"
+                                   FontSize="12"
+                                   TextColor="{StaticResource TextColorSecondary}"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Padding="16,14">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="📊" FontSize="28" HorizontalOptions="Center" />
+                            <Label Text="{Binding PorcentajeOcupado, StringFormat='{0}%'}"
+                                   FontSize="32"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource PrimaryColor}"
+                                   HorizontalOptions="Center" />
+                            <Label Text="Capacidad Ocupada"
+                                   FontSize="12"
+                                   TextColor="{StaticResource TextColorSecondary}"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- KPI Ingresos Proyectados -->
+                <Border Style="{StaticResource CardBorderStyle}" Padding="18,14">
+                    <Grid ColumnDefinitions="Auto, *, Auto">
+                        <Label Grid.Column="0" Text="💰" FontSize="28" VerticalOptions="Center" Margin="0,0,12,0" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Ingresos Proyectados del Día"
+                                   FontSize="13"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource TextColorPrimary}" />
+                            <Label Text="(Citas activas pendientes + completadas)"
+                                   FontSize="11"
+                                   TextColor="{StaticResource TextColorSecondary}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2"
+                               Text="{Binding IngresosProyectados, StringFormat='${0:F2}'}"
+                               FontSize="22"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource PrimaryDark}"
+                               VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- Desglose de Estado de Citas -->
+                <Border Style="{StaticResource CardBorderStyle}" Padding="16">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Desglose de Citas por Estado" FontAttributes="Bold" FontSize="14" TextColor="{StaticResource TextColorPrimary}" />
+
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0" Text="✅  Completadas" FontSize="13" TextColor="{StaticResource TextColorPrimary}" />
+                            <Label Grid.Column="1" Text="{Binding CitasCompletadas}" FontSize="13" FontAttributes="Bold" TextColor="Green" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0" Text="⏳  Pendientes / En curso" FontSize="13" TextColor="{StaticResource TextColorPrimary}" />
+                            <Label Grid.Column="1" Text="{Binding CitasPendientes}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0" Text="❌  Canceladas" FontSize="13" TextColor="{StaticResource TextColorPrimary}" />
+                            <Label Grid.Column="1" Text="{Binding CitasCanceladas}" FontSize="13" FontAttributes="Bold" TextColor="#E74C3C" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Reservas Recientes -->
+                <Label Text="Últimas Reservaciones" FontAttributes="Bold" FontSize="15" TextColor="{StaticResource TextColorPrimary}" />
+
+                <CollectionView ItemsSource="{Binding ReservasRecientes}" SelectionMode="None">
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout Padding="20" Spacing="8">
+                            <Label Text="No hay reservas registradas hoy."
+                                   TextColor="{StaticResource TextColorSecondary}"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="entities:Reserva">
+                            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,10" Padding="14,12">
+                                <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto">
+                                    <Label Grid.Row="0" Grid.Column="0"
+                                           Text="{Binding ServicioNombre}"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           TextColor="{StaticResource TextColorPrimary}" />
+                                    <Border Grid.Row="0" Grid.Column="1"
+                                            StrokeShape="RoundRectangle 8"
+                                            BackgroundColor="{StaticResource SecondaryLight}"
+                                            Padding="8,3">
+                                        <Label Text="{Binding Estado}" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
+                                    </Border>
+                                    <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                           Text="{Binding FechaHoraInicio, StringFormat='👤 {0:hh:mm tt} — {1}'}"
+                                           FontSize="12"
+                                           TextColor="{StaticResource TextColorSecondary}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Acciones Rápidas -->
+                <Label Text="Acciones Rápidas" FontAttributes="Bold" FontSize="15" TextColor="{StaticResource TextColorPrimary}" />
+                <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+                    <Button Grid.Column="0"
+                            Text="📅 Ver Agenda"
+                            Command="{Binding VerAgendaCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            FontSize="13" />
+                    <Button Grid.Column="1"
+                            Text="➕ Walk-In"
+                            Command="{Binding NuevaReservaWalkInCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            FontSize="13" />
+                </Grid>
+
+                <BoxView HeightRequest="20" Color="Transparent" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+
+</ContentPage>

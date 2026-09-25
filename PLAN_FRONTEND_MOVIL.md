@@ -195,13 +195,13 @@ Para maximizar la eficiencia y evitar bloqueos en el entorno local:
 ### 📍 FASE 4: Módulo Administrativo y Recepción (Sprint 4)
 **Meta:** Permitir a recepción y administración monitorear la operación del salón.
 
-* [ ] **Paso 4.1 — US-5.01: Dashboard Operativo (`AdminDashboardPage.xaml`)**
+* [x] **Paso 4.1 — US-5.01: Dashboard Operativo (`AdminDashboardPage.xaml`)** [COMPLETADO]
   * **Wireframe:** Pág. 15 (`DashboardAdminView`).
   * Tarjetas de métricas: Total de citas del día, % de capacidad ocupada, ingresos proyectados.
-* [ ] **Paso 4.2 — US-5.02 & US-5.03: Agenda Timeline y Clientes Walk-in (`TimelineAgendaPage.xaml`)**
+* [x] **Paso 4.2 — US-5.02 & US-5.03: Agenda Timeline y Clientes Walk-in (`TimelineAgendaPage.xaml`)** [COMPLETADO]
   * **Wireframe:** Pág. 16 (`WalkInClientView`).
   * Grilla horaria por columnas de estilistas y modal rápido para agregar citas presenciales espontáneas.
-* [ ] **Paso 4.3 — US-5.04 a US-5.06: Estados de Reserva y Catálogo**
+* [x] **Paso 4.3 — US-5.04 a US-5.06: Estados de Reserva y Catálogo (`AdminCatalogPage.xaml`)** [COMPLETADO]
   * Modales de cambio de estado operativo y switches on/off para activar/desactivar servicios del catálogo.
 
 ---

@@ -8,9 +8,11 @@ using ShushineStudio.Mobile.Domain.Repositories;
 using ShushineStudio.Mobile.Domain.UseCases;
 using ShushineStudio.Mobile.Presentation.ViewModels.Appointments;
 using ShushineStudio.Mobile.Presentation.ViewModels.Auth;
+using ShushineStudio.Mobile.Presentation.ViewModels.Admin;
 using ShushineStudio.Mobile.Presentation.ViewModels.Booking;
 using ShushineStudio.Mobile.Presentation.ViewModels.Catalog;
 using ShushineStudio.Mobile.Presentation.ViewModels.Profile;
+using ShushineStudio.Mobile.Presentation.Views.Admin;
 using ShushineStudio.Mobile.Presentation.Views.Appointments;
 using ShushineStudio.Mobile.Presentation.Views.Auth;
 using ShushineStudio.Mobile.Presentation.Views.Booking;
@@ -80,6 +82,9 @@ public static class MauiProgram
 		builder.Services.AddTransient<BookingSummaryViewModel>();
 		builder.Services.AddTransient<BookingConfirmationViewModel>();
 		builder.Services.AddTransient<ProfileViewModel>();
+		builder.Services.AddTransient<AdminDashboardViewModel>();
+		builder.Services.AddTransient<TimelineAgendaViewModel>();
+		builder.Services.AddTransient<AdminCatalogViewModel>();
 
 		// ==========================================
 		// 6. Páginas / Vistas (Presentation Layer)
@@ -94,6 +99,9 @@ public static class MauiProgram
 		builder.Services.AddTransient<BookingSummaryPage>();
 		builder.Services.AddTransient<BookingConfirmationPage>();
 		builder.Services.AddTransient<ProfilePage>();
+		builder.Services.AddTransient<AdminDashboardPage>();
+		builder.Services.AddTransient<TimelineAgendaPage>();
+		builder.Services.AddTransient<AdminCatalogPage>();
 
 		return builder.Build();
 	}

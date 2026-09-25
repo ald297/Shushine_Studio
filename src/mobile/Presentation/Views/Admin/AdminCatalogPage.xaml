@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+             xmlns:entities="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
+             x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminCatalogPage"
+             x:DataType="vm:AdminCatalogViewModel"
+             BackgroundColor="{StaticResource BackgroundColor}"
+             Title="Catálogo de Servicios">
+
+    <Grid RowDefinitions="Auto, *">
+
+        <!-- Barra de búsqueda y cabecera -->
+        <VerticalStackLayout Grid.Row="0" Padding="20,14,20,10" Spacing="10">
+            <Label Text="Gestión del Catálogo" Style="{StaticResource HeaderLabelStyle}" FontSize="20" />
+            <Label Text="Activa o desactiva los servicios disponibles para los clientes." Style="{StaticResource SubheaderLabelStyle}" FontSize="13" />
+
+            <Border StrokeShape="RoundRectangle 12"
+                    BackgroundColor="{StaticResource SurfaceColor}"
+                    Stroke="{StaticResource BorderColor}"
+                    Padding="12,8">
+                <Grid ColumnDefinitions="Auto, *">
+                    <Label Grid.Column="0" Text="🔍" FontSize="16" VerticalOptions="Center" Margin="0,0,8,0" />
+                    <Entry Grid.Column="1"
+                           Placeholder="Buscar servicio o categoría..."
+                           Text="{Binding TextoBusqueda}"
+                           PlaceholderColor="{StaticResource TextColorSecondary}"
+                           TextColor="{StaticResource TextColorPrimary}"
+                           BackgroundColor="Transparent"
+                           FontSize="14" />
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
+
+        <!-- Lista de servicios del catálogo con switch on/off -->
+        <RefreshView Grid.Row="1" IsRefreshing="{Binding IsBusy}" Command="{Binding LoadCatalogCommand}">
+            <CollectionView ItemsSource="{Binding Servicios}"
+                            SelectionMode="None"
+                            Margin="20,0,20,20">
+
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="30" Spacing="10" VerticalOptions="Center">
+                        <Label Text="🌿" FontSize="42" HorizontalOptions="Center" />
+                        <Label Text="No se encontraron servicios en el catálogo."
+                               TextColor="{StaticResource TextColorSecondary}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="entities:Servicio">
+                        <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,12" Padding="14,12">
+                            <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto, Auto" RowSpacing="5">
+
+                                <!-- Nombre y Categoría -->
+                                <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="2">
+                                    <Label Text="{Binding Nombre}"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           TextColor="{StaticResource TextColorPrimary}" />
+                                    <Label Text="{Binding CategoriaNombre, StringFormat='🏷 {0}'}"
+                                           FontSize="12"
+                                           TextColor="{StaticResource PrimaryDark}" />
+                                </VerticalStackLayout>
+
+                                <!-- Switch de activación -->
+                                <Switch Grid.Row="0" Grid.Column="1"
+                                        IsToggled="{Binding Activo}"
+                                        OnColor="{StaticResource PrimaryColor}"
+                                        ThumbColor="{StaticResource SurfaceColor}"
+                                        VerticalOptions="Center"
+                                        IsEnabled="False" />
+
+                                <!-- Duración y Precio -->
+                                <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="16">
+                                    <Label Text="{Binding DuracionMinutos, StringFormat='⏱ {0} min'}"
+                                           FontSize="12"
+                                           TextColor="{StaticResource TextColorSecondary}" />
+                                    <Label Text="{Binding Precio, StringFormat='💲 {0:F2}'}"
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           TextColor="{StaticResource PrimaryDark}" />
+                                </HorizontalStackLayout>
+
+                                <!-- Botones Activar/Desactivar y Editar -->
+                                <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Spacing="8" HorizontalOptions="End">
+                                    <Button Text="✏️ Editar"
+                                            FontSize="11"
+                                            HeightRequest="34"
+                                            Padding="12,0"
+                                            BackgroundColor="{StaticResource SurfaceColor}"
+                                            TextColor="{StaticResource PrimaryDark}"
+                                            BorderColor="{StaticResource PrimaryColor}"
+                                            BorderWidth="1"
+                                            CornerRadius="8"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminCatalogViewModel}}, Path=EditarServicioCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    <Button Text="{Binding Activo, Converter={x:Null}}"
+                                            FontSize="11"
+                                            HeightRequest="34"
+                                            Padding="12,0"
+                                            BackgroundColor="{StaticResource PrimaryColor}"
+                                            TextColor="White"
+                                            CornerRadius="8"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminCatalogViewModel}}, Path=ToggleActivoCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </HorizontalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+
+</ContentPage>

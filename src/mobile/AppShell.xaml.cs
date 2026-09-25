@@ -1,3 +1,4 @@
+using ShushineStudio.Mobile.Presentation.Views.Admin;
 using ShushineStudio.Mobile.Presentation.Views.Auth;
 using ShushineStudio.Mobile.Presentation.Views.Booking;
 
@@ -16,5 +17,7 @@ public partial class AppShell : Shell
 		Routing.RegisterRoute("SlotSelectionPage", typeof(SlotSelectionPage));
 		Routing.RegisterRoute("BookingSummaryPage", typeof(BookingSummaryPage));
 		Routing.RegisterRoute("BookingConfirmationPage", typeof(BookingConfirmationPage));
+		Routing.RegisterRoute("TimelineAgendaPage", typeof(TimelineAgendaPage));
+		Routing.RegisterRoute("AdminCatalogPage", typeof(AdminCatalogPage));
 	}
 }
