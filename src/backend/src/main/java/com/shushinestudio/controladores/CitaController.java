@@ -48,6 +48,12 @@ public class CitaController {
                     "title", "Conflict",
                     "detail", e.getMessage()
             ));
+        } catch (org.springframework.dao.DataIntegrityViolationException | org.springframework.dao.ConcurrencyFailureException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(java.util.Map.of(
+                    "status", 409,
+                    "title", "Conflict",
+                    "detail", "El estilista seleccionado ya no tiene disponible la franja horaria solicitada."
+            ));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(java.util.Map.of(
                     "status", 400,
@@ -68,6 +74,12 @@ public class CitaController {
                     "status", 409,
                     "title", "Conflict",
                     "detail", e.getMessage()
+            ));
+        } catch (org.springframework.dao.DataIntegrityViolationException | org.springframework.dao.ConcurrencyFailureException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(java.util.Map.of(
+                    "status", 409,
+                    "title", "Conflict",
+                    "detail", "El estilista seleccionado ya no tiene disponible la franja horaria solicitada."
             ));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(java.util.Map.of(
