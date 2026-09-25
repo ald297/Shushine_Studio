@@ -8,12 +8,12 @@
              Shell.NavBarIsVisible="false">
 
     <ScrollView>
-        <VerticalStackLayout Padding="30" Spacing="25" VerticalOptions="Center">
+        <VerticalStackLayout Padding="28" Spacing="24" VerticalOptions="Center">
             
             <!-- Cabecera de Marca -->
-            <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+            <VerticalStackLayout Spacing="8" HorizontalOptions="Center" Margin="0,20,0,10">
                 <Label Text="Shushine Studio"
-                       FontSize="32"
+                       FontSize="34"
                        FontAttributes="Bold"
                        TextColor="{StaticResource PrimaryColor}"
                        HorizontalOptions="Center" />
@@ -23,32 +23,44 @@
                        HorizontalOptions="Center" />
             </VerticalStackLayout>
 
-            <!-- Tarjeta de Formulario -->
+            <!-- Tarjeta de Formulario de Inicio de Sesión -->
             <Border Style="{StaticResource CardBorderStyle}" Padding="24">
                 <VerticalStackLayout Spacing="16">
+                    
                     <Label Text="Bienvenida de nuevo"
                            Style="{StaticResource HeaderLabelStyle}"
-                           FontSize="20" />
+                           FontSize="22" />
+                    <Label Text="Ingresa tus credenciales para gestionar tus citas."
+                           Style="{StaticResource SubheaderLabelStyle}"
+                           FontSize="13" />
 
-                    <!-- Campo Correo -->
-                    <VerticalStackLayout Spacing="6">
-                        <Label Text="Correo Electrónico" FontSize="13" TextColor="{StaticResource TextColorSecondary}" />
+                    <!-- Campo Correo Electrónico -->
+                    <VerticalStackLayout Spacing="6" Margin="0,6,0,0">
+                        <Label Text="Correo Electrónico" 
+                               FontSize="13" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextColorPrimary}" />
                         <Border Style="{StaticResource InputContainerStyle}">
                             <Entry Placeholder="ejemplo@correo.com"
                                    Text="{Binding Email}"
-                                   Keyboard="Email" />
+                                   Keyboard="Email"
+                                   ReturnType="Next" />
                         </Border>
                     </VerticalStackLayout>
 
                     <!-- Campo Contraseña -->
                     <VerticalStackLayout Spacing="6">
-                        <Label Text="Contraseña" FontSize="13" TextColor="{StaticResource TextColorSecondary}" />
+                        <Label Text="Contraseña" 
+                               FontSize="13" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextColorPrimary}" />
                         <Border Style="{StaticResource InputContainerStyle}">
                             <Grid ColumnDefinitions="*, Auto">
                                 <Entry Grid.Column="0"
                                        Placeholder="••••••••"
                                        Text="{Binding Password}"
-                                       IsPassword="{Binding IsPasswordHidden}" />
+                                       IsPassword="{Binding IsPasswordHidden}"
+                                       ReturnType="Done" />
                                 <ImageButton Grid.Column="1"
                                              Source="eye.png"
                                              Command="{Binding TogglePasswordVisibilityCommand}"
@@ -59,24 +71,41 @@
                         </Border>
                     </VerticalStackLayout>
 
-                    <!-- Botón Ingresar -->
+                    <!-- Enlace: ¿Olvidaste tu contraseña? (Wireframe Pág. 6) -->
+                    <Label Text="¿Olvidaste tu contraseña?"
+                           TextColor="{StaticResource PrimaryDark}"
+                           FontSize="13"
+                           FontAttributes="Bold"
+                           HorizontalOptions="End"
+                           Margin="0,2,0,0">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ForgotPasswordCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+
+                    <!-- Botón Iniciar Sesión -->
                     <Button Text="Iniciar Sesión"
                             Command="{Binding LoginCommand}"
                             Style="{StaticResource PrimaryButtonStyle}"
+                            IsEnabled="{Binding IsBusy, Converter={x:Null}}"
                             Margin="0,10,0,0" />
 
-                    <!-- Indicador de carga -->
+                    <!-- Indicador de Carga Reactivo -->
                     <ActivityIndicator IsRunning="{Binding IsBusy}"
-                                       IsVisible="{Binding IsBusy}" />
+                                       IsVisible="{Binding IsBusy}"
+                                       HeightRequest="30" />
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Pie de Pantalla: Registro -->
-            <HorizontalStackLayout HorizontalOptions="Center" Spacing="5">
-                <Label Text="¿Aún no tienes cuenta?" TextColor="{StaticResource TextColorSecondary}" />
+            <!-- Pie de Pantalla: Enlace a Registro -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="6" Margin="0,10,0,20">
+                <Label Text="¿Aún no tienes cuenta?" 
+                       TextColor="{StaticResource TextColorSecondary}" 
+                       FontSize="14" />
                 <Label Text="Regístrate aquí"
                        TextColor="{StaticResource PrimaryColor}"
-                       FontAttributes="Bold">
+                       FontAttributes="Bold"
+                       FontSize="14">
                     <Label.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding NavigateToRegisterCommand}" />
                     </Label.GestureRecognizers>
