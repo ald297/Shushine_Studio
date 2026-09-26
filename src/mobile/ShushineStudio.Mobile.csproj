@@ -1,9 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net8.0-android</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx'))">$(TargetFrameworks);net8.0-ios;net8.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks>net9.0-android</TargetFrameworks>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>ShushineStudio.Mobile</RootNamespace>
 		<UseMaui>true</UseMaui>
@@ -12,7 +10,7 @@
 		<Nullable>enable</Nullable>
 		<CheckEolTargetFramework>false</CheckEolTargetFramework>
 		<CheckEolWorkloads>false</CheckEolWorkloads>
-		<MauiVersion Condition="'$(MauiVersion)' == ''">8.0.92</MauiVersion>
+		<SkipValidateMauiImplicitPackageReferences>true</SkipValidateMauiImplicitPackageReferences>
 
 		<!-- Display name -->
 		<ApplicationTitle>Shushine Studio</ApplicationTitle>
@@ -54,8 +52,6 @@
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
 		<PackageReference Include="supabase-csharp" Version="0.16.2" />
 		<PackageReference Include="System.Text.Json" Version="8.0.5" />
 	</ItemGroup>
