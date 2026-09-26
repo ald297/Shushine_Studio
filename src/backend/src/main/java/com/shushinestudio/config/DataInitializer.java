@@ -1,8 +1,10 @@
 package com.shushinestudio.config;
 
 import com.shushinestudio.modelos.Categoria;
+import com.shushinestudio.modelos.Estilista;
 import com.shushinestudio.modelos.Servicio;
 import com.shushinestudio.repositorios.ICategoriaRepository;
+import com.shushinestudio.repositorios.IEstilistaRepository;
 import com.shushinestudio.repositorios.IServicioRepository;
 import com.shushinestudio.seguridad.modelos.Rol;
 import com.shushinestudio.seguridad.modelos.Usuario;
@@ -29,6 +31,9 @@ public class DataInitializer implements CommandLineRunner {
 
     @Autowired
     private IServicioRepository servicioRepository;
+
+    @Autowired
+    private IEstilistaRepository estilistaRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -176,6 +181,49 @@ public class DataInitializer implements CommandLineRunner {
                     .intervaloSeguimientoDias(15)
                     .imagenUrl("https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=600&q=80")
                     .costoInsumos(new BigDecimal("3.00"))
+                    .activo(true)
+                    .build());
+        }
+
+        // 6. Inicializar Estilistas del Salón si la tabla está vacía
+        if (estilistaRepository.count() == 0) {
+            estilistaRepository.save(Estilista.builder()
+                    .nombreCompleto("Valentina Ramos Cruz")
+                    .especialidadPrincipal("Coloración & Balayage")
+                    .biografia("Especialista en técnicas de coloración avanzada con 6 años de experiencia. Certificada en balayage iluminado y corrección de color.")
+                    .avatarUrl("https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80")
+                    .colorAgenda("#E91E8C")
+                    .porcentajeComision(new BigDecimal("35.00"))
+                    .activo(true)
+                    .build());
+
+            estilistaRepository.save(Estilista.builder()
+                    .nombreCompleto("Sofía Martínez Leiva")
+                    .especialidadPrincipal("Corte & Estilismo")
+                    .biografia("Estilista graduada del Instituto Vidal Sassoon con dominio en cortes de visagismo y secados de alta gama.")
+                    .avatarUrl("https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=300&q=80")
+                    .colorAgenda("#9C27B0")
+                    .porcentajeComision(new BigDecimal("30.00"))
+                    .activo(true)
+                    .build());
+
+            estilistaRepository.save(Estilista.builder()
+                    .nombreCompleto("Andrea López Portillo")
+                    .especialidadPrincipal("Uñas & Nail Art")
+                    .biografia("Técnica en uñas acrílicas, gel y nail art con formación en Buenos Aires. Especialista en manicura rusa y diseños personalizados.")
+                    .avatarUrl("https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80")
+                    .colorAgenda("#FF5722")
+                    .porcentajeComision(new BigDecimal("32.00"))
+                    .activo(true)
+                    .build());
+
+            estilistaRepository.save(Estilista.builder()
+                    .nombreCompleto("Camila Herrera Molina")
+                    .especialidadPrincipal("Pestañas & Tratamientos Faciales")
+                    .biografia("Certificada en extensiones de pestañas clásicas, volumen ruso y lifting. Experta en limpieza facial profunda y cuidado de la piel.")
+                    .avatarUrl("https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=300&q=80")
+                    .colorAgenda("#00BCD4")
+                    .porcentajeComision(new BigDecimal("30.00"))
                     .activo(true)
                     .build());
         }
