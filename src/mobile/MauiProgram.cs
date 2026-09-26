@@ -44,12 +44,14 @@ public static class MauiProgram
 		// ==========================================
 		builder.Services.AddTransient<ErrorDelegatingHandler>();
 
-		builder.Services.AddHttpClient<HttpClient>(client =>
+		builder.Services.AddHttpClient("ShushineApi", client =>
 		{
 			client.BaseAddress = new Uri(ApiConstants.BaseUrl.TrimEnd('/') + "/");
 			client.Timeout = TimeSpan.FromSeconds(30);
 		})
 		.AddHttpMessageHandler<ErrorDelegatingHandler>();
+
+		builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ShushineApi"));
 
 		// ==========================================
 		// 2. Servicios de Datos (Storage, Supabase)

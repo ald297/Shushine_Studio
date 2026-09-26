@@ -87,7 +87,6 @@
                     <Button Text="Iniciar Sesión"
                             Command="{Binding LoginCommand}"
                             Style="{StaticResource PrimaryButtonStyle}"
-                            IsEnabled="{Binding IsBusy, Converter={x:Null}}"
                             Margin="0,10,0,0" />
 
                     <!-- Indicador de Carga Reactivo -->
