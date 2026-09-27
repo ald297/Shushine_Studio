@@ -40,11 +40,29 @@
                                     <Border StrokeShape="RoundRectangle 14"
                                             Padding="14,10"
                                             WidthRequest="65"
-                                            Stroke="{StaticResource PrimaryColor}"
+                                            Stroke="{StaticResource BorderColor}"
                                             BackgroundColor="{StaticResource SurfaceColor}">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding Seleccionado}" Value="True">
+                                                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                                                <Setter Property="Stroke" Value="{StaticResource PrimaryColor}" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
                                         <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
-                                            <Label Text="{Binding DiaNombre}" FontSize="11" TextColor="{StaticResource TextColorSecondary}" HorizontalOptions="Center" />
-                                            <Label Text="{Binding DiaNumero}" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource PrimaryColor}" HorizontalOptions="Center" />
+                                            <Label Text="{Binding DiaNombre}" FontSize="11" TextColor="{StaticResource TextColorSecondary}" HorizontalOptions="Center">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding Seleccionado}" Value="True">
+                                                        <Setter Property="TextColor" Value="White" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                            <Label Text="{Binding DiaNumero}" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource PrimaryColor}" HorizontalOptions="Center">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding Seleccionado}" Value="True">
+                                                        <Setter Property="TextColor" Value="White" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
                                         </VerticalStackLayout>
                                         <Border.GestureRecognizers>
                                             <TapGestureRecognizer 
@@ -70,10 +88,30 @@
                                         Padding="14,10"
                                         Stroke="{StaticResource BorderColor}"
                                         BackgroundColor="{StaticResource SurfaceColor}">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding Seleccionado}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                                            <Setter Property="Stroke" Value="{StaticResource PrimaryColor}" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Border" Binding="{Binding Disponible}" Value="False">
+                                            <Setter Property="BackgroundColor" Value="#F2F2F2" />
+                                            <Setter Property="Stroke" Value="#E0E0E0" />
+                                            <Setter Property="Opacity" Value="0.6" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
                                     <Label Text="{Binding Hora}" 
                                            FontSize="13" 
                                            FontAttributes="Bold" 
-                                           TextColor="{StaticResource TextColorPrimary}" />
+                                           TextColor="{StaticResource TextColorPrimary}">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding Seleccionado}" Value="True">
+                                                <Setter Property="TextColor" Value="White" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Label" Binding="{Binding Disponible}" Value="False">
+                                                <Setter Property="TextColor" Value="#A0A0A0" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
                                     <Border.GestureRecognizers>
                                         <TapGestureRecognizer 
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SlotSelectionViewModel}}, Path=SeleccionarSlotCommand}"
@@ -97,10 +135,30 @@
                                         Padding="14,10"
                                         Stroke="{StaticResource BorderColor}"
                                         BackgroundColor="{StaticResource SurfaceColor}">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding Seleccionado}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                                            <Setter Property="Stroke" Value="{StaticResource PrimaryColor}" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Border" Binding="{Binding Disponible}" Value="False">
+                                            <Setter Property="BackgroundColor" Value="#F2F2F2" />
+                                            <Setter Property="Stroke" Value="#E0E0E0" />
+                                            <Setter Property="Opacity" Value="0.6" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
                                     <Label Text="{Binding Hora}" 
                                            FontSize="13" 
                                            FontAttributes="Bold" 
-                                           TextColor="{StaticResource TextColorPrimary}" />
+                                           TextColor="{StaticResource TextColorPrimary}">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding Seleccionado}" Value="True">
+                                                <Setter Property="TextColor" Value="White" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Label" Binding="{Binding Disponible}" Value="False">
+                                                <Setter Property="TextColor" Value="#A0A0A0" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
                                     <Border.GestureRecognizers>
                                         <TapGestureRecognizer 
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SlotSelectionViewModel}}, Path=SeleccionarSlotCommand}"

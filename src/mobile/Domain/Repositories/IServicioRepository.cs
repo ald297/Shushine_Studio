@@ -7,4 +7,8 @@ public interface IServicioRepository
     Task<IEnumerable<Servicio>> GetServiciosAsync(long? categoriaId = null);
     Task<Servicio?> GetServicioByIdAsync(long id);
     Task<IEnumerable<string>> GetCategoriasAsync();
+    Task<Servicio?> CrearServicioAsync(Servicio servicio);
+    Task<bool> ActualizarServicioAsync(Servicio servicio);
+    Task<bool> EliminarServicioAsync(long id);
 }
+

@@ -29,10 +29,18 @@
     <Color x:Key="ErrorColor">#D32F2F</Color>
     <Color x:Key="InfoColor">#0288D1</Color>
 
+    <!-- Paleta Dorada / Beige Elegante (Salón Luxury) -->
+    <Color x:Key="GoldPrimary">#C5A059</Color>
+    <Color x:Key="GoldDark">#A68038</Color>
+    <Color x:Key="GoldLight">#E8D8B0</Color>
+    <Color x:Key="GoldBackground">#FAF8F5</Color>
+    <Color x:Key="GoldSurface">#FFFFFF</Color>
+    <Color x:Key="GoldBorder">#EADCC6</Color>
+
     <!-- Pinceles (Brushes) -->
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}" />
     <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}" />
     <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}" />
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" />
-
+    <SolidColorBrush x:Key="GoldBrush" Color="{StaticResource GoldPrimary}" />
 </ResourceDictionary>

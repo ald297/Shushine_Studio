@@ -30,7 +30,8 @@ public class RegisterRequestDto
     public string Clave { get; set; } = string.Empty;
 
     [JsonPropertyName("rolId")]
-    public int RolId { get; set; } = 2; // Rol 2 = CLIENTE oficial
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? RolId { get; set; } = null;
 }
 
 public class AuthResponseDto

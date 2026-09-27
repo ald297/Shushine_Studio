@@ -49,6 +49,34 @@
         </Setter>
     </Style>
 
+    <!-- Botón Dorado / Beige Luxury -->
+    <Style x:Key="GoldButtonStyle" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource GoldPrimary}" />
+        <Setter Property="TextColor" Value="{StaticResource TextLight}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="HeightRequest" Value="50" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource GoldDark}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource GoldBorder}" />
+                            <Setter Property="TextColor" Value="{StaticResource TextColorSecondary}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
     <!-- Botón Secundario / Outline -->
     <Style x:Key="SecondaryButtonStyle" TargetType="Button">
         <Setter Property="BackgroundColor" Value="Transparent" />

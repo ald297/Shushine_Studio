@@ -6,14 +6,14 @@
              x:Class="ShushineStudio.Mobile.Presentation.Views.Catalog.CatalogPage"
              x:DataType="vm:CatalogViewModel"
              BackgroundColor="{StaticResource BackgroundColor}"
-             Title="Servicios de Belleza">
+             Shell.NavBarIsVisible="false">
 
     <Grid RowDefinitions="Auto, Auto, Auto, *">
         
-        <!-- 1. Cabecera de Bienvenida -->
-        <VerticalStackLayout Grid.Row="0" Padding="20,12,20,4" Spacing="4">
+        <!-- 1. Cabecera Oficial de Bienvenida (Wireframe Pág. 7) -->
+        <VerticalStackLayout Grid.Row="0" Padding="20,16,20,6" Spacing="3">
             <Label Text="Shushine Studio"
-                   FontSize="14"
+                   FontSize="13"
                    FontAttributes="Bold"
                    TextColor="{StaticResource PrimaryColor}" />
             <Label Text="Nuestros Tratamientos"
@@ -21,42 +21,67 @@
                    FontSize="24" />
             <Label Text="Elige tu servicio favorito y agenda tu cita al instante"
                    Style="{StaticResource SubheaderLabelStyle}"
-                   FontSize="13" />
+                   FontSize="12" />
         </VerticalStackLayout>
 
-        <!-- 2. Barra de Búsqueda de Tratamientos (US-3.01 / Wireframe Pág. 7) -->
+        <!-- 2. Barra de Búsqueda de Tratamientos (Wireframe Pág. 7) -->
         <Border Grid.Row="1" 
                 Style="{StaticResource InputContainerStyle}" 
-                Margin="20,8,20,6"
-                Padding="8,0">
+                Margin="20,6,20,6"
+                Padding="12,0"
+                HeightRequest="46">
             <Grid ColumnDefinitions="Auto, *">
-                <Label Grid.Column="0" Text="🔍" FontSize="16" VerticalOptions="Center" Margin="4,0,8,0" />
+                <Label Grid.Column="0" Text="🔍" FontSize="16" VerticalOptions="Center" Margin="0,0,8,0" />
                 <Entry Grid.Column="1"
                        Placeholder="Buscar tinte, manicura, corte..."
+                       PlaceholderColor="{StaticResource TextColorSecondary}"
                        Text="{Binding SearchText}"
-                       ClearButtonVisibility="WhileEditing" />
+                       FontSize="14"
+                       ClearButtonVisibility="WhileEditing"
+                       BackgroundColor="Transparent" />
             </Grid>
         </Border>
 
-        <!-- 3. Selector Horizontal de Categorías (Chips) -->
+        <!-- 3. Selector Horizontal de Categorías (Chips con Cambio de Color Activo) -->
         <ScrollView Grid.Row="2" 
                     Orientation="Horizontal" 
                     HorizontalScrollBarVisibility="Never" 
-                    Padding="20,6,20,8">
+                    Padding="20,6,20,10">
             <HorizontalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding Categorias}">
                 <BindableLayout.ItemTemplate>
-                    <DataTemplate x:DataType="x:String">
+                    <DataTemplate x:DataType="vm:CategoriaItem">
                         <Border StrokeShape="RoundRectangle 18"
                                 Stroke="{StaticResource PrimaryColor}"
-                                BackgroundColor="{StaticResource SurfaceColor}"
-                                Padding="14,6">
-                            <Label Text="{Binding .}" 
-                                   FontSize="13"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource PrimaryDark}" />
+                                StrokeThickness="1"
+                                Padding="14,8">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="False">
+                                    <Setter Property="BackgroundColor" Value="{StaticResource SurfaceColor}" />
+                                </DataTrigger>
+                            </Border.Triggers>
+
+                            <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                <Label Text="{Binding Icono}" FontSize="13" VerticalOptions="Center" />
+                                <Label Text="{Binding Nombre}" 
+                                       FontSize="13"
+                                       FontAttributes="Bold">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="TextColor" Value="White" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="False">
+                                            <Setter Property="TextColor" Value="{StaticResource TextColorPrimary}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </HorizontalStackLayout>
+
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer 
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, Path=FilterByCategoriaCommand}"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, Path=SeleccionarCategoriaCommand}"
                                     CommandParameter="{Binding .}" />
                             </Border.GestureRecognizers>
                         </Border>
@@ -73,7 +98,7 @@
                             SelectionMode="None"
                             Margin="20,0,20,10">
                 <CollectionView.ItemsLayout>
-                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="14" />
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
                 </CollectionView.ItemsLayout>
                 
                 <CollectionView.EmptyView>
@@ -92,10 +117,10 @@
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="entities:Servicio">
-                        <Border Style="{StaticResource CardBorderStyle}" Padding="0">
+                        <Border Style="{StaticResource CardBorderStyle}" Margin="0, 0, 0, 2" Padding="0">
                             <Grid ColumnDefinitions="95, *" Padding="12" ColumnSpacing="12">
                                 
-                                <!-- Icono / Foto del Tratamiento -->
+                                <!-- Icono o Imagen del Tratamiento -->
                                 <Border Grid.Column="0" 
                                         StrokeShape="RoundRectangle 12" 
                                         HeightRequest="90" 
@@ -121,7 +146,7 @@
                                            MaxLines="2" 
                                            LineBreakMode="TailTruncation" />
 
-                                    <!-- Precio, Duración y Botón Seleccionar -->
+                                    <!-- Precio, Duración y Botón Reservar -->
                                     <Grid ColumnDefinitions="*, Auto" Margin="0,4,0,0">
                                         <HorizontalStackLayout Grid.Column="0" Spacing="10" VerticalOptions="Center">
                                             <Label Text="{Binding Precio, StringFormat='${0:F2}'}" 
@@ -135,12 +160,12 @@
                                         </HorizontalStackLayout>
 
                                         <Border Grid.Column="1" 
-                                                StrokeShape="RoundRectangle 8"
+                                                StrokeShape="RoundRectangle 12"
                                                 BackgroundColor="{StaticResource PrimaryColor}"
-                                                Padding="10,4">
+                                                Padding="12,6">
                                             <Label Text="Reservar ➔" 
                                                    TextColor="White" 
-                                                   FontSize="11" 
+                                                   FontSize="12" 
                                                    FontAttributes="Bold" />
                                         </Border>
                                     </Grid>

@@ -116,7 +116,7 @@
             <VerticalStackLayout Spacing="6">
                 <Button Text="Confirmar Reserva ➔" 
                         Command="{Binding ConfirmarReservaCommand}" 
-                        IsEnabled="{Binding IsBusy, Converter={x:Null}}"
+                        IsEnabled="{Binding IsNotBusy}"
                         Style="{StaticResource PrimaryButtonStyle}" />
                 <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="20" />
             </VerticalStackLayout>

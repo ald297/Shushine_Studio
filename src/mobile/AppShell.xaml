@@ -7,7 +7,12 @@
     xmlns:catalog="clr-namespace:ShushineStudio.Mobile.Presentation.Views.Catalog"
     xmlns:appointments="clr-namespace:ShushineStudio.Mobile.Presentation.Views.Appointments"
     xmlns:profile="clr-namespace:ShushineStudio.Mobile.Presentation.Views.Profile"
+    xmlns:admin="clr-namespace:ShushineStudio.Mobile.Presentation.Views.Admin"
     Shell.FlyoutBehavior="Disabled"
+    Shell.NavBarIsVisible="false"
+    Shell.BackgroundColor="{StaticResource BackgroundColor}"
+    Shell.ForegroundColor="{StaticResource TextColorPrimary}"
+    Shell.TitleColor="{StaticResource TextColorPrimary}"
     Shell.TabBarBackgroundColor="{StaticResource SurfaceColor}"
     Shell.TabBarForegroundColor="{StaticResource PrimaryColor}"
     Shell.TabBarUnselectedColor="{StaticResource TextColorSecondary}"
@@ -15,11 +20,10 @@
 
     <!-- Pantalla de Login fuera de las pestañas -->
     <ShellContent
-        Title="Iniciar Sesión"
         Route="LoginPage"
         ContentTemplate="{DataTemplate auth:LoginPage}" />
 
-    <!-- Barra de Pestañas Principal -->
+    <!-- Barra de Pestañas Cliente (Wireframes Págs. 7-14) -->
     <TabBar Route="MainTabs">
         <Tab Title="Catálogo" Icon="scissors.png">
             <ShellContent
@@ -37,6 +41,33 @@
             <ShellContent
                 Route="ProfilePage"
                 ContentTemplate="{DataTemplate profile:ProfilePage}" />
+        </Tab>
+    </TabBar>
+
+    <!-- Barra de Pestañas Administrador (Wireframes Págs. 15-19) -->
+    <TabBar Route="AdminTabs">
+        <Tab Title="Dashboard" Icon="calendar.png">
+            <ShellContent
+                Route="AdminDashboardPage"
+                ContentTemplate="{DataTemplate admin:AdminDashboardPage}" />
+        </Tab>
+
+        <Tab Title="Agenda" Icon="calendar.png">
+            <ShellContent
+                Route="TimelineAgendaPage"
+                ContentTemplate="{DataTemplate admin:TimelineAgendaPage}" />
+        </Tab>
+
+        <Tab Title="Catálogo" Icon="scissors.png">
+            <ShellContent
+                Route="AdminCatalogPage"
+                ContentTemplate="{DataTemplate admin:AdminCatalogPage}" />
+        </Tab>
+
+        <Tab Title="Estilistas" Icon="user.png">
+            <ShellContent
+                Route="AdminEstilistasPage"
+                ContentTemplate="{DataTemplate admin:AdminEstilistasPage}" />
         </Tab>
     </TabBar>
 

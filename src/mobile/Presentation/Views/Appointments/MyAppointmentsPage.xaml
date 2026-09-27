@@ -6,7 +6,9 @@
              x:Class="ShushineStudio.Mobile.Presentation.Views.Appointments.MyAppointmentsPage"
              x:DataType="vm:MyAppointmentsViewModel"
              BackgroundColor="{StaticResource BackgroundColor}"
+             Shell.NavBarIsVisible="false"
              Title="Mis Citas">
+
 
     <Grid RowDefinitions="Auto, Auto, *">
         
@@ -25,13 +27,25 @@
             <Border Grid.Column="0" 
                     StrokeShape="RoundRectangle 12" 
                     Padding="12,10"
-                    Stroke="{StaticResource PrimaryColor}"
+                    Stroke="{StaticResource BorderColor}"
                     BackgroundColor="{StaticResource SurfaceColor}">
+                <Border.Triggers>
+                    <DataTrigger TargetType="Border" Binding="{Binding MostrarFuturas}" Value="True">
+                        <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                        <Setter Property="Stroke" Value="{StaticResource PrimaryColor}" />
+                    </DataTrigger>
+                </Border.Triggers>
                 <Label Text="Próximas Citas" 
                        FontAttributes="Bold" 
                        FontSize="13" 
-                       TextColor="{StaticResource PrimaryDark}" 
-                       HorizontalOptions="Center" />
+                       TextColor="{StaticResource TextColorSecondary}" 
+                       HorizontalOptions="Center">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding MostrarFuturas}" Value="True">
+                            <Setter Property="TextColor" Value="White" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding VerFuturasCommand}" />
                 </Border.GestureRecognizers>
@@ -42,11 +56,23 @@
                     Padding="12,10"
                     Stroke="{StaticResource BorderColor}"
                     BackgroundColor="{StaticResource SurfaceColor}">
+                <Border.Triggers>
+                    <DataTrigger TargetType="Border" Binding="{Binding MostrarPasadas}" Value="True">
+                        <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                        <Setter Property="Stroke" Value="{StaticResource PrimaryColor}" />
+                    </DataTrigger>
+                </Border.Triggers>
                 <Label Text="Historial Pasado" 
                        FontAttributes="Bold" 
                        FontSize="13" 
                        TextColor="{StaticResource TextColorSecondary}" 
-                       HorizontalOptions="Center" />
+                       HorizontalOptions="Center">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding MostrarPasadas}" Value="True">
+                            <Setter Property="TextColor" Value="White" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding VerPasadasCommand}" />
                 </Border.GestureRecognizers>
@@ -136,7 +162,7 @@
                     </VerticalStackLayout>
 
                     <!-- 2. Lista de Citas Pasadas (Historial) -->
-                    <VerticalStackLayout IsVisible="{Binding MostrarFuturas, Converter={x:Null}}" Spacing="12">
+                    <VerticalStackLayout IsVisible="{Binding MostrarPasadas}" Spacing="12">
                         <CollectionView ItemsSource="{Binding CitasPasadas}" SelectionMode="None">
                             <CollectionView.EmptyView>
                                 <VerticalStackLayout Padding="35" Spacing="10" VerticalOptions="Center">

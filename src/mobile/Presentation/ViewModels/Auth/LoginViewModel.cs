@@ -44,18 +44,7 @@ public partial class LoginViewModel : BaseViewModel
         {
             await ShowAlertAsync(
                 "Campos Incompletos", 
-                "Por favor, ingresa tu correo electrónico y tu contraseña."
-            );
-            return;
-        }
-
-        // 2. Validar formato de correo electrónico
-        var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase);
-        if (!emailRegex.IsMatch(Email.Trim()))
-        {
-            await ShowAlertAsync(
-                "Correo Inválido", 
-                "Por favor, ingresa una dirección de correo válida (ej. cliente@correo.com)."
+                "Por favor, ingresa tu usuario o correo electrónico y tu contraseña."
             );
             return;
         }
@@ -71,14 +60,40 @@ public partial class LoginViewModel : BaseViewModel
                 // Limpiar contraseña de memoria tras autenticación exitosa
                 Password = string.Empty;
 
-                // Navegar al catálogo principal dentro del Shell
-                await Shell.Current.GoToAsync("//MainTabs/CatalogPage");
+                // Obtener usuario autenticado para determinar el rol oficial
+                var currentUser = await _authRepository.GetCurrentUserAsync();
+                var rol = currentUser?.Rol?.ToUpperInvariant() ?? "CLIENTE";
+
+                if (rol.Contains("ADMIN"))
+                {
+                    // Navegar al Dashboard Administrativo dentro de la barra de pestañas admin
+                    try
+                    {
+                        await Shell.Current.GoToAsync("//AdminTabs/AdminDashboardPage");
+                    }
+                    catch
+                    {
+                        await Shell.Current.GoToAsync("//AdminDashboardPage");
+                    }
+                }
+                else
+                {
+                    // Navegar al catálogo principal dentro del Shell para clientes
+                    try
+                    {
+                        await Shell.Current.GoToAsync("//MainTabs/CatalogPage");
+                    }
+                    catch
+                    {
+                        await Shell.Current.GoToAsync("//CatalogPage");
+                    }
+                }
             }
             else
             {
                 await ShowAlertAsync(
                     "Credenciales Incorrectas", 
-                    "El correo o la contraseña no coinciden con ninguna cuenta registrada. Por favor verifica tus datos."
+                    "El usuario o contraseña no coinciden con ninguna cuenta registrada. Por favor verifica tus datos."
                 );
             }
         }

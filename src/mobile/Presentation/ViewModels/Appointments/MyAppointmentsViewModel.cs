@@ -23,6 +23,9 @@ public partial class MyAppointmentsViewModel : BaseViewModel
     [ObservableProperty]
     private bool mostrarFuturas = true;
 
+    [ObservableProperty]
+    private bool mostrarPasadas = false;
+
     public MyAppointmentsViewModel(IReservaRepository reservaRepository)
     {
         _reservaRepository = reservaRepository;
@@ -34,12 +37,14 @@ public partial class MyAppointmentsViewModel : BaseViewModel
     private void VerFuturas()
     {
         MostrarFuturas = true;
+        MostrarPasadas = false;
     }
 
     [RelayCommand]
     private void VerPasadas()
     {
         MostrarFuturas = false;
+        MostrarPasadas = true;
     }
 
     [RelayCommand]
@@ -131,7 +136,27 @@ public partial class MyAppointmentsViewModel : BaseViewModel
     {
         if (reserva == null) return;
 
-        // Redirigir al catálogo para seleccionar nuevo horario
-        await Shell.Current.GoToAsync("//MainTabs/CatalogPage");
+        try
+        {
+            if (reserva.ServicioId > 0)
+            {
+                await Shell.Current.GoToAsync($"ServiceDetailPage?servicioId={reserva.ServicioId}");
+            }
+            else
+            {
+                await Shell.Current.GoToAsync("//CatalogPage");
+            }
+        }
+        catch
+        {
+            try
+            {
+                await Shell.Current.GoToAsync("//CatalogPage");
+            }
+            catch
+            {
+                // Navegacion fallback
+            }
+        }
     }
 }

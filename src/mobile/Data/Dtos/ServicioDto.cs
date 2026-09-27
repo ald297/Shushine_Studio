@@ -61,3 +61,46 @@ public class ServicioDto
         Protocolo = Protocolo
     };
 }
+
+public class ServicioGuardarDto
+{
+    [JsonPropertyName("codigoServicio")]
+    public string? CodigoServicio { get; set; }
+
+    [JsonPropertyName("categoriaId")]
+    public int CategoriaId { get; set; } = 1;
+
+    [JsonPropertyName("nombre")]
+    public string Nombre { get; set; } = string.Empty;
+
+    [JsonPropertyName("descripcion")]
+    public string? Descripcion { get; set; }
+
+    [JsonPropertyName("precioBase")]
+    public decimal PrecioBase { get; set; }
+
+    [JsonPropertyName("esPrecioVariable")]
+    public bool EsPrecioVariable { get; set; } = false;
+
+    [JsonPropertyName("duracionMinutos")]
+    public int DuracionMinutos { get; set; } = 45;
+
+    [JsonPropertyName("intervaloSeguimientoDias")]
+    public int IntervaloSeguimientoDias { get; set; } = 30;
+
+    [JsonPropertyName("imagenUrl")]
+    public string? ImagenUrl { get; set; }
+
+    [JsonPropertyName("costoInsumos")]
+    public decimal CostoInsumos { get; set; } = 0;
+}
+
+public class ServicioModificarDto : ServicioGuardarDto
+{
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+
+    [JsonPropertyName("activo")]
+    public bool Activo { get; set; } = true;
+}
+

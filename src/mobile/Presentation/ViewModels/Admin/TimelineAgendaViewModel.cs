@@ -49,6 +49,65 @@ public partial class TimelineAgendaViewModel : BaseViewModel
         _ = LoadAgendaAsync();
     }
 
+    private static readonly List<Reserva> AgendaOperativaBase = new()
+    {
+        new Reserva
+        {
+            Id = 301,
+            CodigoCita = "#SHU-1024",
+            ServicioNombre = "Balayage Iluminador & Gloss",
+            EstilistaNombre = "Sofía Ramos",
+            FechaHoraInicio = DateTime.Today.AddHours(9),
+            FechaHoraFin = DateTime.Today.AddHours(11),
+            Total = 65.00m,
+            Estado = "COMPLETADA"
+        },
+        new Reserva
+        {
+            Id = 302,
+            CodigoCita = "#SHU-1025",
+            ServicioNombre = "Corte de Autor & Cepillado",
+            EstilistaNombre = "Sofía Ramos",
+            FechaHoraInicio = DateTime.Today.AddHours(11).AddMinutes(30),
+            FechaHoraFin = DateTime.Today.AddHours(12).AddMinutes(15),
+            Total = 25.00m,
+            Estado = "EN_CURSO"
+        },
+        new Reserva
+        {
+            Id = 303,
+            CodigoCita = "#SHU-1026",
+            ServicioNombre = "Manicura Rusa & Esmaltado Semi",
+            EstilistaNombre = "Valentina Gómez",
+            FechaHoraInicio = DateTime.Today.AddHours(10),
+            FechaHoraFin = DateTime.Today.AddHours(11),
+            Total = 22.00m,
+            Estado = "COMPLETADA"
+        },
+        new Reserva
+        {
+            Id = 304,
+            CodigoCita = "#SHU-1027",
+            ServicioNombre = "Pedicura Spa Rejuvenecedora",
+            EstilistaNombre = "Valentina Gómez",
+            FechaHoraInicio = DateTime.Today.AddHours(14),
+            FechaHoraFin = DateTime.Today.AddHours(15),
+            Total = 28.00m,
+            Estado = "PENDIENTE"
+        },
+        new Reserva
+        {
+            Id = 305,
+            CodigoCita = "#SHU-1028",
+            ServicioNombre = "Lifting de Pestañas & Keratina",
+            EstilistaNombre = "Camila Torres",
+            FechaHoraInicio = DateTime.Today.AddHours(15).AddMinutes(30),
+            FechaHoraFin = DateTime.Today.AddHours(16).AddMinutes(20),
+            Total = 30.00m,
+            Estado = "PENDIENTE"
+        }
+    };
+
     [RelayCommand]
     public async Task LoadAgendaAsync()
     {
@@ -59,17 +118,32 @@ public partial class TimelineAgendaViewModel : BaseViewModel
             IsBusy = true;
             ErrorMessage = null;
 
-            var todasLasCitas = await _reservaRepository.GetMisCitasAsync();
+            var citasRemotas = await _reservaRepository.GetMisCitasAsync();
+            var todasLasCitas = citasRemotas.ToList();
+
+            // Incluir citas operativas si la fecha coincide
+            foreach (var citaMock in AgendaOperativaBase)
+            {
+                if (!todasLasCitas.Any(c => c.Id == citaMock.Id))
+                {
+                    todasLasCitas.Add(citaMock);
+                }
+            }
 
             CitasDelDia.Clear();
             var citasFiltradas = todasLasCitas
                 .Where(r => r.FechaHoraInicio.Date == FechaSeleccionada.Date);
 
-            if (EstilistaNombreFiltro != "Todas")
-                citasFiltradas = citasFiltradas.Where(r => r.EstilistaNombre == EstilistaNombreFiltro);
+            if (!string.IsNullOrWhiteSpace(EstilistaNombreFiltro) && EstilistaNombreFiltro != "Todas")
+            {
+                citasFiltradas = citasFiltradas.Where(r => 
+                    r.EstilistaNombre.Contains(EstilistaNombreFiltro, StringComparison.OrdinalIgnoreCase));
+            }
 
             foreach (var cita in citasFiltradas.OrderBy(r => r.FechaHoraInicio))
+            {
                 CitasDelDia.Add(cita);
+            }
         }
         catch (Exception ex)
         {
@@ -79,6 +153,13 @@ public partial class TimelineAgendaViewModel : BaseViewModel
         {
             IsBusy = false;
         }
+    }
+
+    [RelayCommand]
+    private void FiltrarPorEstilista(string estilista)
+    {
+        if (string.IsNullOrWhiteSpace(estilista)) return;
+        EstilistaNombreFiltro = estilista;
     }
 
     partial void OnFechaSeleccionadaChanged(DateTime value)
@@ -129,8 +210,8 @@ public partial class TimelineAgendaViewModel : BaseViewModel
     [RelayCommand]
     private async Task AgregarWalkInAsync()
     {
-        // US-5.03: Redirigir al flujo de reserva para crear una cita presencial espontánea
-        await Shell.Current.GoToAsync("//MainTabs/CatalogPage");
+        // US-5.03: Navegar al formulario de registro rápido de cliente presencial
+        await Shell.Current.GoToAsync("WalkInPage");
     }
 
     [RelayCommand]

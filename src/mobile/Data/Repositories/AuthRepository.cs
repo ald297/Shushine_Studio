@@ -21,9 +21,10 @@ public class AuthRepository : IAuthRepository
     {
         try
         {
+            var cleanInput = emailOrLogin.Trim();
             var request = new LoginRequestDto
             {
-                Login = emailOrLogin,
+                Login = cleanInput,
                 Clave = password
             };
 
@@ -40,6 +41,60 @@ public class AuthRepository : IAuthRepository
                         authResult.Id ?? authResult.Login ?? "user"
                     );
                     return true;
+                }
+            }
+
+            // Fallback 1: Si se ingresó con mayúscula por autocapitalización del teclado (ej. Admin o Cliente)
+            var lowerLogin = cleanInput.ToLowerInvariant();
+            if (lowerLogin != cleanInput)
+            {
+                var lowerRequest = new LoginRequestDto
+                {
+                    Login = lowerLogin,
+                    Clave = password
+                };
+
+                var lowerResponse = await _httpClient.PostAsJsonAsync("auth/login", lowerRequest);
+                if (lowerResponse.IsSuccessStatusCode)
+                {
+                    var authResult = await lowerResponse.Content.ReadFromJsonAsync<AuthResponseDto>();
+                    if (authResult != null && !string.IsNullOrWhiteSpace(authResult.Token))
+                    {
+                        await _tokenStorage.SaveTokenAsync(
+                            authResult.Token, 
+                            null, 
+                            authResult.Rol, 
+                            authResult.Id ?? authResult.Login ?? "user"
+                        );
+                        return true;
+                    }
+                }
+            }
+
+            // Fallback 2: Si el usuario ingresó un correo completo pero se registró con el nombre de usuario (ej. camila@gmail.com -> camila)
+            if (cleanInput.Contains("@"))
+            {
+                var fallbackUsername = cleanInput.Split('@')[0].ToLowerInvariant();
+                var fallbackRequest = new LoginRequestDto
+                {
+                    Login = fallbackUsername,
+                    Clave = password
+                };
+
+                var fallbackResponse = await _httpClient.PostAsJsonAsync("auth/login", fallbackRequest);
+                if (fallbackResponse.IsSuccessStatusCode)
+                {
+                    var authResult = await fallbackResponse.Content.ReadFromJsonAsync<AuthResponseDto>();
+                    if (authResult != null && !string.IsNullOrWhiteSpace(authResult.Token))
+                    {
+                        await _tokenStorage.SaveTokenAsync(
+                            authResult.Token, 
+                            null, 
+                            authResult.Rol, 
+                            authResult.Id ?? authResult.Login ?? "user"
+                        );
+                        return true;
+                    }
                 }
             }
         }
@@ -67,12 +122,12 @@ public class AuthRepository : IAuthRepository
         {
             var request = new RegisterRequestDto
             {
-                Login = !string.IsNullOrWhiteSpace(login) ? login : email,
+                Login = !string.IsNullOrWhiteSpace(login) ? login.Trim() : email.Trim(),
                 Clave = clave,
-                Nombre = nombre,
-                Apellido = apellido,
-                Telefono = telefono,
-                RolId = 2 // 2 = CLIENTE
+                Nombre = nombre.Trim(),
+                Apellido = apellido.Trim(),
+                Telefono = telefono?.Trim(),
+                RolId = null // Backend asigna automáticamente CLIENTE
             };
 
             var response = await _httpClient.PostAsJsonAsync("auth/registro", request);
@@ -88,6 +143,26 @@ public class AuthRepository : IAuthRepository
                         authResult.Id ?? authResult.Login ?? "user"
                     );
                     return true;
+                }
+            }
+            else if (!string.IsNullOrWhiteSpace(email) && request.Login != email.Trim())
+            {
+                // Si el alias extraído del correo ya existía, intentar registrar con el correo completo como login único
+                request.Login = email.Trim();
+                var retryResponse = await _httpClient.PostAsJsonAsync("auth/registro", request);
+                if (retryResponse.IsSuccessStatusCode)
+                {
+                    var authResult = await retryResponse.Content.ReadFromJsonAsync<AuthResponseDto>();
+                    if (authResult != null && !string.IsNullOrWhiteSpace(authResult.Token))
+                    {
+                        await _tokenStorage.SaveTokenAsync(
+                            authResult.Token, 
+                            null, 
+                            authResult.Rol, 
+                            authResult.Id ?? authResult.Login ?? "user"
+                        );
+                        return true;
+                    }
                 }
             }
         }

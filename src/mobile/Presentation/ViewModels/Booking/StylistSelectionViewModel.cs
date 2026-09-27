@@ -14,6 +14,7 @@ namespace ShushineStudio.Mobile.Presentation.ViewModels.Booking;
 public partial class StylistSelectionViewModel : BaseViewModel
 {
     private readonly IServicioRepository _servicioRepository;
+    private readonly IEstilistaRepository _estilistaRepository;
 
     [ObservableProperty]
     private long servicioId;
@@ -28,13 +29,19 @@ public partial class StylistSelectionViewModel : BaseViewModel
     private Estilista? estilistaSeleccionado;
 
     [ObservableProperty]
+    private long estilistaSeleccionadoId;
+
+    [ObservableProperty]
     private bool esCualquieraDisponible = true;
 
-    public StylistSelectionViewModel(IServicioRepository servicioRepository)
+    public StylistSelectionViewModel(
+        IServicioRepository servicioRepository,
+        IEstilistaRepository estilistaRepository)
     {
         _servicioRepository = servicioRepository;
+        _estilistaRepository = estilistaRepository;
         Title = "Selecciona tu Estilista";
-        CargarEstilistas();
+        _ = CargarEstilistasAsync();
     }
 
     async partial void OnServicioIdChanged(long value)
@@ -45,7 +52,28 @@ public partial class StylistSelectionViewModel : BaseViewModel
         }
     }
 
-    private void CargarEstilistas()
+    private async Task CargarEstilistasAsync()
+    {
+        try
+        {
+            var list = await _estilistaRepository.GetEstilistasAsync();
+            if (list != null && list.Any())
+            {
+                Estilistas.Clear();
+                foreach (var e in list)
+                    Estilistas.Add(e);
+                return;
+            }
+        }
+        catch
+        {
+            // En caso de fallo o modo sin conexion
+        }
+
+        CargarEstilistasFallback();
+    }
+
+    private void CargarEstilistasFallback()
     {
         Estilistas.Clear();
         Estilistas.Add(new Estilista
@@ -76,6 +104,7 @@ public partial class StylistSelectionViewModel : BaseViewModel
     {
         EsCualquieraDisponible = true;
         EstilistaSeleccionado = null;
+        EstilistaSeleccionadoId = 0;
     }
 
     [RelayCommand]
@@ -84,6 +113,7 @@ public partial class StylistSelectionViewModel : BaseViewModel
         if (estilista == null) return;
         EsCualquieraDisponible = false;
         EstilistaSeleccionado = estilista;
+        EstilistaSeleccionadoId = estilista.Id;
     }
 
     [RelayCommand]

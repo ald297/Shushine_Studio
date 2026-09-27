@@ -6,20 +6,34 @@ using ShushineStudio.Mobile.Domain.Repositories;
 
 namespace ShushineStudio.Mobile.Presentation.ViewModels.Booking;
 
-public class TimeSlotItem
+public partial class TimeSlotItem : ObservableObject
 {
-    public string Hora { get; set; } = string.Empty;
-    public bool Disponible { get; set; } = true;
-    public bool Seleccionado { get; set; } = false;
-    public string Turno { get; set; } = "Mañana";
+    [ObservableProperty]
+    private string hora = string.Empty;
+
+    [ObservableProperty]
+    private bool disponible = true;
+
+    [ObservableProperty]
+    private bool seleccionado = false;
+
+    [ObservableProperty]
+    private string turno = "Mañana";
 }
 
-public class DayItem
+public partial class DayItem : ObservableObject
 {
-    public DateTime Fecha { get; set; }
-    public string DiaNombre { get; set; } = string.Empty;
-    public string DiaNumero { get; set; } = string.Empty;
-    public bool Seleccionado { get; set; } = false;
+    [ObservableProperty]
+    private DateTime fecha;
+
+    [ObservableProperty]
+    private string diaNombre = string.Empty;
+
+    [ObservableProperty]
+    private string diaNumero = string.Empty;
+
+    [ObservableProperty]
+    private bool seleccionado = false;
 }
 
 /// <summary>
@@ -127,6 +141,15 @@ public partial class SlotSelectionViewModel : BaseViewModel
     private void SeleccionarSlot(TimeSlotItem slot)
     {
         if (slot == null || !slot.Disponible) return;
+
+        foreach (var s in SlotsManana)
+        {
+            s.Seleccionado = (s.Hora == slot.Hora);
+        }
+        foreach (var s in SlotsTarde)
+        {
+            s.Seleccionado = (s.Hora == slot.Hora);
+        }
 
         HoraSeleccionada = slot.Hora;
     }

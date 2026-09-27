@@ -5,7 +5,9 @@
              x:Class="ShushineStudio.Mobile.Presentation.Views.Profile.ProfilePage"
              x:DataType="vm:ProfileViewModel"
              BackgroundColor="{StaticResource BackgroundColor}"
+             Shell.NavBarIsVisible="false"
              Title="{Binding Title}">
+
 
     <ScrollView>
         <VerticalStackLayout Padding="22" Spacing="20">
@@ -77,7 +79,7 @@
                                Style="{StaticResource HeaderLabelStyle}"
                                FontSize="17" />
                         <Button Grid.Column="1"
-                                Text="{Binding IsEditing, Converter={x:Null}}"
+                                Text="✏️ Editar"
                                 Command="{Binding ToggleEditCommand}"
                                 HeightRequest="34"
                                 FontSize="12"
@@ -95,7 +97,7 @@
                         <Label Text="{Binding Nombre}" 
                                FontSize="14" 
                                TextColor="{StaticResource TextColorPrimary}"
-                               IsVisible="{Binding IsEditing, Converter={x:Null}}" />
+                               IsVisible="{Binding IsNotEditing}" />
                     </VerticalStackLayout>
 
                     <!-- Teléfono -->
@@ -107,7 +109,7 @@
                         <Label Text="{Binding Telefono}" 
                                FontSize="14" 
                                TextColor="{StaticResource TextColorPrimary}"
-                               IsVisible="{Binding IsEditing, Converter={x:Null}}" />
+                               IsVisible="{Binding IsNotEditing}" />
                     </VerticalStackLayout>
 
                     <!-- Fecha de Cumpleaños -->
@@ -141,7 +143,7 @@
                                FontSize="14" 
                                FontAttributes="Bold"
                                TextColor="{StaticResource TextColorPrimary}"
-                               IsVisible="{Binding IsEditing, Converter={x:Null}}" />
+                               IsVisible="{Binding IsNotEditing}" />
                     </VerticalStackLayout>
 
                     <!-- Alergias o Sensibilidades -->
@@ -156,7 +158,7 @@
                         <Label Text="{Binding Alergias}" 
                                FontSize="14" 
                                TextColor="{StaticResource TextColorPrimary}"
-                               IsVisible="{Binding IsEditing, Converter={x:Null}}" />
+                               IsVisible="{Binding IsNotEditing}" />
                     </VerticalStackLayout>
 
                     <!-- Estilista Habitual -->
@@ -182,7 +184,7 @@
                         <Label Text="{Binding NotasPreferencias}" 
                                FontSize="13" 
                                TextColor="{StaticResource TextColorSecondary}"
-                               IsVisible="{Binding IsEditing, Converter={x:Null}}" />
+                               IsVisible="{Binding IsNotEditing}" />
                     </VerticalStackLayout>
                 </VerticalStackLayout>
             </Border>
@@ -193,6 +195,29 @@
                     Style="{StaticResource PrimaryButtonStyle}"
                     IsVisible="{Binding IsEditing}"
                     Margin="0,6,0,0" />
+
+            <!-- Acceso al Panel de Administración (Exclusivo Rol ADMIN) -->
+            <Border Style="{StaticResource CardBorderStyle}"
+                    BackgroundColor="{StaticResource SecondaryLight}"
+                    Stroke="{StaticResource PrimaryColor}"
+                    Padding="16"
+                    IsVisible="{Binding IsAdmin}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="💼 Panel Administrativo del Salón"
+                           FontAttributes="Bold"
+                           FontSize="15"
+                           TextColor="{StaticResource PrimaryDark}" />
+                    <Label Text="Consulta métricas operativas del día, agenda de estilistas y gestión de servicios."
+                           FontSize="12"
+                           TextColor="{StaticResource TextColorSecondary}" />
+                    <Button Text="Abrir Panel Administrativo"
+                            Command="{Binding IrAlPanelAdminCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            HeightRequest="42"
+                            FontSize="13"
+                            Margin="0,4,0,0" />
+                </VerticalStackLayout>
+            </Border>
 
             <!-- Botón Cerrar Sesión -->
             <Button Text="Cerrar Sesión" 

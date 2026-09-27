@@ -113,6 +113,14 @@ public partial class RegisterViewModel : BaseViewModel
                 // Redirigir al catálogo principal
                 await Shell.Current.GoToAsync("//MainTabs/CatalogPage");
             }
+            else
+            {
+                await ShowAlertAsync(
+                    "No se pudo crear la cuenta",
+                    "Verifica que el correo o usuario no esté registrado previamente y que los datos sean correctos.",
+                    "Aceptar"
+                );
+            }
         }
         catch (Exception ex)
         {

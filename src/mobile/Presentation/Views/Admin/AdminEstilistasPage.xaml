@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+             xmlns:entities="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
+             x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminEstilistasPage"
+             x:DataType="vm:AdminEstilistasViewModel"
+             BackgroundColor="{StaticResource BackgroundColor}"
+             Shell.NavBarIsVisible="false">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20, 16, 20, 24" Spacing="16">
+            
+            <!-- 1. Cabecera Oficial de Administrador (Wireframe Pág. 19) -->
+            <VerticalStackLayout Spacing="4" Margin="0, 8, 0, 4">
+                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                    <Label Text="Shushine Studio"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource PrimaryColor}" />
+                    <Border StrokeShape="RoundRectangle 6"
+                            BackgroundColor="{StaticResource PrimaryLight}"
+                            Padding="6, 2">
+                        <Label Text="ADMINISTRADOR" FontSize="10" FontAttributes="Bold" TextColor="White" />
+                    </Border>
+                </HorizontalStackLayout>
+
+                <Grid ColumnDefinitions="*, Auto" Margin="0, 4, 0, 0">
+                    <Label Grid.Column="0"
+                           Text="Equipo de Estilistas"
+                           Style="{StaticResource HeaderLabelStyle}"
+                           FontSize="22" />
+
+                    <!-- Badge de Estado General -->
+                    <Border Grid.Column="1"
+                            StrokeShape="RoundRectangle 12"
+                            BackgroundColor="{StaticResource SecondaryLight}"
+                            Padding="10, 4"
+                            VerticalOptions="Center">
+                        <Label Text="{Binding TotalActivos, StringFormat='✨ {0} Activos'}"
+                               FontSize="11"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource PrimaryDark}" />
+                    </Border>
+                </Grid>
+
+                <Label Text="Control directo de disponibilidad operativa para asignación de citas en salón."
+                       Style="{StaticResource SubheaderLabelStyle}"
+                       FontSize="12" />
+            </VerticalStackLayout>
+
+            <!-- 2. Chips de Filtro (Wireframe Pág. 19) -->
+            <Grid ColumnDefinitions="*, *, *" ColumnSpacing="8">
+                <Button Grid.Column="0"
+                        Text="{Binding TotalEstilistas, StringFormat='Todos ({0})'}"
+                        Command="{Binding SeleccionarFiltroCommand}"
+                        CommandParameter="Todos"
+                        HeightRequest="38"
+                        CornerRadius="19"
+                        FontSize="12"
+                        FontAttributes="Bold" />
+
+                <Button Grid.Column="1"
+                        Text="{Binding TotalActivos, StringFormat='Activos ({0})'}"
+                        Command="{Binding SeleccionarFiltroCommand}"
+                        CommandParameter="Activos"
+                        HeightRequest="38"
+                        CornerRadius="19"
+                        FontSize="12"
+                        FontAttributes="Bold" />
+
+                <Button Grid.Column="2"
+                        Text="{Binding TotalInactivos, StringFormat='Inactivos ({0})'}"
+                        Command="{Binding SeleccionarFiltroCommand}"
+                        CommandParameter="Inactivos"
+                        HeightRequest="38"
+                        CornerRadius="19"
+                        FontSize="12"
+                        FontAttributes="Bold" />
+            </Grid>
+
+            <!-- 3. Listado de Estilistas (Wireframe Pág. 19) -->
+            <CollectionView ItemsSource="{Binding Estilistas}" SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="30" Spacing="8" HorizontalOptions="Center">
+                        <Label Text="💇‍♀️" FontSize="36" HorizontalOptions="Center" />
+                        <Label Text="No hay estilistas en esta categoría."
+                               TextColor="{StaticResource TextColorSecondary}"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="entities:Estilista">
+                        <Border Style="{StaticResource CardBorderStyle}" Margin="0, 0, 0, 14" Padding="16">
+                            <VerticalStackLayout Spacing="12">
+                                
+                                <!-- Encabezado de la Tarjeta del Estilista -->
+                                <Grid ColumnDefinitions="52, *, Auto" ColumnSpacing="12">
+                                    <!-- Avatar con Iniciales -->
+                                    <Border Grid.Column="0"
+                                            StrokeShape="RoundRectangle 26"
+                                            HeightRequest="52"
+                                            WidthRequest="52"
+                                            BackgroundColor="{StaticResource SecondaryLight}">
+                                        <Label Text="{Binding Iniciales}"
+                                               FontSize="16"
+                                               FontAttributes="Bold"
+                                               TextColor="{StaticResource PrimaryDark}"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                    </Border>
+
+                                    <!-- Nombre y Especialidad -->
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                        <Label Text="{Binding NombreCompleto}"
+                                               FontSize="16"
+                                               FontAttributes="Bold"
+                                               TextColor="{StaticResource TextColorPrimary}" />
+                                        <Label Text="{Binding EspecialidadPrincipal}"
+                                               FontSize="12"
+                                               TextColor="{StaticResource TextColorSecondary}" />
+                                    </VerticalStackLayout>
+
+                                    <!-- Badge de Estado -->
+                                    <Border Grid.Column="2"
+                                            StrokeShape="RoundRectangle 8"
+                                            BackgroundColor="{StaticResource SecondaryLight}"
+                                            Padding="8, 3"
+                                            VerticalOptions="Start">
+                                        <Label Text="{Binding Activo, Converter={x:Null}}" 
+                                               FontSize="10" 
+                                               FontAttributes="Bold" 
+                                               TextColor="{StaticResource PrimaryDark}" />
+                                    </Border>
+                                </Grid>
+
+                                <!-- Botones de Estado: Activo / Inactivo temporal (Wireframe Pág. 19) -->
+                                <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
+                                    <!-- Botón: Activo -->
+                                    <Button Grid.Column="0"
+                                            Text="✔️ Activo"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminEstilistasViewModel}}, Path=SetEstadoActivoCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="{StaticResource PrimaryColor}"
+                                            TextColor="White"
+                                            CornerRadius="10"
+                                            FontSize="12"
+                                            FontAttributes="Bold"
+                                            HeightRequest="42" />
+
+                                    <!-- Botón: Inactivo temporal -->
+                                    <Button Grid.Column="1"
+                                            Text="⏸️ Inactivo temp."
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminEstilistasViewModel}}, Path=SetEstadoInactivoCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="{StaticResource BackgroundColor}"
+                                            TextColor="{StaticResource TextColorSecondary}"
+                                            BorderColor="{StaticResource BorderColor}"
+                                            BorderWidth="1"
+                                            CornerRadius="10"
+                                            FontSize="12"
+                                            HeightRequest="42" />
+                                </Grid>
+
+                                <!-- Mensaje aclaratorio si está inactivo -->
+                                <Border BackgroundColor="#FFF8F8"
+                                        Stroke="#FFE4E4"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 8"
+                                        Padding="10, 6">
+                                    <Label Text="📅 Sincronizado con la disponibilidad de reservas en salón."
+                                           FontSize="11"
+                                           TextColor="{StaticResource TextColorSecondary}" />
+                                </Border>
+
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

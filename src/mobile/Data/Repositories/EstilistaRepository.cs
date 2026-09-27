@@ -54,4 +54,32 @@ public class EstilistaRepository : IEstilistaRepository
             return null;
         }
     }
+
+    public async Task<IEnumerable<Estilista>> GetTodosEstilistasAsync()
+    {
+
+        try
+        {
+            var dtos = await _httpClient.GetFromJsonAsync<List<EstilistaDto>>("estilistas");
+            return dtos?.Select(e => e.ToEntity()) ?? Enumerable.Empty<Estilista>();
+        }
+        catch (Exception)
+        {
+            return Enumerable.Empty<Estilista>();
+        }
+    }
+
+    public async Task<bool> ActualizarEstadoEstilistaAsync(long id, bool activo)
+    {
+        try
+        {
+            var response = await _httpClient.PutAsJsonAsync($"estilistas/{id}/estado?activo={activo}", new { });
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }
+

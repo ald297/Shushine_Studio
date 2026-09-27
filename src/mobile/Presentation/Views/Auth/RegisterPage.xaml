@@ -4,25 +4,30 @@
              xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Auth"
              x:Class="ShushineStudio.Mobile.Presentation.Views.Auth.RegisterPage"
              x:DataType="vm:RegisterViewModel"
-             BackgroundColor="{StaticResource BackgroundColor}"
+             BackgroundColor="{StaticResource GoldBackground}"
              Shell.NavBarIsVisible="true"
              Title="{Binding Title}">
 
     <ScrollView>
         <VerticalStackLayout Padding="24" Spacing="20">
             
-            <!-- Cabecera de Registro -->
+            <!-- Cabecera de Registro Dorado Luxury -->
             <VerticalStackLayout Spacing="6" Margin="0,10,0,0">
                 <Label Text="Crear Cuenta"
-                       Style="{StaticResource HeaderLabelStyle}"
-                       FontSize="28" />
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource GoldDark}" />
                 <Label Text="Únete a la experiencia de Shushine Studio y reserva tus tratamientos favoritos."
-                       Style="{StaticResource SubheaderLabelStyle}"
-                       FontSize="14" />
+                       FontSize="14"
+                       TextColor="{StaticResource TextColorSecondary}" />
             </VerticalStackLayout>
 
-            <!-- Formulario de Registro en Tarjeta -->
-            <Border Style="{StaticResource CardBorderStyle}" Padding="20">
+            <!-- Formulario de Registro en Tarjeta Beige / Oro -->
+            <Border StrokeShape="RoundRectangle 16"
+                    Stroke="{StaticResource GoldBorder}"
+                    StrokeThickness="1"
+                    BackgroundColor="{StaticResource GoldSurface}"
+                    Padding="20">
                 <VerticalStackLayout Spacing="14">
                     
                     <!-- Campo Nombre Completo -->
@@ -31,7 +36,11 @@
                                FontSize="13" 
                                FontAttributes="Bold"
                                TextColor="{StaticResource TextColorPrimary}" />
-                        <Border Style="{StaticResource InputContainerStyle}">
+                        <Border StrokeShape="RoundRectangle 12"
+                                Stroke="{StaticResource GoldBorder}"
+                                StrokeThickness="1"
+                                BackgroundColor="{StaticResource GoldSurface}"
+                                Padding="12,0">
                             <Entry Placeholder="ej. Camila Calderón"
                                    Text="{Binding Nombre}"
                                    ReturnType="Next" />
@@ -44,7 +53,11 @@
                                FontSize="13" 
                                FontAttributes="Bold"
                                TextColor="{StaticResource TextColorPrimary}" />
-                        <Border Style="{StaticResource InputContainerStyle}">
+                        <Border StrokeShape="RoundRectangle 12"
+                                Stroke="{StaticResource GoldBorder}"
+                                StrokeThickness="1"
+                                BackgroundColor="{StaticResource GoldSurface}"
+                                Padding="12,0">
                             <Entry Placeholder="ejemplo@correo.com"
                                    Text="{Binding Email}"
                                    Keyboard="Email"
@@ -58,7 +71,11 @@
                                FontSize="13" 
                                FontAttributes="Bold"
                                TextColor="{StaticResource TextColorPrimary}" />
-                        <Border Style="{StaticResource InputContainerStyle}">
+                        <Border StrokeShape="RoundRectangle 12"
+                                Stroke="{StaticResource GoldBorder}"
+                                StrokeThickness="1"
+                                BackgroundColor="{StaticResource GoldSurface}"
+                                Padding="12,0">
                             <Entry Placeholder="7000-0000"
                                    Text="{Binding Telefono}"
                                    Keyboard="Telephone"
@@ -72,7 +89,11 @@
                                FontSize="13" 
                                FontAttributes="Bold"
                                TextColor="{StaticResource TextColorPrimary}" />
-                        <Border Style="{StaticResource InputContainerStyle}">
+                        <Border StrokeShape="RoundRectangle 12"
+                                Stroke="{StaticResource GoldBorder}"
+                                StrokeThickness="1"
+                                BackgroundColor="{StaticResource GoldSurface}"
+                                Padding="12,0">
                             <Grid ColumnDefinitions="*, Auto">
                                 <Entry Grid.Column="0"
                                        Placeholder="••••••••"
@@ -95,7 +116,11 @@
                                FontSize="13" 
                                FontAttributes="Bold"
                                TextColor="{StaticResource TextColorPrimary}" />
-                        <Border Style="{StaticResource InputContainerStyle}">
+                        <Border StrokeShape="RoundRectangle 12"
+                                Stroke="{StaticResource GoldBorder}"
+                                StrokeThickness="1"
+                                BackgroundColor="{StaticResource GoldSurface}"
+                                Padding="12,0">
                             <Grid ColumnDefinitions="*, Auto">
                                 <Entry Grid.Column="0"
                                        Placeholder="••••••••"
@@ -115,7 +140,7 @@
                     <!-- Checkbox de Términos y Condiciones -->
                     <HorizontalStackLayout Spacing="10" Margin="0,6,0,4" VerticalOptions="Center">
                         <CheckBox IsChecked="{Binding AcceptTerms}" 
-                                  Color="{StaticResource PrimaryColor}" 
+                                  Color="{StaticResource GoldPrimary}" 
                                   VerticalOptions="Center" />
                         <Label Text="Acepto los Términos y Condiciones del Salón"
                                FontSize="12"
@@ -123,27 +148,28 @@
                                VerticalOptions="Center" />
                     </HorizontalStackLayout>
 
-                    <!-- Botón Registrarse -->
+                    <!-- Botón Registrarse Dorado Luxury -->
                     <Button Text="Registrarse"
                             Command="{Binding RegisterCommand}"
-                            Style="{StaticResource PrimaryButtonStyle}"
-                            IsEnabled="{Binding IsBusy, Converter={x:Null}}"
+                            Style="{StaticResource GoldButtonStyle}"
+                            IsEnabled="{Binding IsNotBusy}"
                             Margin="0,10,0,0" />
 
                     <!-- Indicador de Carga Reactivo -->
                     <ActivityIndicator IsRunning="{Binding IsBusy}"
                                        IsVisible="{Binding IsBusy}"
+                                       Color="{StaticResource GoldPrimary}"
                                        HeightRequest="30" />
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Pie: Enlace de retorno al Login -->
+            <!-- Pie: Enlace de retorno al Login en Dorado -->
             <HorizontalStackLayout HorizontalOptions="Center" Spacing="6" Margin="0,10,0,20">
                 <Label Text="¿Ya tienes una cuenta?" 
                        TextColor="{StaticResource TextColorSecondary}" 
                        FontSize="14" />
                 <Label Text="Inicia sesión aquí"
-                       TextColor="{StaticResource PrimaryColor}"
+                       TextColor="{StaticResource GoldDark}"
                        FontAttributes="Bold"
                        FontSize="14">
                     <Label.GestureRecognizers>

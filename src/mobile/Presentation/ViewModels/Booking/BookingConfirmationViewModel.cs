@@ -44,12 +44,26 @@ public partial class BookingConfirmationViewModel : BaseViewModel
     [RelayCommand]
     private async Task VerEnMisCitasAsync()
     {
-        await Shell.Current.GoToAsync("//MainTabs/MyAppointmentsPage");
+        try
+        {
+            await Shell.Current.GoToAsync("//MyAppointmentsPage");
+        }
+        catch
+        {
+            await Shell.Current.GoToAsync("//MainTabs/MyAppointmentsPage");
+        }
     }
 
     [RelayCommand]
     private async Task VolverAlInicioAsync()
     {
-        await Shell.Current.GoToAsync("//MainTabs/CatalogPage");
+        try
+        {
+            await Shell.Current.GoToAsync("//CatalogPage");
+        }
+        catch
+        {
+            await Shell.Current.GoToAsync("//MainTabs/CatalogPage");
+        }
     }
 }

@@ -69,6 +69,8 @@ public class ErrorDelegatingHandler : DelegatingHandler
                 // Si la respuesta no es JSON válido (ej. 502/504 en HTML desde un proxy)
             }
 
+            var isAuthEndpoint = request.RequestUri?.AbsolutePath.Contains("/auth/") == true;
+
             await MainThread.InvokeOnMainThreadAsync(async () =>
             {
                 var mainPage = Application.Current?.MainPage;
@@ -77,24 +79,30 @@ public class ErrorDelegatingHandler : DelegatingHandler
                 switch (response.StatusCode)
                 {
                     case HttpStatusCode.Unauthorized:
-                        // 401: Sesión expirada o no autorizada
-                        SecureStorage.Default.Remove(ApiConstants.AuthTokenKey);
-                        SecureStorage.Default.Remove(ApiConstants.UserRoleKey);
-                        await mainPage.DisplayAlert(
-                            "Sesión Finalizada", 
-                            "Tu sesión ha expirado. Por favor, ingresa de nuevo con tus credenciales.", 
-                            "Iniciar Sesión"
-                        );
-                        await Shell.Current.GoToAsync("//LoginPage");
+                        // 401: Sesión expirada o no autorizada (solo peticiones protegidas de negocio)
+                        if (!isAuthEndpoint)
+                        {
+                            SecureStorage.Default.Remove(ApiConstants.AuthTokenKey);
+                            SecureStorage.Default.Remove(ApiConstants.UserRoleKey);
+                            await mainPage.DisplayAlert(
+                                "Sesión Finalizada", 
+                                "Tu sesión ha expirado. Por favor, ingresa de nuevo con tus credenciales.", 
+                                "Iniciar Sesión"
+                            );
+                            await Shell.Current.GoToAsync("//LoginPage");
+                        }
                         break;
 
                     case HttpStatusCode.Forbidden:
-                        // 403: Rol sin permisos
-                        await mainPage.DisplayAlert(
-                            "Acceso Denegado", 
-                            "No posees los privilegios requeridos para realizar esta operación.", 
-                            "Entendido"
-                        );
+                        // 403: Rol sin permisos (ignorar en intentos de login)
+                        if (!isAuthEndpoint)
+                        {
+                            await mainPage.DisplayAlert(
+                                "Acceso Denegado", 
+                                "No posees los privilegios requeridos para realizar esta operación.", 
+                                "Entendido"
+                            );
+                        }
                         break;
 
                     case HttpStatusCode.Conflict:

@@ -20,7 +20,7 @@
                     <Grid>
                         <Label Text="✨" FontSize="70" HorizontalOptions="Center" VerticalOptions="Center" />
                         <Border HorizontalOptions="End" 
-                                VerticalOptions="Top" 
+                                VerticalOptions="Start" 
                                 Margin="14"
                                 StrokeShape="RoundRectangle 12"
                                 BackgroundColor="{StaticResource PrimaryColor}"

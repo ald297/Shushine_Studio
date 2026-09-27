@@ -90,12 +90,16 @@ public partial class BookingSummaryViewModel : BaseViewModel
             ErrorMessage = null;
 
             var fechaHoraInicio = DateTime.Today.AddDays(1).AddHours(10);
-            if (DateTime.TryParse(Fecha, out var parsedDate))
+            if (DateTime.TryParse($"{Fecha} {Hora}", out var fullParsed))
+            {
+                fechaHoraInicio = fullParsed;
+            }
+            else if (DateTime.TryParse(Fecha, out var parsedDate))
             {
                 fechaHoraInicio = parsedDate.AddHours(10);
             }
 
-            var estilistaIdLong = long.TryParse(EstilistaId, out var eId) ? (long?)eId : null;
+            var estilistaIdLong = long.TryParse(EstilistaId, out var eId) && eId > 0 ? (long?)eId : 1;
 
             var reserva = await _createAppointmentUseCase.ExecuteAsync(
                 Servicio.Id,

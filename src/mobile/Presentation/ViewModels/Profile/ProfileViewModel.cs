@@ -45,6 +45,17 @@ public partial class ProfileViewModel : BaseViewModel
     [ObservableProperty]
     private bool isEditing = false;
 
+    [ObservableProperty]
+    private bool isNotEditing = true;
+
+    partial void OnIsEditingChanged(bool value)
+    {
+        IsNotEditing = !value;
+    }
+
+    [ObservableProperty]
+    private bool isAdmin = false;
+
     public ProfileViewModel(IAuthRepository authRepository)
     {
         _authRepository = authRepository;
@@ -68,6 +79,8 @@ public partial class ProfileViewModel : BaseViewModel
                     Email = usuario.Email;
                 if (!string.IsNullOrWhiteSpace(usuario.NivelFidelidad))
                     NivelFidelidad = $"{usuario.NivelFidelidad} ({usuario.PuntosAcumulados} pts)";
+
+                IsAdmin = usuario.Rol?.Contains("ADMIN", StringComparison.OrdinalIgnoreCase) == true;
             }
         }
         catch (Exception ex)
@@ -78,6 +91,12 @@ public partial class ProfileViewModel : BaseViewModel
         {
             IsBusy = false;
         }
+    }
+
+    [RelayCommand]
+    private async Task IrAlPanelAdminAsync()
+    {
+        await Shell.Current.GoToAsync("AdminDashboardPage");
     }
 
     [RelayCommand]

@@ -6,7 +6,9 @@
              x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.TimelineAgendaPage"
              x:DataType="vm:TimelineAgendaViewModel"
              BackgroundColor="{StaticResource BackgroundColor}"
+             Shell.NavBarIsVisible="false"
              Title="{Binding Title}">
+
 
     <Grid RowDefinitions="Auto, Auto, Auto, *">
 
@@ -49,31 +51,47 @@
         <!-- Filtro de estilistas (horizontal scroll chips) (Wireframe Pág. 16) -->
         <ScrollView Grid.Row="1" Orientation="Horizontal" Padding="16,8">
             <HorizontalStackLayout Spacing="8">
+                <!-- Todas -->
                 <Border StrokeShape="RoundRectangle 20"
                         BackgroundColor="{StaticResource PrimaryColor}"
                         Padding="14,7">
                     <Label Text="Todas" FontSize="13" TextColor="White" FontAttributes="Bold" />
                     <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding LoadAgendaCommand}" />
+                        <TapGestureRecognizer Command="{Binding FiltrarPorEstilistaCommand}" CommandParameter="Todas" />
                     </Border.GestureRecognizers>
                 </Border>
+
+                <!-- Sofía Ramos -->
                 <Border StrokeShape="RoundRectangle 20"
                         BackgroundColor="{StaticResource SurfaceColor}"
                         Stroke="{StaticResource BorderColor}"
                         Padding="14,7">
-                    <Label Text="Sofía Ramos" FontSize="13" TextColor="{StaticResource TextColorPrimary}" />
+                    <Label Text="Sofía Ramos" FontSize="13" TextColor="{StaticResource TextColorPrimary}" FontAttributes="Bold" />
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding FiltrarPorEstilistaCommand}" CommandParameter="Sofía Ramos" />
+                    </Border.GestureRecognizers>
                 </Border>
+
+                <!-- Valentina Gómez -->
                 <Border StrokeShape="RoundRectangle 20"
                         BackgroundColor="{StaticResource SurfaceColor}"
                         Stroke="{StaticResource BorderColor}"
                         Padding="14,7">
-                    <Label Text="Valentina Gómez" FontSize="13" TextColor="{StaticResource TextColorPrimary}" />
+                    <Label Text="Valentina Gómez" FontSize="13" TextColor="{StaticResource TextColorPrimary}" FontAttributes="Bold" />
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding FiltrarPorEstilistaCommand}" CommandParameter="Valentina Gómez" />
+                    </Border.GestureRecognizers>
                 </Border>
+
+                <!-- Camila Torres -->
                 <Border StrokeShape="RoundRectangle 20"
                         BackgroundColor="{StaticResource SurfaceColor}"
                         Stroke="{StaticResource BorderColor}"
                         Padding="14,7">
-                    <Label Text="Camila Torres" FontSize="13" TextColor="{StaticResource TextColorPrimary}" />
+                    <Label Text="Camila Torres" FontSize="13" TextColor="{StaticResource TextColorPrimary}" FontAttributes="Bold" />
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding FiltrarPorEstilistaCommand}" CommandParameter="Camila Torres" />
+                    </Border.GestureRecognizers>
                 </Border>
             </HorizontalStackLayout>
         </ScrollView>

@@ -37,9 +37,15 @@
                 <!-- Opción Especial Destacada: Cualquier Estilista (Wireframe Pág. 9) -->
                 <Border StrokeShape="RoundRectangle 16"
                         Padding="16"
-                        Stroke="{StaticResource PrimaryColor}"
+                        Stroke="{StaticResource BorderColor}"
                         StrokeThickness="2"
                         BackgroundColor="{StaticResource SurfaceColor}">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding EsCualquieraDisponible}" Value="True">
+                            <Setter Property="Stroke" Value="{StaticResource PrimaryColor}" />
+                            <Setter Property="BackgroundColor" Value="{StaticResource SecondaryLight}" />
+                        </DataTrigger>
+                    </Border.Triggers>
                     <Grid ColumnDefinitions="45, *">
                         <Label Grid.Column="0" Text="⚡️" FontSize="28" VerticalOptions="Center" />
                         <VerticalStackLayout Grid.Column="1" Spacing="3">

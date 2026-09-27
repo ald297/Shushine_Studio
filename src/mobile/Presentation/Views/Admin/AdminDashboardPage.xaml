@@ -6,150 +6,212 @@
              x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminDashboardPage"
              x:DataType="vm:AdminDashboardViewModel"
              BackgroundColor="{StaticResource BackgroundColor}"
-             Title="Panel Operativo">
+             Shell.NavBarIsVisible="false">
 
     <RefreshView IsRefreshing="{Binding IsBusy}" Command="{Binding LoadDashboardCommand}">
         <ScrollView>
-            <VerticalStackLayout Padding="20" Spacing="18">
+            <VerticalStackLayout Padding="20, 16, 20, 24" Spacing="16">
 
-                <!-- Cabecera del día -->
-                <VerticalStackLayout Spacing="2">
-                    <Label Text="Shushine Studio"
-                           Style="{StaticResource HeaderLabelStyle}"
-                           FontSize="22" />
-                    <Label Text="{Binding FechaHoy}"
-                           Style="{StaticResource SubheaderLabelStyle}"
-                           FontSize="13" />
-                </VerticalStackLayout>
-
-                <!-- KPI Cards Row 1: Citas Hoy y % Capacidad (Wireframe Pág. 15) -->
-                <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
-
-                    <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Padding="16,14">
-                        <VerticalStackLayout Spacing="4">
-                            <Label Text="📋" FontSize="28" HorizontalOptions="Center" />
-                            <Label Text="{Binding CitasHoy}"
-                                   FontSize="32"
+                <!-- 1. Cabecera Oficial de Administrador (Wireframe Pág. 15) -->
+                <Grid ColumnDefinitions="*, Auto" Margin="0, 8, 0, 4">
+                    <VerticalStackLayout Grid.Column="0" Spacing="3">
+                        <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                            <Label Text="Shushine Studio"
+                                   FontSize="14"
                                    FontAttributes="Bold"
-                                   TextColor="{StaticResource PrimaryDark}"
-                                   HorizontalOptions="Center" />
-                            <Label Text="Citas Hoy"
-                                   FontSize="12"
-                                   TextColor="{StaticResource TextColorSecondary}"
-                                   HorizontalOptions="Center" />
-                        </VerticalStackLayout>
-                    </Border>
+                                   TextColor="{StaticResource PrimaryColor}" />
+                            <Border StrokeShape="RoundRectangle 6"
+                                    BackgroundColor="{StaticResource PrimaryLight}"
+                                    Padding="6, 2">
+                                <Label Text="ADMINISTRADOR" FontSize="10" FontAttributes="Bold" TextColor="White" />
+                            </Border>
+                        </HorizontalStackLayout>
+                        <Label Text="DASHBOARD"
+                               FontSize="11"
+                               FontAttributes="Bold"
+                               CharacterSpacing="2"
+                               TextColor="{StaticResource TextColorSecondary}" />
+                        <Label Text="Hola, Administrador"
+                               Style="{StaticResource HeaderLabelStyle}"
+                               FontSize="22" />
+                        <Label Text="Resumen de operaciones y citas programadas del salón"
+                               Style="{StaticResource SubheaderLabelStyle}"
+                               FontSize="12" />
+                    </VerticalStackLayout>
 
-                    <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Padding="16,14">
-                        <VerticalStackLayout Spacing="4">
-                            <Label Text="📊" FontSize="28" HorizontalOptions="Center" />
-                            <Label Text="{Binding PorcentajeOcupado, StringFormat='{0}%'}"
-                                   FontSize="32"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource PrimaryColor}"
-                                   HorizontalOptions="Center" />
-                            <Label Text="Capacidad Ocupada"
-                                   FontSize="12"
-                                   TextColor="{StaticResource TextColorSecondary}"
-                                   HorizontalOptions="Center" />
-                        </VerticalStackLayout>
+                    <!-- Botón Salir / Logout -->
+                    <Border Grid.Column="1"
+                            StrokeShape="RoundRectangle 18"
+                            BackgroundColor="#FDF2F2"
+                            Stroke="#F98080"
+                            StrokeThickness="1"
+                            Padding="10, 6"
+                            VerticalOptions="Start">
+                        <Label Text="🚪 Salir" FontSize="12" FontAttributes="Bold" TextColor="#E02424" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding CerrarSesionAdminCommand}" />
+                        </Border.GestureRecognizers>
                     </Border>
                 </Grid>
 
-                <!-- KPI Ingresos Proyectados -->
-                <Border Style="{StaticResource CardBorderStyle}" Padding="18,14">
-                    <Grid ColumnDefinitions="Auto, *, Auto">
-                        <Label Grid.Column="0" Text="💰" FontSize="28" VerticalOptions="Center" Margin="0,0,12,0" />
-                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                            <Label Text="Ingresos Proyectados del Día"
-                                   FontSize="13"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource TextColorPrimary}" />
-                            <Label Text="(Citas activas pendientes + completadas)"
-                                   FontSize="11"
-                                   TextColor="{StaticResource TextColorSecondary}" />
-                        </VerticalStackLayout>
-                        <Label Grid.Column="2"
-                               Text="{Binding IngresosProyectados, StringFormat='${0:F2}'}"
-                               FontSize="22"
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource PrimaryDark}"
-                               VerticalOptions="Center" />
-                    </Grid>
+                <!-- Badge Fecha -->
+                <Border StrokeShape="RoundRectangle 10"
+                        BackgroundColor="{StaticResource SurfaceColor}"
+                        Padding="12, 6"
+                        HorizontalOptions="Start">
+                    <Label Text="{Binding FechaHoy, StringFormat='📅 Hoy, {0}'}"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource PrimaryDark}" />
                 </Border>
 
-                <!-- Desglose de Estado de Citas -->
-                <Border Style="{StaticResource CardBorderStyle}" Padding="16">
-                    <VerticalStackLayout Spacing="10">
-                        <Label Text="Desglose de Citas por Estado" FontAttributes="Bold" FontSize="14" TextColor="{StaticResource TextColorPrimary}" />
+                <!-- 2. KPI Card 1: Citas de Hoy y Capacidad (Wireframe Pág. 15) -->
+                <Border Style="{StaticResource CardBorderStyle}" Padding="18">
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0" Text="CITAS DE HOY" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" />
+                            <Border Grid.Column="1"
+                                    StrokeShape="RoundRectangle 10"
+                                    BackgroundColor="{StaticResource SecondaryLight}"
+                                    Padding="8, 3">
+                                <Label Text="{Binding PorcentajeOcupado, StringFormat='{0}% Capacidad'}"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource PrimaryDark}" />
+                            </Border>
+                        </Grid>
 
-                        <Grid ColumnDefinitions="*, Auto">
-                            <Label Grid.Column="0" Text="✅  Completadas" FontSize="13" TextColor="{StaticResource TextColorPrimary}" />
-                            <Label Grid.Column="1" Text="{Binding CitasCompletadas}" FontSize="13" FontAttributes="Bold" TextColor="Green" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*, Auto">
-                            <Label Grid.Column="0" Text="⏳  Pendientes / En curso" FontSize="13" TextColor="{StaticResource TextColorPrimary}" />
-                            <Label Grid.Column="1" Text="{Binding CitasPendientes}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*, Auto">
-                            <Label Grid.Column="0" Text="❌  Canceladas" FontSize="13" TextColor="{StaticResource TextColorPrimary}" />
-                            <Label Grid.Column="1" Text="{Binding CitasCanceladas}" FontSize="13" FontAttributes="Bold" TextColor="#E74C3C" />
+                        <Label Text="{Binding CitasHoy}"
+                               FontSize="38"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource PrimaryDark}" />
+
+                        <!-- Desglose Mañana, Tarde, Noche -->
+                        <BoxView HeightRequest="1" Color="{StaticResource DividerColor}" />
+                        <Grid ColumnDefinitions="*, *, *" ColumnSpacing="8">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="MAÑANA" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" />
+                                <Label Text="{Binding CitasManana}" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                                <Label Text="09:00 - 13:00" FontSize="10" TextColor="{StaticResource TextColorSecondary}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label Text="TARDE" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" />
+                                <Label Text="{Binding CitasTarde}" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                                <Label Text="13:00 - 18:00" FontSize="10" TextColor="{StaticResource TextColorSecondary}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="2" Spacing="2">
+                                <Label Text="NOCHE" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" />
+                                <Label Text="{Binding CitasNoche}" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                                <Label Text="18:00 - 20:30" FontSize="10" TextColor="{StaticResource TextColorSecondary}" />
+                            </VerticalStackLayout>
                         </Grid>
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- Reservas Recientes -->
-                <Label Text="Últimas Reservaciones" FontAttributes="Bold" FontSize="15" TextColor="{StaticResource TextColorPrimary}" />
+                <!-- 3. KPI Row 2: Completadas y Canceladas (Wireframe Pág. 15) -->
+                <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+                    <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Padding="16">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="COMPLETADAS" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" />
+                            <HorizontalStackLayout Spacing="6">
+                                <Label Text="{Binding CitasCompletadas}" FontSize="24" FontAttributes="Bold" TextColor="#0E9F6E" />
+                                <Label Text="{Binding CitasHoy, StringFormat='/{0} citas'}" FontSize="13" TextColor="{StaticResource TextColorSecondary}" VerticalOptions="End" />
+                            </HorizontalStackLayout>
+                            <Label Text="61% del día" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Padding="16">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="CANCELADAS" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" />
+                            <Label Text="{Binding CitasCanceladas}" FontSize="24" FontAttributes="Bold" TextColor="#E02424" />
+                            <Label Text="11% tasa salón" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- 4. KPI Proyección de Ingresos (Wireframe Pág. 15) -->
+                <Border Style="{StaticResource CardBorderStyle}" Padding="18">
+                    <VerticalStackLayout Spacing="10">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="PROYECCIÓN DE INGRESOS" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" />
+                                <Label Text="{Binding IngresosProyectados, StringFormat='${0:N2}'}"
+                                       FontSize="28"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource PrimaryColor}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" HorizontalOptions="End" Spacing="2">
+                                <Label Text="META DEL DÍA" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" HorizontalOptions="End" />
+                                <Label Text="{Binding MetaDelDia, StringFormat='${0:N2}'}" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" HorizontalOptions="End" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <ProgressBar Progress="0.90" ProgressColor="{StaticResource PrimaryColor}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- 5. Ocupación de Estaciones (Wireframe Pág. 15) -->
+                <Border Style="{StaticResource CardBorderStyle}" Padding="16">
+                    <VerticalStackLayout Spacing="10">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0" Text="OCUPACIÓN DE ESTACIONES" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" />
+                            <Label Grid.Column="1" Text="{Binding EstacionesActivas, StringFormat='{0} de 6 activas'}" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
+                        </Grid>
+
+                        <FlexLayout Wrap="Wrap" JustifyContent="SpaceBetween" Direction="Row">
+                            <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource SecondaryLight}" Padding="8,4" Margin="2">
+                                <Label Text="✂️ E-01 Corte" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
+                            </Border>
+                            <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource SecondaryLight}" Padding="8,4" Margin="2">
+                                <Label Text="🎨 E-02 Color" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
+                            </Border>
+                            <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource SecondaryLight}" Padding="8,4" Margin="2">
+                                <Label Text="💇 E-03 Peinado" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
+                            </Border>
+                            <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource SecondaryLight}" Padding="8,4" Margin="2">
+                                <Label Text="💅 E-04 Uñas" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
+                            </Border>
+                            <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource SecondaryLight}" Padding="8,4" Margin="2">
+                                <Label Text="🌿 E-05 Spa" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
+                            </Border>
+                            <Border StrokeShape="RoundRectangle 8" BackgroundColor="#F3F4F6" Padding="8,4" Margin="2">
+                                <Label Text="⚪ E-06 Libre" FontSize="11" FontAttributes="Bold" TextColor="#9CA3AF" />
+                            </Border>
+                        </FlexLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- 6. Botón de Acción Walk-In (Wireframe Pág. 16) -->
+                <Button Text="➕ Registro Rápido Walk-In (Cliente en Sala)"
+                        Command="{Binding NuevaReservaWalkInCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        HeightRequest="48"
+                        FontSize="14" />
+
+                <!-- 7. Reservas Recientes -->
+                <Label Text="Últimas Reservaciones Registradas" FontAttributes="Bold" FontSize="14" TextColor="{StaticResource TextColorPrimary}" Margin="0, 8, 0, 0" />
 
                 <CollectionView ItemsSource="{Binding ReservasRecientes}" SelectionMode="None">
                     <CollectionView.EmptyView>
-                        <VerticalStackLayout Padding="20" Spacing="8">
-                            <Label Text="No hay reservas registradas hoy."
-                                   TextColor="{StaticResource TextColorSecondary}"
-                                   HorizontalOptions="Center" />
-                        </VerticalStackLayout>
+                        <Label Text="No hay reservas hoy." TextColor="{StaticResource TextColorSecondary}" HorizontalOptions="Center" Padding="14" />
                     </CollectionView.EmptyView>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="entities:Reserva">
-                            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,10" Padding="14,12">
-                                <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto">
-                                    <Label Grid.Row="0" Grid.Column="0"
-                                           Text="{Binding ServicioNombre}"
-                                           FontSize="14"
-                                           FontAttributes="Bold"
-                                           TextColor="{StaticResource TextColorPrimary}" />
-                                    <Border Grid.Row="0" Grid.Column="1"
-                                            StrokeShape="RoundRectangle 8"
-                                            BackgroundColor="{StaticResource SecondaryLight}"
-                                            Padding="8,3">
-                                        <Label Text="{Binding Estado}" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
+                            <Border Style="{StaticResource CardBorderStyle}" Margin="0, 0, 0, 8" Padding="12">
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                        <Label Text="{Binding ServicioNombre}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                                        <Label Text="{Binding FechaHoraInicio, StringFormat='👤 {0:hh:mm tt}'}" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
+                                    </VerticalStackLayout>
+                                    <Border Grid.Column="1" StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource SecondaryLight}" Padding="8,3" VerticalOptions="Center">
+                                        <Label Text="{Binding Estado}" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
                                     </Border>
-                                    <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                                           Text="{Binding FechaHoraInicio, StringFormat='👤 {0:hh:mm tt} — {1}'}"
-                                           FontSize="12"
-                                           TextColor="{StaticResource TextColorSecondary}" />
                                 </Grid>
                             </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-
-                <!-- Acciones Rápidas -->
-                <Label Text="Acciones Rápidas" FontAttributes="Bold" FontSize="15" TextColor="{StaticResource TextColorPrimary}" />
-                <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
-                    <Button Grid.Column="0"
-                            Text="📅 Ver Agenda"
-                            Command="{Binding VerAgendaCommand}"
-                            Style="{StaticResource PrimaryButtonStyle}"
-                            FontSize="13" />
-                    <Button Grid.Column="1"
-                            Text="➕ Walk-In"
-                            Command="{Binding NuevaReservaWalkInCommand}"
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            FontSize="13" />
-                </Grid>
-
-                <BoxView HeightRequest="20" Color="Transparent" />
 
             </VerticalStackLayout>
         </ScrollView>

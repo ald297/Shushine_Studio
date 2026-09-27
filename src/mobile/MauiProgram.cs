@@ -47,7 +47,7 @@ public static class MauiProgram
 		builder.Services.AddHttpClient("ShushineApi", client =>
 		{
 			client.BaseAddress = new Uri(ApiConstants.BaseUrl.TrimEnd('/') + "/");
-			client.Timeout = TimeSpan.FromSeconds(30);
+			client.Timeout = TimeSpan.FromSeconds(75);
 		})
 		.AddHttpMessageHandler<ErrorDelegatingHandler>();
 
@@ -92,6 +92,8 @@ public static class MauiProgram
 		builder.Services.AddTransient<AdminDashboardViewModel>();
 		builder.Services.AddTransient<TimelineAgendaViewModel>();
 		builder.Services.AddTransient<AdminCatalogViewModel>();
+		builder.Services.AddTransient<AdminEstilistasViewModel>();
+		builder.Services.AddTransient<WalkInViewModel>();
 
 		// ==========================================
 		// 6. Páginas / Vistas (Presentation Layer)
@@ -109,6 +111,8 @@ public static class MauiProgram
 		builder.Services.AddTransient<AdminDashboardPage>();
 		builder.Services.AddTransient<TimelineAgendaPage>();
 		builder.Services.AddTransient<AdminCatalogPage>();
+		builder.Services.AddTransient<AdminEstilistasPage>();
+		builder.Services.AddTransient<WalkInPage>();
 
 		return builder.Build();
 	}

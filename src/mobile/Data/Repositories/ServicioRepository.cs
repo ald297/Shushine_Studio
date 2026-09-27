@@ -176,4 +176,82 @@ public class ServicioRepository : IServicioRepository
 
         return new List<string> { "Todos", "Cabello", "Uñas", "Maquillaje", "Spa" };
     }
+
+    public async Task<Servicio?> CrearServicioAsync(Servicio servicio)
+    {
+        try
+        {
+            var guardarDto = new ServicioGuardarDto
+            {
+                CodigoServicio = !string.IsNullOrWhiteSpace(servicio.CodigoServicio) ? servicio.CodigoServicio : $"SRV-{Random.Shared.Next(100, 999)}",
+                CategoriaId = (int)(servicio.CategoriaId ?? 1),
+                Nombre = servicio.Nombre,
+                Descripcion = servicio.Descripcion ?? string.Empty,
+                PrecioBase = servicio.Precio,
+                EsPrecioVariable = false,
+                DuracionMinutos = servicio.DuracionMinutos > 0 ? servicio.DuracionMinutos : 45,
+                IntervaloSeguimientoDias = 30,
+                ImagenUrl = servicio.ImagenUrl,
+                CostoInsumos = 0
+            };
+
+            var response = await _httpClient.PostAsJsonAsync("servicios", guardarDto);
+            if (response.IsSuccessStatusCode)
+            {
+                var createdDto = await response.Content.ReadFromJsonAsync<ServicioDto>();
+                if (createdDto != null)
+                {
+                    return createdDto.ToEntity();
+                }
+            }
+        }
+        catch
+        {
+            // Silencioso o log
+        }
+        return null;
+    }
+
+    public async Task<bool> ActualizarServicioAsync(Servicio servicio)
+    {
+        try
+        {
+            var modificarDto = new ServicioModificarDto
+            {
+                Id = (int)servicio.Id,
+                CodigoServicio = servicio.CodigoServicio,
+                CategoriaId = (int)(servicio.CategoriaId ?? 1),
+                Nombre = servicio.Nombre,
+                Descripcion = servicio.Descripcion,
+                PrecioBase = servicio.Precio,
+                EsPrecioVariable = false,
+                DuracionMinutos = servicio.DuracionMinutos > 0 ? servicio.DuracionMinutos : 45,
+                IntervaloSeguimientoDias = 30,
+                ImagenUrl = servicio.ImagenUrl,
+                CostoInsumos = 0,
+                Activo = servicio.Activo
+            };
+
+            var response = await _httpClient.PutAsJsonAsync($"servicios/{servicio.Id}", modificarDto);
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> EliminarServicioAsync(long id)
+    {
+        try
+        {
+            var response = await _httpClient.DeleteAsync($"servicios/{id}");
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }
+
