@@ -77,7 +77,7 @@ public partial class AdminDashboardViewModel : BaseViewModel
             IsBusy = true;
             ErrorMessage = null;
 
-            var todasLasCitas = await _reservaRepository.GetMisCitasAsync();
+            var todasLasCitas = (await _reservaRepository.GetTodasCitasAdminAsync()).ToList();
             var hoy = DateTime.Today;
             var citasDelDia = todasLasCitas
                 .Where(r => r.FechaHoraInicio.Date == hoy)

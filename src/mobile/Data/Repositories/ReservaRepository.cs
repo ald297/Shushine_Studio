@@ -57,12 +57,55 @@ public class ReservaRepository : IReservaRepository
             var dtos = await _httpClient.GetFromJsonAsync<List<ReservaDto>>("citas/mis-citas");
             if (dtos != null && dtos.Count > 0)
             {
-                return dtos.Select(d => d.ToEntity());
+                var listaApi = dtos.Select(d => d.ToEntity()).ToList();
+                foreach (var item in listaApi)
+                {
+                    if (!FallbackReservas.Any(f => f.Id == item.Id || f.CodigoCita == item.CodigoCita))
+                    {
+                        FallbackReservas.Add(item);
+                    }
+                }
+                return FallbackReservas.OrderByDescending(r => r.FechaHoraInicio);
             }
         }
         catch
         {
             // Contingencia offline si no hay conexión con la Web API
+        }
+
+        return FallbackReservas;
+    }
+
+    public async Task<IEnumerable<Reserva>> GetTodasCitasAdminAsync()
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync("citas?size=50&sort=id,desc");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                using var doc = System.Text.Json.JsonDocument.Parse(json);
+                if (doc.RootElement.TryGetProperty("content", out var contentElem))
+                {
+                    var dtos = System.Text.Json.JsonSerializer.Deserialize<List<ReservaDto>>(contentElem.GetRawText());
+                    if (dtos != null && dtos.Count > 0)
+                    {
+                        var listaApi = dtos.Select(d => d.ToEntity()).ToList();
+                        foreach (var item in listaApi)
+                        {
+                            if (!FallbackReservas.Any(f => f.Id == item.Id || f.CodigoCita == item.CodigoCita))
+                            {
+                                FallbackReservas.Add(item);
+                            }
+                        }
+                        return FallbackReservas.OrderByDescending(r => r.FechaHoraInicio);
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // Contingencia offline
         }
 
         return FallbackReservas;
@@ -93,7 +136,12 @@ public class ReservaRepository : IReservaRepository
             if (response.IsSuccessStatusCode)
             {
                 var dto = await response.Content.ReadFromJsonAsync<ReservaDto>();
-                if (dto != null) return dto.ToEntity();
+                if (dto != null)
+                {
+                    var entidad = dto.ToEntity();
+                    FallbackReservas.Insert(0, entidad);
+                    return entidad;
+                }
             }
         }
         catch

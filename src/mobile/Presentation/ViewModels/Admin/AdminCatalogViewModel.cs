@@ -33,6 +33,34 @@ public partial class AdminCatalogViewModel : BaseViewModel
     [ObservableProperty]
     private int totalInactivos;
 
+    // Toast Boutique Flotante (Reemplaza los alertas nativos grises)
+    [ObservableProperty]
+    private bool isToastVisible;
+
+    [ObservableProperty]
+    private string toastTitulo = string.Empty;
+
+    [ObservableProperty]
+    private string toastMensaje = string.Empty;
+
+    public void MostrarToast(string titulo, string mensaje)
+    {
+        ToastTitulo = titulo;
+        ToastMensaje = mensaje;
+        IsToastVisible = true;
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(3500);
+            MainThread.BeginInvokeOnMainThread(() => IsToastVisible = false);
+        });
+    }
+
+    [RelayCommand]
+    private void CerrarToast()
+    {
+        IsToastVisible = false;
+    }
+
     // Estado del Modal de Edición Completa
     [ObservableProperty]
     private bool isEditando;
@@ -277,11 +305,9 @@ public partial class AdminCatalogViewModel : BaseViewModel
                 ActualizarContadores();
                 AplicarFiltro();
 
-                await ShowAlertAsync(
-                    "¡Servicio Actualizado!",
-                    exito 
-                        ? $"\"{servicio.Nombre}\" se actualizó correctamente en la base de datos de Shushine Studio."
-                        : $"\"{servicio.Nombre}\" se actualizó localmente."
+                MostrarToast(
+                    "Tratamiento Actualizado",
+                    $"La tarifa y detalles de \"{servicio.Nombre}\" se guardaron correctamente."
                 );
             }
         }
@@ -342,7 +368,7 @@ public partial class AdminCatalogViewModel : BaseViewModel
             ActualizarContadores();
             AplicarFiltro();
 
-            await ShowAlertAsync("Servicio Eliminado", $"\"{servicio.Nombre}\" ha sido retirado del catálogo.");
+            MostrarToast("Tratamiento Eliminado", $"\"{servicio.Nombre}\" ha sido retirado del catálogo.");
         }
         catch (Exception ex)
         {
@@ -425,9 +451,9 @@ public partial class AdminCatalogViewModel : BaseViewModel
 
             IsCreandoNuevo = false;
 
-            await ShowAlertAsync(
+            MostrarToast(
                 "¡Servicio Registrado!",
-                $"\"{nuevo.Nombre}\" ha sido publicado en el catálogo oficial con tarifa de ${nuevo.Precio:F2}."
+                $"\"{nuevo.Nombre}\" ha sido publicado en el catálogo oficial."
             );
         }
         catch (Exception ex)

@@ -9,6 +9,37 @@
              Shell.NavBarIsVisible="false">
 
     <Grid>
+        <!-- Toast de Notificación Boutique Flotante (Reemplaza los alertas nativos grises) -->
+        <Border VerticalOptions="Start"
+                HorizontalOptions="Center"
+                Margin="20, 52, 20, 0"
+                Padding="16, 12"
+                StrokeShape="RoundRectangle 16"
+                BackgroundColor="#2C2420"
+                Stroke="#C5A059"
+                StrokeThickness="1"
+                IsVisible="{Binding IsToastVisible}"
+                ZIndex="999">
+            <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12">
+                <Border Grid.Column="0"
+                        StrokeShape="RoundRectangle 18"
+                        WidthRequest="36"
+                        HeightRequest="36"
+                        BackgroundColor="#3D322C"
+                        StrokeThickness="0"
+                        VerticalOptions="Center">
+                    <Label Text="✨" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                    <Label Text="{Binding ToastTitulo}" FontSize="13" FontAttributes="Bold" TextColor="#F5EBE6" />
+                    <Label Text="{Binding ToastMensaje}" FontSize="11" TextColor="#D48B96" />
+                </VerticalStackLayout>
+            </Grid>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding CerrarToastCommand}" />
+            </Border.GestureRecognizers>
+        </Border>
+
         <!-- Contenido Principal -->
         <ScrollView>
             <VerticalStackLayout Padding="20, 48, 20, 24" Spacing="16">
@@ -73,35 +104,91 @@
                 <!-- 3. Chips de Filtro: Todos, Activos, Inactivos (Wireframe Pág. 18) -->
                 <Grid ColumnDefinitions="*, *, *" ColumnSpacing="8">
                     <!-- Chip: Todos -->
-                    <Button Grid.Column="0"
-                            Text="{Binding TotalRegistrados, StringFormat='Todos ({0})'}"
-                            Command="{Binding SeleccionarFiltroEstadoCommand}"
-                            CommandParameter="Todos"
-                            BackgroundColor="{Binding FiltroEstado, Converter={x:Null}}"
+                    <Border Grid.Column="0"
+                            StrokeShape="RoundRectangle 19"
                             HeightRequest="38"
-                            CornerRadius="19"
-                            FontSize="12"
-                            FontAttributes="Bold" />
+                            Stroke="{StaticResource BorderColor}"
+                            BackgroundColor="{StaticResource SurfaceColor}">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding FiltroEstado}" Value="Todos">
+                                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                                <Setter Property="Stroke" Value="{StaticResource PrimaryColor}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Label Text="{Binding TotalRegistrados, StringFormat='Todos ({0})'}"
+                               FontAttributes="Bold"
+                               FontSize="12"
+                               TextColor="{StaticResource TextColorSecondary}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding FiltroEstado}" Value="Todos">
+                                    <Setter Property="TextColor" Value="White" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SeleccionarFiltroEstadoCommand}" CommandParameter="Todos" />
+                        </Border.GestureRecognizers>
+                    </Border>
 
                     <!-- Chip: Activos -->
-                    <Button Grid.Column="1"
-                            Text="{Binding TotalActivos, StringFormat='Activos ({0})'}"
-                            Command="{Binding SeleccionarFiltroEstadoCommand}"
-                            CommandParameter="Activos"
+                    <Border Grid.Column="1"
+                            StrokeShape="RoundRectangle 19"
                             HeightRequest="38"
-                            CornerRadius="19"
-                            FontSize="12"
-                            FontAttributes="Bold" />
+                            Stroke="{StaticResource BorderColor}"
+                            BackgroundColor="{StaticResource SurfaceColor}">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding FiltroEstado}" Value="Activos">
+                                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                                <Setter Property="Stroke" Value="{StaticResource PrimaryColor}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Label Text="{Binding TotalActivos, StringFormat='Activos ({0})'}"
+                               FontAttributes="Bold"
+                               FontSize="12"
+                               TextColor="{StaticResource TextColorSecondary}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding FiltroEstado}" Value="Activos">
+                                    <Setter Property="TextColor" Value="White" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SeleccionarFiltroEstadoCommand}" CommandParameter="Activos" />
+                        </Border.GestureRecognizers>
+                    </Border>
 
                     <!-- Chip: Inactivos -->
-                    <Button Grid.Column="2"
-                            Text="{Binding TotalInactivos, StringFormat='Inactivos ({0})'}"
-                            Command="{Binding SeleccionarFiltroEstadoCommand}"
-                            CommandParameter="Inactivos"
+                    <Border Grid.Column="2"
+                            StrokeShape="RoundRectangle 19"
                             HeightRequest="38"
-                            CornerRadius="19"
-                            FontSize="12"
-                            FontAttributes="Bold" />
+                            Stroke="{StaticResource BorderColor}"
+                            BackgroundColor="{StaticResource SurfaceColor}">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding FiltroEstado}" Value="Inactivos">
+                                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                                <Setter Property="Stroke" Value="{StaticResource PrimaryColor}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Label Text="{Binding TotalInactivos, StringFormat='Inactivos ({0})'}"
+                               FontAttributes="Bold"
+                               FontSize="12"
+                               TextColor="{StaticResource TextColorSecondary}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding FiltroEstado}" Value="Inactivos">
+                                    <Setter Property="TextColor" Value="White" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SeleccionarFiltroEstadoCommand}" CommandParameter="Inactivos" />
+                        </Border.GestureRecognizers>
+                    </Border>
                 </Grid>
 
                 <!-- 4. Listado de Servicios con Edición In-Card -->
@@ -161,12 +248,12 @@
                                         <!-- Badge y Switch Activo (Wireframe Pág. 18) -->
                                         <VerticalStackLayout Grid.Column="2" Spacing="4" HorizontalOptions="End" VerticalOptions="Center">
                                             <Border StrokeShape="RoundRectangle 8"
-                                                    BackgroundColor="{StaticResource SecondaryLight}"
+                                                    BackgroundColor="{Binding EstadoBgColor}"
                                                     Padding="8, 2">
-                                                <Label Text="{Binding Activo, Converter={x:Null}}" 
+                                                <Label Text="{Binding EstadoTexto}" 
                                                        FontSize="10" 
                                                        FontAttributes="Bold" 
-                                                       TextColor="{StaticResource PrimaryDark}" />
+                                                       TextColor="{Binding EstadoColor}" />
                                             </Border>
                                             <Switch IsToggled="{Binding Activo}"
                                                     OnColor="{StaticResource PrimaryColor}"

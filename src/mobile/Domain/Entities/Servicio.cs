@@ -18,4 +18,8 @@ public class Servicio
     public string PrecioFormateado => $"${Precio:N2}";
     public bool TieneImagen => !string.IsNullOrWhiteSpace(ImagenUrl);
     public bool NoTieneImagen => string.IsNullOrWhiteSpace(ImagenUrl);
+
+    public string EstadoTexto => Activo ? "ACTIVO" : "INACTIVO";
+    public string EstadoColor => Activo ? "#2E7D32" : "#78716C";
+    public string EstadoBgColor => Activo ? "#E8F5E9" : "#F5F5F4";
 }
