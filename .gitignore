@@ -19,6 +19,8 @@ node_modules/
 .flutter-plugins
 .flutter-plugins-dependencies
 build/
+*.apk
+*.aab
 
 # Secrets and Environment Variables
 *.env
