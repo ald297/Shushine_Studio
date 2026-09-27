@@ -7,8 +7,8 @@ using ShushineStudio.Mobile.Domain.Repositories;
 namespace ShushineStudio.Mobile.Presentation.ViewModels.Admin;
 
 /// <summary>
-/// ViewModel para el registro rápido de clientes presenciales Walk-in (US-5.03 / Wireframe Pág. 16).
-/// Permite a recepción ingresar una cita espontánea ocupando slots libres en la agenda diaria.
+/// ViewModel para el registro rápido de clientas presenciales sin cita (US-5.03 / Wireframe Pág. 16).
+/// Permite a recepción ingresar una atención espontánea ocupando slots libres en la agenda diaria.
 /// </summary>
 public partial class WalkInViewModel : BaseViewModel
 {
@@ -38,7 +38,35 @@ public partial class WalkInViewModel : BaseViewModel
     private TimeSpan horaAtencion = DateTime.Now.TimeOfDay;
 
     [ObservableProperty]
-    private string notas = "Cliente presencial Walk-in";
+    private string notas = "Cliente presencial sin cita en salón";
+
+    // Toast Boutique Flotante (Reemplaza los alertas nativos grises)
+    [ObservableProperty]
+    private bool isToastVisible;
+
+    [ObservableProperty]
+    private string toastTitulo = string.Empty;
+
+    [ObservableProperty]
+    private string toastMensaje = string.Empty;
+
+    public void MostrarToast(string titulo, string mensaje)
+    {
+        ToastTitulo = titulo;
+        ToastMensaje = mensaje;
+        IsToastVisible = true;
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(3500);
+            MainThread.BeginInvokeOnMainThread(() => IsToastVisible = false);
+        });
+    }
+
+    [RelayCommand]
+    private void CerrarToast()
+    {
+        IsToastVisible = false;
+    }
 
     public WalkInViewModel(
         IServicioRepository servicioRepository,
@@ -48,7 +76,7 @@ public partial class WalkInViewModel : BaseViewModel
         _servicioRepository = servicioRepository;
         _estilistaRepository = estilistaRepository;
         _reservaRepository = reservaRepository;
-        Title = "Nueva Cita Walk-In";
+        Title = "Atención Sin Cita";
         _ = CargarDatosInicialesAsync();
     }
 
@@ -99,19 +127,19 @@ public partial class WalkInViewModel : BaseViewModel
 
         if (string.IsNullOrWhiteSpace(NombreCliente))
         {
-            await MostrarAlertaAsync("Nombre Requerido", "Por favor ingresa el nombre del cliente presencial.");
+            MostrarToast("Nombre Requerido", "Por favor ingresa el nombre de la clienta en salón.");
             return;
         }
 
         if (ServicioSeleccionado == null)
         {
-            await MostrarAlertaAsync("Servicio Requerido", "Selecciona el tratamiento que se realizará.");
+            MostrarToast("Servicio Requerido", "Selecciona el tratamiento que se realizará.");
             return;
         }
 
         var estilistaId = EstilistaSeleccionado?.Id ?? 1;
         var horaStr = $"{HoraAtencion.Hours:D2}:{HoraAtencion.Minutes:D2}";
-        var notasCompletas = $"Walk-in: {NombreCliente.Trim()} (Tel: {Telefono?.Trim()}). {Notas?.Trim()}";
+        var notasCompletas = $"Sin Cita: {NombreCliente.Trim()} (Tel: {Telefono?.Trim()}). {Notas?.Trim()}";
 
         try
         {
@@ -129,23 +157,23 @@ public partial class WalkInViewModel : BaseViewModel
 
             if (reserva != null)
             {
-                await MostrarAlertaAsync(
-                    "Cita Registrada con Éxito",
-                    $"La cita presencial {reserva.CodigoCita} para {NombreCliente} ha sido agendada para hoy a las {horaStr}."
+                MostrarToast(
+                    "Atención Registrada",
+                    $"Cita {reserva.CodigoCita} para {NombreCliente} programada para hoy a las {horaStr}."
                 );
 
-                // Volver a la agenda timeline
+                await Task.Delay(1500);
                 await Shell.Current.GoToAsync("..");
             }
             else
             {
-                await MostrarAlertaAsync("Error", "No se pudo registrar la cita. Por favor intenta de nuevo.");
+                MostrarToast("Error", "No se pudo registrar la atención. Intenta de nuevo.");
             }
         }
         catch (Exception ex)
         {
             ErrorMessage = ex.Message;
-            await MostrarAlertaAsync("Error al Agendar", ex.Message);
+            MostrarToast("Error al Agendar", ex.Message);
         }
         finally
         {
@@ -157,13 +185,5 @@ public partial class WalkInViewModel : BaseViewModel
     private async Task CancelarAsync()
     {
         await Shell.Current.GoToAsync("..");
-    }
-
-    private static async Task MostrarAlertaAsync(string title, string message)
-    {
-        if (Application.Current?.MainPage != null)
-        {
-            await Application.Current.MainPage.DisplayAlert(title, message, "Aceptar");
-        }
     }
 }

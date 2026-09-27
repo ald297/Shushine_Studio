@@ -93,6 +93,7 @@ public static class MauiProgram
 		builder.Services.AddTransient<TimelineAgendaViewModel>();
 		builder.Services.AddTransient<AdminCatalogViewModel>();
 		builder.Services.AddTransient<AdminEstilistasViewModel>();
+		builder.Services.AddTransient<AdminProfileViewModel>();
 		builder.Services.AddTransient<WalkInViewModel>();
 
 		// ==========================================
@@ -112,6 +113,7 @@ public static class MauiProgram
 		builder.Services.AddTransient<TimelineAgendaPage>();
 		builder.Services.AddTransient<AdminCatalogPage>();
 		builder.Services.AddTransient<AdminEstilistasPage>();
+		builder.Services.AddTransient<AdminProfilePage>();
 		builder.Services.AddTransient<WalkInPage>();
 
 		return builder.Build();

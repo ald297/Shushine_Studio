@@ -39,17 +39,18 @@
                                FontSize="12" />
                     </VerticalStackLayout>
 
-                    <!-- Botón Salir / Logout -->
+                    <!-- Botón de Acción Rápida Sin Cita en Cabecera -->
                     <Border Grid.Column="1"
-                            StrokeShape="RoundRectangle 18"
-                            BackgroundColor="#FDF2F2"
-                            Stroke="#F98080"
-                            StrokeThickness="1"
-                            Padding="10, 6"
-                            VerticalOptions="Start">
-                        <Label Text="🚪 Salir" FontSize="12" FontAttributes="Bold" TextColor="#E02424" />
+                            StrokeShape="RoundRectangle 20"
+                            BackgroundColor="{StaticResource PrimaryColor}"
+                            Padding="14, 8"
+                            VerticalOptions="Center">
+                        <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                            <Label Text="✨" FontSize="12" VerticalOptions="Center" />
+                            <Label Text="+ Sin Cita" FontSize="13" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
                         <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding CerrarSesionAdminCommand}" />
+                            <TapGestureRecognizer Command="{Binding NuevaReservaWalkInCommand}" />
                         </Border.GestureRecognizers>
                     </Border>
                 </Grid>
@@ -182,14 +183,7 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- 6. Botón de Acción Walk-In (Wireframe Pág. 16) -->
-                <Button Text="➕ Registro Rápido Walk-In (Cliente en Sala)"
-                        Command="{Binding NuevaReservaWalkInCommand}"
-                        Style="{StaticResource PrimaryButtonStyle}"
-                        HeightRequest="48"
-                        FontSize="14" />
-
-                <!-- 7. Reservas Recientes -->
+                <!-- 6. Reservas Recientes -->
                 <Label Text="Últimas Reservaciones Registradas" FontAttributes="Bold" FontSize="14" TextColor="{StaticResource TextColorPrimary}" Margin="0, 8, 0, 0" />
 
                 <CollectionView ItemsSource="{Binding ReservasRecientes}" SelectionMode="None">

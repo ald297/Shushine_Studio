@@ -6,6 +6,7 @@ public class Usuario
     public string Login { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string NombreCompleto { get; set; } = string.Empty;
+    public string Nombre => NombreCompleto;
     public string Rol { get; set; } = "CLIENTE";
     public string? Telefono { get; set; }
     public string? NivelFidelidad { get; set; } = "Bronce";

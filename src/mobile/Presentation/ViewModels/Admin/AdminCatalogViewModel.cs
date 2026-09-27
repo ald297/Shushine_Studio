@@ -466,11 +466,9 @@ public partial class AdminCatalogViewModel : BaseViewModel
         }
     }
 
-    private static async Task ShowAlertAsync(string title, string message)
+    private Task ShowAlertAsync(string title, string message)
     {
-        if (Application.Current?.MainPage != null)
-        {
-            await Application.Current.MainPage.DisplayAlert(title, message, "Aceptar");
-        }
+        MostrarToast(title, message);
+        return Task.CompletedTask;
     }
 }

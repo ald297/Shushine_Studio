@@ -9,190 +9,260 @@
              Shell.NavBarIsVisible="false"
              Title="{Binding Title}">
 
-
-    <Grid RowDefinitions="Auto, Auto, Auto, *">
-
-        <!-- Navegador de fecha -->
-        <Border Grid.Row="0"
-                BackgroundColor="{StaticResource SurfaceColor}"
-                StrokeThickness="0"
-                Padding="16,10">
-            <Grid ColumnDefinitions="Auto, *, Auto">
-                <Button Grid.Column="0"
-                        Text="‹"
-                        Command="{Binding DiaAnteriorCommand}"
-                        BackgroundColor="Transparent"
-                        TextColor="{StaticResource PrimaryDark}"
-                        FontSize="22"
-                        FontAttributes="Bold"
-                        WidthRequest="44" />
-                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="1">
-                    <Label Text="{Binding FechaSeleccionada, StringFormat='{0:dddd}'}"
-                           FontAttributes="Bold"
-                           FontSize="15"
-                           TextColor="{StaticResource PrimaryDark}"
-                           HorizontalOptions="Center" />
-                    <Label Text="{Binding FechaSeleccionada, StringFormat='{0:dd MMMM yyyy}'}"
-                           FontSize="12"
-                           TextColor="{StaticResource TextColorSecondary}"
-                           HorizontalOptions="Center" />
+    <Grid>
+        <!-- Toast de Notificación Boutique Flotante -->
+        <Border VerticalOptions="Start"
+                HorizontalOptions="Center"
+                Margin="20, 52, 20, 0"
+                Padding="16, 12"
+                StrokeShape="RoundRectangle 16"
+                BackgroundColor="#2C2420"
+                Stroke="#C5A059"
+                StrokeThickness="1"
+                IsVisible="{Binding IsToastVisible}"
+                ZIndex="999">
+            <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12">
+                <Border Grid.Column="0"
+                        StrokeShape="RoundRectangle 18"
+                        WidthRequest="36"
+                        HeightRequest="36"
+                        BackgroundColor="#3D322C"
+                        StrokeThickness="0"
+                        VerticalOptions="Center">
+                    <Label Text="✨" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                    <Label Text="{Binding ToastTitulo}" FontSize="13" FontAttributes="Bold" TextColor="#F5EBE6" />
+                    <Label Text="{Binding ToastMensaje}" FontSize="11" TextColor="#D48B96" />
                 </VerticalStackLayout>
-                <Button Grid.Column="2"
-                        Text="›"
-                        Command="{Binding DiaSiguienteCommand}"
-                        BackgroundColor="Transparent"
-                        TextColor="{StaticResource PrimaryDark}"
-                        FontSize="22"
-                        FontAttributes="Bold"
-                        WidthRequest="44" />
             </Grid>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding CerrarToastCommand}" />
+            </Border.GestureRecognizers>
         </Border>
 
-        <!-- Filtro de estilistas (horizontal scroll chips) (Wireframe Pág. 16) -->
-        <ScrollView Grid.Row="1" Orientation="Horizontal" Padding="16,8">
-            <HorizontalStackLayout Spacing="8">
-                <!-- Todas -->
-                <Border StrokeShape="RoundRectangle 20"
-                        BackgroundColor="{StaticResource PrimaryColor}"
-                        Padding="14,7">
-                    <Label Text="Todas" FontSize="13" TextColor="White" FontAttributes="Bold" />
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding FiltrarPorEstilistaCommand}" CommandParameter="Todas" />
-                    </Border.GestureRecognizers>
-                </Border>
+        <!-- Estructura Principal de la Agenda -->
+        <Grid RowDefinitions="Auto, Auto, Auto, Auto, *" Padding="0, 44, 0, 0">
 
-                <!-- Sofía Ramos -->
-                <Border StrokeShape="RoundRectangle 20"
-                        BackgroundColor="{StaticResource SurfaceColor}"
-                        Stroke="{StaticResource BorderColor}"
-                        Padding="14,7">
-                    <Label Text="Sofía Ramos" FontSize="13" TextColor="{StaticResource TextColorPrimary}" FontAttributes="Bold" />
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding FiltrarPorEstilistaCommand}" CommandParameter="Sofía Ramos" />
-                    </Border.GestureRecognizers>
-                </Border>
-
-                <!-- Valentina Gómez -->
-                <Border StrokeShape="RoundRectangle 20"
-                        BackgroundColor="{StaticResource SurfaceColor}"
-                        Stroke="{StaticResource BorderColor}"
-                        Padding="14,7">
-                    <Label Text="Valentina Gómez" FontSize="13" TextColor="{StaticResource TextColorPrimary}" FontAttributes="Bold" />
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding FiltrarPorEstilistaCommand}" CommandParameter="Valentina Gómez" />
-                    </Border.GestureRecognizers>
-                </Border>
-
-                <!-- Camila Torres -->
-                <Border StrokeShape="RoundRectangle 20"
-                        BackgroundColor="{StaticResource SurfaceColor}"
-                        Stroke="{StaticResource BorderColor}"
-                        Padding="14,7">
-                    <Label Text="Camila Torres" FontSize="13" TextColor="{StaticResource TextColorPrimary}" FontAttributes="Bold" />
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding FiltrarPorEstilistaCommand}" CommandParameter="Camila Torres" />
-                    </Border.GestureRecognizers>
-                </Border>
-            </HorizontalStackLayout>
-        </ScrollView>
-
-        <!-- Botón Walk-In Rápido -->
-        <Border Grid.Row="2" Padding="16,6" BackgroundColor="{StaticResource SurfaceColor}" StrokeThickness="0">
-            <Button Text="➕  Agregar Cita Walk-In Presencial"
-                    Command="{Binding AgregarWalkInCommand}"
-                    Style="{StaticResource SecondaryButtonStyle}"
-                    FontSize="13"
-                    HeightRequest="42" />
-        </Border>
-
-        <!-- Lista de citas del día en formato agenda -->
-        <RefreshView Grid.Row="3" IsRefreshing="{Binding IsBusy}" Command="{Binding LoadAgendaCommand}">
-            <CollectionView ItemsSource="{Binding CitasDelDia}" SelectionMode="None" Margin="16,8,16,0">
-
-                <CollectionView.EmptyView>
-                    <VerticalStackLayout Padding="30" Spacing="12" VerticalOptions="Center">
-                        <Label Text="📅" FontSize="48" HorizontalOptions="Center" />
-                        <Label Text="Sin citas agendadas para este día"
+            <!-- 1. Cabecera Shushine Studio -->
+            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="20, 8, 20, 8">
+                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <Label Text="Shushine Studio"
+                               FontSize="14"
                                FontAttributes="Bold"
-                               FontSize="15"
-                               TextColor="{StaticResource TextColorPrimary}"
+                               TextColor="{StaticResource PrimaryColor}" />
+                        <Border StrokeShape="RoundRectangle 6"
+                                BackgroundColor="{StaticResource PrimaryLight}"
+                                Padding="6, 2">
+                            <Label Text="ADMINISTRADOR" FontSize="10" FontAttributes="Bold" TextColor="White" />
+                        </Border>
+                    </HorizontalStackLayout>
+                    <Label Text="Agenda Diaria del Salón"
+                           Style="{StaticResource HeaderLabelStyle}"
+                           FontSize="20" />
+                </VerticalStackLayout>
+
+                <!-- Botón rápido + Sin Cita -->
+                <Border Grid.Column="1"
+                        StrokeShape="RoundRectangle 18"
+                        BackgroundColor="{StaticResource PrimaryColor}"
+                        Padding="12, 6"
+                        VerticalOptions="Center">
+                    <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
+                        <Label Text="✨" FontSize="11" VerticalOptions="Center" />
+                        <Label Text="+ Sin Cita" FontSize="12" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding AgregarWalkInCommand}" />
+                    </Border.GestureRecognizers>
+                </Border>
+            </Grid>
+
+            <!-- 2. Navegador de fecha con diseño Luxury -->
+            <Border Grid.Row="1"
+                    BackgroundColor="{StaticResource SurfaceColor}"
+                    StrokeThickness="0"
+                    Padding="16, 8"
+                    Margin="16, 4, 16, 4"
+                    StrokeShape="RoundRectangle 14">
+                <Grid ColumnDefinitions="Auto, *, Auto">
+                    <Button Grid.Column="0"
+                            Text="‹"
+                            Command="{Binding DiaAnteriorCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource PrimaryDark}"
+                            FontSize="24"
+                            FontAttributes="Bold"
+                            WidthRequest="40"
+                            HeightRequest="40"
+                            Padding="0" />
+                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center" Spacing="1">
+                        <Label Text="{Binding FechaSeleccionada, StringFormat='{0:dddd}'}"
+                               FontAttributes="Bold"
+                               FontSize="14"
+                               TextColor="{StaticResource PrimaryDark}"
                                HorizontalOptions="Center" />
-                        <Label Text="Puedes agregar una cita presencial con el botón Walk-In."
+                        <Label Text="{Binding FechaSeleccionada, StringFormat='{0:dd MMMM yyyy}'}"
                                FontSize="12"
                                TextColor="{StaticResource TextColorSecondary}"
-                               HorizontalOptions="Center"
-                               HorizontalTextAlignment="Center" />
+                               HorizontalOptions="Center" />
                     </VerticalStackLayout>
-                </CollectionView.EmptyView>
+                    <Button Grid.Column="2"
+                            Text="›"
+                            Command="{Binding DiaSiguienteCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource PrimaryDark}"
+                            FontSize="24"
+                            FontAttributes="Bold"
+                            WidthRequest="40"
+                            HeightRequest="40"
+                            Padding="0" />
+                </Grid>
+            </Border>
 
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="entities:Reserva">
-                        <!-- Fila tipo timeline con línea lateral de color según estado -->
-                        <Grid ColumnDefinitions="50, 8, *" Margin="0,0,0,12" ColumnSpacing="10">
-
-                            <!-- Hora de inicio -->
-                            <Label Grid.Column="0"
-                                   Text="{Binding FechaHoraInicio, StringFormat='{0:hh:mm}'}"
-                                   FontSize="13"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource PrimaryDark}"
-                                   VerticalOptions="Start"
-                                   HorizontalOptions="End"
-                                   Margin="0,14,0,0" />
-
-                            <!-- Línea de tiempo lateral -->
-                            <BoxView Grid.Column="1"
-                                     WidthRequest="5"
-                                     BackgroundColor="{StaticResource PrimaryColor}"
-                                     CornerRadius="3"
-                                     VerticalOptions="Fill" />
-
-                            <!-- Tarjeta de cita -->
-                            <Border Grid.Column="2" Style="{StaticResource CardBorderStyle}" Padding="14,12">
-                                <VerticalStackLayout Spacing="6">
-                                    <Grid ColumnDefinitions="*, Auto">
-                                        <Label Grid.Column="0"
-                                               Text="{Binding ServicioNombre}"
-                                               FontSize="14"
-                                               FontAttributes="Bold"
-                                               TextColor="{StaticResource TextColorPrimary}" />
-                                        <Border Grid.Column="1"
-                                                StrokeShape="RoundRectangle 8"
-                                                BackgroundColor="{StaticResource SecondaryLight}"
-                                                Padding="8,3">
-                                            <Label Text="{Binding Estado}" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
-                                        </Border>
-                                    </Grid>
-                                    <Label Text="{Binding EstilistaNombre, StringFormat='👩‍🎨 {0}'}"
-                                           FontSize="12"
-                                           TextColor="{StaticResource TextColorSecondary}" />
-                                    <Label Text="{Binding CodigoReserva, StringFormat='🏷 {0}'}"
-                                           FontSize="11"
-                                           TextColor="{StaticResource TextColorSecondary}" />
-                                    <Grid ColumnDefinitions="*, Auto">
-                                        <Label Grid.Column="0"
-                                               Text="{Binding Total, StringFormat='Total: ${0:F2}'}"
-                                               FontSize="13"
-                                               FontAttributes="Bold"
-                                               TextColor="{StaticResource PrimaryDark}"
-                                               VerticalOptions="Center" />
-                                        <Button Grid.Column="1"
-                                                Text="⚙ Estado"
-                                                FontSize="11"
-                                                HeightRequest="34"
-                                                Padding="10,0"
-                                                Style="{StaticResource SecondaryButtonStyle}"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TimelineAgendaViewModel}}, Path=CambiarEstadoReservaCommand}"
-                                                CommandParameter="{Binding .}" />
-                                    </Grid>
-                                </VerticalStackLayout>
+            <!-- 3. Chips de filtro dinámicos por estilista sincronizados -->
+            <ScrollView Grid.Row="2" Orientation="Horizontal" Padding="16, 6" HorizontalScrollBarVisibility="Never">
+                <HorizontalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding EstilistasFiltro}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:EstilistaFiltroItem">
+                            <Border StrokeShape="RoundRectangle 20"
+                                    HeightRequest="36"
+                                    Padding="14, 0"
+                                    Stroke="{StaticResource BorderColor}"
+                                    BackgroundColor="{StaticResource SurfaceColor}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                                        <Setter Property="Stroke" Value="{StaticResource PrimaryColor}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Label Text="{Binding Nombre}"
+                                       FontSize="12"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource TextColorSecondary}"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="TextColor" Value="White" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TimelineAgendaViewModel}}, Path=FiltrarPorEstilistaCommand}"
+                                                          CommandParameter="{Binding Nombre}" />
+                                </Border.GestureRecognizers>
                             </Border>
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </HorizontalStackLayout>
+            </ScrollView>
 
-            </CollectionView>
-        </RefreshView>
+            <!-- 4. Subtítulo Citas del día -->
+            <Grid Grid.Row="3" ColumnDefinitions="*, Auto" Padding="20, 8, 20, 4">
+                <Label Grid.Column="0"
+                       Text="Línea de Tiempo Operativa"
+                       FontSize="13"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource TextColorPrimary}" />
+                <Label Grid.Column="1"
+                       Text="{Binding CitasDelDia.Count, StringFormat='{0} citas'}"
+                       FontSize="12"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource PrimaryColor}" />
+            </Grid>
+
+            <!-- 5. Lista de citas del día en formato timeline -->
+            <RefreshView Grid.Row="4" IsRefreshing="{Binding IsBusy}" Command="{Binding LoadAgendaCommand}">
+                <CollectionView ItemsSource="{Binding CitasDelDia}" SelectionMode="None" Margin="16, 4, 16, 16">
+
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout Padding="30" Spacing="10" VerticalOptions="Center">
+                            <Label Text="📅" FontSize="44" HorizontalOptions="Center" />
+                            <Label Text="Sin citas agendadas para este día"
+                                   FontAttributes="Bold"
+                                   FontSize="15"
+                                   TextColor="{StaticResource TextColorPrimary}"
+                                   HorizontalOptions="Center" />
+                            <Label Text="Puedes registrar una atención presencial con el botón + Sin Cita."
+                                   FontSize="12"
+                                   TextColor="{StaticResource TextColorSecondary}"
+                                   HorizontalOptions="Center"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="entities:Reserva">
+                            <!-- Fila tipo timeline con línea lateral y tarjeta boutique -->
+                            <Grid ColumnDefinitions="52, 6, *" Margin="0, 0, 0, 12" ColumnSpacing="10">
+
+                                <!-- Hora de inicio -->
+                                <Label Grid.Column="0"
+                                       Text="{Binding FechaHoraInicio, StringFormat='{0:hh:mm tt}'}"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource PrimaryDark}"
+                                       VerticalOptions="Start"
+                                       HorizontalOptions="End"
+                                       Margin="0, 12, 0, 0" />
+
+                                <!-- Línea de tiempo lateral de color rosa boutique -->
+                                <BoxView Grid.Column="1"
+                                         WidthRequest="4"
+                                         BackgroundColor="{StaticResource PrimaryColor}"
+                                         CornerRadius="2"
+                                         VerticalOptions="Fill" />
+
+                                <!-- Tarjeta de cita -->
+                                <Border Grid.Column="2" Style="{StaticResource CardBorderStyle}" Padding="14, 12">
+                                    <VerticalStackLayout Spacing="6">
+                                        <Grid ColumnDefinitions="*, Auto">
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding ServicioNombre}"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{StaticResource TextColorPrimary}" />
+                                            <Border Grid.Column="1"
+                                                    StrokeShape="RoundRectangle 8"
+                                                    BackgroundColor="{StaticResource SecondaryLight}"
+                                                    Padding="8, 3">
+                                                <Label Text="{Binding Estado}" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
+                                            </Border>
+                                        </Grid>
+                                        <Label Text="{Binding EstilistaNombre, StringFormat='👩‍🎨 {0}'}"
+                                               FontSize="12"
+                                               TextColor="{StaticResource TextColorSecondary}" />
+                                        <Label Text="{Binding CodigoReserva, StringFormat='🏷 Cita {0}'}"
+                                               FontSize="11"
+                                               TextColor="{StaticResource TextColorSecondary}" />
+                                        <Grid ColumnDefinitions="*, Auto" Margin="0, 4, 0, 0">
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding Total, StringFormat='${0:F2}'}"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{StaticResource PrimaryDark}"
+                                                   VerticalOptions="Center" />
+                                            <Button Grid.Column="1"
+                                                    Text="⚙ Estado"
+                                                    FontSize="11"
+                                                    HeightRequest="32"
+                                                    Padding="12, 0"
+                                                    CornerRadius="10"
+                                                    Style="{StaticResource SecondaryButtonStyle}"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TimelineAgendaViewModel}}, Path=CambiarEstadoReservaCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+
+                </CollectionView>
+            </RefreshView>
+        </Grid>
     </Grid>
 
 </ContentPage>

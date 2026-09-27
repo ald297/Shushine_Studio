@@ -69,6 +69,12 @@
                 Route="AdminEstilistasPage"
                 ContentTemplate="{DataTemplate admin:AdminEstilistasPage}" />
         </Tab>
+
+        <Tab Title="Perfil" Icon="user.png">
+            <ShellContent
+                Route="AdminProfilePage"
+                ContentTemplate="{DataTemplate admin:AdminProfilePage}" />
+        </Tab>
     </TabBar>
 
 </Shell>

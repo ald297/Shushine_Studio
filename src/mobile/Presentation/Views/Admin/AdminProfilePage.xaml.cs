@@ -2,11 +2,11 @@ using ShushineStudio.Mobile.Presentation.ViewModels.Admin;
 
 namespace ShushineStudio.Mobile.Presentation.Views.Admin;
 
-public partial class TimelineAgendaPage : ContentPage
+public partial class AdminProfilePage : ContentPage
 {
-    private readonly TimelineAgendaViewModel _viewModel;
+    private readonly AdminProfileViewModel _viewModel;
 
-    public TimelineAgendaPage(TimelineAgendaViewModel viewModel)
+    public AdminProfilePage(AdminProfileViewModel viewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;
@@ -16,6 +16,6 @@ public partial class TimelineAgendaPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.InicializarAgendaAsync();
+        await _viewModel.CargarDatosAdminAsync();
     }
 }

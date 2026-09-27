@@ -7,15 +7,34 @@ using ShushineStudio.Mobile.Domain.Repositories;
 namespace ShushineStudio.Mobile.Presentation.ViewModels.Admin;
 
 /// <summary>
+/// Modelo reactivo para los chips de filtrado de estilistas en la Agenda diaria.
+/// </summary>
+public class EstilistaFiltroItem : ObservableObject
+{
+    public string Nombre { get; set; } = string.Empty;
+
+    private bool _isSelected;
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set => SetProperty(ref _isSelected, value);
+    }
+}
+
+/// <summary>
 /// ViewModel de la agenda de citas en formato timeline por estilista (US-5.02 / Wireframe Pág. 16).
-/// Permite a recepción ver la distribución horaria y agregar citas walk-in espontáneas.
+/// Sincronizado en tiempo real con el catálogo de estilistas y citas generales del salón.
 /// </summary>
 public partial class TimelineAgendaViewModel : BaseViewModel
 {
     private readonly IReservaRepository _reservaRepository;
+    private readonly IEstilistaRepository _estilistaRepository;
 
     [ObservableProperty]
     private ObservableCollection<Reserva> citasDelDia = new();
+
+    [ObservableProperty]
+    private ObservableCollection<EstilistaFiltroItem> estilistasFiltro = new();
 
     [ObservableProperty]
     private DateTime fechaSeleccionada = DateTime.Today;
@@ -23,15 +42,33 @@ public partial class TimelineAgendaViewModel : BaseViewModel
     [ObservableProperty]
     private string estilistaNombreFiltro = "Todas";
 
-    // Estilistas disponibles para filtro de columna
-    public List<string> Estilistas { get; } = new()
+    // Toast Boutique Flotante (Reemplaza los alertas nativos grises)
+    [ObservableProperty]
+    private bool isToastVisible;
+
+    [ObservableProperty]
+    private string toastTitulo = string.Empty;
+
+    [ObservableProperty]
+    private string toastMensaje = string.Empty;
+
+    public void MostrarToast(string titulo, string mensaje)
     {
-        "Todas",
-        "Sofía Ramos",
-        "Valentina Gómez",
-        "Camila Torres",
-        "Recepción Walk-In"
-    };
+        ToastTitulo = titulo;
+        ToastMensaje = mensaje;
+        IsToastVisible = true;
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(3500);
+            MainThread.BeginInvokeOnMainThread(() => IsToastVisible = false);
+        });
+    }
+
+    [RelayCommand]
+    private void CerrarToast()
+    {
+        IsToastVisible = false;
+    }
 
     // Bloques horarios de la jornada laboral del salón
     public List<string> BloquesHorarios { get; } = new()
@@ -42,11 +79,14 @@ public partial class TimelineAgendaViewModel : BaseViewModel
         "17:00", "17:30", "18:00"
     };
 
-    public TimelineAgendaViewModel(IReservaRepository reservaRepository)
+    public TimelineAgendaViewModel(
+        IReservaRepository reservaRepository,
+        IEstilistaRepository estilistaRepository)
     {
         _reservaRepository = reservaRepository;
-        Title = "Agenda del Día";
-        _ = LoadAgendaAsync();
+        _estilistaRepository = estilistaRepository;
+        Title = "Agenda del Salón";
+        _ = InicializarAgendaAsync();
     }
 
     private static readonly List<Reserva> AgendaOperativaBase = new()
@@ -56,7 +96,7 @@ public partial class TimelineAgendaViewModel : BaseViewModel
             Id = 301,
             CodigoCita = "#SHU-1024",
             ServicioNombre = "Balayage Iluminador & Gloss",
-            EstilistaNombre = "Sofía Ramos",
+            EstilistaNombre = "Sofía Valenzuela",
             FechaHoraInicio = DateTime.Today.AddHours(9),
             FechaHoraFin = DateTime.Today.AddHours(11),
             Total = 65.00m,
@@ -67,7 +107,7 @@ public partial class TimelineAgendaViewModel : BaseViewModel
             Id = 302,
             CodigoCita = "#SHU-1025",
             ServicioNombre = "Corte de Autor & Cepillado",
-            EstilistaNombre = "Sofía Ramos",
+            EstilistaNombre = "Sofía Valenzuela",
             FechaHoraInicio = DateTime.Today.AddHours(11).AddMinutes(30),
             FechaHoraFin = DateTime.Today.AddHours(12).AddMinutes(15),
             Total = 25.00m,
@@ -78,7 +118,7 @@ public partial class TimelineAgendaViewModel : BaseViewModel
             Id = 303,
             CodigoCita = "#SHU-1026",
             ServicioNombre = "Manicura Rusa & Esmaltado Semi",
-            EstilistaNombre = "Valentina Gómez",
+            EstilistaNombre = "Camila Domínguez",
             FechaHoraInicio = DateTime.Today.AddHours(10),
             FechaHoraFin = DateTime.Today.AddHours(11),
             Total = 22.00m,
@@ -89,7 +129,7 @@ public partial class TimelineAgendaViewModel : BaseViewModel
             Id = 304,
             CodigoCita = "#SHU-1027",
             ServicioNombre = "Pedicura Spa Rejuvenecedora",
-            EstilistaNombre = "Valentina Gómez",
+            EstilistaNombre = "Camila Domínguez",
             FechaHoraInicio = DateTime.Today.AddHours(14),
             FechaHoraFin = DateTime.Today.AddHours(15),
             Total = 28.00m,
@@ -99,14 +139,65 @@ public partial class TimelineAgendaViewModel : BaseViewModel
         {
             Id = 305,
             CodigoCita = "#SHU-1028",
-            ServicioNombre = "Lifting de Pestañas & Keratina",
-            EstilistaNombre = "Camila Torres",
+            ServicioNombre = "Tratamiento Reestructurante Olaplex",
+            EstilistaNombre = "Mateo Ramos",
             FechaHoraInicio = DateTime.Today.AddHours(15).AddMinutes(30),
             FechaHoraFin = DateTime.Today.AddHours(16).AddMinutes(20),
             Total = 30.00m,
             Estado = "PENDIENTE"
         }
     };
+
+    [RelayCommand]
+    public async Task InicializarAgendaAsync()
+    {
+        await CargarEstilistasFiltroAsync();
+        await LoadAgendaAsync();
+    }
+
+    [RelayCommand]
+    public async Task CargarEstilistasFiltroAsync()
+    {
+        try
+        {
+            var estilistas = await _estilistaRepository.GetTodosEstilistasAsync();
+            EstilistasFiltro.Clear();
+            EstilistasFiltro.Add(new EstilistaFiltroItem 
+            { 
+                Nombre = "Todas", 
+                IsSelected = (EstilistaNombreFiltro == "Todas") 
+            });
+
+            foreach (var est in estilistas.Where(e => e.Activo))
+            {
+                if (!string.IsNullOrWhiteSpace(est.NombreCompleto) && !EstilistasFiltro.Any(i => i.Nombre == est.NombreCompleto))
+                {
+                    EstilistasFiltro.Add(new EstilistaFiltroItem
+                    {
+                        Nombre = est.NombreCompleto,
+                        IsSelected = (EstilistaNombreFiltro == est.NombreCompleto)
+                    });
+                }
+            }
+
+            if (EstilistasFiltro.Count <= 1)
+            {
+                EstilistasFiltro.Add(new EstilistaFiltroItem { Nombre = "Sofía Valenzuela", IsSelected = false });
+                EstilistasFiltro.Add(new EstilistaFiltroItem { Nombre = "Mateo Ramos", IsSelected = false });
+                EstilistasFiltro.Add(new EstilistaFiltroItem { Nombre = "Camila Domínguez", IsSelected = false });
+            }
+        }
+        catch
+        {
+            if (EstilistasFiltro.Count == 0)
+            {
+                EstilistasFiltro.Add(new EstilistaFiltroItem { Nombre = "Todas", IsSelected = true });
+                EstilistasFiltro.Add(new EstilistaFiltroItem { Nombre = "Sofía Valenzuela", IsSelected = false });
+                EstilistasFiltro.Add(new EstilistaFiltroItem { Nombre = "Mateo Ramos", IsSelected = false });
+                EstilistasFiltro.Add(new EstilistaFiltroItem { Nombre = "Camila Domínguez", IsSelected = false });
+            }
+        }
+    }
 
     [RelayCommand]
     public async Task LoadAgendaAsync()
@@ -118,10 +209,10 @@ public partial class TimelineAgendaViewModel : BaseViewModel
             IsBusy = true;
             ErrorMessage = null;
 
-            var citasRemotas = await _reservaRepository.GetMisCitasAsync();
+            var citasRemotas = await _reservaRepository.GetTodasCitasAdminAsync();
             var todasLasCitas = citasRemotas.ToList();
 
-            // Incluir citas operativas si la fecha coincide
+            // Incluir citas operativas si la fecha coincide para enriquecer la demo
             foreach (var citaMock in AgendaOperativaBase)
             {
                 if (!todasLasCitas.Any(c => c.Id == citaMock.Id))
@@ -156,10 +247,14 @@ public partial class TimelineAgendaViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private void FiltrarPorEstilista(string estilista)
+    public void FiltrarPorEstilista(string estilista)
     {
         if (string.IsNullOrWhiteSpace(estilista)) return;
         EstilistaNombreFiltro = estilista;
+        foreach (var item in EstilistasFiltro)
+        {
+            item.IsSelected = (item.Nombre == estilista);
+        }
     }
 
     partial void OnFechaSeleccionadaChanged(DateTime value)
@@ -179,12 +274,12 @@ public partial class TimelineAgendaViewModel : BaseViewModel
 
         // US-5.04: Modal de cambio de estado operativo
         var resultado = await Application.Current.MainPage.DisplayActionSheet(
-            $"Estado de: {reserva.CodigoReserva}",
+            $"Estado de Cita: {reserva.CodigoReserva}",
             "Cancelar",
             null,
             "✅ Marcar como Completada",
             "⏳ Marcar como En Curso",
-            "❌ Cancelar Reserva"
+            "❌ Cancelar Cita"
         );
 
         if (resultado == null || resultado == "Cancelar") return;
@@ -193,15 +288,14 @@ public partial class TimelineAgendaViewModel : BaseViewModel
         {
             "✅ Marcar como Completada" => "COMPLETADA",
             "⏳ Marcar como En Curso"   => "EN_CURSO",
-            "❌ Cancelar Reserva"        => "CANCELADA",
+            "❌ Cancelar Cita"          => "CANCELADA",
             _                           => reserva.Estado
         };
 
         reserva.Estado = nuevoEstado;
-        await Application.Current.MainPage.DisplayAlert(
+        MostrarToast(
             "Estado Actualizado",
-            $"La reserva {reserva.CodigoReserva} fue marcada como {nuevoEstado}.",
-            "Aceptar"
+            $"La cita {reserva.CodigoReserva} fue marcada como {nuevoEstado}."
         );
 
         await LoadAgendaAsync();

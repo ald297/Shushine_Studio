@@ -38,6 +38,34 @@ public partial class AdminEstilistasViewModel : BaseViewModel
     [ObservableProperty]
     private string nuevaEspecialidad = string.Empty;
 
+    // Toast Boutique Flotante (Reemplaza los alertas nativos grises)
+    [ObservableProperty]
+    private bool isToastVisible;
+
+    [ObservableProperty]
+    private string toastTitulo = string.Empty;
+
+    [ObservableProperty]
+    private string toastMensaje = string.Empty;
+
+    public void MostrarToast(string titulo, string mensaje)
+    {
+        ToastTitulo = titulo;
+        ToastMensaje = mensaje;
+        IsToastVisible = true;
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(3500);
+            MainThread.BeginInvokeOnMainThread(() => IsToastVisible = false);
+        });
+    }
+
+    [RelayCommand]
+    private void CerrarToast()
+    {
+        IsToastVisible = false;
+    }
+
     private List<Estilista> _todosEstilistas = new();
 
     public AdminEstilistasViewModel(IEstilistaRepository estilistaRepository)
@@ -152,10 +180,7 @@ public partial class AdminEstilistasViewModel : BaseViewModel
                 ? $"{estilista.NombreCompleto} ahora está activa para recibir citas en salón."
                 : $"{estilista.NombreCompleto} fue marcada como Inactiva temporalmente.";
 
-            if (Application.Current?.MainPage != null)
-            {
-                await Application.Current.MainPage.DisplayAlert("Disponibilidad Actualizada", mensaje, "Aceptar");
-            }
+            MostrarToast("Disponibilidad Actualizada", mensaje);
         }
         catch (Exception ex)
         {
@@ -186,15 +211,13 @@ public partial class AdminEstilistasViewModel : BaseViewModel
     {
         if (string.IsNullOrWhiteSpace(NuevoNombre))
         {
-            if (Application.Current?.MainPage != null)
-                await Application.Current.MainPage.DisplayAlert("Validación", "Por favor ingresa el nombre del estilista.", "Entendido");
+            MostrarToast("Validación", "Por favor ingresa el nombre del estilista.");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(NuevaEspecialidad))
         {
-            if (Application.Current?.MainPage != null)
-                await Application.Current.MainPage.DisplayAlert("Validación", "Por favor ingresa la especialidad.", "Entendido");
+            MostrarToast("Validación", "Por favor ingresa la especialidad.");
             return;
         }
 
@@ -217,8 +240,7 @@ public partial class AdminEstilistasViewModel : BaseViewModel
             AplicarFiltro();
             IsCreandoNuevo = false;
 
-            if (Application.Current?.MainPage != null)
-                await Application.Current.MainPage.DisplayAlert("Estilista Registrado", $"{nuevo.NombreCompleto} ha sido añadido al equipo del salón.", "Aceptar");
+            MostrarToast("Estilista Registrado", $"{nuevo.NombreCompleto} ha sido añadido al equipo del salón.");
         }
         catch (Exception ex)
         {
@@ -256,8 +278,7 @@ public partial class AdminEstilistasViewModel : BaseViewModel
             ActualizarContadores();
             AplicarFiltro();
 
-            if (Application.Current?.MainPage != null)
-                await Application.Current.MainPage.DisplayAlert("Equipo Actualizado", $"{estilista.NombreCompleto} fue retirado del equipo.", "Aceptar");
+            MostrarToast("Equipo Actualizado", $"{estilista.NombreCompleto} fue retirado del equipo.");
         }
         catch (Exception ex)
         {
