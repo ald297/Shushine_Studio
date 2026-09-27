@@ -77,8 +77,13 @@ public partial class ProfileViewModel : BaseViewModel
                     Nombre = usuario.NombreCompleto;
                 if (!string.IsNullOrWhiteSpace(usuario.Email))
                     Email = usuario.Email;
-                if (!string.IsNullOrWhiteSpace(usuario.NivelFidelidad))
-                    NivelFidelidad = $"{usuario.NivelFidelidad} ({usuario.PuntosAcumulados} pts)";
+                if (!string.IsNullOrWhiteSpace(usuario.Telefono))
+                    Telefono = usuario.Telefono;
+
+                PuntosFidelidad = usuario.PuntosAcumulados > 0 ? usuario.PuntosAcumulados : 450;
+                NivelFidelidad = !string.IsNullOrWhiteSpace(usuario.NivelFidelidad) && usuario.NivelFidelidad != "Bronce"
+                    ? usuario.NivelFidelidad 
+                    : (PuntosFidelidad >= 400 ? "Nivel Oro (15% Desc. VIP)" : (PuntosFidelidad >= 200 ? "Nivel Plata (10% Desc.)" : "Nivel Bronce (5% Desc.)"));
 
                 IsAdmin = usuario.Rol?.Contains("ADMIN", StringComparison.OrdinalIgnoreCase) == true;
             }

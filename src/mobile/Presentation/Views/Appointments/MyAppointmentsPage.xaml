@@ -13,7 +13,7 @@
     <Grid RowDefinitions="Auto, Auto, *">
         
         <!-- Cabecera -->
-        <VerticalStackLayout Grid.Row="0" Padding="20,14,20,6" Spacing="4">
+        <VerticalStackLayout Grid.Row="0" Padding="20, 48, 20, 6" Spacing="4">
             <Label Text="Tus Reservaciones"
                    Style="{StaticResource HeaderLabelStyle}"
                    FontSize="22" />

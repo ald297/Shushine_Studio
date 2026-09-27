@@ -8,26 +8,49 @@
              Shell.NavBarIsVisible="false"
              Title="{Binding Title}">
 
-
     <ScrollView>
-        <VerticalStackLayout Padding="22" Spacing="20">
+        <VerticalStackLayout Padding="20, 52, 20, 36" Spacing="18">
             
-            <!-- Cabecera de Avatar y Saludo -->
-            <VerticalStackLayout Spacing="10" HorizontalOptions="Center" Margin="0,10,0,0">
-                <Border StrokeShape="RoundRectangle 55" 
+            <!-- 1. Cabecera Hero de Avatar y Saludo (Espacio Seguro contra Notch/Status Bar) -->
+            <VerticalStackLayout Spacing="10" HorizontalOptions="Center" Margin="0, 8, 0, 4">
+                <!-- Avatar Circular con Borde Dorado de Lujo -->
+                <Border StrokeShape="RoundRectangle 50" 
                         HeightRequest="100" 
                         WidthRequest="100"
-                        Stroke="{StaticResource PrimaryColor}"
+                        Stroke="#C5A059"
                         StrokeThickness="3"
-                        BackgroundColor="{StaticResource SecondaryLight}"
+                        BackgroundColor="#FAF8F5"
                         HorizontalOptions="Center">
-                    <Label Text="🌸" 
-                           FontSize="46" 
-                           HorizontalOptions="Center" 
-                           VerticalOptions="Center" />
+                    <Grid>
+                        <!-- Isotipo de Flor de Loto / Iniciales -->
+                        <Label Text="🌸" 
+                               FontSize="44" 
+                               HorizontalOptions="Center" 
+                               VerticalOptions="Center" />
+                        
+                        <!-- Badge de Verificado VIP -->
+                        <Border StrokeShape="RoundRectangle 12"
+                                HeightRequest="24"
+                                WidthRequest="24"
+                                BackgroundColor="#C5A059"
+                                Stroke="White"
+                                StrokeThickness="2"
+                                HorizontalOptions="End"
+                                VerticalOptions="End"
+                                Margin="0, 0, 4, 4">
+                            <Label Text="✓" 
+                                   TextColor="White" 
+                                   FontSize="12" 
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center" 
+                                   VerticalOptions="Center" />
+                        </Border>
+                    </Grid>
                 </Border>
+
+                <!-- Nombre y Correo -->
                 <Label Text="{Binding Nombre}" 
-                       FontSize="22" 
+                       FontSize="24" 
                        FontAttributes="Bold" 
                        TextColor="{StaticResource TextColorPrimary}"
                        HorizontalOptions="Center" />
@@ -35,168 +58,254 @@
                        FontSize="13" 
                        TextColor="{StaticResource TextColorSecondary}" 
                        HorizontalOptions="Center" />
+
+                <!-- Badge Cliente VIP -->
+                <Border StrokeShape="RoundRectangle 12"
+                        BackgroundColor="#FAF4E8"
+                        Stroke="#EADCC6"
+                        StrokeThickness="1"
+                        Padding="12, 4"
+                        HorizontalOptions="Center">
+                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                        <Label Text="✨" FontSize="12" VerticalOptions="Center" />
+                        <Label Text="Cliente Privilegiado Shushine" 
+                               FontSize="11" 
+                               FontAttributes="Bold" 
+                               TextColor="#A68038" 
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
             </VerticalStackLayout>
 
-            <!-- Tarjeta: Insignia de Nivel de Fidelidad (Wireframe Pág. 14) -->
-            <Border Style="{StaticResource CardBorderStyle}" 
-                    BackgroundColor="{StaticResource SecondaryLight}"
-                    Stroke="{StaticResource SecondaryColor}"
-                    Padding="18">
-                <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12">
-                    <Label Grid.Column="0" 
-                           Text="👑" 
-                           FontSize="32" 
-                           VerticalOptions="Center" />
-                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                        <Label Text="Membresía Shushine" 
-                               FontSize="12" 
-                               TextColor="{StaticResource PrimaryDark}" 
-                               FontAttributes="Bold" />
-                        <Label Text="{Binding NivelFidelidad}" 
-                               FontSize="15" 
-                               FontAttributes="Bold" 
-                               TextColor="{StaticResource TextColorPrimary}" />
-                    </VerticalStackLayout>
-                    <Border Grid.Column="2" 
-                            StrokeShape="RoundRectangle 12"
-                            BackgroundColor="{StaticResource PrimaryColor}"
-                            Padding="10,6"
-                            VerticalOptions="Center">
-                        <Label Text="{Binding PuntosFidelidad, StringFormat='{0} pts'}" 
-                               TextColor="White" 
-                               FontSize="12" 
-                               FontAttributes="Bold" />
-                    </Border>
-                </Grid>
-            </Border>
+            <!-- 2. Tarjeta de Membresía VIP de Lujo (Wireframe Pág. 14) -->
+            <Border StrokeShape="RoundRectangle 20" 
+                    Stroke="#C5A059"
+                    StrokeThickness="1.5"
+                    Padding="20"
+                    Margin="0, 4, 0, 0">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#2C2420" Offset="0.0" />
+                        <GradientStop Color="#1E1916" Offset="0.7" />
+                        <GradientStop Color="#120F0D" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Border.Background>
 
-            <!-- Tarjeta: Datos Personales y Contacto -->
-            <Border Style="{StaticResource CardBorderStyle}">
                 <VerticalStackLayout Spacing="14">
+                    <!-- Fila Superior: Marca y Corona -->
                     <Grid ColumnDefinitions="*, Auto">
-                        <Label Grid.Column="0" 
-                               Text="Datos de Contacto" 
-                               Style="{StaticResource HeaderLabelStyle}"
-                               FontSize="17" />
-                        <Button Grid.Column="1"
-                                Text="✏️ Editar"
-                                Command="{Binding ToggleEditCommand}"
-                                HeightRequest="34"
-                                FontSize="12"
-                                Padding="12,0"
-                                CornerRadius="8"
-                                Style="{StaticResource SecondaryButtonStyle}" />
+                        <HorizontalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
+                            <Label Text="SHUSHINE PRIVILEGE CLUB" 
+                                   FontSize="11" 
+                                   FontAttributes="Bold" 
+                                   TextColor="#C5A059" 
+                                   CharacterSpacing="1.2" />
+                        </HorizontalStackLayout>
+                        <Label Grid.Column="1" Text="👑" FontSize="22" VerticalOptions="Center" />
                     </Grid>
 
-                    <!-- Nombre -->
-                    <VerticalStackLayout Spacing="4">
-                        <Label Text="Nombre Completo" FontSize="12" TextColor="{StaticResource TextColorSecondary}" FontAttributes="Bold" />
-                        <Border Style="{StaticResource InputContainerStyle}" IsVisible="{Binding IsEditing}">
-                            <Entry Text="{Binding Nombre}" />
+                    <!-- Nivel y Puntos -->
+                    <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
+                        <VerticalStackLayout Grid.Column="0" Spacing="3">
+                            <Label Text="{Binding NivelFidelidad}" 
+                                   FontSize="19" 
+                                   FontAttributes="Bold" 
+                                   TextColor="White" />
+                            <Label Text="15% de Descuento Exclusivo en Tratamientos" 
+                                   FontSize="11" 
+                                   TextColor="#E8D8B0" />
+                        </VerticalStackLayout>
+                        
+                        <!-- Badge Puntos -->
+                        <Border Grid.Column="1" 
+                                StrokeShape="RoundRectangle 14"
+                                BackgroundColor="#C5A059"
+                                Padding="12, 6"
+                                VerticalOptions="Center">
+                            <Label Text="{Binding PuntosFidelidad, StringFormat='⭐ {0} pts'}" 
+                                   TextColor="#1E1916" 
+                                   FontSize="12" 
+                                   FontAttributes="Bold" />
                         </Border>
-                        <Label Text="{Binding Nombre}" 
-                               FontSize="14" 
-                               TextColor="{StaticResource TextColorPrimary}"
-                               IsVisible="{Binding IsNotEditing}" />
-                    </VerticalStackLayout>
+                    </Grid>
 
-                    <!-- Teléfono -->
-                    <VerticalStackLayout Spacing="4">
-                        <Label Text="Teléfono / WhatsApp" FontSize="12" TextColor="{StaticResource TextColorSecondary}" FontAttributes="Bold" />
-                        <Border Style="{StaticResource InputContainerStyle}" IsVisible="{Binding IsEditing}">
-                            <Entry Text="{Binding Telefono}" Keyboard="Telephone" />
-                        </Border>
-                        <Label Text="{Binding Telefono}" 
-                               FontSize="14" 
-                               TextColor="{StaticResource TextColorPrimary}"
-                               IsVisible="{Binding IsNotEditing}" />
-                    </VerticalStackLayout>
-
-                    <!-- Fecha de Cumpleaños -->
-                    <VerticalStackLayout Spacing="4">
-                        <Label Text="Fecha de Cumpleaños" FontSize="12" TextColor="{StaticResource TextColorSecondary}" FontAttributes="Bold" />
-                        <Label Text="{Binding FechaNacimiento}" 
-                               FontSize="14" 
-                               TextColor="{StaticResource TextColorPrimary}" />
+                    <!-- Barra de Progreso de Fidelidad -->
+                    <VerticalStackLayout Spacing="6" Margin="0, 4, 0, 0">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0" Text="Progreso a Beneficios Platino" FontSize="10" TextColor="#B5A995" />
+                            <Label Grid.Column="1" Text="450 / 500 pts" FontSize="10" FontAttributes="Bold" TextColor="#C5A059" />
+                        </Grid>
+                        <ProgressBar Progress="0.9" ProgressColor="#C5A059" BackgroundColor="#453B35" HeightRequest="6" />
                     </VerticalStackLayout>
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Tarjeta: Ficha Técnica & Preferencias de Belleza (Wireframe Pág. 14) -->
-            <Border Style="{StaticResource CardBorderStyle}">
+            <!-- 3. Tarjeta: Datos Personales y Contacto -->
+            <Border Style="{StaticResource CardBorderStyle}" Padding="18">
                 <VerticalStackLayout Spacing="14">
-                    <Label Text="Ficha Estética &amp; Preferencias" 
-                           Style="{StaticResource HeaderLabelStyle}"
-                           FontSize="17"
-                           TextColor="{StaticResource PrimaryColor}" />
+                    <Grid ColumnDefinitions="*, Auto">
+                        <HorizontalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
+                            <Label Text="👤" FontSize="16" VerticalOptions="Center" />
+                            <Label Text="Datos de Contacto" 
+                                   Style="{StaticResource HeaderLabelStyle}"
+                                   FontSize="17" 
+                                   VerticalOptions="Center" />
+                        </HorizontalStackLayout>
 
-                    <!-- Diagnóstico Capilar -->
-                    <VerticalStackLayout Spacing="4">
-                        <Label Text="Tipo de Cabello / Diagnóstico:" 
-                               FontSize="12" 
-                               TextColor="{StaticResource TextColorSecondary}" 
-                               FontAttributes="Bold" />
-                        <Border Style="{StaticResource InputContainerStyle}" IsVisible="{Binding IsEditing}">
-                            <Entry Text="{Binding TipoCabello}" />
+                        <!-- Botón Editar / Cancelar -->
+                        <Border Grid.Column="1"
+                                StrokeShape="RoundRectangle 14"
+                                BackgroundColor="{StaticResource SecondaryLight}"
+                                Stroke="{StaticResource PrimaryColor}"
+                                StrokeThickness="1"
+                                Padding="12, 6">
+                            <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
+                                <Label Text="✏️" FontSize="11" VerticalOptions="Center" />
+                                <Label Text="Modificar" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleEditCommand}" />
+                            </Border.GestureRecognizers>
                         </Border>
-                        <Label Text="{Binding TipoCabello}" 
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{StaticResource DividerColor}" Margin="0, 2" />
+
+                    <!-- Nombre -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="NOMBRE COMPLETO" FontSize="10" TextColor="{StaticResource TextColorSecondary}" FontAttributes="Bold" CharacterSpacing="1" />
+                        <Border Style="{StaticResource InputContainerStyle}" IsVisible="{Binding IsEditing}">
+                            <Entry Text="{Binding Nombre}" FontSize="13" />
+                        </Border>
+                        <Label Text="{Binding Nombre}" 
                                FontSize="14" 
                                FontAttributes="Bold"
                                TextColor="{StaticResource TextColorPrimary}"
                                IsVisible="{Binding IsNotEditing}" />
                     </VerticalStackLayout>
 
-                    <!-- Alergias o Sensibilidades -->
+                    <!-- Teléfono -->
                     <VerticalStackLayout Spacing="4">
-                        <Label Text="Alergias / Sensibilidades:" 
-                               FontSize="12" 
-                               TextColor="{StaticResource TextColorSecondary}" 
-                               FontAttributes="Bold" />
+                        <Label Text="TELÉFONO / WHATSAPP" FontSize="10" TextColor="{StaticResource TextColorSecondary}" FontAttributes="Bold" CharacterSpacing="1" />
                         <Border Style="{StaticResource InputContainerStyle}" IsVisible="{Binding IsEditing}">
-                            <Entry Text="{Binding Alergias}" />
+                            <Entry Text="{Binding Telefono}" Keyboard="Telephone" FontSize="13" />
                         </Border>
-                        <Label Text="{Binding Alergias}" 
+                        <Label Text="{Binding Telefono}" 
                                FontSize="14" 
+                               FontAttributes="Bold"
                                TextColor="{StaticResource TextColorPrimary}"
                                IsVisible="{Binding IsNotEditing}" />
                     </VerticalStackLayout>
 
+                    <!-- Fecha de Cumpleaños -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="FECHA DE CUMPLEAÑOS" FontSize="10" TextColor="{StaticResource TextColorSecondary}" FontAttributes="Bold" CharacterSpacing="1" />
+                        <Label Text="{Binding FechaNacimiento}" 
+                               FontSize="14" 
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextColorPrimary}" />
+                    </VerticalStackLayout>
+
+                    <!-- Botón Guardar Cambios (Visible solo en edición) -->
+                    <Button Text="✔️ Guardar Datos"
+                            Command="{Binding GuardarCambiosCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            HeightRequest="42"
+                            FontSize="13"
+                            IsVisible="{Binding IsEditing}"
+                            Margin="0, 6, 0, 0" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- 4. Tarjeta: Ficha Técnica & Preferencias de Belleza (Wireframe Pág. 14) -->
+            <Border Style="{StaticResource CardBorderStyle}" Padding="18">
+                <VerticalStackLayout Spacing="14">
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <Label Text="💇‍♀️" FontSize="16" VerticalOptions="Center" />
+                        <Label Text="Ficha Estética &amp; Preferencias" 
+                               Style="{StaticResource HeaderLabelStyle}"
+                               FontSize="17" 
+                               TextColor="{StaticResource PrimaryDark}" 
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                    <BoxView HeightRequest="1" Color="{StaticResource DividerColor}" Margin="0, 2" />
+
+                    <!-- Diagnóstico Capilar -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="TIPO DE CABELLO / DIAGNÓSTICO" FontSize="10" TextColor="{StaticResource TextColorSecondary}" FontAttributes="Bold" CharacterSpacing="1" />
+                        <Border Style="{StaticResource InputContainerStyle}" IsVisible="{Binding IsEditing}">
+                            <Entry Text="{Binding TipoCabello}" FontSize="13" />
+                        </Border>
+                        <Border StrokeShape="RoundRectangle 10"
+                                BackgroundColor="{StaticResource SecondaryLight}"
+                                Padding="12, 8"
+                                IsVisible="{Binding IsNotEditing}">
+                            <Label Text="{Binding TipoCabello}" 
+                                   FontSize="13" 
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource PrimaryDark}" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Alergias o Sensibilidades -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="ALERGIAS O SENSIBILIDADES" FontSize="10" TextColor="{StaticResource TextColorSecondary}" FontAttributes="Bold" CharacterSpacing="1" />
+                        <Border Style="{StaticResource InputContainerStyle}" IsVisible="{Binding IsEditing}">
+                            <Entry Text="{Binding Alergias}" FontSize="13" />
+                        </Border>
+                        <Border StrokeShape="RoundRectangle 10"
+                                BackgroundColor="#FFF8F5"
+                                Stroke="#FCE8E0"
+                                StrokeThickness="1"
+                                Padding="12, 8"
+                                IsVisible="{Binding IsNotEditing}">
+                            <Label Text="{Binding Alergias}" 
+                                   FontSize="13" 
+                                   TextColor="{StaticResource TextColorPrimary}" />
+                        </Border>
+                    </VerticalStackLayout>
+
                     <!-- Estilista Habitual -->
                     <VerticalStackLayout Spacing="4">
-                        <Label Text="Estilista de Confianza:" 
-                               FontSize="12" 
-                               TextColor="{StaticResource TextColorSecondary}" 
-                               FontAttributes="Bold" />
-                        <Label Text="{Binding EstilistaPreferido}" 
-                               FontSize="14" 
-                               TextColor="{StaticResource TextColorPrimary}" />
+                        <Label Text="ESTILISTA PREFERIDO" FontSize="10" TextColor="{StaticResource TextColorSecondary}" FontAttributes="Bold" CharacterSpacing="1" />
+                        <Border StrokeShape="RoundRectangle 10"
+                                BackgroundColor="#FAF8F5"
+                                Stroke="#EADCC6"
+                                StrokeThickness="1"
+                                Padding="12, 8">
+                            <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                <Label Text="⭐" FontSize="14" VerticalOptions="Center" />
+                                <Label Text="{Binding EstilistaPreferido}" 
+                                       FontSize="13" 
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource TextColorPrimary}" 
+                                       VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </Border>
                     </VerticalStackLayout>
 
                     <!-- Notas Especiales -->
                     <VerticalStackLayout Spacing="4">
-                        <Label Text="Notas para el Personal del Salón:" 
-                               FontSize="12" 
-                               TextColor="{StaticResource TextColorSecondary}" 
-                               FontAttributes="Bold" />
+                        <Label Text="NOTAS PARA EL PERSONAL DEL SALÓN" FontSize="10" TextColor="{StaticResource TextColorSecondary}" FontAttributes="Bold" CharacterSpacing="1" />
                         <Border Style="{StaticResource InputContainerStyle}" IsVisible="{Binding IsEditing}">
-                            <Editor Text="{Binding NotasPreferencias}" AutoSize="TextChanges" />
+                            <Editor Text="{Binding NotasPreferencias}" AutoSize="TextChanges" FontSize="12" />
                         </Border>
-                        <Label Text="{Binding NotasPreferencias}" 
-                               FontSize="13" 
-                               TextColor="{StaticResource TextColorSecondary}"
-                               IsVisible="{Binding IsNotEditing}" />
+                        <Border StrokeShape="RoundRectangle 10"
+                                BackgroundColor="{StaticResource SurfaceColor}"
+                                Stroke="{StaticResource BorderColor}"
+                                StrokeThickness="1"
+                                Padding="12, 8"
+                                IsVisible="{Binding IsNotEditing}">
+                            <Label Text="{Binding NotasPreferencias}" 
+                                   FontSize="12" 
+                                   TextColor="{StaticResource TextColorSecondary}" />
+                        </Border>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Botón Guardar Cambios (Visible cuando edita) -->
-            <Button Text="Guardar Cambios"
-                    Command="{Binding GuardarCambiosCommand}"
-                    Style="{StaticResource PrimaryButtonStyle}"
-                    IsVisible="{Binding IsEditing}"
-                    Margin="0,6,0,0" />
-
-            <!-- Acceso al Panel de Administración (Exclusivo Rol ADMIN) -->
+            <!-- 5. Acceso al Panel de Administración (Exclusivo Rol ADMIN) -->
             <Border Style="{StaticResource CardBorderStyle}"
                     BackgroundColor="{StaticResource SecondaryLight}"
                     Stroke="{StaticResource PrimaryColor}"
@@ -219,11 +328,26 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Botón Cerrar Sesión -->
-            <Button Text="Cerrar Sesión" 
-                    Command="{Binding CerrarSesionCommand}" 
-                    Style="{StaticResource SecondaryButtonStyle}" 
-                    Margin="0,10,0,25" />
+            <!-- 6. Botón Cerrar Sesión Elegante -->
+            <Border StrokeShape="RoundRectangle 24"
+                    BackgroundColor="#FFF5F5"
+                    Stroke="#FED7D7"
+                    StrokeThickness="1"
+                    HeightRequest="48"
+                    Margin="0, 8, 0, 24"
+                    HorizontalOptions="Fill">
+                <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Label Text="🚪" FontSize="16" VerticalOptions="Center" />
+                    <Label Text="Cerrar Sesión en Shushine Studio" 
+                           FontSize="13" 
+                           FontAttributes="Bold" 
+                           TextColor="#E53E3E" 
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CerrarSesionCommand}" />
+                </Border.GestureRecognizers>
+            </Border>
 
         </VerticalStackLayout>
     </ScrollView>

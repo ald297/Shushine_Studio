@@ -10,7 +10,7 @@
 
     <RefreshView IsRefreshing="{Binding IsBusy}" Command="{Binding LoadDashboardCommand}">
         <ScrollView>
-            <VerticalStackLayout Padding="20, 16, 20, 24" Spacing="16">
+            <VerticalStackLayout Padding="20, 48, 20, 24" Spacing="16">
 
                 <!-- 1. Cabecera Oficial de Administrador (Wireframe Pág. 15) -->
                 <Grid ColumnDefinitions="*, Auto" Margin="0, 8, 0, 4">
