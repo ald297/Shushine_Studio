@@ -29,6 +29,15 @@ public partial class AdminEstilistasViewModel : BaseViewModel
     [ObservableProperty]
     private int totalInactivos;
 
+    [ObservableProperty]
+    private bool isCreandoNuevo;
+
+    [ObservableProperty]
+    private string nuevoNombre = string.Empty;
+
+    [ObservableProperty]
+    private string nuevaEspecialidad = string.Empty;
+
     private List<Estilista> _todosEstilistas = new();
 
     public AdminEstilistasViewModel(IEstilistaRepository estilistaRepository)
@@ -147,6 +156,108 @@ public partial class AdminEstilistasViewModel : BaseViewModel
             {
                 await Application.Current.MainPage.DisplayAlert("Disponibilidad Actualizada", mensaje, "Aceptar");
             }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private void AbrirModalNuevo()
+    {
+        NuevoNombre = string.Empty;
+        NuevaEspecialidad = string.Empty;
+        IsCreandoNuevo = true;
+    }
+
+    [RelayCommand]
+    private void CerrarModalNuevo()
+    {
+        IsCreandoNuevo = false;
+    }
+
+    [RelayCommand]
+    private async Task GuardarNuevoEstilistaAsync()
+    {
+        if (string.IsNullOrWhiteSpace(NuevoNombre))
+        {
+            if (Application.Current?.MainPage != null)
+                await Application.Current.MainPage.DisplayAlert("Validación", "Por favor ingresa el nombre del estilista.", "Entendido");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(NuevaEspecialidad))
+        {
+            if (Application.Current?.MainPage != null)
+                await Application.Current.MainPage.DisplayAlert("Validación", "Por favor ingresa la especialidad.", "Entendido");
+            return;
+        }
+
+        try
+        {
+            IsBusy = true;
+            var nuevo = new Estilista
+            {
+                Id = _todosEstilistas.Any() ? _todosEstilistas.Max(e => e.Id) + 1 : 1,
+                NombreCompleto = NuevoNombre.Trim(),
+                EspecialidadPrincipal = NuevaEspecialidad.Trim(),
+                Activo = true,
+                ColorAgenda = "#D48B96"
+            };
+
+            await _estilistaRepository.CrearEstilistaAsync(nuevo);
+
+            _todosEstilistas.Insert(0, nuevo);
+            ActualizarContadores();
+            AplicarFiltro();
+            IsCreandoNuevo = false;
+
+            if (Application.Current?.MainPage != null)
+                await Application.Current.MainPage.DisplayAlert("Estilista Registrado", $"{nuevo.NombreCompleto} ha sido añadido al equipo del salón.", "Aceptar");
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task EliminarEstilistaAsync(Estilista estilista)
+    {
+        if (estilista == null) return;
+
+        if (Application.Current?.MainPage != null)
+        {
+            bool confirmar = await Application.Current.MainPage.DisplayAlert(
+                "Remover Estilista",
+                $"¿Estás seguro de que deseas retirar a {estilista.NombreCompleto} del salón?",
+                "Sí, remover",
+                "Cancelar"
+            );
+
+            if (!confirmar) return;
+        }
+
+        try
+        {
+            IsBusy = true;
+            await _estilistaRepository.EliminarEstilistaAsync(estilista.Id);
+
+            _todosEstilistas.Remove(estilista);
+            ActualizarContadores();
+            AplicarFiltro();
+
+            if (Application.Current?.MainPage != null)
+                await Application.Current.MainPage.DisplayAlert("Equipo Actualizado", $"{estilista.NombreCompleto} fue retirado del equipo.", "Aceptar");
         }
         catch (Exception ex)
         {

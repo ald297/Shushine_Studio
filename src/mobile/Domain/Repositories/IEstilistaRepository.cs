@@ -9,5 +9,7 @@ public interface IEstilistaRepository
     Task<Estilista?> GetEstilistaByIdAsync(long id);
     Task<DisponibilidadEstilista?> GetDisponibilidadAsync(long estilistaId, DateTime fecha, long servicioId);
     Task<bool> ActualizarEstadoEstilistaAsync(long id, bool activo);
+    Task<bool> CrearEstilistaAsync(Estilista estilista);
+    Task<bool> EliminarEstilistaAsync(long id);
 }
 

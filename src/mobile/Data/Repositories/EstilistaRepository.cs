@@ -81,5 +81,37 @@ public class EstilistaRepository : IEstilistaRepository
             return false;
         }
     }
+
+    public async Task<bool> CrearEstilistaAsync(Estilista estilista)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("estilistas", new
+            {
+                nombreCompleto = estilista.NombreCompleto,
+                especialidadPrincipal = estilista.EspecialidadPrincipal,
+                colorAgenda = estilista.ColorAgenda,
+                activo = estilista.Activo
+            });
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> EliminarEstilistaAsync(long id)
+    {
+        try
+        {
+            var response = await _httpClient.DeleteAsync($"estilistas/{id}");
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }
 
