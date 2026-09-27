@@ -126,7 +126,14 @@
                                         HeightRequest="90" 
                                         WidthRequest="90"
                                         BackgroundColor="{StaticResource SecondaryLight}">
-                                    <Label Text="✨" FontSize="34" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    <Grid>
+                                        <Image Source="{Binding ImagenUrl}" 
+                                               Aspect="AspectFill" 
+                                               IsVisible="{Binding TieneImagen}" />
+                                        <Label Text="✨" FontSize="34" 
+                                               HorizontalOptions="Center" VerticalOptions="Center" 
+                                               IsVisible="{Binding NoTieneImagen}" />
+                                    </Grid>
                                 </Border>
 
                                 <!-- Información del Servicio -->

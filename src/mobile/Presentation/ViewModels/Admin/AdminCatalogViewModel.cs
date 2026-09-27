@@ -33,15 +33,33 @@ public partial class AdminCatalogViewModel : BaseViewModel
     [ObservableProperty]
     private int totalInactivos;
 
-    // Estado de Edición In-Card (Wireframe Pág. 18)
+    // Estado del Modal de Edición Completa
     [ObservableProperty]
-    private long? servicioEnEdicionId;
+    private bool isEditando;
 
     [ObservableProperty]
-    private string precioEnEdicion = string.Empty;
+    private long editandoId;
 
     [ObservableProperty]
-    private string imagenUrlEnEdicion = string.Empty;
+    private string editandoNombre = string.Empty;
+
+    [ObservableProperty]
+    private string editandoCategoria = "Cabello";
+
+    [ObservableProperty]
+    private string editandoPrecio = "0.00";
+
+    [ObservableProperty]
+    private int editandoDuracion = 45;
+
+    [ObservableProperty]
+    private string editandoDescripcion = string.Empty;
+
+    [ObservableProperty]
+    private string editandoImagenUrl = string.Empty;
+
+    [ObservableProperty]
+    private bool editandoActivo = true;
 
     // Estado del Modal de Nuevo Servicio
     [ObservableProperty]
@@ -147,58 +165,125 @@ public partial class AdminCatalogViewModel : BaseViewModel
     }
 
     // ========================================================
-    // Edición In-Card de Tarifa (Wireframe Pág. 18)
+    // Modal de Edición Completa de Servicio (Wireframe Pág. 18)
     // ========================================================
     [RelayCommand]
-    private void IniciarEdicion(Servicio servicio)
+    private void AbrirEditar(Servicio servicio)
     {
         if (servicio == null) return;
-        ServicioEnEdicionId = servicio.Id;
-        PrecioEnEdicion = servicio.Precio.ToString("F2");
-        ImagenUrlEnEdicion = servicio.ImagenUrl ?? string.Empty;
+        EditandoId = servicio.Id;
+        EditandoNombre = servicio.Nombre;
+        EditandoCategoria = servicio.CategoriaNombre ?? "Cabello";
+        EditandoPrecio = servicio.Precio.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+        EditandoDuracion = servicio.DuracionMinutos > 0 ? servicio.DuracionMinutos : 45;
+        EditandoDescripcion = servicio.Descripcion ?? string.Empty;
+        EditandoImagenUrl = servicio.ImagenUrl ?? string.Empty;
+        EditandoActivo = servicio.Activo;
+        IsEditando = true;
     }
 
     [RelayCommand]
-    private void CancelarEdicion()
+    private void CerrarEditar()
     {
-        ServicioEnEdicionId = null;
-        PrecioEnEdicion = string.Empty;
-        ImagenUrlEnEdicion = string.Empty;
+        IsEditando = false;
     }
 
     [RelayCommand]
-    private async Task GuardarEdicionAsync(Servicio servicio)
+    private async Task SeleccionarImagenEditarAsync()
     {
-        if (servicio == null) return;
-
-        if (!decimal.TryParse(PrecioEnEdicion, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var nuevoPrecio) || nuevoPrecio <= 0)
+        try
         {
-            await ShowAlertAsync("Tarifa Inválida", "Por favor ingresa un precio numérico mayor a 0.");
+            var result = await MediaPicker.Default.PickPhotoAsync(new MediaPickerOptions
+            {
+                Title = "Seleccionar Imagen del Servicio"
+            });
+            if (result != null)
+            {
+                EditandoImagenUrl = result.FullPath;
+            }
+        }
+        catch (Exception ex)
+        {
+            await ShowAlertAsync("Imagen", $"No se pudo abrir la galería: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private async Task SeleccionarImagenNuevoAsync()
+    {
+        try
+        {
+            var result = await MediaPicker.Default.PickPhotoAsync(new MediaPickerOptions
+            {
+                Title = "Seleccionar Imagen del Servicio"
+            });
+            if (result != null)
+            {
+                NuevoImagenUrl = result.FullPath;
+            }
+        }
+        catch (Exception ex)
+        {
+            await ShowAlertAsync("Imagen", $"No se pudo abrir la galería: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private async Task GuardarEdicionCompletaAsync()
+    {
+        if (string.IsNullOrWhiteSpace(EditandoNombre))
+        {
+            await ShowAlertAsync("Campo Requerido", "Por favor ingresa el nombre del tratamiento.");
+            return;
+        }
+
+        if (!decimal.TryParse(EditandoPrecio, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var precio) || precio <= 0)
+        {
+            await ShowAlertAsync("Tarifa Inválida", "Ingresa una tarifa numérica válida mayor a 0.");
             return;
         }
 
         try
         {
             IsBusy = true;
-            servicio.Precio = nuevoPrecio;
-            if (!string.IsNullOrWhiteSpace(ImagenUrlEnEdicion))
+
+            var servicio = _todosLosServicios.FirstOrDefault(s => s.Id == EditandoId);
+            if (servicio != null)
             {
-                servicio.ImagenUrl = ImagenUrlEnEdicion.Trim();
+                int categoriaId = EditandoCategoria switch
+                {
+                    "Cabello" => 1,
+                    "Uñas" => 2,
+                    "Maquillaje" => 3,
+                    "Spa" => 4,
+                    _ => 1
+                };
+
+                servicio.Nombre = EditandoNombre.Trim();
+                servicio.CategoriaId = categoriaId;
+                servicio.CategoriaNombre = EditandoCategoria;
+                servicio.Precio = precio;
+                servicio.DuracionMinutos = EditandoDuracion > 0 ? EditandoDuracion : 45;
+                servicio.Descripcion = !string.IsNullOrWhiteSpace(EditandoDescripcion) 
+                    ? EditandoDescripcion.Trim() 
+                    : $"Tratamiento profesional de {EditandoCategoria} en Shushine Studio.";
+                servicio.ImagenUrl = !string.IsNullOrWhiteSpace(EditandoImagenUrl) ? EditandoImagenUrl.Trim() : null;
+                servicio.Activo = EditandoActivo;
+
+                // Persistir cambio completo en la Web API de Render
+                var exito = await _servicioRepository.ActualizarServicioAsync(servicio);
+
+                IsEditando = false;
+                ActualizarContadores();
+                AplicarFiltro();
+
+                await ShowAlertAsync(
+                    "¡Servicio Actualizado!",
+                    exito 
+                        ? $"\"{servicio.Nombre}\" se actualizó correctamente en la base de datos de Shushine Studio."
+                        : $"\"{servicio.Nombre}\" se actualizó localmente."
+                );
             }
-
-            // Persistir cambio en la Web API de Render
-            var exito = await _servicioRepository.ActualizarServicioAsync(servicio);
-            
-            ServicioEnEdicionId = null;
-            ActualizarContadores();
-            AplicarFiltro();
-
-            await ShowAlertAsync(
-                "Tarifa Actualizada",
-                exito 
-                    ? $"El precio de \"{servicio.Nombre}\" se actualizó a ${servicio.Precio:F2} en la base de datos."
-                    : $"Tarifa actualizada localmente a ${servicio.Precio:F2}."
-            );
         }
         catch (Exception ex)
         {

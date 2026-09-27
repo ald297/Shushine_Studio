@@ -16,4 +16,6 @@ public class Servicio
 
     public string DuracionFormateada => $"{DuracionMinutos} min";
     public string PrecioFormateado => $"${Precio:N2}";
+    public bool TieneImagen => !string.IsNullOrWhiteSpace(ImagenUrl);
+    public bool NoTieneImagen => string.IsNullOrWhiteSpace(ImagenUrl);
 }
