@@ -16,6 +16,7 @@ import java.util.UUID;
 public class UsuarioPerfil {
     private UUID id;
     private String login;
+    private String correo;
     private String nombre;
     private String apellido;
     private String telefono;

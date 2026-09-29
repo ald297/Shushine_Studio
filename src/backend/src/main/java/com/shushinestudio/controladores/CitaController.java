@@ -158,4 +158,17 @@ public class CitaController {
         cambio.setId(id);
         return ResponseEntity.ok(citaService.cambiarEstado(cambio));
     }
+
+    @PutMapping("/{id}/cancelar")
+    @Operation(summary = "Cancelar cita por ID", description = "Cancela una cita activa liberando el horario del estilista.")
+    public ResponseEntity<CitaSalida> cancelarCita(
+            @PathVariable Integer id,
+            @RequestParam(required = false) String motivo) {
+        CitaCambiarEstado cambio = CitaCambiarEstado.builder()
+                .id(id)
+                .nuevoEstado("Cancelled")
+                .motivoCancelacion(motivo != null && !motivo.isBlank() ? motivo : "Cancelada por el cliente desde la app móvil")
+                .build();
+        return ResponseEntity.ok(citaService.cambiarEstado(cambio));
+    }
 }
