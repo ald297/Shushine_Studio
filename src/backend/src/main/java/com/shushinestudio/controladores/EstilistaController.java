@@ -1,12 +1,14 @@
 package com.shushinestudio.controladores;
 
 import com.shushinestudio.dtos.disponibilidad.DisponibilidadSalida;
+import com.shushinestudio.dtos.disponibilidad.EstilistaGuardarDto;
 import com.shushinestudio.dtos.disponibilidad.EstilistaSalida;
 import com.shushinestudio.servicios.interfaces.IDisponibilidadService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,10 +24,33 @@ public class EstilistaController {
     private IDisponibilidadService disponibilidadService;
 
     @GetMapping
-    @Operation(summary = "Listar estilistas activos", description = "Retorna el listado del equipo profesional del salón.")
-    public ResponseEntity<List<EstilistaSalida>> obtenerEstilistas() {
-        List<EstilistaSalida> estilistas = disponibilidadService.obtenerEstilistasActivos();
+    @Operation(summary = "Listar estilistas", description = "Retorna el listado del equipo profesional del salón.")
+    public ResponseEntity<List<EstilistaSalida>> obtenerEstilistas(@RequestParam(required = false) Boolean soloActivos) {
+        List<EstilistaSalida> estilistas = (soloActivos != null && soloActivos)
+                ? disponibilidadService.obtenerEstilistasActivos()
+                : disponibilidadService.obtenerTodosEstilistas();
         return ResponseEntity.ok(estilistas);
+    }
+
+    @PostMapping
+    @Operation(summary = "Crear nuevo estilista", description = "Registra un nuevo miembro del equipo profesional del salón.")
+    public ResponseEntity<EstilistaSalida> crearEstilista(@RequestBody EstilistaGuardarDto dto) {
+        EstilistaSalida nuevo = disponibilidadService.crearEstilista(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
+    }
+
+    @PutMapping("/{id}/estado")
+    @Operation(summary = "Actualizar disponibilidad de estilista", description = "Activa o inactiva a un estilista en la agenda.")
+    public ResponseEntity<Void> actualizarEstado(@PathVariable Integer id, @RequestParam Boolean activo) {
+        disponibilidadService.actualizarEstadoEstilista(id, activo);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Eliminar estilista", description = "Elimina permanentemente a un estilista del sistema.")
+    public ResponseEntity<Void> eliminarEstilista(@PathVariable Integer id) {
+        disponibilidadService.eliminarEstilista(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")

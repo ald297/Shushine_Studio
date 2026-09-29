@@ -146,6 +146,44 @@ public class DisponibilidadService implements IDisponibilidadService {
                 .build();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<EstilistaSalida> obtenerTodosEstilistas() {
+        return estilistaRepository.findAll().stream()
+                .map(e -> modelMapper.map(e, EstilistaSalida.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public EstilistaSalida crearEstilista(com.shushinestudio.dtos.disponibilidad.EstilistaGuardarDto dto) {
+        Estilista estilista = Estilista.builder()
+                .nombreCompleto(dto.getNombreCompleto())
+                .especialidadPrincipal(dto.getEspecialidadPrincipal())
+                .biografia(dto.getBiografia() != null ? dto.getBiografia() : "Estilista profesional en Shushine Studio")
+                .avatarUrl(dto.getAvatarUrl())
+                .colorAgenda(dto.getColorAgenda() != null ? dto.getColorAgenda() : "#D48B96")
+                .activo(dto.getActivo() != null ? dto.getActivo() : true)
+                .build();
+        Estilista guardado = estilistaRepository.save(estilista);
+        return modelMapper.map(guardado, EstilistaSalida.class);
+    }
+
+    @Override
+    @Transactional
+    public void actualizarEstadoEstilista(Integer id, Boolean activo) {
+        estilistaRepository.findById(id).ifPresent(e -> {
+            e.setActivo(activo);
+            estilistaRepository.save(e);
+        });
+    }
+
+    @Override
+    @Transactional
+    public void eliminarEstilista(Integer id) {
+        estilistaRepository.deleteById(id);
+    }
+
     private boolean seSolapan(LocalTime inicioA, LocalTime finA, LocalTime inicioB, LocalTime finB) {
         return inicioA.isBefore(finB) && finA.isAfter(inicioB);
     }
