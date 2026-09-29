@@ -132,7 +132,7 @@
 
                         <!-- MENSAJE DE ERROR O SIN CONEXIÓN -->
                         <Frame
-                            IsVisible="{Binding ErrorMessage, Converter={x:Null}}"
+                            IsVisible="{Binding HasError}"
                             BackgroundColor="#FEF2F2"
                             BorderColor="#FCA5A5"
                             CornerRadius="12"
