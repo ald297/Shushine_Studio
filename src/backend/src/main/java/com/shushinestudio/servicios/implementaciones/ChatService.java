@@ -69,14 +69,22 @@ public class ChatService implements IChatService {
     @Override
     @Transactional(readOnly = true)
     public Page<MensajeSalidaDto> obtenerMensajesCliente(String userLogin, Pageable pageable) {
-        Usuario usuario = obtenerUsuarioPorLogin(userLogin);
-        Cliente cliente = clienteRepository.findByUsuarioId(usuario.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Perfil de cliente no encontrado"));
+        Usuario usuario = usuarioRepository.findByLogin(userLogin).orElse(null);
+        if (usuario == null) {
+            return Page.empty(pageable);
+        }
 
-        Conversacion conversacion = conversacionRepository.findByClienteId(cliente.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Aún no tienes una conversación activa con el salón."));
+        Optional<Cliente> clienteOpt = clienteRepository.findByUsuarioId(usuario.getId());
+        if (clienteOpt.isEmpty()) {
+            return Page.empty(pageable);
+        }
 
-        return mensajeRepository.findByConversacionIdAndActivoTrueOrderByFechaEnvioAsc(conversacion.getId(), pageable)
+        Optional<Conversacion> conversacionOpt = conversacionRepository.findByClienteId(clienteOpt.get().getId());
+        if (conversacionOpt.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        return mensajeRepository.findByConversacionIdAndActivoTrueOrderByFechaEnvioAsc(conversacionOpt.get().getId(), pageable)
                 .map(m -> mapearMensajeSalida(m, usuario.getId()));
     }
 

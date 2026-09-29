@@ -99,6 +99,7 @@ public class UsuarioService {
         return UsuarioPerfil.builder()
                 .id(usuario.getId())
                 .login(usuario.getLogin())
+                .correo(usuario.getCorreo() != null ? usuario.getCorreo() : (usuario.getLogin() != null && usuario.getLogin().contains("@") ? usuario.getLogin() : usuario.getLogin() + "@shushinestudio.com"))
                 .nombre(usuario.getNombre())
                 .apellido(usuario.getApellido())
                 .telefono(usuario.getTelefono())
