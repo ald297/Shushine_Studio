@@ -4,43 +4,110 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- Paleta Cromática Oficial - Shushine Studio -->
-    <Color x:Key="PrimaryColor">#D48B96</Color>
-    <Color x:Key="PrimaryDark">#B86F7A</Color>
-    <Color x:Key="PrimaryLight">#E8A598</Color>
-    
-    <Color x:Key="SecondaryColor">#D8B4E2</Color>
-    <Color x:Key="SecondaryLight">#F2E6F7</Color>
-    
-    <Color x:Key="BackgroundColor">#FDF6F6</Color>
+    <!-- ======================================================== -->
+    <!--  SISTEMA DE DISEÑO OFICIAL — SHUSHINE STUDIO (STITCH)    -->
+    <!--  Tema: Luxe Lotus & Warm Gold (Visual Identity Manager)  -->
+    <!-- ======================================================== -->
+
+    <!-- Colores Principales Oficiales -->
+    <Color x:Key="Primary">#9B2D47</Color>              <!-- Royal Lotus Wine -->
+    <Color x:Key="Secondary">#C5A059</Color>            <!-- Champagne Metallic Gold -->
+    <Color x:Key="Tertiary">#E87A90</Color>             <!-- Lotus Rose Blush -->
+    <Color x:Key="NeutralCore">#1A1412</Color>          <!-- Espresso Noir -->
+    <Color x:Key="Background">#FFF8F6</Color>           <!-- Canvas cálido principal -->
+    <Color x:Key="BackgroundSecondary">#FAFAF9</Color>  <!-- Warm Alabaster secundario -->
+    <Color x:Key="Surface">#FFFFFF</Color>              <!-- Pure Porcelain -->
+    <Color x:Key="Border">#EDE7E1</Color>               <!-- Borde sutil cálido -->
+    <Color x:Key="InputBackground">#F5F3EF</Color>      <!-- Fondo de inputs y superficies suaves -->
+    <Color x:Key="TextPrimary">#1A1412</Color>          <!-- Tipografía principal de alto contraste -->
+    <Color x:Key="TextSecondary">#564144</Color>        <!-- Tipografía secundaria / descriptiva -->
+    <Color x:Key="TextLight">#FFFFFF</Color>            <!-- Texto claro sobre fondos oscuros -->
+
+    <!-- Sombra Cálida Sutil: rgba(43, 33, 30, 0.04) -->
+    <Color x:Key="WarmShadowColor">#0A2B211E</Color>
+
+    <!-- Semántica de Estados del Negocio -->
+    <Color x:Key="Success">#1B6A38</Color>
+    <Color x:Key="Warning">#8C6514</Color>
+    <Color x:Key="Error">#BA1A1A</Color>
+    <Color x:Key="Info">#0288D1</Color>
+
+    <!-- Estados Específicos de Citas (Appointment Status Semantic Tokens) -->
+    <!-- CONFIRMADA (Botanical Emerald) -->
+    <Color x:Key="StatusConfirmadaBg">#EBF6EE</Color>
+    <Color x:Key="StatusConfirmadaText">#1B6A38</Color>
+    <Color x:Key="StatusConfirmadaBorder">#C5E7CD</Color>
+
+    <!-- PENDIENTE (Champagne Gold) -->
+    <Color x:Key="StatusPendienteBg">#FDF8EB</Color>
+    <Color x:Key="StatusPendienteText">#8C6514</Color>
+    <Color x:Key="StatusPendienteBorder">#F5E2B3</Color>
+
+    <!-- EN PROCESO (Lotus Rose) -->
+    <Color x:Key="StatusEnProcesoBg">#FCECEF</Color>
+    <Color x:Key="StatusEnProcesoText">#9B2D47</Color>
+    <Color x:Key="StatusEnProcesoBorder">#F7CAD3</Color>
+
+    <!-- TERMINADA (Warm Neutral Taupe) -->
+    <Color x:Key="StatusTerminadaBg">#F5F3EF</Color>
+    <Color x:Key="StatusTerminadaText">#594E46</Color>
+    <Color x:Key="StatusTerminadaBorder">#E2DCD5</Color>
+
+    <!-- CANCELADA (Muted Scarlet) -->
+    <Color x:Key="StatusCanceladaBg">#FBEBEB</Color>
+    <Color x:Key="StatusCanceladaText">#8E2323</Color>
+    <Color x:Key="StatusCanceladaBorder">#F2B8B8</Color>
+
+    <!-- ======================================================== -->
+    <!--  ALIASES DE COMPATIBILIDAD CON VISTAS EXISTENTES         -->
+    <!--  (Mapeados a la nueva identidad de Stitch)               -->
+    <!-- ======================================================== -->
+    <Color x:Key="PrimaryColor">#9B2D47</Color>
+    <Color x:Key="PrimaryDark">#7F2339</Color>
+    <Color x:Key="PrimaryLight">#E87A90</Color>
+
+    <Color x:Key="SecondaryColor">#C5A059</Color>
+    <Color x:Key="SecondaryLight">#F5E6BE</Color>
+
+    <Color x:Key="BackgroundColor">#FFF8F6</Color>
     <Color x:Key="SurfaceColor">#FFFFFF</Color>
-    <Color x:Key="SurfaceDark">#F7F3F3</Color>
+    <Color x:Key="SurfaceDark">#F5F3EF</Color>
 
-    <Color x:Key="TextColorPrimary">#2D2926</Color>
-    <Color x:Key="TextColorSecondary">#7A7579</Color>
-    <Color x:Key="TextLight">#FFFFFF</Color>
+    <Color x:Key="TextColorPrimary">#1A1412</Color>
+    <Color x:Key="TextColorSecondary">#564144</Color>
 
-    <Color x:Key="BorderColor">#E8E0E0</Color>
-    <Color x:Key="DividerColor">#EFEAE9</Color>
+    <Color x:Key="BorderColor">#EDE7E1</Color>
+    <Color x:Key="DividerColor">#EDE7E1</Color>
 
-    <!-- Estados -->
-    <Color x:Key="SuccessColor">#2E7D32</Color>
-    <Color x:Key="WarningColor">#ED6C02</Color>
-    <Color x:Key="ErrorColor">#D32F2F</Color>
+    <Color x:Key="SuccessColor">#1B6A38</Color>
+    <Color x:Key="WarningColor">#8C6514</Color>
+    <Color x:Key="ErrorColor">#BA1A1A</Color>
     <Color x:Key="InfoColor">#0288D1</Color>
 
-    <!-- Paleta Dorada / Beige Elegante (Salón Luxury) -->
+    <!-- Paleta Dorada / Salón Luxury -->
     <Color x:Key="GoldPrimary">#C5A059</Color>
     <Color x:Key="GoldDark">#A68038</Color>
-    <Color x:Key="GoldLight">#E8D8B0</Color>
-    <Color x:Key="GoldBackground">#FAF8F5</Color>
+    <Color x:Key="GoldLight">#F5E6BE</Color>
+    <Color x:Key="GoldBackground">#FFF8F6</Color>
     <Color x:Key="GoldSurface">#FFFFFF</Color>
-    <Color x:Key="GoldBorder">#EADCC6</Color>
+    <Color x:Key="GoldBorder">#EDE7E1</Color>
 
-    <!-- Pinceles (Brushes) -->
-    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}" />
-    <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}" />
-    <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}" />
-    <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" />
+    <!-- Tokens Adicionales Stitch / Compatibilidad de Vistas -->
+    <Color x:Key="SurfaceVariant">#F5F3EF</Color>
+    <Color x:Key="Outline">#EDE7E1</Color>
+    <Color x:Key="Accent">#C5A059</Color>
+
+    <!-- Pinceles (SolidColorBrushes) -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}" />
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}" />
+    <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}" />
+    <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource Background}" />
+    <SolidColorBrush x:Key="BackgroundSecondaryBrush" Color="{StaticResource BackgroundSecondary}" />
+    <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource Surface}" />
+    <SolidColorBrush x:Key="SurfaceVariantBrush" Color="{StaticResource SurfaceVariant}" />
+    <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource Border}" />
+    <SolidColorBrush x:Key="OutlineBrush" Color="{StaticResource Outline}" />
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource Accent}" />
+    <SolidColorBrush x:Key="InputBackgroundBrush" Color="{StaticResource InputBackground}" />
     <SolidColorBrush x:Key="GoldBrush" Color="{StaticResource GoldPrimary}" />
 </ResourceDictionary>

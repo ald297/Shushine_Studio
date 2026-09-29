@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShushineStudio.Mobile.Domain.Entities;
 using ShushineStudio.Mobile.Domain.Repositories;
+using ShushineStudio.Mobile.Domain.UseCases;
 
 namespace ShushineStudio.Mobile.Presentation.ViewModels.Booking;
 
@@ -19,6 +20,8 @@ public partial class TimeSlotItem : ObservableObject
 
     [ObservableProperty]
     private string turno = "Mañana";
+
+    public bool NoDisponible => !Disponible;
 }
 
 public partial class DayItem : ObservableObject
@@ -38,7 +41,7 @@ public partial class DayItem : ObservableObject
 
 /// <summary>
 /// ViewModel para la selección de fecha y bloques horarios disponibles (US-3.04 / Wireframe Pág. 10).
-/// Genera slots dinámicos matutinos y vespertinos con filtrado de ocupados.
+/// Genera slots dinámicos matutinos y vespertinos con filtrado de ocupados mediante GetDisponibilidadUseCase.
 /// </summary>
 [QueryProperty(nameof(ServicioId), "servicioId")]
 [QueryProperty(nameof(EstilistaId), "estilistaId")]
@@ -46,6 +49,7 @@ public partial class DayItem : ObservableObject
 public partial class SlotSelectionViewModel : BaseViewModel
 {
     private readonly IServicioRepository _servicioRepository;
+    private readonly GetDisponibilidadUseCase? _getDisponibilidadUseCase;
 
     [ObservableProperty]
     private long servicioId;
@@ -74,9 +78,22 @@ public partial class SlotSelectionViewModel : BaseViewModel
     [ObservableProperty]
     private string horaSeleccionada = string.Empty;
 
-    public SlotSelectionViewModel(IServicioRepository servicioRepository)
+    public bool HasErrorMessage => !string.IsNullOrWhiteSpace(ErrorMessage);
+
+    public bool TieneHoraSeleccionada => !string.IsNullOrWhiteSpace(HoraSeleccionada);
+
+    public string MesAnioTexto => FechaSeleccionada.ToString("MMMM yyyy", new System.Globalization.CultureInfo("es-ES")).ToUpperInvariant();
+
+    public string ResumenFechaHora => string.IsNullOrWhiteSpace(HoraSeleccionada)
+        ? "Selecciona un horario disponible"
+        : $"{FechaSeleccionada:dd/MM/yyyy} • {HoraSeleccionada}";
+
+    public SlotSelectionViewModel(
+        IServicioRepository servicioRepository,
+        GetDisponibilidadUseCase? getDisponibilidadUseCase = null)
     {
         _servicioRepository = servicioRepository;
+        _getDisponibilidadUseCase = getDisponibilidadUseCase;
         Title = "Fecha y Horario";
         GenerarDias();
         GenerarSlots();
@@ -87,7 +104,25 @@ public partial class SlotSelectionViewModel : BaseViewModel
         if (value > 0)
         {
             Servicio = await _servicioRepository.GetServicioByIdAsync(value);
+            await CargarDisponibilidadAsync();
         }
+    }
+
+    async partial void OnEstilistaIdChanged(string value)
+    {
+        await CargarDisponibilidadAsync();
+    }
+
+    partial void OnHoraSeleccionadaChanged(string value)
+    {
+        OnPropertyChanged(nameof(TieneHoraSeleccionada));
+        OnPropertyChanged(nameof(ResumenFechaHora));
+    }
+
+    partial void OnFechaSeleccionadaChanged(DateTime value)
+    {
+        OnPropertyChanged(nameof(MesAnioTexto));
+        OnPropertyChanged(nameof(ResumenFechaHora));
     }
 
     private void GenerarDias()
@@ -95,17 +130,81 @@ public partial class SlotSelectionViewModel : BaseViewModel
         DiasSemana.Clear();
         var baseDate = DateTime.Today;
 
-        for (int i = 1; i <= 7; i++)
+        for (int i = 1; i <= 14; i++)
         {
             var date = baseDate.AddDays(i);
             DiasSemana.Add(new DayItem
             {
                 Fecha = date,
-                DiaNombre = date.ToString("ddd", new System.Globalization.CultureInfo("es-ES")).ToUpperInvariant(),
+                DiaNombre = date.ToString("ddd", new System.Globalization.CultureInfo("es-ES")).ToUpperInvariant().TrimEnd('.'),
                 DiaNumero = date.Day.ToString(),
                 Seleccionado = (i == 1)
             });
         }
+    }
+
+    [RelayCommand]
+    public async Task CargarDisponibilidadAsync()
+    {
+        if (IsBusy) return;
+
+        try
+        {
+            IsBusy = true;
+            ErrorMessage = null;
+            OnPropertyChanged(nameof(HasErrorMessage));
+
+            long.TryParse(EstilistaId, out var idEstilista);
+
+            if (_getDisponibilidadUseCase != null && idEstilista > 0 && ServicioId > 0)
+            {
+                var disp = await _getDisponibilidadUseCase.ExecuteAsync(idEstilista, FechaSeleccionada, ServicioId);
+                if (disp != null && disp.Franjas != null && disp.Franjas.Any())
+                {
+                    SlotsManana.Clear();
+                    SlotsTarde.Clear();
+
+                    foreach (var f in disp.Franjas)
+                    {
+                        var horaInicio = f.HoraInicio;
+                        bool esTarde = false;
+                        if (TimeSpan.TryParse(horaInicio, out var ts))
+                        {
+                            esTarde = ts.Hours >= 12;
+                        }
+                        else if (horaInicio.Contains("PM", StringComparison.OrdinalIgnoreCase))
+                        {
+                            esTarde = true;
+                        }
+
+                        var item = new TimeSlotItem
+                        {
+                            Hora = f.HoraInicio,
+                            Disponible = f.Disponible,
+                            Turno = esTarde ? "Tarde" : "Mañana",
+                            Seleccionado = (f.HoraInicio == HoraSeleccionada)
+                        };
+
+                        if (esTarde)
+                            SlotsTarde.Add(item);
+                        else
+                            SlotsManana.Add(item);
+                    }
+                    return;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            OnPropertyChanged(nameof(HasErrorMessage));
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+
+        GenerarSlots();
     }
 
     private void GenerarSlots()
@@ -120,10 +219,16 @@ public partial class SlotSelectionViewModel : BaseViewModel
         SlotsTarde.Add(new TimeSlotItem { Hora = "03:30 PM", Disponible = true, Turno = "Tarde" });
         SlotsTarde.Add(new TimeSlotItem { Hora = "05:00 PM", Disponible = false, Turno = "Tarde" }); // Ocupado
         SlotsTarde.Add(new TimeSlotItem { Hora = "06:15 PM", Disponible = true, Turno = "Tarde" });
+
+        // Si la hora seleccionada previa sigue disponible en los nuevos slots, marcarla
+        foreach (var s in SlotsManana)
+            s.Seleccionado = (s.Hora == HoraSeleccionada);
+        foreach (var s in SlotsTarde)
+            s.Seleccionado = (s.Hora == HoraSeleccionada);
     }
 
     [RelayCommand]
-    private void SeleccionarDia(DayItem day)
+    private async Task SeleccionarDiaAsync(DayItem day)
     {
         if (day == null) return;
 
@@ -133,8 +238,8 @@ public partial class SlotSelectionViewModel : BaseViewModel
         }
 
         FechaSeleccionada = day.Fecha;
-        GenerarSlots();
         HoraSeleccionada = string.Empty;
+        await CargarDisponibilidadAsync();
     }
 
     [RelayCommand]
@@ -152,6 +257,12 @@ public partial class SlotSelectionViewModel : BaseViewModel
         }
 
         HoraSeleccionada = slot.Hora;
+    }
+
+    [RelayCommand]
+    private async Task VolverAsync()
+    {
+        await Shell.Current.GoToAsync("..");
     }
 
     [RelayCommand]

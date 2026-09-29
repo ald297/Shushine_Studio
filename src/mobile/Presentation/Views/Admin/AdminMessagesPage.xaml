@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+    xmlns:entities="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
+    x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminMessagesPage"
+    x:DataType="vm:AdminMessagesViewModel"
+    Title="{Binding Title}"
+    BackgroundColor="{StaticResource Background}">
+
+    <Grid>
+        <!-- ACCESO RESTRINGIDO (NO ADMIN) -->
+        <VerticalStackLayout
+            IsVisible="{Binding IsUnauthorized}"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Padding="32"
+            Spacing="16">
+
+            <Frame BackgroundColor="{StaticResource SurfaceVariant}" CornerRadius="36" WidthRequest="72" HeightRequest="72" HorizontalOptions="Center" HasShadow="False">
+                <Label Text="🔒" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center" />
+            </Frame>
+            <Label Text="Acceso Restringido" FontFamily="PlayfairDisplay" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalTextAlignment="Center" />
+            <Label Text="Esta pantalla requiere privilegios de Administrador de Shushine Studio." FontFamily="PlusJakartaSans" FontSize="14" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
+            <Button Text="Regresar al Login" Command="{Binding RegresarALoginCommand}" Style="{StaticResource PrimaryButtonStyle}" HeightRequest="48" FontSize="14" CornerRadius="12" />
+        </VerticalStackLayout>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <Grid IsVisible="{Binding IsAuthorized}" RowDefinitions="Auto,*">
+
+            <!-- 1. HEADER -->
+            <Grid Grid.Row="0" BackgroundColor="{StaticResource Surface}" Padding="20,50,20,16">
+                <Grid ColumnDefinitions="40,*,40">
+                    <ImageButton
+                        Grid.Column="0"
+                        Source="arrow_left.png"
+                        Command="{Binding RegresarCommand}"
+                        WidthRequest="28" HeightRequest="28"
+                        BackgroundColor="Transparent"
+                        HorizontalOptions="Start" VerticalOptions="Center" />
+
+                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4">
+                        <HorizontalStackLayout Spacing="6" HorizontalOptions="Center">
+                            <Label Text="Mensajes" FontFamily="PlayfairDisplay" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Frame BackgroundColor="{StaticResource Primary}" CornerRadius="4" Padding="5,1" HasShadow="False" VerticalOptions="Center">
+                                <Label Text="ADMIN" FontFamily="PlusJakartaSans" FontSize="8" FontAttributes="Bold" TextColor="{StaticResource Surface}" />
+                            </Frame>
+                        </HorizontalStackLayout>
+                        <Label Text="Bandeja de Consultas de Clientes" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Grid>
+
+            <!-- 2. CUERPO -->
+            <ScrollView Grid.Row="1" Padding="20,20,20,32">
+                <VerticalStackLayout Spacing="20">
+
+                    <!-- TARJETA INFORMATIVA -->
+                    <Border
+                        Stroke="{StaticResource Outline}"
+                        StrokeThickness="1"
+                        BackgroundColor="{StaticResource Surface}"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="20">
+                        <Border.Shadow>
+                            <Shadow Brush="#10000000" Offset="0,4" Radius="12" Opacity="0.8" />
+                        </Border.Shadow>
+
+                        <VerticalStackLayout Spacing="16">
+                            <Label Text="Canal Seguro de Atención al Cliente" FontFamily="PlayfairDisplay" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Label
+                                Text="El sistema conecta directamente las conversaciones entre los Clientes autenticados y la administración de Shushine Studio. Toda respuesta enviada aquí se sincroniza en tiempo real con la app del cliente."
+                                FontFamily="PlusJakartaSans"
+                                FontSize="13"
+                                TextColor="{StaticResource TextSecondary}"
+                                LineHeight="1.3" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- LISTADO DE CONVERSACIONES REALES -->
+                    <VerticalStackLayout Spacing="10" IsVisible="{Binding HasConversaciones}">
+                        <Label Text="Conversaciones Activas" FontFamily="PlayfairDisplay" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+
+                        <CollectionView ItemsSource="{Binding Conversaciones}" SelectionMode="None">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="entities:ConversacionChat">
+                                    <Border
+                                        Stroke="{StaticResource Outline}"
+                                        StrokeThickness="1"
+                                        BackgroundColor="{StaticResource Surface}"
+                                        StrokeShape="RoundRectangle 12"
+                                        Padding="16"
+                                        Margin="0,0,0,10">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminMessagesViewModel}}, Path=AbrirConversacionCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                                            <HorizontalStackLayout Grid.Row="0" Grid.Column="0" Spacing="8" VerticalOptions="Center">
+                                                <Label Text="{Binding NombreCliente}" FontFamily="PlayfairDisplay" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                                <Frame IsVisible="{Binding TieneMensajesNoLeidos}" BackgroundColor="{StaticResource Primary}" CornerRadius="10" Padding="6,2" HasShadow="False" VerticalOptions="Center">
+                                                    <Label Text="{Binding MensajesNoLeidos, StringFormat='{0} nuevos'}" FontSize="10" TextColor="White" FontFamily="PlusJakartaSans" FontAttributes="Bold" />
+                                                </Frame>
+                                            </HorizontalStackLayout>
+                                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding FechaRelativaDisplay}" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" VerticalOptions="Center" />
+                                            <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding UltimoMensaje}" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextSecondary}" LineBreakMode="TailTruncation" MaxLines="1" Margin="0,4,0,0" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+
+                    <!-- ESTADO VACÍO -->
+                    <VerticalStackLayout IsVisible="{Binding ShowEmptyState}" Padding="32" Spacing="8" HorizontalOptions="Center">
+                        <Label Text="📬" FontSize="36" HorizontalOptions="Center" />
+                        <Label Text="No hay mensajes entrantes" FontFamily="PlayfairDisplay" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalTextAlignment="Center" />
+                        <Label Text="Las conversaciones aparecerán aquí cuando los clientes inicien un chat." FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
+    </Grid>
+</ContentPage>

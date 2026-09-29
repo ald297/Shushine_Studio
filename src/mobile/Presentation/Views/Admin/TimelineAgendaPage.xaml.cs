@@ -16,6 +16,6 @@ public partial class TimelineAgendaPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.InicializarAgendaAsync();
+        await _viewModel.InicializarAsync();
     }
 }

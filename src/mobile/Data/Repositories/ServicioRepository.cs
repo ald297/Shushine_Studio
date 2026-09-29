@@ -163,15 +163,17 @@ public class ServicioRepository : IServicioRepository
     {
         try
         {
-            var categorias = await _httpClient.GetFromJsonAsync<List<string>>("categorias/nombres");
+            var categorias = await _httpClient.GetFromJsonAsync<List<CategoriaDto>>("categorias/lista");
             if (categorias != null && categorias.Count > 0)
             {
-                return categorias;
+                var nombres = new List<string> { "Todos" };
+                nombres.AddRange(categorias.Where(c => c.Activo && !string.IsNullOrWhiteSpace(c.Nombre)).Select(c => c.Nombre));
+                return nombres;
             }
         }
         catch
         {
-            // Contingencia offline
+            // Contingencia offline si no hay red
         }
 
         return new List<string> { "Todos", "Cabello", "Uñas", "Maquillaje", "Spa" };

@@ -1,214 +1,642 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
-             xmlns:entities="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
-             x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminDashboardPage"
-             x:DataType="vm:AdminDashboardViewModel"
-             BackgroundColor="{StaticResource BackgroundColor}"
-             Shell.NavBarIsVisible="false">
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+    xmlns:entities="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
+    x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminDashboardPage"
+    x:DataType="vm:AdminDashboardViewModel"
+    BackgroundColor="{StaticResource Background}"
+    Shell.NavBarIsVisible="false"
+    Title="Dashboard">
 
-    <RefreshView IsRefreshing="{Binding IsBusy}" Command="{Binding LoadDashboardCommand}">
-        <ScrollView>
-            <VerticalStackLayout Padding="20, 48, 20, 24" Spacing="16">
+    <Grid>
 
-                <!-- 1. Cabecera Oficial de Administrador (Wireframe Pág. 15) -->
-                <Grid ColumnDefinitions="*, Auto" Margin="0, 8, 0, 4">
-                    <VerticalStackLayout Grid.Column="0" Spacing="3">
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- PANTALLA DE ACCESO NO AUTORIZADO                        -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <VerticalStackLayout
+            IsVisible="{Binding IsUnauthorized}"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Padding="32"
+            Spacing="20">
+            <Frame
+                WidthRequest="80" HeightRequest="80"
+                CornerRadius="40"
+                BackgroundColor="#FDE8E8"
+                BorderColor="#F8B4B4"
+                Padding="0"
+                HorizontalOptions="Center"
+                HasShadow="False">
+                <Label Text="🔒" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center" />
+            </Frame>
+
+            <Label
+                Text="Acceso Restringido"
+                FontFamily="PlayfairDisplay"
+                FontSize="22" FontAttributes="Bold"
+                TextColor="{StaticResource TextPrimary}"
+                HorizontalTextAlignment="Center" />
+
+            <Label
+                Text="Esta sección es exclusiva para el personal administrativo y gerencial de Shushine Studio. Tu usuario no cuenta con privilegios de administrador."
+                FontFamily="PlusJakartaSans"
+                FontSize="14"
+                TextColor="{StaticResource TextSecondary}"
+                HorizontalTextAlignment="Center"
+                LineHeight="1.3" />
+
+            <Button
+                Text="Regresar al Inicio"
+                Command="{Binding RegresarALoginCommand}"
+                Style="{StaticResource PrimaryButtonStyle}"
+                HeightRequest="48"
+                FontSize="14"
+                CornerRadius="12"
+                Margin="0,12,0,0" />
+        </VerticalStackLayout>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- CONTENIDO PRINCIPAL ADMINISTRATIVO                      -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <Grid IsVisible="{Binding IsAuthorized}" RowDefinitions="Auto,*">
+
+            <!-- HEADER SUPERIOR -->
+            <Grid Grid.Row="0" BackgroundColor="{StaticResource Surface}" Padding="20,50,20,16">
+                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                    
+                    <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="4">
                         <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                            <Label Text="Shushine Studio"
-                                   FontSize="14"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource PrimaryColor}" />
-                            <Border StrokeShape="RoundRectangle 6"
-                                    BackgroundColor="{StaticResource PrimaryLight}"
-                                    Padding="6, 2">
-                                <Label Text="ADMINISTRADOR" FontSize="10" FontAttributes="Bold" TextColor="White" />
-                            </Border>
+                            <Label
+                                Text="SHUSHINE STUDIO"
+                                FontFamily="PlusJakartaSans"
+                                FontSize="11" FontAttributes="Bold"
+                                TextColor="{StaticResource Secondary}"
+                                CharacterSpacing="2" />
+                            <Frame
+                                BackgroundColor="{StaticResource Primary}"
+                                CornerRadius="6"
+                                Padding="6,2"
+                                HasShadow="False">
+                                <Label
+                                    Text="ADMIN"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="9" FontAttributes="Bold"
+                                    TextColor="{StaticResource Surface}" />
+                            </Frame>
                         </HorizontalStackLayout>
-                        <Label Text="DASHBOARD"
-                               FontSize="11"
-                               FontAttributes="Bold"
-                               CharacterSpacing="2"
-                               TextColor="{StaticResource TextColorSecondary}" />
-                        <Label Text="Hola, Administrador"
-                               Style="{StaticResource HeaderLabelStyle}"
-                               FontSize="22" />
-                        <Label Text="Resumen de operaciones y citas programadas del salón"
-                               Style="{StaticResource SubheaderLabelStyle}"
-                               FontSize="12" />
+
+                        <Label
+                            Text="{Binding NombreAdmin, StringFormat='Hola, {0}'}"
+                            FontFamily="PlayfairDisplay"
+                            FontSize="22" FontAttributes="Bold"
+                            TextColor="{StaticResource TextPrimary}" />
+
+                        <Label
+                            Text="{Binding FechaHoy}"
+                            FontFamily="PlusJakartaSans"
+                            FontSize="12"
+                            TextColor="{StaticResource TextSecondary}" />
                     </VerticalStackLayout>
 
-                    <!-- Botón de Acción Rápida Sin Cita en Cabecera -->
-                    <Border Grid.Column="1"
-                            StrokeShape="RoundRectangle 20"
-                            BackgroundColor="{StaticResource PrimaryColor}"
-                            Padding="14, 8"
-                            VerticalOptions="Center">
-                        <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
-                            <Label Text="✨" FontSize="12" VerticalOptions="Center" />
-                            <Label Text="+ Sin Cita" FontSize="13" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" />
-                        </HorizontalStackLayout>
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding NuevaReservaWalkInCommand}" />
-                        </Border.GestureRecognizers>
-                    </Border>
+                    <!-- ACCIONES DEL HEADER -->
+                    <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="10" VerticalOptions="Center">
+                        <ImageButton
+                            Source="bell.png"
+                            Command="{Binding IrANotificacionesCommand}"
+                            WidthRequest="36" HeightRequest="36"
+                            BackgroundColor="{StaticResource SurfaceVariant}"
+                            CornerRadius="18"
+                            Padding="8"
+                            ToolTipProperties.Text="Notificaciones" />
+
+                        <ImageButton
+                            Source="logout.png"
+                            Command="{Binding CerrarSesionAdminCommand}"
+                            WidthRequest="36" HeightRequest="36"
+                            BackgroundColor="{StaticResource SurfaceVariant}"
+                            CornerRadius="18"
+                            Padding="8"
+                            ToolTipProperties.Text="Cerrar sesión" />
+                    </HorizontalStackLayout>
+
+                    <BoxView Grid.Row="1" Grid.ColumnSpan="2" HeightRequest="1" BackgroundColor="{StaticResource Border}" Margin="0,14,0,0" />
                 </Grid>
+            </Grid>
 
-                <!-- Badge Fecha -->
-                <Border StrokeShape="RoundRectangle 10"
-                        BackgroundColor="{StaticResource SurfaceColor}"
-                        Padding="12, 6"
-                        HorizontalOptions="Start">
-                    <Label Text="{Binding FechaHoy, StringFormat='📅 Hoy, {0}'}"
-                           FontSize="12"
-                           FontAttributes="Bold"
-                           TextColor="{StaticResource PrimaryDark}" />
-                </Border>
+            <!-- CUERPO PRINCIPAL -->
+            <RefreshView Grid.Row="1" IsRefreshing="{Binding IsBusy}" Command="{Binding LoadDashboardCommand}">
+                <ScrollView>
+                    <VerticalStackLayout Padding="20,20,20,32" Spacing="22">
 
-                <!-- 2. KPI Card 1: Citas de Hoy y Capacidad (Wireframe Pág. 15) -->
-                <Border Style="{StaticResource CardBorderStyle}" Padding="18">
-                    <VerticalStackLayout Spacing="14">
-                        <Grid ColumnDefinitions="*, Auto">
-                            <Label Grid.Column="0" Text="CITAS DE HOY" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" />
-                            <Border Grid.Column="1"
-                                    StrokeShape="RoundRectangle 10"
-                                    BackgroundColor="{StaticResource SecondaryLight}"
-                                    Padding="8, 3">
-                                <Label Text="{Binding PorcentajeOcupado, StringFormat='{0}% Capacidad'}"
-                                       FontSize="11"
-                                       FontAttributes="Bold"
-                                       TextColor="{StaticResource PrimaryDark}" />
-                            </Border>
+                        <!-- MENSAJE DE ERROR O SIN CONEXIÓN -->
+                        <Frame
+                            IsVisible="{Binding ErrorMessage, Converter={x:Null}}"
+                            BackgroundColor="#FEF2F2"
+                            BorderColor="#FCA5A5"
+                            CornerRadius="12"
+                            Padding="14,10"
+                            HasShadow="False">
+                            <Label Text="{Binding ErrorMessage}"
+                                   FontFamily="PlusJakartaSans"
+                                   FontSize="12"
+                                   TextColor="#991B1B"
+                                   HorizontalTextAlignment="Center" />
+                        </Frame>
+
+                        <!-- BARRA DE ACCIONES RÁPIDAS ADMINISTRATIVAS -->
+                        <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+                            <!-- 1. AGENDA -->
+                            <Frame
+                                Grid.Column="0"
+                                BackgroundColor="{StaticResource Surface}"
+                                BorderColor="{StaticResource Border}"
+                                CornerRadius="12"
+                                Padding="8,10"
+                                HasShadow="False">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding IrAAgendaCommand}" />
+                                </Frame.GestureRecognizers>
+                                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                    <Label Text="📅" FontSize="18" HorizontalOptions="Center" />
+                                    <Label Text="Agenda" FontFamily="PlusJakartaSans" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
+
+                            <!-- 2. CITAS -->
+                            <Frame
+                                Grid.Column="1"
+                                BackgroundColor="{StaticResource Surface}"
+                                BorderColor="{StaticResource Border}"
+                                CornerRadius="12"
+                                Padding="8,10"
+                                HasShadow="False">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding IrAGestionCitasCommand}" />
+                                </Frame.GestureRecognizers>
+                                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                    <Label Text="📋" FontSize="18" HorizontalOptions="Center" />
+                                    <Label Text="Citas" FontFamily="PlusJakartaSans" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
+
+                            <!-- 3. CLIENTES -->
+                            <Frame
+                                Grid.Column="2"
+                                BackgroundColor="{StaticResource Surface}"
+                                BorderColor="{StaticResource Border}"
+                                CornerRadius="12"
+                                Padding="8,10"
+                                HasShadow="False">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding IrAClientesCommand}" />
+                                </Frame.GestureRecognizers>
+                                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                    <Label Text="👥" FontSize="18" HorizontalOptions="Center" />
+                                    <Label Text="Clientes" FontFamily="PlusJakartaSans" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
+
+                            <!-- 4. WALK-IN -->
+                            <Frame
+                                Grid.Column="3"
+                                BackgroundColor="{StaticResource Surface}"
+                                BorderColor="{StaticResource Primary}"
+                                CornerRadius="12"
+                                Padding="8,10"
+                                HasShadow="False">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding NuevaCitaWalkInCommand}" />
+                                </Frame.GestureRecognizers>
+                                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                    <Label Text="➕" FontSize="18" HorizontalOptions="Center" />
+                                    <Label Text="Walk-in" FontFamily="PlusJakartaSans" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource Primary}" HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
                         </Grid>
 
-                        <Label Text="{Binding CitasHoy}"
-                               FontSize="38"
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource PrimaryDark}" />
+                        <!-- FILA RÁPIDA 2: SERVICIOS / PRODUCTOS / MENSAJES / SOLICITUDES -->
+                        <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="10">
+                            <!-- SERVICIOS -->
+                            <Frame
+                                Grid.Column="0"
+                                BackgroundColor="{StaticResource Surface}"
+                                BorderColor="{StaticResource Border}"
+                                CornerRadius="12"
+                                Padding="6,10"
+                                HasShadow="False">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding IrAServiciosCommand}" />
+                                </Frame.GestureRecognizers>
+                                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                    <Label Text="✂️" FontSize="18" HorizontalOptions="Center" />
+                                    <Label Text="Servicios" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
 
-                        <!-- Desglose Mañana, Tarde, Noche -->
-                        <BoxView HeightRequest="1" Color="{StaticResource DividerColor}" />
-                        <Grid ColumnDefinitions="*, *, *" ColumnSpacing="8">
-                            <VerticalStackLayout Grid.Column="0" Spacing="2">
-                                <Label Text="MAÑANA" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" />
-                                <Label Text="{Binding CitasManana}" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
-                                <Label Text="09:00 - 13:00" FontSize="10" TextColor="{StaticResource TextColorSecondary}" />
-                            </VerticalStackLayout>
-                            <VerticalStackLayout Grid.Column="1" Spacing="2">
-                                <Label Text="TARDE" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" />
-                                <Label Text="{Binding CitasTarde}" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
-                                <Label Text="13:00 - 18:00" FontSize="10" TextColor="{StaticResource TextColorSecondary}" />
-                            </VerticalStackLayout>
-                            <VerticalStackLayout Grid.Column="2" Spacing="2">
-                                <Label Text="NOCHE" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" />
-                                <Label Text="{Binding CitasNoche}" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
-                                <Label Text="18:00 - 20:30" FontSize="10" TextColor="{StaticResource TextColorSecondary}" />
-                            </VerticalStackLayout>
-                        </Grid>
-                    </VerticalStackLayout>
-                </Border>
+                            <!-- PRODUCTOS -->
+                            <Frame
+                                Grid.Column="1"
+                                BackgroundColor="{StaticResource Surface}"
+                                BorderColor="{StaticResource Border}"
+                                CornerRadius="12"
+                                Padding="6,10"
+                                HasShadow="False">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding IrAProductosCommand}" />
+                                </Frame.GestureRecognizers>
+                                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                    <Label Text="📦" FontSize="18" HorizontalOptions="Center" />
+                                    <Label Text="Productos" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
 
-                <!-- 3. KPI Row 2: Completadas y Canceladas (Wireframe Pág. 15) -->
-                <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
-                    <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Padding="16">
-                        <VerticalStackLayout Spacing="6">
-                            <Label Text="COMPLETADAS" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" />
-                            <HorizontalStackLayout Spacing="6">
-                                <Label Text="{Binding CitasCompletadas}" FontSize="24" FontAttributes="Bold" TextColor="#0E9F6E" />
-                                <Label Text="{Binding CitasHoy, StringFormat='/{0} citas'}" FontSize="13" TextColor="{StaticResource TextColorSecondary}" VerticalOptions="End" />
-                            </HorizontalStackLayout>
-                            <Label Text="61% del día" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
-                        </VerticalStackLayout>
-                    </Border>
+                            <!-- MENSAJES -->
+                            <Frame
+                                Grid.Column="2"
+                                BackgroundColor="{StaticResource Surface}"
+                                BorderColor="{StaticResource Border}"
+                                CornerRadius="12"
+                                Padding="6,10"
+                                HasShadow="False">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding IrAMensajesCommand}" />
+                                </Frame.GestureRecognizers>
+                                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                    <Label Text="💬" FontSize="18" HorizontalOptions="Center" />
+                                    <Label Text="Mensajes" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
 
-                    <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Padding="16">
-                        <VerticalStackLayout Spacing="6">
-                            <Label Text="CANCELADAS" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" />
-                            <Label Text="{Binding CitasCanceladas}" FontSize="24" FontAttributes="Bold" TextColor="#E02424" />
-                            <Label Text="11% tasa salón" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
-                        </VerticalStackLayout>
-                    </Border>
-                </Grid>
-
-                <!-- 4. KPI Proyección de Ingresos (Wireframe Pág. 15) -->
-                <Border Style="{StaticResource CardBorderStyle}" Padding="18">
-                    <VerticalStackLayout Spacing="10">
-                        <Grid ColumnDefinitions="*, Auto">
-                            <VerticalStackLayout Grid.Column="0" Spacing="2">
-                                <Label Text="PROYECCIÓN DE INGRESOS" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" />
-                                <Label Text="{Binding IngresosProyectados, StringFormat='${0:N2}'}"
-                                       FontSize="28"
-                                       FontAttributes="Bold"
-                                       TextColor="{StaticResource PrimaryColor}" />
-                            </VerticalStackLayout>
-                            <VerticalStackLayout Grid.Column="1" HorizontalOptions="End" Spacing="2">
-                                <Label Text="META DEL DÍA" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" HorizontalOptions="End" />
-                                <Label Text="{Binding MetaDelDia, StringFormat='${0:N2}'}" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" HorizontalOptions="End" />
-                            </VerticalStackLayout>
-                        </Grid>
-
-                        <ProgressBar Progress="0.90" ProgressColor="{StaticResource PrimaryColor}" />
-                    </VerticalStackLayout>
-                </Border>
-
-                <!-- 5. Ocupación de Estaciones (Wireframe Pág. 15) -->
-                <Border Style="{StaticResource CardBorderStyle}" Padding="16">
-                    <VerticalStackLayout Spacing="10">
-                        <Grid ColumnDefinitions="*, Auto">
-                            <Label Grid.Column="0" Text="OCUPACIÓN DE ESTACIONES" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" />
-                            <Label Grid.Column="1" Text="{Binding EstacionesActivas, StringFormat='{0} de 6 activas'}" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
+                            <!-- SOLICITUDES -->
+                            <Frame
+                                Grid.Column="3"
+                                BackgroundColor="{StaticResource Surface}"
+                                BorderColor="{StaticResource Border}"
+                                CornerRadius="12"
+                                Padding="6,10"
+                                HasShadow="False">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding IrASolicitudesCommand}" />
+                                </Frame.GestureRecognizers>
+                                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                    <Label Text="📋" FontSize="18" HorizontalOptions="Center" />
+                                    <Label Text="Solicitudes" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
                         </Grid>
 
-                        <FlexLayout Wrap="Wrap" JustifyContent="SpaceBetween" Direction="Row">
-                            <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource SecondaryLight}" Padding="8,4" Margin="2">
-                                <Label Text="✂️ E-01 Corte" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
-                            </Border>
-                            <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource SecondaryLight}" Padding="8,4" Margin="2">
-                                <Label Text="🎨 E-02 Color" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
-                            </Border>
-                            <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource SecondaryLight}" Padding="8,4" Margin="2">
-                                <Label Text="💇 E-03 Peinado" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
-                            </Border>
-                            <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource SecondaryLight}" Padding="8,4" Margin="2">
-                                <Label Text="💅 E-04 Uñas" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
-                            </Border>
-                            <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource SecondaryLight}" Padding="8,4" Margin="2">
-                                <Label Text="🌿 E-05 Spa" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
-                            </Border>
-                            <Border StrokeShape="RoundRectangle 8" BackgroundColor="#F3F4F6" Padding="8,4" Margin="2">
-                                <Label Text="⚪ E-06 Libre" FontSize="11" FontAttributes="Bold" TextColor="#9CA3AF" />
-                            </Border>
-                        </FlexLayout>
-                    </VerticalStackLayout>
-                </Border>
+                        <!-- FILA RÁPIDA 3: RESEÑAS / REPORTES / CONFIGURACIÓN -->
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                            <!-- RESEÑAS -->
+                            <Frame
+                                Grid.Column="0"
+                                BackgroundColor="{StaticResource Surface}"
+                                BorderColor="{StaticResource Border}"
+                                CornerRadius="12"
+                                Padding="6,10"
+                                HasShadow="False">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding IrAResenasCommand}" />
+                                </Frame.GestureRecognizers>
+                                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                    <Label Text="⭐" FontSize="18" HorizontalOptions="Center" />
+                                    <Label Text="Reseñas" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
 
-                <!-- 6. Reservas Recientes -->
-                <Label Text="Últimas Reservaciones Registradas" FontAttributes="Bold" FontSize="14" TextColor="{StaticResource TextColorPrimary}" Margin="0, 8, 0, 0" />
+                            <!-- REPORTES -->
+                            <Frame
+                                Grid.Column="1"
+                                BackgroundColor="{StaticResource Surface}"
+                                BorderColor="{StaticResource Border}"
+                                CornerRadius="12"
+                                Padding="6,10"
+                                HasShadow="False">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding IrAReportesCommand}" />
+                                </Frame.GestureRecognizers>
+                                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                    <Label Text="📊" FontSize="18" HorizontalOptions="Center" />
+                                    <Label Text="Reportes" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
 
-                <CollectionView ItemsSource="{Binding ReservasRecientes}" SelectionMode="None">
-                    <CollectionView.EmptyView>
-                        <Label Text="No hay reservas hoy." TextColor="{StaticResource TextColorSecondary}" HorizontalOptions="Center" Padding="14" />
-                    </CollectionView.EmptyView>
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="entities:Reserva">
-                            <Border Style="{StaticResource CardBorderStyle}" Margin="0, 0, 0, 8" Padding="12">
-                                <Grid ColumnDefinitions="*, Auto">
-                                    <VerticalStackLayout Grid.Column="0" Spacing="2">
-                                        <Label Text="{Binding ServicioNombre}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
-                                        <Label Text="{Binding FechaHoraInicio, StringFormat='👤 {0:hh:mm tt}'}" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
+                            <!-- CONFIGURACIÓN -->
+                            <Frame
+                                Grid.Column="2"
+                                BackgroundColor="{StaticResource Surface}"
+                                BorderColor="{StaticResource Border}"
+                                CornerRadius="12"
+                                Padding="6,10"
+                                HasShadow="False">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding IrAConfiguracionCommand}" />
+                                </Frame.GestureRecognizers>
+                                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                    <Label Text="⚙️" FontSize="18" HorizontalOptions="Center" />
+                                    <Label Text="Ajustes" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
+                        </Grid>
+
+                        <!-- SECCIÓN 1: RESUMEN OPERATIVO DEL DÍA (KPIS REALES) -->
+                        <VerticalStackLayout Spacing="12">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label
+                                    Grid.Column="0"
+                                    Text="Resumen del Día"
+                                    FontFamily="PlayfairDisplay"
+                                    FontSize="18" FontAttributes="Bold"
+                                    TextColor="{StaticResource TextPrimary}"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Column="1"
+                                    Text="{Binding TotalCitasHoy, StringFormat='{0} citas hoy'}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="12" FontAttributes="Bold"
+                                    TextColor="{StaticResource Primary}"
+                                    VerticalOptions="Center" />
+                            </Grid>
+
+                            <!-- TARJETAS DE KPIS PRINCIPALES -->
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto" RowSpacing="12">
+                                
+                                <!-- KPI 1: Citas Hoy -->
+                                <Frame
+                                    Grid.Row="0" Grid.Column="0"
+                                    BackgroundColor="{StaticResource Surface}"
+                                    BorderColor="{StaticResource Border}"
+                                    CornerRadius="14"
+                                    Padding="16"
+                                    HasShadow="False">
+                                    <VerticalStackLayout Spacing="6">
+                                        <Label Text="📅 TOTAL HOY"
+                                               FontFamily="PlusJakartaSans"
+                                               FontSize="10" FontAttributes="Bold"
+                                               TextColor="{StaticResource TextSecondary}"
+                                               CharacterSpacing="1" />
+                                        <Label Text="{Binding TotalCitasHoy}"
+                                               FontFamily="PlayfairDisplay"
+                                               FontSize="28" FontAttributes="Bold"
+                                               TextColor="{StaticResource Primary}" />
+                                        <Label Text="Citas programadas"
+                                               FontFamily="PlusJakartaSans"
+                                               FontSize="11"
+                                               TextColor="{StaticResource TextSecondary}" />
                                     </VerticalStackLayout>
-                                    <Border Grid.Column="1" StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource SecondaryLight}" Padding="8,3" VerticalOptions="Center">
-                                        <Label Text="{Binding Estado}" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
-                                    </Border>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                                </Frame>
 
-            </VerticalStackLayout>
-        </ScrollView>
-    </RefreshView>
+                                <!-- KPI 2: En Proceso -->
+                                <Frame
+                                    Grid.Row="0" Grid.Column="1"
+                                    BackgroundColor="{StaticResource Surface}"
+                                    BorderColor="{StaticResource Border}"
+                                    CornerRadius="14"
+                                    Padding="16"
+                                    HasShadow="False">
+                                    <VerticalStackLayout Spacing="6">
+                                        <Label Text="⏳ EN PROCESO"
+                                               FontFamily="PlusJakartaSans"
+                                               FontSize="10" FontAttributes="Bold"
+                                               TextColor="{StaticResource TextSecondary}"
+                                               CharacterSpacing="1" />
+                                        <Label Text="{Binding CitasEnProceso}"
+                                               FontFamily="PlayfairDisplay"
+                                               FontSize="28" FontAttributes="Bold"
+                                               TextColor="#E65100" />
+                                        <Label Text="Atendiéndose ahora"
+                                               FontFamily="PlusJakartaSans"
+                                               FontSize="11"
+                                               TextColor="{StaticResource TextSecondary}" />
+                                    </VerticalStackLayout>
+                                </Frame>
 
+                                <!-- KPI 3: Completadas -->
+                                <Frame
+                                    Grid.Row="1" Grid.Column="0"
+                                    BackgroundColor="{StaticResource Surface}"
+                                    BorderColor="{StaticResource Border}"
+                                    CornerRadius="14"
+                                    Padding="16"
+                                    HasShadow="False">
+                                    <VerticalStackLayout Spacing="6">
+                                        <Label Text="✅ COMPLETADAS"
+                                               FontFamily="PlusJakartaSans"
+                                               FontSize="10" FontAttributes="Bold"
+                                               TextColor="{StaticResource TextSecondary}"
+                                               CharacterSpacing="1" />
+                                        <Label Text="{Binding CitasCompletadas}"
+                                               FontFamily="PlayfairDisplay"
+                                               FontSize="28" FontAttributes="Bold"
+                                               TextColor="#2E7D32" />
+                                        <Label Text="Servicios finalizados"
+                                               FontFamily="PlusJakartaSans"
+                                               FontSize="11"
+                                               TextColor="{StaticResource TextSecondary}" />
+                                    </VerticalStackLayout>
+                                </Frame>
+
+                                <!-- KPI 4: Canceladas -->
+                                <Frame
+                                    Grid.Row="1" Grid.Column="1"
+                                    BackgroundColor="{StaticResource Surface}"
+                                    BorderColor="{StaticResource Border}"
+                                    CornerRadius="14"
+                                    Padding="16"
+                                    HasShadow="False">
+                                    <VerticalStackLayout Spacing="6">
+                                        <Label Text="❌ CANCELADAS"
+                                               FontFamily="PlusJakartaSans"
+                                               FontSize="10" FontAttributes="Bold"
+                                               TextColor="{StaticResource TextSecondary}"
+                                               CharacterSpacing="1" />
+                                        <Label Text="{Binding CitasCanceladas}"
+                                               FontFamily="PlayfairDisplay"
+                                               FontSize="28" FontAttributes="Bold"
+                                               TextColor="#C62828" />
+                                        <Label Text="Citas anuladas hoy"
+                                               FontFamily="PlusJakartaSans"
+                                               FontSize="11"
+                                               TextColor="{StaticResource TextSecondary}" />
+                                    </VerticalStackLayout>
+                                </Frame>
+                            </Grid>
+                        </VerticalStackLayout>
+
+                        <!-- SECCIÓN 2: FINANZAS Y EQUIPO ACTIVO -->
+                        <Frame
+                            BackgroundColor="{StaticResource Surface}"
+                            BorderColor="{StaticResource Border}"
+                            CornerRadius="16"
+                            Padding="18,16"
+                            HasShadow="False">
+                            <Grid ColumnDefinitions="*,1,*" ColumnSpacing="14">
+                                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                    <Label Text="INGRESOS DE HOY"
+                                           FontFamily="PlusJakartaSans"
+                                           FontSize="10" FontAttributes="Bold"
+                                           TextColor="{StaticResource TextSecondary}"
+                                           CharacterSpacing="1" />
+                                    <Label Text="{Binding IngresosHoy, StringFormat='${0:N2}'}"
+                                           FontFamily="PlayfairDisplay"
+                                           FontSize="22" FontAttributes="Bold"
+                                           TextColor="{StaticResource Primary}" />
+                                    <Label Text="{Binding IngresosMes, StringFormat='Mes: ${0:N2}'}"
+                                           FontFamily="PlusJakartaSans"
+                                           FontSize="11"
+                                           TextColor="{StaticResource TextSecondary}" />
+                                </VerticalStackLayout>
+
+                                <BoxView Grid.Column="1" BackgroundColor="{StaticResource Border}" VerticalOptions="Fill" />
+
+                                <VerticalStackLayout Grid.Column="2" Spacing="4">
+                                    <VerticalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding IrAProfesionalesCommand}" />
+                                    </VerticalStackLayout.GestureRecognizers>
+                                    <Label Text="ESTILISTAS ACTIVOS"
+                                           FontFamily="PlusJakartaSans"
+                                           FontSize="10" FontAttributes="Bold"
+                                           TextColor="{StaticResource TextSecondary}"
+                                           CharacterSpacing="1" />
+                                    <Label Text="{Binding EstilistasActivos, StringFormat='{0} profesionales'}"
+                                           FontFamily="PlayfairDisplay"
+                                           FontSize="20" FontAttributes="Bold"
+                                           TextColor="{StaticResource Primary}" />
+                                    <Label Text="{Binding TotalCitasSemana, StringFormat='Semana: {0} citas'}"
+                                           FontFamily="PlusJakartaSans"
+                                           FontSize="11"
+                                           TextColor="{StaticResource TextSecondary}" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Frame>
+
+                        <!-- SECCIÓN 3: AGENDA RESUMIDA DE HOY -->
+                        <VerticalStackLayout Spacing="12">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label
+                                    Grid.Column="0"
+                                    Text="Agenda del Día"
+                                    FontFamily="PlayfairDisplay"
+                                    FontSize="18" FontAttributes="Bold"
+                                    TextColor="{StaticResource TextPrimary}"
+                                    VerticalOptions="Center" />
+                                <Button
+                                    Grid.Column="1"
+                                    Text="Ver agenda completa ›"
+                                    Command="{Binding IrAAgendaCommand}"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource Primary}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="12" FontAttributes="Bold"
+                                    Padding="4,0"
+                                    HeightRequest="36" />
+                            </Grid>
+
+                            <!-- LISTA DE CITAS DE HOY -->
+                            <CollectionView
+                                ItemsSource="{Binding CitasDelDia}"
+                                SelectionMode="None">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="entities:Reserva">
+                                        <Frame
+                                            BackgroundColor="{StaticResource Surface}"
+                                            BorderColor="{StaticResource Border}"
+                                            CornerRadius="14"
+                                            Padding="16,14"
+                                            Margin="0,0,0,10"
+                                            HasShadow="False">
+                                            <Frame.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminDashboardViewModel}}, Path=IrADetalleCitaCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                            </Frame.GestureRecognizers>
+                                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                                
+                                                <!-- HORA -->
+                                                <VerticalStackLayout Grid.Column="0" VerticalOptions="Center" HorizontalOptions="Center" Spacing="2">
+                                                    <Label Text="{Binding HoraInicio}"
+                                                           FontFamily="PlusJakartaSans"
+                                                           FontSize="13" FontAttributes="Bold"
+                                                           TextColor="{StaticResource TextPrimary}" />
+                                                    <Label Text="{Binding HoraFin}"
+                                                           FontFamily="PlusJakartaSans"
+                                                           FontSize="11"
+                                                           TextColor="{StaticResource TextSecondary}" />
+                                                </VerticalStackLayout>
+
+                                                <!-- DETALLES DE CITA -->
+                                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="3">
+                                                    <Label Text="{Binding ClienteNombre}"
+                                                           FontFamily="PlusJakartaSans"
+                                                           FontSize="14" FontAttributes="Bold"
+                                                           TextColor="{StaticResource TextPrimary}" />
+                                                    <Label Text="{Binding ServicioNombre}"
+                                                           FontFamily="PlusJakartaSans"
+                                                           FontSize="12"
+                                                           TextColor="{StaticResource TextSecondary}" />
+                                                    <Label Text="{Binding EstilistaNombre, StringFormat='Estilista: {0}'}"
+                                                           FontFamily="PlusJakartaSans"
+                                                           FontSize="11"
+                                                           TextColor="{StaticResource Secondary}" />
+                                                </VerticalStackLayout>
+
+                                                <!-- ESTADO Y TOTAL -->
+                                                <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" HorizontalOptions="End" Spacing="4">
+                                                    <Frame
+                                                        BackgroundColor="{StaticResource SurfaceVariant}"
+                                                        BorderColor="{Binding EstadoColor}"
+                                                        CornerRadius="8"
+                                                        Padding="8,3"
+                                                        HasShadow="False">
+                                                        <Label Text="{Binding EstadoDisplay}"
+                                                               FontFamily="PlusJakartaSans"
+                                                               FontSize="10" FontAttributes="Bold"
+                                                               TextColor="{Binding EstadoColor}" />
+                                                    </Frame>
+                                                    <Label Text="{Binding TotalFormateado}"
+                                                           FontFamily="PlusJakartaSans"
+                                                           FontSize="13" FontAttributes="Bold"
+                                                           TextColor="{StaticResource TextPrimary}"
+                                                           HorizontalTextAlignment="End" />
+                                                </VerticalStackLayout>
+                                            </Grid>
+                                        </Frame>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+
+                            <!-- ESTADO VACÍO CUANDO NO HAY CITAS HOY -->
+                            <Frame
+                                IsVisible="{Binding EstaVacio}"
+                                BackgroundColor="{StaticResource Surface}"
+                                BorderColor="{StaticResource Border}"
+                                CornerRadius="16"
+                                Padding="24,28"
+                                HasShadow="False">
+                                <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                                    <Label Text="📅" FontSize="32" HorizontalOptions="Center" />
+                                    <Label Text="Sin citas agendadas para hoy"
+                                           FontFamily="PlayfairDisplay"
+                                           FontSize="16" FontAttributes="Bold"
+                                           TextColor="{StaticResource TextPrimary}"
+                                           HorizontalTextAlignment="Center" />
+                                    <Label Text="No se encontraron citas programadas en el servidor para la fecha actual."
+                                           FontFamily="PlusJakartaSans"
+                                           FontSize="12"
+                                           TextColor="{StaticResource TextSecondary}"
+                                           HorizontalTextAlignment="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
+
+                        </VerticalStackLayout>
+
+                    </VerticalStackLayout>
+                </ScrollView>
+            </RefreshView>
+
+        </Grid>
+
+    </Grid>
 </ContentPage>

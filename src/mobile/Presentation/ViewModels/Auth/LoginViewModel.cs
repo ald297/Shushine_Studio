@@ -66,26 +66,24 @@ public partial class LoginViewModel : BaseViewModel
 
                 if (rol.Contains("ADMIN"))
                 {
-                    // Navegar al Dashboard Administrativo dentro de la barra de pestañas admin
-                    try
+                    if (Shell.Current is AppShell appShell)
+                    {
+                        appShell.SwitchToRole("ADMIN");
+                    }
+                    else
                     {
                         await Shell.Current.GoToAsync("//AdminTabs/AdminDashboardPage");
-                    }
-                    catch
-                    {
-                        await Shell.Current.GoToAsync("//AdminDashboardPage");
                     }
                 }
                 else
                 {
-                    // Navegar al catálogo principal dentro del Shell para clientes
-                    try
+                    if (Shell.Current is AppShell appShell)
+                    {
+                        appShell.SwitchToRole("CLIENTE");
+                    }
+                    else
                     {
                         await Shell.Current.GoToAsync("//MainTabs/CatalogPage");
-                    }
-                    catch
-                    {
-                        await Shell.Current.GoToAsync("//CatalogPage");
                     }
                 }
             }
@@ -100,6 +98,7 @@ public partial class LoginViewModel : BaseViewModel
         catch (Exception ex)
         {
             ErrorMessage = ex.Message;
+            await ShowAlertAsync("Atención", ex.Message);
         }
         finally
         {

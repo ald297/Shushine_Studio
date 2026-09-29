@@ -45,15 +45,18 @@ public partial class CatalogViewModel : BaseViewModel
         _ = LoadServiciosAsync();
     }
 
+    public bool HasErrorMessage => !string.IsNullOrWhiteSpace(ErrorMessage);
+
     private void InicializarCategorias()
     {
         Categorias = new ObservableCollection<CategoriaItem>
         {
             new CategoriaItem { Nombre = "Todos", Icono = "✨", IsSelected = true },
             new CategoriaItem { Nombre = "Cabello", Icono = "✂️", IsSelected = false },
+            new CategoriaItem { Nombre = "Color", Icono = "🎨", IsSelected = false },
             new CategoriaItem { Nombre = "Uñas", Icono = "💅", IsSelected = false },
             new CategoriaItem { Nombre = "Maquillaje", Icono = "💄", IsSelected = false },
-            new CategoriaItem { Nombre = "Spa", Icono = "🌿", IsSelected = false }
+            new CategoriaItem { Nombre = "Faciales", Icono = "🌸", IsSelected = false }
         };
     }
 
@@ -61,13 +64,13 @@ public partial class CatalogViewModel : BaseViewModel
     {
         _todosLosServicios = new List<Servicio>
         {
-            new Servicio { Id = 1, Nombre = "Balayage Iluminador & Gloss", Descripcion = "Técnica francesa de degradado a mano alzada con baño de brillo nutritivo.", Precio = 65.00m, DuracionMinutos = 120, CategoriaNombre = "Cabello", Activo = true },
-            new Servicio { Id = 2, Nombre = "Corte de Autor & Cepillado", Descripcion = "Diseño de corte personalizado según morfología facial con lavado dermocalmante.", Precio = 25.00m, DuracionMinutos = 45, CategoriaNombre = "Cabello", Activo = true },
-            new Servicio { Id = 3, Nombre = "Manicura Rusa & Esmaltado Semi", Descripcion = "Limpieza profunda de cutículas con torno y esmaltado de alta duración gelish.", Precio = 22.00m, DuracionMinutos = 60, CategoriaNombre = "Uñas", Activo = true },
-            new Servicio { Id = 4, Nombre = "Pedicura Spa Rejuvenecedora", Descripcion = "Exfoliación con sales minerales, mascarilla de parafina y esmaltado profesional.", Precio = 28.00m, DuracionMinutos = 60, CategoriaNombre = "Uñas", Activo = true },
-            new Servicio { Id = 5, Nombre = "Lifting de Pestañas & Keratina", Descripcion = "Curvatura natural con nutrición intensiva de keratina y tinte negro profundo.", Precio = 30.00m, DuracionMinutos = 50, CategoriaNombre = "Maquillaje", Activo = true },
-            new Servicio { Id = 6, Nombre = "Diseño & Laminado de Cejas", Descripcion = "Depilación con hilo orgánico, laminado y perfilado de mirada.", Precio = 20.00m, DuracionMinutos = 40, CategoriaNombre = "Maquillaje", Activo = true },
-            new Servicio { Id = 7, Nombre = "Masaje Relajante Aromaterapia", Descripcion = "Sesión corporal completa con aceites esenciales de lavanda y piedras calientes.", Precio = 45.00m, DuracionMinutos = 60, CategoriaNombre = "Spa", Activo = true }
+            new Servicio { Id = 1, Nombre = "Balayage Iluminador & Gloss", Descripcion = "Técnica francesa de degradado a mano alzada con baño de brillo nutritivo.", Precio = 65.00m, DuracionMinutos = 120, CategoriaNombre = "Color", Activo = true, Protocolo = "Diagnóstico capilar • Decoloración controlada • Baño de gloss • Sellado de cutícula con mascarilla de caviar." },
+            new Servicio { Id = 2, Nombre = "Corte de Autor & Cepillado", Descripcion = "Diseño de corte personalizado según morfología facial con lavado dermocalmante.", Precio = 25.00m, DuracionMinutos = 45, CategoriaNombre = "Cabello", Activo = true, Protocolo = "Asesoría visagista • Lavado aromático con masaje craneal • Corte de precisión • Brushing final." },
+            new Servicio { Id = 3, Nombre = "Manicura Rusa & Esmaltado Semi", Descripcion = "Limpieza profunda de cutículas con torno y esmaltado de alta duración gelish.", Precio = 22.00m, DuracionMinutos = 60, CategoriaNombre = "Uñas", Activo = true, Protocolo = "Esterilización y preparación • Pulido de cutículas en seco • Nivelación de base • Esmaltado e hidratación." },
+            new Servicio { Id = 4, Nombre = "Pedicura Spa Rejuvenecedora", Descripcion = "Exfoliación con sales minerales, mascarilla de parafina y esmaltado profesional.", Precio = 28.00m, DuracionMinutos = 60, CategoriaNombre = "Uñas", Activo = true, Protocolo = "Baño de burbujas emoliente • Exfoliación botánica • Tratamiento de talones • Esmaltado en gel y masaje." },
+            new Servicio { Id = 5, Nombre = "Lifting de Pestañas & Keratina", Descripcion = "Curvatura natural con nutrición intensiva de keratina y tinte negro profundo.", Precio = 30.00m, DuracionMinutos = 50, CategoriaNombre = "Maquillaje", Activo = true, Protocolo = "Limpieza ocular desengrasante • Moldeado de silicona • Aplicación de keratina botánica • Tinte HD y sérum." },
+            new Servicio { Id = 6, Nombre = "Diseño & Laminado de Cejas", Descripcion = "Depilación con hilo orgánico, laminado y perfilado de mirada.", Precio = 20.00m, DuracionMinutos = 40, CategoriaNombre = "Maquillaje", Activo = true, Protocolo = "Mapeo geométrico de cejas • Laminado alisador • Fijación de forma • Depilación hilo orgánico y tinte." },
+            new Servicio { Id = 7, Nombre = "Tratamiento Facial Hidratante Glow", Descripcion = "Limpieza profunda con ácido hialurónico, exfoliación suave y masaje facial rejuvenecedor.", Precio = 45.00m, DuracionMinutos = 60, CategoriaNombre = "Faciales", Activo = true, Protocolo = "Doble limpieza coreana • Peeling enzimático suave • Infusión de ácido hialurónico con ultrasonido • Mascarilla calmante." }
         };
         AplicarFiltros();
     }
@@ -81,6 +84,7 @@ public partial class CatalogViewModel : BaseViewModel
         {
             IsBusy = true;
             ErrorMessage = null;
+            OnPropertyChanged(nameof(HasErrorMessage));
 
             var items = await _getCatalogUseCase.ExecuteAsync();
             var list = items.ToList();
@@ -94,6 +98,7 @@ public partial class CatalogViewModel : BaseViewModel
         catch (Exception ex)
         {
             ErrorMessage = ex.Message;
+            OnPropertyChanged(nameof(HasErrorMessage));
         }
         finally
         {

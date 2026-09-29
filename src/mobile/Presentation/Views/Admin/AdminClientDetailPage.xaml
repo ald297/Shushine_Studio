@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+    xmlns:entities="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
+    x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminClientDetailPage"
+    x:DataType="vm:AdminClientDetailViewModel"
+    Title="{Binding Title}"
+    BackgroundColor="{StaticResource Background}">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- 1. HEADER -->
+        <Grid Grid.Row="0" BackgroundColor="{StaticResource Surface}" Padding="20,50,20,16">
+            <Grid ColumnDefinitions="40,*,40">
+                <ImageButton
+                    Grid.Column="0"
+                    Source="arrow_left.png"
+                    Command="{Binding RegresarCommand}"
+                    WidthRequest="28" HeightRequest="28"
+                    BackgroundColor="Transparent"
+                    HorizontalOptions="Start" VerticalOptions="Center" />
+
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4">
+                    <HorizontalStackLayout Spacing="6" HorizontalOptions="Center">
+                        <Label
+                            Text="Detalle de Cliente"
+                            FontFamily="PlayfairDisplay"
+                            FontSize="18" FontAttributes="Bold"
+                            TextColor="{StaticResource TextPrimary}" />
+                        <Frame
+                            BackgroundColor="{StaticResource Primary}"
+                            CornerRadius="4"
+                            Padding="5,1"
+                            HasShadow="False"
+                            VerticalOptions="Center">
+                            <Label Text="ADMIN" FontFamily="PlusJakartaSans" FontSize="8" FontAttributes="Bold" TextColor="{StaticResource Surface}" />
+                        </Frame>
+                    </HorizontalStackLayout>
+                    <BoxView HeightRequest="2" WidthRequest="40" BackgroundColor="{StaticResource Secondary}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Grid>
+            <BoxView HeightRequest="1" BackgroundColor="{StaticResource Border}" Margin="0,14,0,0" VerticalOptions="End" />
+        </Grid>
+
+        <!-- 2. CUERPO SCROLLABLE -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20,16,20,32" Spacing="16">
+
+                <!-- TARJETA 1: DATOS GENERALES DEL CLIENTE -->
+                <Frame
+                    BackgroundColor="{StaticResource Surface}"
+                    BorderColor="{StaticResource Border}"
+                    CornerRadius="16"
+                    Padding="20"
+                    HasShadow="False">
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                            <!-- AVATAR -->
+                            <Frame
+                                Grid.Column="0"
+                                BackgroundColor="{StaticResource Primary}"
+                                CornerRadius="28"
+                                WidthRequest="56"
+                                HeightRequest="56"
+                                Padding="0"
+                                HasShadow="False"
+                                VerticalOptions="Center">
+                                <Label
+                                    Text="{Binding Iniciales}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="20" FontAttributes="Bold"
+                                    TextColor="{StaticResource Surface}"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center" />
+                            </Frame>
+
+                            <!-- NOMBRE Y TIPO -->
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="4">
+                                <Label
+                                    Text="{Binding NombreCompleto}"
+                                    FontFamily="PlayfairDisplay"
+                                    FontSize="18" FontAttributes="Bold"
+                                    TextColor="{StaticResource TextPrimary}" />
+
+                                <HorizontalStackLayout Spacing="6">
+                                    <Frame
+                                        BackgroundColor="{StaticResource SurfaceVariant}"
+                                        BorderColor="{Binding TipoClienteColor}"
+                                        CornerRadius="6"
+                                        Padding="6,2"
+                                        HasShadow="False">
+                                        <Label
+                                            Text="{Binding TipoCliente}"
+                                            FontFamily="PlusJakartaSans"
+                                            FontSize="10" FontAttributes="Bold"
+                                            TextColor="{Binding TipoClienteColor}" />
+                                    </Frame>
+
+                                    <Frame
+                                        BackgroundColor="#F5F3EF"
+                                        BorderColor="{StaticResource Border}"
+                                        CornerRadius="6"
+                                        Padding="6,2"
+                                        HasShadow="False">
+                                        <Label
+                                            Text="{Binding NivelFidelidad, StringFormat='Nivel: {0}'}"
+                                            FontFamily="PlusJakartaSans"
+                                            FontSize="10"
+                                            TextColor="{StaticResource TextSecondary}" />
+                                    </Frame>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <BoxView HeightRequest="1" BackgroundColor="{StaticResource Border}" />
+
+                        <!-- DATOS DE CONTACTO -->
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="12" ColumnSpacing="12">
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="2">
+                                <Label Text="TELÉFONO" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}" CharacterSpacing="1" />
+                                <Label Text="{Binding Telefono}" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextPrimary}" />
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="2">
+                                <Label Text="CORREO" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}" CharacterSpacing="1" />
+                                <Label Text="{Binding Correo}" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextPrimary}" LineBreakMode="TailTruncation" />
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="2">
+                                <Label Text="PUNTOS ACUMULADOS" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}" CharacterSpacing="1" />
+                                <Label Text="{Binding PuntosAcumulados, StringFormat='{0} pts'}" FontFamily="PlusJakartaSans" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource Secondary}" />
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="2">
+                                <Label Text="TOTAL CITAS" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}" CharacterSpacing="1" />
+                                <Label Text="{Binding TotalCitas, StringFormat='{0} citas'}" FontFamily="PlusJakartaSans" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- TARJETA 2: HISTORIAL DE CITAS DEL CLIENTE -->
+                <Frame
+                    BackgroundColor="{StaticResource Surface}"
+                    BorderColor="{StaticResource Border}"
+                    CornerRadius="16"
+                    Padding="20"
+                    HasShadow="False">
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="Historial de Citas" FontFamily="PlayfairDisplay" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                <Label Text="Citas registradas para este cliente en el servidor" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="1" Text="{Binding TotalCitas, StringFormat='{0} total'}" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Primary}" VerticalOptions="Center" />
+                        </Grid>
+
+                        <BoxView HeightRequest="1" BackgroundColor="{StaticResource Border}" />
+
+                        <!-- LISTA DE CITAS -->
+                        <CollectionView
+                            IsVisible="{Binding TieneHistorial}"
+                            ItemsSource="{Binding HistorialCitas}"
+                            SelectionMode="None">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="entities:Reserva">
+                                    <Frame
+                                        BackgroundColor="{StaticResource SurfaceVariant}"
+                                        BorderColor="{StaticResource Border}"
+                                        CornerRadius="12"
+                                        Padding="12"
+                                        Margin="0,0,0,8"
+                                        HasShadow="False">
+                                        <Frame.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminClientDetailViewModel}}, Path=VerDetalleCitaCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        </Frame.GestureRecognizers>
+                                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="4">
+                                            <Label Grid.Row="0" Grid.Column="0" Text="{Binding ServicioNombre}" FontFamily="PlusJakartaSans" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                            <Frame Grid.Row="0" Grid.Column="1" BackgroundColor="{StaticResource Surface}" BorderColor="{Binding EstadoColor}" CornerRadius="6" Padding="6,2" HasShadow="False">
+                                                <Label Text="{Binding EstadoDisplay}" FontFamily="PlusJakartaSans" FontSize="9" FontAttributes="Bold" TextColor="{Binding EstadoColor}" />
+                                            </Frame>
+                                            <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Spacing="6">
+                                                <Label Text="{Binding FechaCita}" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                                <Label Text="•" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                                <Label Text="{Binding HorarioTexto}" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                                <Label Text="•" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                                <Label Text="{Binding EstilistaNombre}" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource Secondary}" />
+                                            </HorizontalStackLayout>
+                                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding TotalFormateado}" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalTextAlignment="End" />
+                                        </Grid>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <!-- SIN HISTORIAL -->
+                        <Label
+                            IsVisible="{Binding NoTieneHistorial}"
+                            Text="El historial de citas no está disponible desde el backend actual o no tiene citas registradas."
+                            FontFamily="PlusJakartaSans"
+                            FontSize="12"
+                            TextColor="{StaticResource TextSecondary}"
+                            HorizontalTextAlignment="Center"
+                            Padding="0,10" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- TARJETA 3: ACCIONES OPERATIVAS -->
+                <Frame
+                    BackgroundColor="{StaticResource Surface}"
+                    BorderColor="{StaticResource Border}"
+                    CornerRadius="16"
+                    Padding="20"
+                    HasShadow="False">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Acciones Operativas" FontFamily="PlayfairDisplay" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                        <BoxView HeightRequest="1" BackgroundColor="{StaticResource Border}" />
+
+                        <!-- AGENDAR CITA WALK-IN -->
+                        <Button
+                            Text="Agendar Nueva Cita (Recepción)"
+                            Command="{Binding NuevaCitaParaClienteCommand}"
+                            BackgroundColor="{StaticResource Primary}"
+                            TextColor="{StaticResource Surface}"
+                            FontFamily="PlusJakartaSans"
+                            FontSize="13" FontAttributes="Bold"
+                            HeightRequest="44"
+                            CornerRadius="10" />
+
+                        <!-- EDITAR CLIENTE (PREPARADA) -->
+                        <Button
+                            Text="Editar Cliente"
+                            Command="{Binding EditarClienteCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource TextPrimary}"
+                            BorderColor="{StaticResource Border}"
+                            BorderWidth="1"
+                            FontFamily="PlusJakartaSans"
+                            FontSize="13" FontAttributes="Bold"
+                            HeightRequest="44"
+                            CornerRadius="10" />
+
+                        <!-- ACTIVAR / DESACTIVAR (PREPARADA) -->
+                        <Button
+                            Text="Activar / Desactivar Cliente"
+                            Command="{Binding ActivarDesactivarCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource Secondary}"
+                            BorderColor="{StaticResource Secondary}"
+                            BorderWidth="1"
+                            FontFamily="PlusJakartaSans"
+                            FontSize="13" FontAttributes="Bold"
+                            HeightRequest="44"
+                            CornerRadius="10" />
+
+                        <Label
+                            Text="Esta función estará disponible cuando el backend la habilite."
+                            FontFamily="PlusJakartaSans"
+                            FontSize="11"
+                            TextColor="{StaticResource TextSecondary}"
+                            HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
+
+</ContentPage>

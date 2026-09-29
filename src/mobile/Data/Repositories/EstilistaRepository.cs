@@ -55,6 +55,21 @@ public class EstilistaRepository : IEstilistaRepository
         }
     }
 
+    public async Task<DisponibilidadEstilista?> GetDisponibilidadHorariaAsync(long estilistaId, DateTime fecha, int duracionMinutos = 30)
+    {
+        try
+        {
+            var fechaStr = fecha.ToString("yyyy-MM-dd");
+            var url = $"estilistas/{estilistaId}/disponibilidad?fecha={fechaStr}&duracionMinutos={duracionMinutos}";
+            var dto = await _httpClient.GetFromJsonAsync<DisponibilidadSalidaDto>(url);
+            return dto?.ToEntity();
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
     public async Task<IEnumerable<Estilista>> GetTodosEstilistasAsync()
     {
 

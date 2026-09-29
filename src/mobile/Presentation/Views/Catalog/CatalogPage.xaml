@@ -3,63 +3,75 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Catalog"
              xmlns:entities="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
+             xmlns:components="clr-namespace:ShushineStudio.Mobile.Presentation.Components"
              x:Class="ShushineStudio.Mobile.Presentation.Views.Catalog.CatalogPage"
              x:DataType="vm:CatalogViewModel"
-             BackgroundColor="{StaticResource BackgroundColor}"
+             BackgroundColor="{StaticResource Background}"
              Shell.NavBarIsVisible="false">
 
-    <Grid RowDefinitions="Auto, Auto, Auto, *">
+    <Grid RowDefinitions="Auto, Auto, Auto, Auto, *">
         
-        <!-- 1. Cabecera Oficial de Bienvenida (Wireframe Pág. 7) -->
-        <VerticalStackLayout Grid.Row="0" Padding="20, 48, 20, 6" Spacing="3">
-            <Label Text="Shushine Studio"
-                   FontSize="13"
-                   FontAttributes="Bold"
-                   TextColor="{StaticResource PrimaryColor}" />
-            <Label Text="Nuestros Tratamientos"
-                   Style="{StaticResource HeaderLabelStyle}"
-                   FontSize="24" />
-            <Label Text="Elige tu servicio favorito y agenda tu cita al instante"
-                   Style="{StaticResource SubheaderLabelStyle}"
-                   FontSize="12" />
+        <!-- 1. Encabezado Oficial LotusHeaderView -->
+        <VerticalStackLayout Grid.Row="0" Spacing="0">
+            <components:LotusHeaderView
+                Title="Servicios"
+                Greeting="Shunshine Studio • Atelier de Belleza"
+                ShowBackButton="False"
+                ShowNotificationButton="True"
+                HasUnreadNotifications="False"
+                ShowAvatar="False" />
+
+            <Label Text="Descubre nuestra gama exclusiva de rituales y tratamientos de autor"
+                   Style="{StaticResource CaptionLabelStyle}"
+                   TextColor="{StaticResource TextSecondary}"
+                   Margin="16, 0, 16, 8" />
         </VerticalStackLayout>
 
-        <!-- 2. Barra de Búsqueda de Tratamientos (Wireframe Pág. 7) -->
+        <!-- 2. Barra de Búsqueda Moderna -->
         <Border Grid.Row="1" 
                 Style="{StaticResource InputContainerStyle}" 
-                Margin="20,6,20,6"
-                Padding="12,0"
-                HeightRequest="46">
+                Margin="16, 0, 16, 8"
+                Padding="14, 0"
+                HeightRequest="46"
+                StrokeShape="RoundRectangle 14">
             <Grid ColumnDefinitions="Auto, *">
-                <Label Grid.Column="0" Text="🔍" FontSize="16" VerticalOptions="Center" Margin="0,0,8,0" />
+                <Label Grid.Column="0" 
+                       Text="🔍" 
+                       FontSize="15" 
+                       VerticalOptions="Center" 
+                       Margin="0, 0, 8, 0" 
+                       TextColor="{StaticResource Secondary}" />
                 <Entry Grid.Column="1"
-                       Placeholder="Buscar tinte, manicura, corte..."
-                       PlaceholderColor="{StaticResource TextColorSecondary}"
+                       Placeholder="Buscar tratamiento, corte, manicura..."
+                       PlaceholderColor="{StaticResource TextSecondary}"
                        Text="{Binding SearchText}"
                        FontSize="14"
+                       TextColor="{StaticResource TextPrimary}"
                        ClearButtonVisibility="WhileEditing"
                        BackgroundColor="Transparent" />
             </Grid>
         </Border>
 
-        <!-- 3. Selector Horizontal de Categorías (Chips con Cambio de Color Activo) -->
+        <!-- 3. Selector Horizontal de Categorías (Pills / Chips) -->
         <ScrollView Grid.Row="2" 
                     Orientation="Horizontal" 
                     HorizontalScrollBarVisibility="Never" 
-                    Padding="20,6,20,10">
+                    Padding="16, 2, 16, 10">
             <HorizontalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding Categorias}">
                 <BindableLayout.ItemTemplate>
                     <DataTemplate x:DataType="vm:CategoriaItem">
-                        <Border StrokeShape="RoundRectangle 18"
-                                Stroke="{StaticResource PrimaryColor}"
+                        <Border StrokeShape="RoundRectangle 20"
+                                Stroke="{StaticResource Border}"
                                 StrokeThickness="1"
-                                Padding="14,8">
+                                Padding="14, 8">
                             <Border.Triggers>
                                 <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                    <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                                    <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                                    <Setter Property="Stroke" Value="{StaticResource Primary}" />
                                 </DataTrigger>
                                 <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="False">
-                                    <Setter Property="BackgroundColor" Value="{StaticResource SurfaceColor}" />
+                                    <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
+                                    <Setter Property="Stroke" Value="{StaticResource Border}" />
                                 </DataTrigger>
                             </Border.Triggers>
 
@@ -70,10 +82,10 @@
                                        FontAttributes="Bold">
                                     <Label.Triggers>
                                         <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
-                                            <Setter Property="TextColor" Value="White" />
+                                            <Setter Property="TextColor" Value="{StaticResource TextLight}" />
                                         </DataTrigger>
                                         <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="False">
-                                            <Setter Property="TextColor" Value="{StaticResource TextColorPrimary}" />
+                                            <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
                                         </DataTrigger>
                                     </Label.Triggers>
                                 </Label>
@@ -90,105 +102,79 @@
             </HorizontalStackLayout>
         </ScrollView>
 
-        <!-- 4. Listado de Servicios en CollectionView -->
-        <RefreshView Grid.Row="3"
+        <!-- 4. Banner de Error (Integrado) -->
+        <Border Grid.Row="3"
+                StrokeShape="RoundRectangle 12"
+                Stroke="{StaticResource StatusCanceladaBorder}"
+                StrokeThickness="1"
+                BackgroundColor="{StaticResource StatusCanceladaBg}"
+                Padding="14, 10"
+                Margin="16, 0, 16, 10"
+                IsVisible="{Binding HasErrorMessage}">
+            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                <Label Text="⚠️" FontSize="14" VerticalOptions="Center" />
+                <Label Text="{Binding ErrorMessage}"
+                       TextColor="{StaticResource Error}"
+                       FontSize="12"
+                       VerticalOptions="Center"
+                       LineBreakMode="WordWrap" />
+            </HorizontalStackLayout>
+        </Border>
+
+        <!-- 5. Listado de Servicios con ServiceCardView -->
+        <RefreshView Grid.Row="4"
                      IsRefreshing="{Binding IsBusy}"
                      Command="{Binding LoadServiciosCommand}">
-            <CollectionView ItemsSource="{Binding Servicios}"
-                            SelectionMode="None"
-                            Margin="20,0,20,10">
-                <CollectionView.ItemsLayout>
-                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
-                </CollectionView.ItemsLayout>
-                
-                <CollectionView.EmptyView>
-                    <VerticalStackLayout Padding="40" Spacing="10" VerticalOptions="Center">
-                        <Label Text="✨" FontSize="36" HorizontalOptions="Center" />
-                        <Label Text="No encontramos servicios con ese criterio."
-                               HorizontalOptions="Center"
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource TextColorPrimary}" />
-                        <Label Text="Intenta seleccionar otra categoría o cambiar tu búsqueda."
-                               HorizontalOptions="Center"
-                               FontSize="12"
-                               TextColor="{StaticResource TextColorSecondary}" />
-                    </VerticalStackLayout>
-                </CollectionView.EmptyView>
+            <Grid>
+                <!-- Indicador de Carga No Bloqueante -->
+                <ActivityIndicator IsRunning="{Binding IsBusy}" 
+                                   IsVisible="{Binding IsBusy}"
+                                   Color="{StaticResource Primary}"
+                                   VerticalOptions="Start"
+                                   Margin="0, 12, 0, 0"
+                                   HeightRequest="32"
+                                   WidthRequest="32" />
 
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="entities:Servicio">
-                        <Border Style="{StaticResource CardBorderStyle}" Margin="0, 0, 0, 2" Padding="0">
-                            <Grid ColumnDefinitions="95, *" Padding="12" ColumnSpacing="12">
-                                
-                                <!-- Icono o Imagen del Tratamiento -->
-                                <Border Grid.Column="0" 
-                                        StrokeShape="RoundRectangle 12" 
-                                        HeightRequest="90" 
-                                        WidthRequest="90"
-                                        BackgroundColor="{StaticResource SecondaryLight}">
-                                    <Grid>
-                                        <Image Source="{Binding ImagenUrl}" 
-                                               Aspect="AspectFill" 
-                                               IsVisible="{Binding TieneImagen}" />
-                                        <Label Text="✨" FontSize="34" 
-                                               HorizontalOptions="Center" VerticalOptions="Center" 
-                                               IsVisible="{Binding NoTieneImagen}" />
-                                    </Grid>
-                                </Border>
+                <CollectionView ItemsSource="{Binding Servicios}"
+                                SelectionMode="None"
+                                Margin="16, 0, 16, 8">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="0" />
+                    </CollectionView.ItemsLayout>
+                    
+                    <!-- Estado Vacío -->
+                    <CollectionView.EmptyView>
+                        <components:EmptyStateView 
+                            Title="Sin servicios disponibles"
+                            Description="No encontramos tratamientos activos para la categoría seleccionada o el filtro ingresado."
+                            IconEmoji="🌸"
+                            IsActionVisible="False" />
+                    </CollectionView.EmptyView>
 
-                                <!-- Información del Servicio -->
-                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="4">
-                                    <Label Text="{Binding CategoriaNombre}" 
-                                           FontSize="11" 
-                                           FontAttributes="Bold" 
-                                           TextColor="{StaticResource PrimaryColor}" />
-                                    <Label Text="{Binding Nombre}" 
-                                           FontSize="15" 
-                                           FontAttributes="Bold" 
-                                           TextColor="{StaticResource TextColorPrimary}" 
-                                           LineBreakMode="TailTruncation" />
-                                    <Label Text="{Binding Descripcion}" 
-                                           FontSize="12" 
-                                           TextColor="{StaticResource TextColorSecondary}" 
-                                           MaxLines="2" 
-                                           LineBreakMode="TailTruncation" />
+                    <!-- Tarjetas de Servicio Reutilizables -->
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="entities:Servicio">
+                            <Grid>
+                                <components:ServiceCardView
+                                    ServiceName="{Binding Nombre}"
+                                    Category="{Binding CategoriaNombre}"
+                                    DurationText="{Binding DuracionFormateada}"
+                                    PriceText="{Binding PrecioFormateado}"
+                                    ImageUrl="{Binding ImagenUrl}"
+                                    ActionText="Reservar"
+                                    ActionCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, Path=SelectServicioCommand}"
+                                    ActionCommandParameter="{Binding .}" />
 
-                                    <!-- Precio, Duración y Botón Reservar -->
-                                    <Grid ColumnDefinitions="*, Auto" Margin="0,4,0,0">
-                                        <HorizontalStackLayout Grid.Column="0" Spacing="10" VerticalOptions="Center">
-                                            <Label Text="{Binding Precio, StringFormat='${0:F2}'}" 
-                                                   FontSize="16" 
-                                                   FontAttributes="Bold" 
-                                                   TextColor="{StaticResource PrimaryDark}" />
-                                            <Label Text="{Binding DuracionMinutos, StringFormat='⏱ {0} min'}" 
-                                                   FontSize="12" 
-                                                   TextColor="{StaticResource TextColorSecondary}" 
-                                                   VerticalOptions="Center" />
-                                        </HorizontalStackLayout>
-
-                                        <Border Grid.Column="1" 
-                                                StrokeShape="RoundRectangle 12"
-                                                BackgroundColor="{StaticResource PrimaryColor}"
-                                                Padding="12,6">
-                                            <Label Text="Reservar ➔" 
-                                                   TextColor="White" 
-                                                   FontSize="12" 
-                                                   FontAttributes="Bold" />
-                                        </Border>
-                                    </Grid>
-                                </VerticalStackLayout>
-
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer 
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, Path=SelectServicioCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Grid.GestureRecognizers>
                             </Grid>
-                            
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer 
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, Path=SelectServicioCommand}"
-                                    CommandParameter="{Binding .}" />
-                            </Border.GestureRecognizers>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
         </RefreshView>
 
     </Grid>

@@ -5,7 +5,7 @@ namespace ShushineStudio.Mobile.Presentation.ViewModels.Booking;
 
 /// <summary>
 /// ViewModel para el comprobante de cita confirmada (US-4.02 / Wireframe Pág. 12).
-/// Muestra el código de cita único (#SHU-XXXX) y permite navegar a Mis Citas o al Catálogo.
+/// Refleja el identificador real de la cita sin generar códigos ficticios ni inventar sucursales.
 /// </summary>
 [QueryProperty(nameof(Codigo), "codigo")]
 [QueryProperty(nameof(ServicioNombre), "servicioNombre")]
@@ -16,7 +16,7 @@ namespace ShushineStudio.Mobile.Presentation.ViewModels.Booking;
 public partial class BookingConfirmationViewModel : BaseViewModel
 {
     [ObservableProperty]
-    private string codigo = "#SHU-8492";
+    private string codigo = string.Empty;
 
     [ObservableProperty]
     private string servicioNombre = string.Empty;
@@ -33,12 +33,16 @@ public partial class BookingConfirmationViewModel : BaseViewModel
     [ObservableProperty]
     private string total = string.Empty;
 
-    [ObservableProperty]
-    private string sucursal = "Shushine Studio - Colonia San Benito, San Salvador";
+    public bool TieneCodigo => !string.IsNullOrWhiteSpace(Codigo);
 
     public BookingConfirmationViewModel()
     {
         Title = "¡Cita Confirmada!";
+    }
+
+    partial void OnCodigoChanged(string value)
+    {
+        OnPropertyChanged(nameof(TieneCodigo));
     }
 
     [RelayCommand]
@@ -46,11 +50,11 @@ public partial class BookingConfirmationViewModel : BaseViewModel
     {
         try
         {
-            await Shell.Current.GoToAsync("//MyAppointmentsPage");
+            await Shell.Current.GoToAsync("//MainTabs/MyAppointmentsPage");
         }
         catch
         {
-            await Shell.Current.GoToAsync("//MainTabs/MyAppointmentsPage");
+            await Shell.Current.GoToAsync("//MyAppointmentsPage");
         }
     }
 
@@ -59,11 +63,11 @@ public partial class BookingConfirmationViewModel : BaseViewModel
     {
         try
         {
-            await Shell.Current.GoToAsync("//CatalogPage");
+            await Shell.Current.GoToAsync("//MainTabs/CatalogPage");
         }
         catch
         {
-            await Shell.Current.GoToAsync("//MainTabs/CatalogPage");
+            await Shell.Current.GoToAsync("//CatalogPage");
         }
     }
 }

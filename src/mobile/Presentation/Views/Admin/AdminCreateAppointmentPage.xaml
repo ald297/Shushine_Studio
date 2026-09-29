@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+    xmlns:entities="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
+    x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminCreateAppointmentPage"
+    x:DataType="vm:AdminCreateAppointmentViewModel"
+    BackgroundColor="{StaticResource Background}"
+    Shell.NavBarIsVisible="false"
+    Title="Nueva Cita Administrativa">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- 1. HEADER -->
+        <Grid Grid.Row="0" BackgroundColor="{StaticResource Surface}" Padding="20,50,20,16">
+            <Grid ColumnDefinitions="40,*,40">
+                <ImageButton
+                    Grid.Column="0"
+                    Source="arrow_left.png"
+                    Command="{Binding CancelarCommand}"
+                    WidthRequest="28" HeightRequest="28"
+                    BackgroundColor="Transparent"
+                    HorizontalOptions="Start" VerticalOptions="Center" />
+
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4">
+                    <HorizontalStackLayout Spacing="6" HorizontalOptions="Center">
+                        <Label
+                            Text="Nueva Cita Walk-in"
+                            FontFamily="PlayfairDisplay"
+                            FontSize="18" FontAttributes="Bold"
+                            TextColor="{StaticResource TextPrimary}" />
+                        <Frame
+                            BackgroundColor="{StaticResource Primary}"
+                            CornerRadius="4"
+                            Padding="5,1"
+                            HasShadow="False"
+                            VerticalOptions="Center">
+                            <Label Text="ADMIN" FontFamily="PlusJakartaSans" FontSize="8" FontAttributes="Bold" TextColor="{StaticResource Surface}" />
+                        </Frame>
+                    </HorizontalStackLayout>
+                    <BoxView HeightRequest="2" WidthRequest="40" BackgroundColor="{StaticResource Secondary}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Grid>
+            <BoxView HeightRequest="1" BackgroundColor="{StaticResource Border}" Margin="0,14,0,0" VerticalOptions="End" />
+        </Grid>
+
+        <!-- 2. FORMULARIO OPERATIVO -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20,16,20,24" Spacing="16">
+
+                <!-- BANNER DE CONFLICTO DE DISPONIBILIDAD (HTTP 409) -->
+                <Frame
+                    IsVisible="{Binding IsConflict}"
+                    BackgroundColor="#FEF2F2"
+                    BorderColor="#F87171"
+                    CornerRadius="14"
+                    Padding="16,12"
+                    HasShadow="False">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="⚠️" FontSize="20" VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="Conflicto de Horario" FontFamily="PlusJakartaSans" FontSize="13" FontAttributes="Bold" TextColor="#991B1B" />
+                            <Label Text="{Binding ErrorMessage}" FontFamily="PlusJakartaSans" FontSize="12" TextColor="#B91C1C" LineHeight="1.2" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Frame>
+
+                <!-- BANNER DE ERROR GENERAL -->
+                <Frame
+                    IsVisible="{Binding ErrorMessage, Converter={x:Null}}"
+                    BackgroundColor="#FEF2F2"
+                    BorderColor="#FCA5A5"
+                    CornerRadius="12"
+                    Padding="14,10"
+                    HasShadow="False">
+                    <Label Text="{Binding ErrorMessage}"
+                           FontFamily="PlusJakartaSans"
+                           FontSize="12"
+                           TextColor="#991B1B"
+                           HorizontalTextAlignment="Center" />
+                </Frame>
+
+                <!-- 1. DATOS DE LA CLIENTA -->
+                <Frame
+                    BackgroundColor="{StaticResource Surface}"
+                    BorderColor="{StaticResource Border}"
+                    CornerRadius="16"
+                    Padding="18,16"
+                    HasShadow="False">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="DATOS DE LA CLIENTA"
+                            FontFamily="PlusJakartaSans"
+                            FontSize="11" FontAttributes="Bold"
+                            TextColor="{StaticResource Secondary}"
+                            CharacterSpacing="1" />
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Nombre completo *" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Frame BackgroundColor="{StaticResource Background}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="12,2" HasShadow="False">
+                                <Entry
+                                    Placeholder="Ej. María Elena Delgado"
+                                    Text="{Binding NombreCliente}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="14"
+                                    TextColor="{StaticResource TextPrimary}" />
+                            </Frame>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Teléfono de contacto" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Frame BackgroundColor="{StaticResource Background}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="12,2" HasShadow="False">
+                                <Entry
+                                    Placeholder="Ej. 7890-1234"
+                                    Text="{Binding TelefonoCliente}"
+                                    Keyboard="Telephone"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="14"
+                                    TextColor="{StaticResource TextPrimary}" />
+                            </Frame>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- 2. SERVICIO Y PROFESIONAL -->
+                <Frame
+                    BackgroundColor="{StaticResource Surface}"
+                    BorderColor="{StaticResource Border}"
+                    CornerRadius="16"
+                    Padding="18,16"
+                    HasShadow="False">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="TRATAMIENTO Y ESTILISTA"
+                            FontFamily="PlusJakartaSans"
+                            FontSize="11" FontAttributes="Bold"
+                            TextColor="{StaticResource Secondary}"
+                            CharacterSpacing="1" />
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Servicio a realizar *" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Frame BackgroundColor="{StaticResource Background}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="12,2" HasShadow="False">
+                                <Picker
+                                    ItemsSource="{Binding Servicios}"
+                                    SelectedItem="{Binding ServicioSeleccionado}"
+                                    ItemDisplayBinding="{Binding Nombre}"
+                                    Title="Selecciona un servicio..."
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="13"
+                                    TextColor="{StaticResource TextPrimary}" />
+                            </Frame>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Profesional asignada *" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Frame BackgroundColor="{StaticResource Background}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="12,2" HasShadow="False">
+                                <Picker
+                                    ItemsSource="{Binding Estilistas}"
+                                    SelectedItem="{Binding EstilistaSeleccionado}"
+                                    ItemDisplayBinding="{Binding NombreCompleto}"
+                                    Title="Selecciona una estilista..."
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="13"
+                                    TextColor="{StaticResource TextPrimary}" />
+                            </Frame>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- 3. FECHA, HORARIO Y PAGO -->
+                <Frame
+                    BackgroundColor="{StaticResource Surface}"
+                    BorderColor="{StaticResource Border}"
+                    CornerRadius="16"
+                    Padding="18,16"
+                    HasShadow="False">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="FECHA, HORARIO Y PAGO"
+                            FontFamily="PlusJakartaSans"
+                            FontSize="11" FontAttributes="Bold"
+                            TextColor="{StaticResource Secondary}"
+                            CharacterSpacing="1" />
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                <Label Text="Fecha *" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                <Frame BackgroundColor="{StaticResource Background}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="10,2" HasShadow="False">
+                                    <DatePicker
+                                        Date="{Binding FechaCita}"
+                                        Format="dd/MM/yyyy"
+                                        FontFamily="PlusJakartaSans"
+                                        FontSize="13"
+                                        TextColor="{StaticResource TextPrimary}" />
+                                </Frame>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Label Text="Hora de inicio *" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                <Frame BackgroundColor="{StaticResource Background}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="10,2" HasShadow="False">
+                                    <TimePicker
+                                        Time="{Binding HoraInicio}"
+                                        Format="HH:mm"
+                                        FontFamily="PlusJakartaSans"
+                                        FontSize="13"
+                                        TextColor="{StaticResource TextPrimary}" />
+                                </Frame>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Método de pago preferente" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Frame BackgroundColor="{StaticResource Background}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="12,2" HasShadow="False">
+                                <Picker
+                                    ItemsSource="{Binding MetodosPagoDisponibles}"
+                                    SelectedItem="{Binding MetodoPago}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="13"
+                                    TextColor="{StaticResource TextPrimary}" />
+                            </Frame>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Notas de atención (opcional)" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Frame BackgroundColor="{StaticResource Background}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="12,6" HasShadow="False">
+                                <Editor
+                                    Placeholder="Ej. Clienta prefiere agua fría, cabello teñido..."
+                                    Text="{Binding Notas}"
+                                    HeightRequest="60"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="13"
+                                    TextColor="{StaticResource TextPrimary}" />
+                            </Frame>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- 3. BOTÓN INFERIOR -->
+        <Grid Grid.Row="2" BackgroundColor="{StaticResource Surface}" Padding="20,12,20,24">
+            <Button
+                Text="Confirmar y Agendar Cita"
+                Command="{Binding GuardarCitaCommand}"
+                Style="{StaticResource PrimaryButtonStyle}"
+                HeightRequest="48"
+                FontSize="14"
+                CornerRadius="12" />
+        </Grid>
+
+    </Grid>
+
+</ContentPage>

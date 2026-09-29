@@ -8,7 +8,7 @@ namespace ShushineStudio.Mobile.Presentation.ViewModels.Booking;
 
 /// <summary>
 /// ViewModel para el resumen y confirmación transaccional de cita (US-4.01 / Wireframe Pág. 11).
-/// Calcula subtotales, impuestos y delega la reserva en CreateAppointmentUseCase con manejo de 409 Conflict.
+/// Refleja únicamente los valores reales del catálogo y backend sin descuentos ni impuestos inventados.
 /// </summary>
 [QueryProperty(nameof(ServicioId), "servicioId")]
 [QueryProperty(nameof(EstilistaId), "estilistaId")]
@@ -39,16 +39,11 @@ public partial class BookingSummaryViewModel : BaseViewModel
     private Servicio? servicio;
 
     [ObservableProperty]
-    private decimal subtotal;
-
-    [ObservableProperty]
-    private decimal descuento;
-
-    [ObservableProperty]
-    private decimal impuestoIva;
-
-    [ObservableProperty]
     private decimal totalPagar;
+
+    public bool HasErrorMessage => !string.IsNullOrWhiteSpace(ErrorMessage);
+
+    public string TotalPagarFormateado => $"${TotalPagar:N2}";
 
     public BookingSummaryViewModel(
         IServicioRepository servicioRepository,
@@ -72,11 +67,15 @@ public partial class BookingSummaryViewModel : BaseViewModel
     {
         if (Servicio == null) return;
 
-        Subtotal = Servicio.Precio;
-        Descuento = Math.Round(Subtotal * 0.10m, 2); // 10% Descuento especial de bienvenida
-        var baseImponible = Subtotal - Descuento;
-        ImpuestoIva = Math.Round(baseImponible * 0.13m, 2); // IVA 13% en El Salvador
-        TotalPagar = baseImponible + ImpuestoIva;
+        // Auditoría de datos reales: el total a pagar corresponde al precio real del servicio
+        TotalPagar = Servicio.Precio;
+        OnPropertyChanged(nameof(TotalPagarFormateado));
+    }
+
+    [RelayCommand]
+    private async Task VolverAsync()
+    {
+        await Shell.Current.GoToAsync("..");
     }
 
     [RelayCommand]
@@ -88,6 +87,7 @@ public partial class BookingSummaryViewModel : BaseViewModel
         {
             IsBusy = true;
             ErrorMessage = null;
+            OnPropertyChanged(nameof(HasErrorMessage));
 
             var fechaHoraInicio = DateTime.Today.AddDays(1).AddHours(10);
             if (DateTime.TryParse($"{Fecha} {Hora}", out var fullParsed))
@@ -107,7 +107,16 @@ public partial class BookingSummaryViewModel : BaseViewModel
                 fechaHoraInicio,
                 "Reserva generada desde App Móvil .NET MAUI"
             );
-            var codigoGenerado = reserva?.CodigoReserva ?? $"#SHU-{Random.Shared.Next(1000, 9999)}";
+
+            // Obtener el código o identificador real devuelto por la API sin fabricar códigos ficticios
+            string codigoGenerado = string.Empty;
+            if (reserva != null)
+            {
+                if (!string.IsNullOrWhiteSpace(reserva.CodigoCita))
+                    codigoGenerado = reserva.CodigoCita;
+                else if (reserva.Id > 0)
+                    codigoGenerado = $"Cita #{reserva.Id}";
+            }
 
             // Navegar a la pantalla de comprobante exitoso (US-4.02)
             await Shell.Current.GoToAsync(
@@ -117,6 +126,7 @@ public partial class BookingSummaryViewModel : BaseViewModel
         catch (Exception ex)
         {
             ErrorMessage = ex.Message;
+            OnPropertyChanged(nameof(HasErrorMessage));
             if (Application.Current?.MainPage != null)
             {
                 await Application.Current.MainPage.DisplayAlert(

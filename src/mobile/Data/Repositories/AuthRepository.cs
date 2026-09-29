@@ -98,6 +98,14 @@ public class AuthRepository : IAuthRepository
                 }
             }
         }
+        catch (TaskCanceledException)
+        {
+            throw new InvalidOperationException("El servidor está iniciando o tardó en responder. Por favor espera unos segundos e intenta nuevamente.");
+        }
+        catch (HttpRequestException)
+        {
+            throw new InvalidOperationException("No se pudo conectar con el servidor. Por favor verifica tu conexión a internet o intenta de nuevo.");
+        }
         catch (Exception)
         {
             return false;

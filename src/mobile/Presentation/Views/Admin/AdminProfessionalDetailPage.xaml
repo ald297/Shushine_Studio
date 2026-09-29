@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+    xmlns:entities="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
+    x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminProfessionalDetailPage"
+    x:DataType="vm:AdminProfessionalDetailViewModel"
+    Title="{Binding Title}"
+    BackgroundColor="{StaticResource Background}">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- 1. HEADER SUPERIOR -->
+        <Grid Grid.Row="0" BackgroundColor="{StaticResource Surface}" Padding="20,50,20,16">
+            <Grid ColumnDefinitions="40,*,Auto">
+                <ImageButton
+                    Grid.Column="0"
+                    Source="arrow_left.png"
+                    Command="{Binding RegresarCommand}"
+                    WidthRequest="28" HeightRequest="28"
+                    BackgroundColor="Transparent"
+                    HorizontalOptions="Start" VerticalOptions="Center" />
+
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4">
+                    <HorizontalStackLayout Spacing="6" HorizontalOptions="Center">
+                        <Label
+                            Text="Detalle Profesional"
+                            FontFamily="PlayfairDisplay"
+                            FontSize="18" FontAttributes="Bold"
+                            TextColor="{StaticResource TextPrimary}" />
+                        <Frame
+                            BackgroundColor="{StaticResource Primary}"
+                            CornerRadius="4"
+                            Padding="5,1"
+                            HasShadow="False"
+                            VerticalOptions="Center">
+                            <Label Text="ADMIN" FontFamily="PlusJakartaSans" FontSize="8" FontAttributes="Bold" TextColor="{StaticResource Surface}" />
+                        </Frame>
+                    </HorizontalStackLayout>
+                    <Label
+                        Text="Recurso operativo del salón"
+                        FontFamily="PlusJakartaSans"
+                        FontSize="11"
+                        TextColor="{StaticResource TextSecondary}"
+                        HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+
+                <Button
+                    Grid.Column="2"
+                    Text="Agenda"
+                    Command="{Binding VerAgendaCommand}"
+                    BackgroundColor="{StaticResource Accent}"
+                    TextColor="{StaticResource Surface}"
+                    FontFamily="PlusJakartaSans"
+                    FontSize="12" FontAttributes="Bold"
+                    CornerRadius="8"
+                    HeightRequest="36"
+                    Padding="12,0" />
+            </Grid>
+        </Grid>
+
+        <!-- 2. CONTENIDO PRINCIPAL SCROLLEABLE -->
+        <ScrollView Grid.Row="1" Padding="20,16,20,32">
+            <VerticalStackLayout Spacing="20">
+
+                <!-- 2.1 TARJETA PRINCIPAL DEL PROFESIONAL -->
+                <Border
+                    Stroke="{StaticResource Outline}"
+                    StrokeThickness="1"
+                    BackgroundColor="{StaticResource Surface}"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="20">
+                    <Border.Shadow>
+                        <Shadow Brush="#10000000" Offset="0,4" Radius="12" Opacity="0.8" />
+                    </Border.Shadow>
+
+                    <VerticalStackLayout Spacing="16">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
+                            <!-- Avatar con iniciales y color de agenda -->
+                            <Border
+                                Grid.Column="0"
+                                WidthRequest="64" HeightRequest="64"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 32"
+                                BackgroundColor="{Binding ColorAgenda}"
+                                VerticalOptions="Center">
+                                <Label
+                                    Text="{Binding Iniciales}"
+                                    TextColor="{StaticResource Surface}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="22" FontAttributes="Bold"
+                                    HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+
+                            <!-- Nombre y Especialidad -->
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="4">
+                                <Label
+                                    Text="{Binding NombreCompleto}"
+                                    FontFamily="PlayfairDisplay"
+                                    FontSize="20" FontAttributes="Bold"
+                                    TextColor="{StaticResource TextPrimary}" />
+                                <Label
+                                    Text="{Binding EspecialidadPrincipal}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="13"
+                                    TextColor="{StaticResource TextSecondary}" />
+                                <HorizontalStackLayout Spacing="6" Margin="0,2,0,0">
+                                    <Label Text="ID:" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                    <Label Text="{Binding EstilistaId}" FontFamily="PlusJakartaSans" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+
+                            <!-- Badge Estado -->
+                            <Border
+                                Grid.Column="2"
+                                BackgroundColor="{Binding EstadoBadgeBgColor}"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="10,4"
+                                VerticalOptions="Start">
+                                <Label
+                                    Text="{Binding EstadoTexto}"
+                                    TextColor="{Binding EstadoBadgeTextColor}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="11" FontAttributes="Bold" />
+                            </Border>
+                        </Grid>
+
+                        <BoxView HeightRequest="1" Color="{StaticResource Outline}" />
+
+                        <!-- Biografía / Descripción -->
+                        <VerticalStackLayout Spacing="6">
+                            <Label
+                                Text="Perfil Operativo"
+                                FontFamily="PlusJakartaSans"
+                                FontSize="12" FontAttributes="Bold"
+                                TextColor="{StaticResource TextPrimary}" />
+                            <Label
+                                Text="{Binding Biografia}"
+                                FontFamily="PlusJakartaSans"
+                                FontSize="13"
+                                TextColor="{StaticResource TextSecondary}"
+                                LineHeight="1.3" />
+                        </VerticalStackLayout>
+
+                        <!-- Color de Agenda Identificador -->
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" VerticalOptions="Center">
+                            <Border
+                                Grid.Column="0"
+                                WidthRequest="20" HeightRequest="20"
+                                StrokeThickness="1"
+                                Stroke="{StaticResource Outline}"
+                                StrokeShape="RoundRectangle 6"
+                                BackgroundColor="{Binding ColorAgenda}"
+                                VerticalOptions="Center" />
+                            <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                <Label Text="Identificador en Agenda:" FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                                <Label Text="{Binding ColorAgenda}" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            </HorizontalStackLayout>
+                        </Grid>
+
+                        <!-- Botones de Acción Preparados -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,8,0,0">
+                            <Button
+                                Grid.Column="0"
+                                Text="Editar Perfil"
+                                Command="{Binding EditarProfesionalCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                HeightRequest="40"
+                                FontSize="12"
+                                CornerRadius="8" />
+
+                            <Button
+                                Grid.Column="1"
+                                Text="Cambiar Estado"
+                                Command="{Binding ActivarDesactivarCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                HeightRequest="40"
+                                FontSize="12"
+                                CornerRadius="8" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- 2.2 SECCIÓN SERVICIOS ASIGNADOS (AUDITORÍA OFICIAL) -->
+                <Border
+                    Stroke="{StaticResource Outline}"
+                    StrokeThickness="1"
+                    BackgroundColor="{StaticResource Surface}"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="20">
+                    <Border.Shadow>
+                        <Shadow Brush="#10000000" Offset="0,4" Radius="12" Opacity="0.8" />
+                    </Border.Shadow>
+
+                    <VerticalStackLayout Spacing="10">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="✂️" FontSize="16" VerticalOptions="Center" />
+                            <Label
+                                Text="Servicios Asignados"
+                                FontFamily="PlayfairDisplay"
+                                FontSize="16" FontAttributes="Bold"
+                                TextColor="{StaticResource TextPrimary}"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+
+                        <Border
+                            BackgroundColor="{StaticResource SurfaceVariant}"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 10"
+                            Padding="14">
+                            <VerticalStackLayout Spacing="6">
+                                <Label
+                                    Text="Gestión Centralizada de Salón"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="12" FontAttributes="Bold"
+                                    TextColor="{StaticResource TextPrimary}" />
+                                <Label
+                                    Text="El backend de Shushine Studio maneja los servicios de manera global en el catálogo. Todos los profesionales activos atienden la cartera completa de servicios del salón según su especialidad."
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="12"
+                                    TextColor="{StaticResource TextSecondary}"
+                                    LineHeight="1.3" />
+                                <Label
+                                    Text="La asignación/desasignación granular de servicios no está disponible como endpoint en la API actual."
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="11" FontAttributes="Italic"
+                                    TextColor="{StaticResource Primary}"
+                                    Margin="0,4,0,0" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- 2.3 DISPONIBILIDAD EN TIEMPO REAL (ENDPOINT REAL: GET /api/estilistas/{id}/disponibilidad) -->
+                <Border
+                    Stroke="{StaticResource Outline}"
+                    StrokeThickness="1"
+                    BackgroundColor="{StaticResource Surface}"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="20">
+                    <Border.Shadow>
+                        <Shadow Brush="#10000000" Offset="0,4" Radius="12" Opacity="0.8" />
+                    </Border.Shadow>
+
+                    <VerticalStackLayout Spacing="16">
+                        <!-- Cabecera de Disponibilidad -->
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <HorizontalStackLayout Spacing="8">
+                                    <Label Text="🕒" FontSize="16" VerticalOptions="Center" />
+                                    <Label
+                                        Text="Disponibilidad Real"
+                                        FontFamily="PlayfairDisplay"
+                                        FontSize="16" FontAttributes="Bold"
+                                        TextColor="{StaticResource TextPrimary}"
+                                        VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                                <Label
+                                    Text="Calculada en vivo por el servidor"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="11"
+                                    TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+
+                            <ActivityIndicator
+                                Grid.Column="1"
+                                IsRunning="{Binding IsBusyDisponibilidad}"
+                                IsVisible="{Binding IsBusyDisponibilidad}"
+                                Color="{StaticResource Primary}"
+                                WidthRequest="24" HeightRequest="24"
+                                VerticalOptions="Center" />
+                        </Grid>
+
+                        <!-- Selector de Fecha para Disponibilidad -->
+                        <Border
+                            Stroke="{StaticResource Outline}"
+                            StrokeThickness="1"
+                            BackgroundColor="{StaticResource SurfaceVariant}"
+                            StrokeShape="RoundRectangle 12"
+                            Padding="8,4">
+                            <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
+                                <Button
+                                    Grid.Column="0"
+                                    Text="◀"
+                                    Command="{Binding DiaAnteriorCommand}"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource TextPrimary}"
+                                    FontSize="14"
+                                    WidthRequest="40" HeightRequest="36"
+                                    Padding="0" />
+
+                                <Label
+                                    Grid.Column="1"
+                                    Text="{Binding FechaDisponibilidadTexto}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="13" FontAttributes="Bold"
+                                    TextColor="{StaticResource TextPrimary}"
+                                    HorizontalTextAlignment="Center"
+                                    VerticalTextAlignment="Center" />
+
+                                <Button
+                                    Grid.Column="2"
+                                    Text="▶"
+                                    Command="{Binding DiaSiguienteCommand}"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource TextPrimary}"
+                                    FontSize="14"
+                                    WidthRequest="40" HeightRequest="36"
+                                    Padding="0" />
+                            </Grid>
+                        </Border>
+
+                        <!-- Franjas Horarias Disponibles / Ocupadas -->
+                        <VerticalStackLayout Spacing="10" IsVisible="{Binding TieneFranjas}">
+                            <Label
+                                Text="Franjas calculadas (intervalos de 30 min):"
+                                FontFamily="PlusJakartaSans"
+                                FontSize="11" FontAttributes="Bold"
+                                TextColor="{StaticResource TextSecondary}" />
+
+                            <!-- CollectionView de Franjas -->
+                            <CollectionView ItemsSource="{Binding FranjasDisponibles}">
+                                <CollectionView.ItemsLayout>
+                                    <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="8" VerticalItemSpacing="8" />
+                                </CollectionView.ItemsLayout>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="entities:FranjaHoraria">
+                                        <Border
+                                            StrokeThickness="1"
+                                            StrokeShape="RoundRectangle 8"
+                                            Padding="10,8">
+                                            <Border.Triggers>
+                                                <!-- Disponible -->
+                                                <DataTrigger TargetType="Border" Binding="{Binding Disponible}" Value="True">
+                                                    <Setter Property="BackgroundColor" Value="#F1F8E9" />
+                                                    <Setter Property="Stroke" Value="#A5D6A7" />
+                                                </DataTrigger>
+                                                <!-- Ocupado / No Disponible -->
+                                                <DataTrigger TargetType="Border" Binding="{Binding Disponible}" Value="False">
+                                                    <Setter Property="BackgroundColor" Value="#FBE9E7" />
+                                                    <Setter Property="Stroke" Value="#FFCCBC" />
+                                                </DataTrigger>
+                                            </Border.Triggers>
+
+                                            <VerticalStackLayout Spacing="2">
+                                                <Label
+                                                    Text="{Binding HorarioTexto}"
+                                                    FontFamily="PlusJakartaSans"
+                                                    FontSize="12" FontAttributes="Bold"
+                                                    HorizontalTextAlignment="Center">
+                                                    <Label.Triggers>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding Disponible}" Value="True">
+                                                            <Setter Property="TextColor" Value="#2E7D32" />
+                                                        </DataTrigger>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding Disponible}" Value="False">
+                                                            <Setter Property="TextColor" Value="#C62828" />
+                                                        </DataTrigger>
+                                                    </Label.Triggers>
+                                                </Label>
+                                                <Label
+                                                    FontSize="10"
+                                                    HorizontalTextAlignment="Center">
+                                                    <Label.Triggers>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding Disponible}" Value="True">
+                                                            <Setter Property="Text" Value="Disponible" />
+                                                            <Setter Property="TextColor" Value="#388E3C" />
+                                                        </DataTrigger>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding Disponible}" Value="False">
+                                                            <Setter Property="Text" Value="{Binding MotivoNoDisponible, TargetNullValue='No disponible'}" />
+                                                            <Setter Property="TextColor" Value="#D32F2F" />
+                                                        </DataTrigger>
+                                                    </Label.Triggers>
+                                                </Label>
+                                            </VerticalStackLayout>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+
+                        <!-- Sin franjas para la fecha -->
+                        <VerticalStackLayout Spacing="6" IsVisible="{Binding NoTieneFranjas}" Padding="16" HorizontalOptions="Center">
+                            <Label Text="📅" FontSize="28" HorizontalOptions="Center" />
+                            <Label
+                                Text="No hay franjas registradas para este día."
+                                FontFamily="PlusJakartaSans"
+                                FontSize="12"
+                                TextColor="{StaticResource TextSecondary}"
+                                HorizontalTextAlignment="Center" />
+                            <Label
+                                Text="Puede deberse a día no laborable o sin horarios configurados en el salón."
+                                FontFamily="PlusJakartaSans"
+                                FontSize="10" FontAttributes="Italic"
+                                TextColor="{StaticResource TextSecondary}"
+                                HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- 2.4 BOTÓN NAVEGAR A AGENDA GENERAL DEL SALÓN -->
+                <Button
+                    Text="Ver Timeline de Citas en Agenda"
+                    Command="{Binding VerAgendaCommand}"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    HeightRequest="50"
+                    FontSize="14" FontAttributes="Bold"
+                    CornerRadius="12" />
+
+                <!-- 2.5 BOTÓN AGENDAR CITA CON ESTE PROFESIONAL -->
+                <Button
+                    Text="Agendar Cita con este Profesional"
+                    Command="{Binding AgendarCitaCommand}"
+                    BackgroundColor="{StaticResource Accent}"
+                    TextColor="{StaticResource Surface}"
+                    FontFamily="PlusJakartaSans"
+                    FontSize="14" FontAttributes="Bold"
+                    CornerRadius="12"
+                    HeightRequest="48" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

@@ -139,6 +139,10 @@ public partial class AdminProfileViewModel : BaseViewModel
         if (confirm)
         {
             await _authRepository.LogoutAsync();
+            if (Shell.Current is AppShell appShell)
+            {
+                appShell.SwitchToLogin();
+            }
             await Shell.Current.GoToAsync("//LoginPage");
         }
     }

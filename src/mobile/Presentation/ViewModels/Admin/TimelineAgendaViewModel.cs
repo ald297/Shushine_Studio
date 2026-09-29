@@ -7,10 +7,11 @@ using ShushineStudio.Mobile.Domain.Repositories;
 namespace ShushineStudio.Mobile.Presentation.ViewModels.Admin;
 
 /// <summary>
-/// Modelo reactivo para los chips de filtrado de estilistas en la Agenda diaria.
+/// Modelo reactivo para el chip selector de estilista en la Agenda.
 /// </summary>
-public class EstilistaFiltroItem : ObservableObject
+public class EstilistaChipItem : ObservableObject
 {
+    public int? Id { get; set; }
     public string Nombre { get; set; } = string.Empty;
 
     private bool _isSelected;
@@ -22,62 +23,41 @@ public class EstilistaFiltroItem : ObservableObject
 }
 
 /// <summary>
-/// ViewModel de la agenda de citas en formato timeline por estilista (US-5.02 / Wireframe Pág. 16).
-/// Sincronizado en tiempo real con el catálogo de estilistas y citas generales del salón.
+/// ViewModel de la Agenda Operativa del Salón.
+/// Conectado directamente a GET /api/citas/timeline?fecha=YYYY-MM-DD del backend.
+/// Cero datos simulados ni citas mock.
 /// </summary>
-public partial class TimelineAgendaViewModel : BaseViewModel
+public partial class TimelineAgendaViewModel : BaseViewModel, IQueryAttributable
 {
     private readonly IReservaRepository _reservaRepository;
     private readonly IEstilistaRepository _estilistaRepository;
 
     [ObservableProperty]
-    private ObservableCollection<Reserva> citasDelDia = new();
-
-    [ObservableProperty]
-    private ObservableCollection<EstilistaFiltroItem> estilistasFiltro = new();
-
-    [ObservableProperty]
     private DateTime fechaSeleccionada = DateTime.Today;
 
     [ObservableProperty]
-    private string estilistaNombreFiltro = "Todas";
-
-    // Toast Boutique Flotante (Reemplaza los alertas nativos grises)
-    [ObservableProperty]
-    private bool isToastVisible;
+    private string fechaTexto = string.Empty;
 
     [ObservableProperty]
-    private string toastTitulo = string.Empty;
+    private int? estilistaSeleccionadoId = null;
 
     [ObservableProperty]
-    private string toastMensaje = string.Empty;
+    private string estadoSeleccionado = "Todos";
 
-    public void MostrarToast(string titulo, string mensaje)
-    {
-        ToastTitulo = titulo;
-        ToastMensaje = mensaje;
-        IsToastVisible = true;
-        _ = Task.Run(async () =>
-        {
-            await Task.Delay(3500);
-            MainThread.BeginInvokeOnMainThread(() => IsToastVisible = false);
-        });
-    }
+    [ObservableProperty]
+    private ObservableCollection<EstilistaChipItem> estilistasFiltro = new();
 
-    [RelayCommand]
-    private void CerrarToast()
-    {
-        IsToastVisible = false;
-    }
+    [ObservableProperty]
+    private ObservableCollection<Reserva> citasDelDia = new();
 
-    // Bloques horarios de la jornada laboral del salón
-    public List<string> BloquesHorarios { get; } = new()
-    {
-        "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
-        "11:00", "11:30", "12:00", "12:30", "13:00", "13:30",
-        "14:00", "14:30", "15:00", "15:30", "16:00", "16:30",
-        "17:00", "17:30", "18:00"
-    };
+    [ObservableProperty]
+    private ObservableCollection<Reserva> citasFiltradas = new();
+
+    [ObservableProperty]
+    private bool estaVacio = false;
+
+    [ObservableProperty]
+    private int totalCitas = 0;
 
     public TimelineAgendaViewModel(
         IReservaRepository reservaRepository,
@@ -85,117 +65,72 @@ public partial class TimelineAgendaViewModel : BaseViewModel
     {
         _reservaRepository = reservaRepository;
         _estilistaRepository = estilistaRepository;
-        Title = "Agenda del Salón";
-        _ = InicializarAgendaAsync();
+
+        Title = "Agenda";
+        ActualizarFechaTexto();
     }
 
-    private static readonly List<Reserva> AgendaOperativaBase = new()
+    public async void ApplyQueryAttributes(IDictionary<string, object> query)
     {
-        new Reserva
+        if (query.TryGetValue("estilistaId", out var idObj))
         {
-            Id = 301,
-            CodigoCita = "#SHU-1024",
-            ServicioNombre = "Balayage Iluminador & Gloss",
-            EstilistaNombre = "Sofía Valenzuela",
-            FechaHoraInicio = DateTime.Today.AddHours(9),
-            FechaHoraFin = DateTime.Today.AddHours(11),
-            Total = 65.00m,
-            Estado = "COMPLETADA"
-        },
-        new Reserva
-        {
-            Id = 302,
-            CodigoCita = "#SHU-1025",
-            ServicioNombre = "Corte de Autor & Cepillado",
-            EstilistaNombre = "Sofía Valenzuela",
-            FechaHoraInicio = DateTime.Today.AddHours(11).AddMinutes(30),
-            FechaHoraFin = DateTime.Today.AddHours(12).AddMinutes(15),
-            Total = 25.00m,
-            Estado = "EN_CURSO"
-        },
-        new Reserva
-        {
-            Id = 303,
-            CodigoCita = "#SHU-1026",
-            ServicioNombre = "Manicura Rusa & Esmaltado Semi",
-            EstilistaNombre = "Camila Domínguez",
-            FechaHoraInicio = DateTime.Today.AddHours(10),
-            FechaHoraFin = DateTime.Today.AddHours(11),
-            Total = 22.00m,
-            Estado = "COMPLETADA"
-        },
-        new Reserva
-        {
-            Id = 304,
-            CodigoCita = "#SHU-1027",
-            ServicioNombre = "Pedicura Spa Rejuvenecedora",
-            EstilistaNombre = "Camila Domínguez",
-            FechaHoraInicio = DateTime.Today.AddHours(14),
-            FechaHoraFin = DateTime.Today.AddHours(15),
-            Total = 28.00m,
-            Estado = "PENDIENTE"
-        },
-        new Reserva
-        {
-            Id = 305,
-            CodigoCita = "#SHU-1028",
-            ServicioNombre = "Tratamiento Reestructurante Olaplex",
-            EstilistaNombre = "Mateo Ramos",
-            FechaHoraInicio = DateTime.Today.AddHours(15).AddMinutes(30),
-            FechaHoraFin = DateTime.Today.AddHours(16).AddMinutes(20),
-            Total = 30.00m,
-            Estado = "PENDIENTE"
-        }
-    };
+            if (idObj is int intId)
+            {
+                EstilistaSeleccionadoId = intId;
+            }
+            else if (idObj is long longId)
+            {
+                EstilistaSeleccionadoId = (int)longId;
+            }
+            else if (int.TryParse(idObj?.ToString(), out var parsedId))
+            {
+                EstilistaSeleccionadoId = parsedId;
+            }
 
-    [RelayCommand]
-    public async Task InicializarAgendaAsync()
+            await CargarEstilistasAsync();
+            await LoadAgendaAsync();
+        }
+    }
+
+    public async Task InicializarAsync()
     {
-        await CargarEstilistasFiltroAsync();
+        await CargarEstilistasAsync();
         await LoadAgendaAsync();
     }
 
-    [RelayCommand]
-    public async Task CargarEstilistasFiltroAsync()
+    private void ActualizarFechaTexto()
+    {
+        FechaTexto = FechaSeleccionada.ToString("dddd, dd 'de' MMMM yyyy");
+    }
+
+    public async Task CargarEstilistasAsync()
     {
         try
         {
-            var estilistas = await _estilistaRepository.GetTodosEstilistasAsync();
+            var estilistas = (await _estilistaRepository.GetEstilistasAsync()).ToList();
             EstilistasFiltro.Clear();
-            EstilistasFiltro.Add(new EstilistaFiltroItem 
-            { 
-                Nombre = "Todas", 
-                IsSelected = (EstilistaNombreFiltro == "Todas") 
+
+            // Opción "Todos"
+            EstilistasFiltro.Add(new EstilistaChipItem
+            {
+                Id = null,
+                Nombre = "Todos",
+                IsSelected = EstilistaSeleccionadoId == null
             });
 
-            foreach (var est in estilistas.Where(e => e.Activo))
+            foreach (var est in estilistas)
             {
-                if (!string.IsNullOrWhiteSpace(est.NombreCompleto) && !EstilistasFiltro.Any(i => i.Nombre == est.NombreCompleto))
+                EstilistasFiltro.Add(new EstilistaChipItem
                 {
-                    EstilistasFiltro.Add(new EstilistaFiltroItem
-                    {
-                        Nombre = est.NombreCompleto,
-                        IsSelected = (EstilistaNombreFiltro == est.NombreCompleto)
-                    });
-                }
-            }
-
-            if (EstilistasFiltro.Count <= 1)
-            {
-                EstilistasFiltro.Add(new EstilistaFiltroItem { Nombre = "Sofía Valenzuela", IsSelected = false });
-                EstilistasFiltro.Add(new EstilistaFiltroItem { Nombre = "Mateo Ramos", IsSelected = false });
-                EstilistasFiltro.Add(new EstilistaFiltroItem { Nombre = "Camila Domínguez", IsSelected = false });
+                    Id = (int)est.Id,
+                    Nombre = est.NombreCompleto,
+                    IsSelected = EstilistaSeleccionadoId == (int)est.Id
+                });
             }
         }
-        catch
+        catch (Exception ex)
         {
-            if (EstilistasFiltro.Count == 0)
-            {
-                EstilistasFiltro.Add(new EstilistaFiltroItem { Nombre = "Todas", IsSelected = true });
-                EstilistasFiltro.Add(new EstilistaFiltroItem { Nombre = "Sofía Valenzuela", IsSelected = false });
-                EstilistasFiltro.Add(new EstilistaFiltroItem { Nombre = "Mateo Ramos", IsSelected = false });
-                EstilistasFiltro.Add(new EstilistaFiltroItem { Nombre = "Camila Domínguez", IsSelected = false });
-            }
+            System.Diagnostics.Debug.WriteLine($"[TimelineAgendaViewModel] Error al cargar estilistas: {ex.Message}");
         }
     }
 
@@ -207,38 +142,24 @@ public partial class TimelineAgendaViewModel : BaseViewModel
         try
         {
             IsBusy = true;
-            ErrorMessage = null;
+            ErrorMessage = string.Empty;
+            ActualizarFechaTexto();
 
-            var citasRemotas = await _reservaRepository.GetTodasCitasAdminAsync();
-            var todasLasCitas = citasRemotas.ToList();
-
-            // Incluir citas operativas si la fecha coincide para enriquecer la demo
-            foreach (var citaMock in AgendaOperativaBase)
-            {
-                if (!todasLasCitas.Any(c => c.Id == citaMock.Id))
-                {
-                    todasLasCitas.Add(citaMock);
-                }
-            }
+            // Consulta de citas reales para la fecha y estilista seleccionados
+            var citas = (await _reservaRepository.GetTimelineCitasAsync(FechaSeleccionada, EstilistaSeleccionadoId)).ToList();
 
             CitasDelDia.Clear();
-            var citasFiltradas = todasLasCitas
-                .Where(r => r.FechaHoraInicio.Date == FechaSeleccionada.Date);
-
-            if (!string.IsNullOrWhiteSpace(EstilistaNombreFiltro) && EstilistaNombreFiltro != "Todas")
+            foreach (var c in citas)
             {
-                citasFiltradas = citasFiltradas.Where(r => 
-                    r.EstilistaNombre.Contains(EstilistaNombreFiltro, StringComparison.OrdinalIgnoreCase));
+                CitasDelDia.Add(c);
             }
 
-            foreach (var cita in citasFiltradas.OrderBy(r => r.FechaHoraInicio))
-            {
-                CitasDelDia.Add(cita);
-            }
+            AplicarFiltroEstado();
         }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
+            ErrorMessage = "No se pudo sincronizar la agenda con el servidor.";
+            System.Diagnostics.Debug.WriteLine($"[TimelineAgendaViewModel] Error: {ex.Message}");
         }
         finally
         {
@@ -247,76 +168,108 @@ public partial class TimelineAgendaViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    public void FiltrarPorEstilista(string estilista)
+    private async Task DiaAnteriorAsync()
     {
-        if (string.IsNullOrWhiteSpace(estilista)) return;
-        EstilistaNombreFiltro = estilista;
-        foreach (var item in EstilistasFiltro)
-        {
-            item.IsSelected = (item.Nombre == estilista);
-        }
-    }
-
-    partial void OnFechaSeleccionadaChanged(DateTime value)
-    {
-        _ = LoadAgendaAsync();
-    }
-
-    partial void OnEstilistaNombreFiltroChanged(string value)
-    {
-        _ = LoadAgendaAsync();
+        FechaSeleccionada = FechaSeleccionada.AddDays(-1);
+        await LoadAgendaAsync();
     }
 
     [RelayCommand]
-    private async Task CambiarEstadoReservaAsync(Reserva reserva)
+    private async Task DiaSiguienteAsync()
     {
-        if (reserva == null || Application.Current?.MainPage == null) return;
+        FechaSeleccionada = FechaSeleccionada.AddDays(1);
+        await LoadAgendaAsync();
+    }
 
-        // US-5.04: Modal de cambio de estado operativo
-        var resultado = await Application.Current.MainPage.DisplayActionSheet(
-            $"Estado de Cita: {reserva.CodigoReserva}",
-            "Cancelar",
-            null,
-            "✅ Marcar como Completada",
-            "⏳ Marcar como En Curso",
-            "❌ Cancelar Cita"
-        );
+    [RelayCommand]
+    private async Task IrAHoyAsync()
+    {
+        FechaSeleccionada = DateTime.Today;
+        await LoadAgendaAsync();
+    }
 
-        if (resultado == null || resultado == "Cancelar") return;
+    [RelayCommand]
+    private async Task FiltrarPorEstilistaAsync(EstilistaChipItem chip)
+    {
+        if (chip == null) return;
 
-        var nuevoEstado = resultado switch
+        EstilistaSeleccionadoId = chip.Id;
+
+        foreach (var item in EstilistasFiltro)
         {
-            "✅ Marcar como Completada" => "COMPLETADA",
-            "⏳ Marcar como En Curso"   => "EN_CURSO",
-            "❌ Cancelar Cita"          => "CANCELADA",
-            _                           => reserva.Estado
-        };
-
-        reserva.Estado = nuevoEstado;
-        MostrarToast(
-            "Estado Actualizado",
-            $"La cita {reserva.CodigoReserva} fue marcada como {nuevoEstado}."
-        );
+            item.IsSelected = item.Id == chip.Id;
+        }
 
         await LoadAgendaAsync();
     }
 
     [RelayCommand]
-    private async Task AgregarWalkInAsync()
+    private void FiltrarPorEstado(string estado)
     {
-        // US-5.03: Navegar al formulario de registro rápido de cliente presencial
-        await Shell.Current.GoToAsync("WalkInPage");
+        EstadoSeleccionado = estado;
+        AplicarFiltroEstado();
+    }
+
+    private void AplicarFiltroEstado()
+    {
+        CitasFiltradas.Clear();
+
+        var query = CitasDelDia.AsEnumerable();
+
+        if (!string.IsNullOrEmpty(EstadoSeleccionado) && EstadoSeleccionado != "Todos")
+        {
+            var estNorm = EstadoSeleccionado.ToUpperInvariant();
+            query = query.Where(c =>
+            {
+                var estCita = c.Estado?.ToUpperInvariant() ?? string.Empty;
+                return estNorm switch
+                {
+                    "CONFIRMADAS" => estCita is "CONFIRMED" or "CONFIRMADA",
+                    "EN PROCESO" => estCita is "INPROGRESS" or "IN_PROGRESS" or "EN_PROCESO",
+                    "COMPLETADAS" => estCita is "COMPLETED" or "COMPLETADA",
+                    "CANCELADAS" => estCita is "CANCELLED" or "CANCELADA",
+                    _ => true
+                };
+            });
+        }
+
+        foreach (var c in query.OrderBy(c => c.HoraInicio))
+        {
+            CitasFiltradas.Add(c);
+        }
+
+        TotalCitas = CitasFiltradas.Count;
+        EstaVacio = CitasFiltradas.Count == 0;
     }
 
     [RelayCommand]
-    private void DiaAnterior()
+    private async Task IrADetalleCitaAsync(Reserva reserva)
     {
-        FechaSeleccionada = FechaSeleccionada.AddDays(-1);
+        if (reserva == null) return;
+
+        // Navegación al detalle administrativo pasando la información real
+        await Shell.Current.GoToAsync("AdminAppointmentDetailPage", new Dictionary<string, object>
+        {
+            { "reserva", reserva },
+            { "citaId", reserva.Id }
+        });
     }
 
     [RelayCommand]
-    private void DiaSiguiente()
+    private async Task NuevaCitaWalkInAsync()
     {
-        FechaSeleccionada = FechaSeleccionada.AddDays(1);
+        await Shell.Current.GoToAsync("AdminCreateAppointmentPage");
+    }
+
+    [RelayCommand]
+    private async Task IrAGestionCitasAsync()
+    {
+        await Shell.Current.GoToAsync("AdminAppointmentsPage");
+    }
+
+    [RelayCommand]
+    private async Task RegresarAsync()
+    {
+        await Shell.Current.GoToAsync("..");
     }
 }

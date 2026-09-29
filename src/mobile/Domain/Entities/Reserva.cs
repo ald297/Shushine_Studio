@@ -87,14 +87,23 @@ public class Reserva
 
     public string HorarioTexto => $"{HoraInicio} - {HoraFin}";
 
-    public string EstadoColor => Estado?.ToUpper() switch
+    public string EstadoDisplay => Estado?.ToUpperInvariant() switch
     {
-        "CONFIRMADA" => "#2E7D32", // Verde bosque
-        "COMPLETADA" => "#1565C0", // Azul primario
-        "CANCELADA" => "#C62828",  // Rojo alerta
-        "EN_PROCESO" => "#E65100", // Naranja
-        _ => "#F57C00"            // Ámbar pendiente
+        "CONFIRMED" or "CONFIRMADA" => "Confirmada",
+        "INPROGRESS" or "IN_PROGRESS" or "EN_PROCESO" => "En proceso",
+        "COMPLETED" or "COMPLETADA" => "Completada",
+        "CANCELLED" or "CANCELADA" => "Cancelada",
+        _ => !string.IsNullOrEmpty(Estado) ? Estado : "Pendiente"
     };
 
-    public bool PuedeCancelar => Estado?.ToUpper() is "PENDIENTE" or "CONFIRMADA";
+    public string EstadoColor => Estado?.ToUpperInvariant() switch
+    {
+        "CONFIRMED" or "CONFIRMADA" => "#2E7D32", // Verde bosque
+        "COMPLETED" or "COMPLETADA" => "#1565C0", // Azul primario
+        "CANCELLED" or "CANCELADA" => "#C62828",  // Rojo alerta
+        "INPROGRESS" or "IN_PROGRESS" or "EN_PROCESO" => "#E65100", // Naranja
+        _ => "#C5A059"            // Warm Gold
+    };
+
+    public bool PuedeCancelar => Estado?.ToUpperInvariant() is "PENDIENTE" or "CONFIRMED" or "CONFIRMADA";
 }

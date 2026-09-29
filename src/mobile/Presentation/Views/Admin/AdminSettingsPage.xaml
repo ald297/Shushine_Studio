@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+    x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminSettingsPage"
+    x:DataType="vm:AdminSettingsViewModel"
+    Title="{Binding Title}"
+    BackgroundColor="{StaticResource Background}">
+
+    <Grid>
+        <!-- ACCESO RESTRINGIDO (NO ADMIN) -->
+        <VerticalStackLayout
+            IsVisible="{Binding IsUnauthorized}"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Padding="32"
+            Spacing="16">
+
+            <Frame BackgroundColor="{StaticResource SurfaceVariant}" CornerRadius="36" WidthRequest="72" HeightRequest="72" HorizontalOptions="Center" HasShadow="False">
+                <Label Text="🔒" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center" />
+            </Frame>
+            <Label Text="Acceso Restringido" FontFamily="PlayfairDisplay" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalTextAlignment="Center" />
+            <Label Text="Esta pantalla requiere privilegios de Administrador de Shushine Studio." FontFamily="PlusJakartaSans" FontSize="14" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
+            <Button Text="Regresar al Login" Command="{Binding RegresarALoginCommand}" Style="{StaticResource PrimaryButtonStyle}" HeightRequest="48" FontSize="14" CornerRadius="12" />
+        </VerticalStackLayout>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <Grid IsVisible="{Binding IsAuthorized}" RowDefinitions="Auto,*">
+
+            <!-- 1. HEADER -->
+            <Grid Grid.Row="0" BackgroundColor="{StaticResource Surface}" Padding="20,50,20,16">
+                <Grid ColumnDefinitions="40,*,40">
+                    <ImageButton
+                        Grid.Column="0"
+                        Source="arrow_left.png"
+                        Command="{Binding RegresarCommand}"
+                        WidthRequest="28" HeightRequest="28"
+                        BackgroundColor="Transparent"
+                        HorizontalOptions="Start" VerticalOptions="Center" />
+
+                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4">
+                        <HorizontalStackLayout Spacing="6" HorizontalOptions="Center">
+                            <Label Text="Configuración" FontFamily="PlayfairDisplay" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Frame BackgroundColor="{StaticResource Primary}" CornerRadius="4" Padding="5,1" HasShadow="False" VerticalOptions="Center">
+                                <Label Text="ADMIN" FontFamily="PlusJakartaSans" FontSize="8" FontAttributes="Bold" TextColor="{StaticResource Surface}" />
+                            </Frame>
+                        </HorizontalStackLayout>
+                        <Label Text="Parámetros y Seguridad Administrativa" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Grid>
+
+            <!-- 2. CUERPO -->
+            <ScrollView Grid.Row="1" Padding="20,16,20,32">
+                <VerticalStackLayout Spacing="20">
+
+                    <!-- SECCIÓN 1: DATOS DEL USUARIO ADMINISTRADOR -->
+                    <Border
+                        Stroke="{StaticResource Outline}"
+                        StrokeThickness="1"
+                        BackgroundColor="{StaticResource Surface}"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="20">
+                        <Border.Shadow>
+                            <Shadow Brush="#10000000" Offset="0,4" Radius="12" Opacity="0.8" />
+                        </Border.Shadow>
+
+                        <VerticalStackLayout Spacing="14">
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="👤" FontSize="16" VerticalOptions="Center" />
+                                <Label Text="Identidad del Administrador" FontFamily="PlayfairDisplay" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+
+                            <BoxView HeightRequest="1" Color="{StaticResource Outline}" />
+
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
+                                <Label Text="Nombre:" FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                                <Label Grid.Column="1" Text="{Binding AdminNombre}" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+
+                                <Label Grid.Row="1" Text="Usuario / Email:" FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                                <Label Grid.Row="1" Grid.Column="1" Text="{Binding AdminLogin}" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+
+                                <Label Grid.Row="2" Text="Rol Operativo:" FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                                <Label Grid.Row="2" Grid.Column="1" Text="{Binding AdminRol}" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
+                            </Grid>
+
+                            <Button
+                                Text="Cambiar Contraseña"
+                                Command="{Binding CambiarPasswordCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                HeightRequest="40"
+                                FontSize="12"
+                                CornerRadius="8"
+                                Margin="0,4,0,0" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- SECCIÓN 2: CONFIGURACIÓN DEL SALÓN (LECTURA REAL) -->
+                    <Border
+                        Stroke="{StaticResource Outline}"
+                        StrokeThickness="1"
+                        BackgroundColor="{StaticResource Surface}"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="20">
+                        <Border.Shadow>
+                            <Shadow Brush="#10000000" Offset="0,4" Radius="12" Opacity="0.8" />
+                        </Border.Shadow>
+
+                        <VerticalStackLayout Spacing="14">
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="🏢" FontSize="16" VerticalOptions="Center" />
+                                <Label Text="Datos del Salón" FontFamily="PlayfairDisplay" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+
+                            <BoxView HeightRequest="1" Color="{StaticResource Outline}" />
+
+                            <VerticalStackLayout Spacing="10">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="Nombre Comercial" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}" />
+                                    <Label Text="{Binding SalonNombre}" FontFamily="PlayfairDisplay" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="Sede Principal" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}" />
+                                    <Label Text="{Binding SalonSede}" FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextPrimary}" />
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="Horario Operativo" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}" />
+                                    <Label Text="{Binding SalonHorario}" FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextPrimary}" />
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="Política Fiscal" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}" />
+                                    <Label Text="{Binding SalonRegimenFiscal}" FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource Primary}" />
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- SECCIÓN 3: PREFERENCIAS LOCALES DEL DISPOSITIVO -->
+                    <Border
+                        Stroke="{StaticResource Outline}"
+                        StrokeThickness="1"
+                        BackgroundColor="{StaticResource Surface}"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="20">
+                        <Border.Shadow>
+                            <Shadow Brush="#10000000" Offset="0,4" Radius="12" Opacity="0.8" />
+                        </Border.Shadow>
+
+                        <VerticalStackLayout Spacing="14">
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="⚙️" FontSize="16" VerticalOptions="Center" />
+                                <Label Text="Preferencias Locales" FontFamily="PlayfairDisplay" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+
+                            <BoxView HeightRequest="1" Color="{StaticResource Outline}" />
+
+                            <!-- Switch 1: Notificaciones Push -->
+                            <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Notificaciones de Citas" FontFamily="PlusJakartaSans" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                    <Label Text="Avisos ante nuevas reservas o cancelaciones" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                </VerticalStackLayout>
+                                <Switch Grid.Column="1" IsToggled="{Binding NotificacionesPush}" OnColor="{StaticResource Primary}" ThumbColor="{StaticResource Surface}" />
+                            </Grid>
+
+                            <!-- Switch 2: Sonido -->
+                            <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Sonido de Alerta" FontFamily="PlusJakartaSans" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                    <Label Text="Emitir tono al registrar una reserva en caja" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                </VerticalStackLayout>
+                                <Switch Grid.Column="1" IsToggled="{Binding SonidoNotificaciones}" OnColor="{StaticResource Primary}" ThumbColor="{StaticResource Surface}" />
+                            </Grid>
+
+                            <!-- Switch 3: Recordatorios -->
+                            <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Recordatorios de Agenda" FontFamily="PlusJakartaSans" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                    <Label Text="Avisos 15 min antes de cada servicio en timeline" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                </VerticalStackLayout>
+                                <Switch Grid.Column="1" IsToggled="{Binding RecordatoriosAgenda}" OnColor="{StaticResource Primary}" ThumbColor="{StaticResource Surface}" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- SECCIÓN 4: CIERRE DE SESIÓN SEGURO -->
+                    <Button
+                        Text="Cerrar Sesión Administrativa"
+                        Command="{Binding CerrarSesionCommand}"
+                        BackgroundColor="#FFEBEE"
+                        TextColor="#C62828"
+                        FontFamily="PlusJakartaSans"
+                        FontSize="14" FontAttributes="Bold"
+                        HeightRequest="48"
+                        CornerRadius="12" />
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
+    </Grid>
+</ContentPage>

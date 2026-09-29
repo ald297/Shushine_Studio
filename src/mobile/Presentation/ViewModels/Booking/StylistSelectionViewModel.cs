@@ -6,6 +6,14 @@ using ShushineStudio.Mobile.Domain.Repositories;
 
 namespace ShushineStudio.Mobile.Presentation.ViewModels.Booking;
 
+public partial class EstilistaItem : ObservableObject
+{
+    public Estilista Estilista { get; set; } = new();
+
+    [ObservableProperty]
+    private bool seleccionado;
+}
+
 /// <summary>
 /// ViewModel para la selección de estilista o auto-asignación (US-3.03 / Wireframe Pág. 9).
 /// Permite elegir un profesional específico o la opción 'Cualquiera disponible'.
@@ -23,7 +31,7 @@ public partial class StylistSelectionViewModel : BaseViewModel
     private Servicio? servicio;
 
     [ObservableProperty]
-    private ObservableCollection<Estilista> estilistas = new();
+    private ObservableCollection<EstilistaItem> estilistas = new();
 
     [ObservableProperty]
     private Estilista? estilistaSeleccionado;
@@ -33,6 +41,10 @@ public partial class StylistSelectionViewModel : BaseViewModel
 
     [ObservableProperty]
     private bool esCualquieraDisponible = true;
+
+    public string NombreProfesionalElegido => EsCualquieraDisponible || EstilistaSeleccionado == null 
+        ? "Cualquier estilista disponible" 
+        : EstilistaSeleccionado.NombreCompleto;
 
     public StylistSelectionViewModel(
         IServicioRepository servicioRepository,
@@ -52,22 +64,44 @@ public partial class StylistSelectionViewModel : BaseViewModel
         }
     }
 
+    partial void OnEsCualquieraDisponibleChanged(bool value)
+    {
+        OnPropertyChanged(nameof(NombreProfesionalElegido));
+    }
+
+    partial void OnEstilistaSeleccionadoChanged(Estilista? value)
+    {
+        OnPropertyChanged(nameof(NombreProfesionalElegido));
+    }
+
     private async Task CargarEstilistasAsync()
     {
         try
         {
+            IsBusy = true;
+            ErrorMessage = null;
             var list = await _estilistaRepository.GetEstilistasAsync();
             if (list != null && list.Any())
             {
                 Estilistas.Clear();
                 foreach (var e in list)
-                    Estilistas.Add(e);
+                {
+                    Estilistas.Add(new EstilistaItem
+                    {
+                        Estilista = e,
+                        Seleccionado = !EsCualquieraDisponible && (e.Id == EstilistaSeleccionadoId)
+                    });
+                }
                 return;
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // En caso de fallo o modo sin conexion
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
         }
 
         CargarEstilistasFallback();
@@ -76,27 +110,39 @@ public partial class StylistSelectionViewModel : BaseViewModel
     private void CargarEstilistasFallback()
     {
         Estilistas.Clear();
-        Estilistas.Add(new Estilista
+        var lista = new List<Estilista>
         {
-            Id = 1,
-            NombreCompleto = "Sofía Ramos",
-            Especialidad = "Colorista Senior & Balayage",
-            Disponible = true
-        });
-        Estilistas.Add(new Estilista
+            new Estilista
+            {
+                Id = 1,
+                NombreCompleto = "Sofía Ramos",
+                Especialidad = "Colorista Senior & Balayage",
+                Disponible = true
+            },
+            new Estilista
+            {
+                Id = 2,
+                NombreCompleto = "Valentina Gómez",
+                Especialidad = "Master en Uñas Esculpidas & Spa",
+                Disponible = true
+            },
+            new Estilista
+            {
+                Id = 3,
+                NombreCompleto = "Andrea Morales",
+                Especialidad = "Corte de Autor & Visagismo",
+                Disponible = true
+            }
+        };
+
+        foreach (var e in lista)
         {
-            Id = 2,
-            NombreCompleto = "Valentina Gómez",
-            Especialidad = "Master en Uñas Esculpidas & Spa",
-            Disponible = true
-        });
-        Estilistas.Add(new Estilista
-        {
-            Id = 3,
-            NombreCompleto = "Andrea Morales",
-            Especialidad = "Corte de Autor & Visagismo",
-            Disponible = true
-        });
+            Estilistas.Add(new EstilistaItem
+            {
+                Estilista = e,
+                Seleccionado = !EsCualquieraDisponible && (e.Id == EstilistaSeleccionadoId)
+            });
+        }
     }
 
     [RelayCommand]
@@ -105,15 +151,29 @@ public partial class StylistSelectionViewModel : BaseViewModel
         EsCualquieraDisponible = true;
         EstilistaSeleccionado = null;
         EstilistaSeleccionadoId = 0;
+        foreach (var item in Estilistas)
+        {
+            item.Seleccionado = false;
+        }
     }
 
     [RelayCommand]
-    private void SeleccionarEstilista(Estilista estilista)
+    private void SeleccionarEstilista(EstilistaItem item)
     {
-        if (estilista == null) return;
+        if (item == null) return;
         EsCualquieraDisponible = false;
-        EstilistaSeleccionado = estilista;
-        EstilistaSeleccionadoId = estilista.Id;
+        EstilistaSeleccionado = item.Estilista;
+        EstilistaSeleccionadoId = item.Estilista.Id;
+        foreach (var e in Estilistas)
+        {
+            e.Seleccionado = (e.Estilista.Id == item.Estilista.Id);
+        }
+    }
+
+    [RelayCommand]
+    private async Task VolverAsync()
+    {
+        await Shell.Current.GoToAsync("..");
     }
 
     [RelayCommand]

@@ -8,5 +8,7 @@ public partial class LoginPage : ContentPage
 	{
 		InitializeComponent();
 		BindingContext = viewModel;
+		Shell.SetTabBarIsVisible(this, false);
+		Shell.SetNavBarIsVisible(this, false);
 	}
 }

@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+    xmlns:entities="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
+    x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminServicesPage"
+    x:DataType="vm:AdminServicesViewModel"
+    Title="{Binding Title}"
+    BackgroundColor="{StaticResource Background}">
+
+    <Grid>
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- PANTALLA DE ACCESO RESTRINGIDO (NO ADMIN)               -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <VerticalStackLayout
+            IsVisible="{Binding IsUnauthorized}"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Padding="32"
+            Spacing="16">
+
+            <Frame
+                BackgroundColor="{StaticResource SurfaceVariant}"
+                CornerRadius="36"
+                WidthRequest="72" HeightRequest="72"
+                HorizontalOptions="Center"
+                HasShadow="False">
+                <Label Text="🔒" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center" />
+            </Frame>
+
+            <Label
+                Text="Acceso Restringido"
+                FontFamily="PlayfairDisplay"
+                FontSize="22" FontAttributes="Bold"
+                TextColor="{StaticResource TextPrimary}"
+                HorizontalTextAlignment="Center" />
+
+            <Label
+                Text="Esta pantalla requiere privilegios de Administrador de Shushine Studio."
+                FontFamily="PlusJakartaSans"
+                FontSize="14"
+                TextColor="{StaticResource TextSecondary}"
+                HorizontalTextAlignment="Center" />
+
+            <Button
+                Text="Regresar al Login"
+                Command="{Binding RegresarALoginCommand}"
+                Style="{StaticResource PrimaryButtonStyle}"
+                HeightRequest="48"
+                FontSize="14"
+                CornerRadius="12" />
+        </VerticalStackLayout>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- CONTENIDO PRINCIPAL ADMINISTRATIVO                      -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <Grid IsVisible="{Binding IsAuthorized}" RowDefinitions="Auto,Auto,Auto,Auto,*">
+
+            <!-- 1. HEADER -->
+            <Grid Grid.Row="0" BackgroundColor="{StaticResource Surface}" Padding="20,50,20,16">
+                <Grid ColumnDefinitions="40,*,Auto">
+                    <ImageButton
+                        Grid.Column="0"
+                        Source="arrow_left.png"
+                        Command="{Binding RegresarCommand}"
+                        WidthRequest="28" HeightRequest="28"
+                        BackgroundColor="Transparent"
+                        HorizontalOptions="Start" VerticalOptions="Center" />
+
+                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4">
+                        <HorizontalStackLayout Spacing="6" HorizontalOptions="Center">
+                            <Label
+                                Text="Servicios"
+                                FontFamily="PlayfairDisplay"
+                                FontSize="18" FontAttributes="Bold"
+                                TextColor="{StaticResource TextPrimary}" />
+                            <Frame
+                                BackgroundColor="{StaticResource Primary}"
+                                CornerRadius="4"
+                                Padding="5,1"
+                                HasShadow="False"
+                                VerticalOptions="Center">
+                                <Label Text="ADMIN" FontFamily="PlusJakartaSans" FontSize="8" FontAttributes="Bold" TextColor="{StaticResource Surface}" />
+                            </Frame>
+                        </HorizontalStackLayout>
+                        <Label
+                            Text="Catálogo y Tarifas del Salón"
+                            FontFamily="PlusJakartaSans"
+                            FontSize="11"
+                            TextColor="{StaticResource TextSecondary}"
+                            HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+
+                    <Button
+                        Grid.Column="2"
+                        Text="+ Nuevo"
+                        Command="{Binding IrACrearServicioCommand}"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="{StaticResource Surface}"
+                        FontFamily="PlusJakartaSans"
+                        FontSize="12" FontAttributes="Bold"
+                        CornerRadius="8"
+                        HeightRequest="36"
+                        Padding="12,0" />
+                </Grid>
+            </Grid>
+
+            <!-- 2. BARRA DE BÚSQUEDA LOCAL -->
+            <Grid Grid.Row="1" Padding="20,12,20,6" BackgroundColor="{StaticResource Surface}">
+                <Border
+                    Stroke="{StaticResource Outline}"
+                    StrokeThickness="1"
+                    BackgroundColor="{StaticResource SurfaceVariant}"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="12,0">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <Label
+                            Grid.Column="0"
+                            Text="🔍"
+                            FontSize="16"
+                            VerticalOptions="Center"
+                            Margin="0,0,8,0" />
+                        <Entry
+                            Grid.Column="1"
+                            Text="{Binding TextoBusqueda}"
+                            Placeholder="Buscar por nombre, código o categoría..."
+                            FontFamily="PlusJakartaSans"
+                            FontSize="13"
+                            TextColor="{StaticResource TextPrimary}"
+                            PlaceholderColor="{StaticResource TextSecondary}"
+                            HeightRequest="44" />
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- 3. FILTROS DE CATEGORÍA Y ESTADO -->
+            <VerticalStackLayout Grid.Row="2" BackgroundColor="{StaticResource Surface}" Padding="0,6,0,12" Spacing="8">
+                <!-- Filtros de Categorías Horizontales -->
+                <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never" Padding="20,0">
+                    <HorizontalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding Categorias}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <Border
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 16"
+                                    Padding="14,6">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminServicesViewModel}}, Path=SeleccionarCategoriaCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger
+                                            TargetType="Border"
+                                            Binding="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminServicesViewModel}}, Path=CategoriaSeleccionada}"
+                                            Value="{Binding .}">
+                                            <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                                            <Setter Property="Stroke" Value="{StaticResource Primary}" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Label
+                                        Text="{Binding .}"
+                                        FontFamily="PlusJakartaSans"
+                                        FontSize="12" FontAttributes="Bold"
+                                        TextColor="{StaticResource TextPrimary}">
+                                        <Label.Triggers>
+                                            <DataTrigger
+                                                TargetType="Label"
+                                                Binding="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminServicesViewModel}}, Path=CategoriaSeleccionada}"
+                                                Value="{Binding .}">
+                                                <Setter Property="TextColor" Value="{StaticResource Surface}" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </HorizontalStackLayout>
+                </ScrollView>
+
+                <!-- Filtros de Estado: Todos / Activos / Inactivos -->
+                <Grid ColumnDefinitions="*,*,*" Padding="20,0" ColumnSpacing="8">
+                    <Button
+                        Grid.Column="0"
+                        Text="Todos"
+                        Command="{Binding SeleccionarFiltroEstadoCommand}"
+                        CommandParameter="Todos"
+                        HeightRequest="32" FontSize="11" CornerRadius="8" Padding="0"
+                        FontFamily="PlusJakartaSans"
+                        BackgroundColor="{StaticResource SurfaceVariant}"
+                        TextColor="{StaticResource TextPrimary}">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding FiltroEstado}" Value="Todos">
+                                <Setter Property="BackgroundColor" Value="{StaticResource Accent}" />
+                                <Setter Property="TextColor" Value="{StaticResource Surface}" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+
+                    <Button
+                        Grid.Column="1"
+                        Text="Activos"
+                        Command="{Binding SeleccionarFiltroEstadoCommand}"
+                        CommandParameter="Activos"
+                        HeightRequest="32" FontSize="11" CornerRadius="8" Padding="0"
+                        FontFamily="PlusJakartaSans"
+                        BackgroundColor="{StaticResource SurfaceVariant}"
+                        TextColor="{StaticResource TextPrimary}">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding FiltroEstado}" Value="Activos">
+                                <Setter Property="BackgroundColor" Value="{StaticResource Accent}" />
+                                <Setter Property="TextColor" Value="{StaticResource Surface}" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+
+                    <Button
+                        Grid.Column="2"
+                        Text="Inactivos"
+                        Command="{Binding SeleccionarFiltroEstadoCommand}"
+                        CommandParameter="Inactivos"
+                        HeightRequest="32" FontSize="11" CornerRadius="8" Padding="0"
+                        FontFamily="PlusJakartaSans"
+                        BackgroundColor="{StaticResource SurfaceVariant}"
+                        TextColor="{StaticResource TextPrimary}">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding FiltroEstado}" Value="Inactivos">
+                                <Setter Property="BackgroundColor" Value="{StaticResource Accent}" />
+                                <Setter Property="TextColor" Value="{StaticResource Surface}" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                </Grid>
+            </VerticalStackLayout>
+
+            <!-- 4. KPIS RESUMEN -->
+            <Grid Grid.Row="3" ColumnDefinitions="*,*,*" Padding="20,8,20,12" ColumnSpacing="10">
+                <Border BackgroundColor="{StaticResource Surface}" Stroke="{StaticResource Outline}" StrokeThickness="1" StrokeShape="RoundRectangle 12" Padding="12,8">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="TOTAL" FontFamily="PlusJakartaSans" FontSize="9" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}" />
+                        <Label Text="{Binding TotalServicios}" FontFamily="PlayfairDisplay" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Column="1" BackgroundColor="{StaticResource Surface}" Stroke="{StaticResource Outline}" StrokeThickness="1" StrokeShape="RoundRectangle 12" Padding="12,8">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="ACTIVOS" FontFamily="PlusJakartaSans" FontSize="9" FontAttributes="Bold" TextColor="#2E7D32" />
+                        <Label Text="{Binding TotalActivos}" FontFamily="PlayfairDisplay" FontSize="18" FontAttributes="Bold" TextColor="#2E7D32" />
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Column="2" BackgroundColor="{StaticResource Surface}" Stroke="{StaticResource Outline}" StrokeThickness="1" StrokeShape="RoundRectangle 12" Padding="12,8">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="INACTIVOS" FontFamily="PlusJakartaSans" FontSize="9" FontAttributes="Bold" TextColor="#C62828" />
+                        <Label Text="{Binding TotalInactivos}" FontFamily="PlayfairDisplay" FontSize="18" FontAttributes="Bold" TextColor="#C62828" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <!-- 5. LISTA DE SERVICIOS -->
+            <RefreshView
+                Grid.Row="4"
+                IsRefreshing="{Binding IsBusy}"
+                Command="{Binding CargarServiciosCommand}">
+
+                <Grid>
+                    <!-- Loading -->
+                    <ActivityIndicator
+                        IsRunning="{Binding IsBusy}"
+                        IsVisible="{Binding IsBusy}"
+                        Color="{StaticResource Primary}"
+                        VerticalOptions="Center" HorizontalOptions="Center" />
+
+                    <!-- Error -->
+                    <VerticalStackLayout
+                        IsVisible="{Binding HasError}"
+                        VerticalOptions="Center" HorizontalOptions="Center"
+                        Padding="32" Spacing="12">
+                        <Label Text="⚠️" FontSize="36" HorizontalOptions="Center" />
+                        <Label Text="{Binding ErrorMessage}" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
+                        <Button Text="Reintentar" Command="{Binding CargarServiciosCommand}" Style="{StaticResource PrimaryButtonStyle}" HeightRequest="40" FontSize="12" CornerRadius="8" />
+                    </VerticalStackLayout>
+
+                    <!-- Vacío -->
+                    <VerticalStackLayout
+                        IsVisible="{Binding EstaVacio}"
+                        VerticalOptions="Center" HorizontalOptions="Center"
+                        Padding="32" Spacing="8">
+                        <Label Text="✂️" FontSize="36" HorizontalOptions="Center" />
+                        <Label Text="No hay servicios para mostrar." FontFamily="PlayfairDisplay" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalTextAlignment="Center" />
+                        <Label Text="Pruebe cambiando los filtros o agregue un nuevo servicio." FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+
+                    <!-- CollectionView de Servicios -->
+                    <CollectionView
+                        ItemsSource="{Binding Servicios}"
+                        SelectionMode="None"
+                        IsVisible="{Binding EstaVacio, Converter={StaticResource InvertedBoolConverter}}"
+                        Margin="20,0,20,20">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="entities:Servicio">
+                                <Border
+                                    Stroke="{StaticResource Outline}"
+                                    StrokeThickness="1"
+                                    BackgroundColor="{StaticResource Surface}"
+                                    StrokeShape="RoundRectangle 14"
+                                    Padding="16"
+                                    Margin="0,0,0,12">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminServicesViewModel}}, Path=IrADetalleServicioCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+
+                                    <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
+                                        <!-- Fila 1: Nombre, Categoría y Estado -->
+                                        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                                <Label
+                                                    Text="{Binding Nombre}"
+                                                    FontFamily="PlayfairDisplay"
+                                                    FontSize="16" FontAttributes="Bold"
+                                                    TextColor="{StaticResource TextPrimary}" />
+                                                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                                                    <Border
+                                                        BackgroundColor="{StaticResource SurfaceVariant}"
+                                                        StrokeThickness="0"
+                                                        StrokeShape="RoundRectangle 6"
+                                                        Padding="6,2">
+                                                        <Label
+                                                            Text="{Binding CategoriaNombre, TargetNullValue='General'}"
+                                                            FontFamily="PlusJakartaSans"
+                                                            FontSize="10" FontAttributes="Bold"
+                                                            TextColor="{StaticResource Primary}" />
+                                                    </Border>
+                                                    <Label
+                                                        Text="{Binding CodigoServicio, StringFormat='Ref: {0}'}"
+                                                        FontFamily="PlusJakartaSans"
+                                                        FontSize="10"
+                                                        TextColor="{StaticResource TextSecondary}"
+                                                        VerticalOptions="Center" />
+                                                </HorizontalStackLayout>
+                                            </VerticalStackLayout>
+
+                                            <!-- Badge Activo / Inactivo -->
+                                            <Border
+                                                Grid.Column="1"
+                                                StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 8"
+                                                Padding="8,4"
+                                                VerticalOptions="Start">
+                                                <Border.Triggers>
+                                                    <DataTrigger TargetType="Border" Binding="{Binding Activo}" Value="True">
+                                                        <Setter Property="BackgroundColor" Value="#E8F5E9" />
+                                                    </DataTrigger>
+                                                    <DataTrigger TargetType="Border" Binding="{Binding Activo}" Value="False">
+                                                        <Setter Property="BackgroundColor" Value="#FFEBEE" />
+                                                    </DataTrigger>
+                                                </Border.Triggers>
+                                                <Label
+                                                    FontFamily="PlusJakartaSans"
+                                                    FontSize="10" FontAttributes="Bold">
+                                                    <Label.Triggers>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding Activo}" Value="True">
+                                                            <Setter Property="Text" Value="Activo" />
+                                                            <Setter Property="TextColor" Value="#2E7D32" />
+                                                        </DataTrigger>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding Activo}" Value="False">
+                                                            <Setter Property="Text" Value="Inactivo" />
+                                                            <Setter Property="TextColor" Value="#C62828" />
+                                                        </DataTrigger>
+                                                    </Label.Triggers>
+                                                </Label>
+                                            </Border>
+                                        </Grid>
+
+                                        <!-- Fila 2: Duración y Precio -->
+                                        <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
+                                            <HorizontalStackLayout Grid.Column="0" Spacing="4" VerticalOptions="Center">
+                                                <Label Text="⏱" FontSize="12" VerticalOptions="Center" />
+                                                <Label Text="{Binding DuracionMinutos, StringFormat='{0} min'}" FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextSecondary}" VerticalOptions="Center" />
+                                            </HorizontalStackLayout>
+
+                                            <HorizontalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center">
+                                                <Label Text="Tarifa:" FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextSecondary}" VerticalOptions="Center" />
+                                                <Label Text="{Binding Precio, StringFormat='${0:F2}'}" FontFamily="PlayfairDisplay" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource Primary}" VerticalOptions="Center" />
+                                            </HorizontalStackLayout>
+                                        </Grid>
+
+                                        <!-- Fila 3: Acciones rápidas (Alternar Estado, Eliminar) -->
+                                        <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" Margin="0,4,0,0">
+                                            <Label
+                                                Grid.Column="0"
+                                                Text="Tocar para ver detalle y editar"
+                                                FontFamily="PlusJakartaSans"
+                                                FontSize="11" FontAttributes="Italic"
+                                                TextColor="{StaticResource TextSecondary}"
+                                                VerticalOptions="Center" />
+
+                                            <Button
+                                                Grid.Column="1"
+                                                Text="{Binding Activo, Converter={StaticResource InvertedBoolConverter}, StringFormat='Activar'}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminServicesViewModel}}, Path=AlternarEstadoServicioCommand}"
+                                                CommandParameter="{Binding .}"
+                                                HeightRequest="30" FontSize="10" Padding="8,0" CornerRadius="6"
+                                                Style="{StaticResource SecondaryButtonStyle}">
+                                                <Button.Triggers>
+                                                    <DataTrigger TargetType="Button" Binding="{Binding Activo}" Value="True">
+                                                        <Setter Property="Text" Value="Pausar" />
+                                                    </DataTrigger>
+                                                </Button.Triggers>
+                                            </Button>
+
+                                            <Button
+                                                Grid.Column="2"
+                                                Text="🗑"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminServicesViewModel}}, Path=EliminarServicioCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="#FFEBEE"
+                                                TextColor="#C62828"
+                                                HeightRequest="30" WidthRequest="36" FontSize="12" Padding="0" CornerRadius="6" />
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Grid>
+            </RefreshView>
+        </Grid>
+    </Grid>
+</ContentPage>

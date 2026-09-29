@@ -15,6 +15,8 @@ namespace ShushineStudio.Mobile.Core.Handlers;
 /// </summary>
 public class ErrorDelegatingHandler : DelegatingHandler
 {
+    private static readonly SemaphoreSlim _dialogLock = new(1, 1);
+
     protected override async Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request, 
         CancellationToken cancellationToken)
@@ -32,17 +34,50 @@ public class ErrorDelegatingHandler : DelegatingHandler
         {
             response = await base.SendAsync(request, cancellationToken);
         }
+        catch (TaskCanceledException)
+        {
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                if (!await _dialogLock.WaitAsync(0)) return;
+                try
+                {
+                    if (Application.Current?.MainPage != null)
+                    {
+                        await Application.Current.MainPage.DisplayAlert(
+                            "Tiempo de Espera Agotado", 
+                            "El servidor del salón está tardando demasiado en responder. Por favor intente de nuevo en unos momentos.", 
+                            "Aceptar"
+                        );
+                    }
+                }
+                catch { }
+                finally
+                {
+                    _dialogLock.Release();
+                }
+            });
+            throw;
+        }
         catch (HttpRequestException)
         {
             await MainThread.InvokeOnMainThreadAsync(async () =>
             {
-                if (Application.Current?.MainPage != null)
+                if (!await _dialogLock.WaitAsync(0)) return;
+                try
                 {
-                    await Application.Current.MainPage.DisplayAlert(
-                        "Sin Conexión", 
-                        "No se pudo establecer comunicación con el servidor del salón. Verifique su conexión a internet.", 
-                        "Aceptar"
-                    );
+                    if (Application.Current?.MainPage != null)
+                    {
+                        await Application.Current.MainPage.DisplayAlert(
+                            "Sin Conexión", 
+                            "No se pudo establecer comunicación con el servidor del salón. Verifique su conexión a internet.", 
+                            "Aceptar"
+                        );
+                    }
+                }
+                catch { }
+                finally
+                {
+                    _dialogLock.Release();
                 }
             });
             throw;
@@ -73,64 +108,76 @@ public class ErrorDelegatingHandler : DelegatingHandler
 
             await MainThread.InvokeOnMainThreadAsync(async () =>
             {
-                var mainPage = Application.Current?.MainPage;
-                if (mainPage == null) return;
-
-                switch (response.StatusCode)
+                if (!await _dialogLock.WaitAsync(0)) return;
+                try
                 {
-                    case HttpStatusCode.Unauthorized:
-                        // 401: Sesión expirada o no autorizada (solo peticiones protegidas de negocio)
-                        if (!isAuthEndpoint)
-                        {
-                            SecureStorage.Default.Remove(ApiConstants.AuthTokenKey);
-                            SecureStorage.Default.Remove(ApiConstants.UserRoleKey);
+                    var mainPage = Application.Current?.MainPage;
+                    if (mainPage == null) return;
+
+                    switch (response.StatusCode)
+                    {
+                        case HttpStatusCode.Unauthorized:
+                            // 401: Sesión expirada o no autorizada (solo peticiones protegidas de negocio)
+                            if (!isAuthEndpoint)
+                            {
+                                SecureStorage.Default.Remove(ApiConstants.AuthTokenKey);
+                                SecureStorage.Default.Remove(ApiConstants.UserRoleKey);
+                                await mainPage.DisplayAlert(
+                                    "Sesión Finalizada", 
+                                    "Tu sesión ha expirado. Por favor, ingresa de nuevo con tus credenciales.", 
+                                    "Iniciar Sesión"
+                                );
+                                await Shell.Current.GoToAsync("//LoginPage");
+                            }
+                            break;
+
+                        case HttpStatusCode.Forbidden:
+                            // 403: Rol sin permisos (ignorar en intentos de login)
+                            if (!isAuthEndpoint)
+                            {
+                                await mainPage.DisplayAlert(
+                                    "Acceso Denegado", 
+                                    "No posees los privilegios requeridos para realizar esta operación.", 
+                                    "Entendido"
+                                );
+                            }
+                            break;
+
+                        case HttpStatusCode.Conflict:
+                            // 409: Conflicto de concurrencia / Doble reserva
+                            var conflictMsg = problem?.GetPrimaryErrorMessage() 
+                                ?? "El horario seleccionado ya no se encuentra disponible. Por favor, elija otro turno.";
+                            await mainPage.DisplayAlert("Horario No Disponible", conflictMsg, "Elegir Otro");
+                            break;
+
+                        case HttpStatusCode.BadRequest:
+                        case HttpStatusCode.UnprocessableEntity:
+                            // 400 / 422: Validaciones de negocio fallidas (solo si no es endpoint de auth)
+                            if (!isAuthEndpoint)
+                            {
+                                var validationMsg = problem?.GetPrimaryErrorMessage() 
+                                    ?? "Los datos ingresados no son válidos. Por favor, revíselos.";
+                                await mainPage.DisplayAlert("Aviso de Validación", validationMsg, "Corregir");
+                            }
+                            break;
+
+                        case HttpStatusCode.InternalServerError:
+                        case HttpStatusCode.BadGateway:
+                        case HttpStatusCode.ServiceUnavailable:
+                        case HttpStatusCode.GatewayTimeout:
+                            // 5xx: Fallas en servidor
                             await mainPage.DisplayAlert(
-                                "Sesión Finalizada", 
-                                "Tu sesión ha expirado. Por favor, ingresa de nuevo con tus credenciales.", 
-                                "Iniciar Sesión"
+                                "Aviso del Salón", 
+                                "El sistema del salón experimenta una interrupción momentánea. Intente nuevamente en unos minutos.", 
+                                "Cerrar"
                             );
-                            await Shell.Current.GoToAsync("//LoginPage");
-                        }
-                        break;
-
-                    case HttpStatusCode.Forbidden:
-                        // 403: Rol sin permisos (ignorar en intentos de login)
-                        if (!isAuthEndpoint)
-                        {
-                            await mainPage.DisplayAlert(
-                                "Acceso Denegado", 
-                                "No posees los privilegios requeridos para realizar esta operación.", 
-                                "Entendido"
-                            );
-                        }
-                        break;
-
-                    case HttpStatusCode.Conflict:
-                        // 409: Conflicto de concurrencia / Doble reserva
-                        var conflictMsg = problem?.GetPrimaryErrorMessage() 
-                            ?? "El horario seleccionado ya no se encuentra disponible. Por favor, elija otro turno.";
-                        await mainPage.DisplayAlert("Horario No Disponible", conflictMsg, "Elegir Otro");
-                        break;
-
-                    case HttpStatusCode.BadRequest:
-                    case HttpStatusCode.UnprocessableEntity:
-                        // 400 / 422: Validaciones de negocio fallidas
-                        var validationMsg = problem?.GetPrimaryErrorMessage() 
-                            ?? "Los datos ingresados no son válidos. Por favor, revíselos.";
-                        await mainPage.DisplayAlert("Aviso de Validación", validationMsg, "Corregir");
-                        break;
-
-                    case HttpStatusCode.InternalServerError:
-                    case HttpStatusCode.BadGateway:
-                    case HttpStatusCode.ServiceUnavailable:
-                    case HttpStatusCode.GatewayTimeout:
-                        // 5xx: Fallas en servidor
-                        await mainPage.DisplayAlert(
-                            "Aviso del Salón", 
-                            "El sistema del salón experimenta una interrupción momentánea. Intente nuevamente en unos minutos.", 
-                            "Cerrar"
-                        );
-                        break;
+                            break;
+                    }
+                }
+                catch { }
+                finally
+                {
+                    _dialogLock.Release();
                 }
             });
         }

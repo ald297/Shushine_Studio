@@ -2,183 +2,143 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Auth"
+             xmlns:components="clr-namespace:ShushineStudio.Mobile.Presentation.Components"
              x:Class="ShushineStudio.Mobile.Presentation.Views.Auth.LoginPage"
              x:DataType="vm:LoginViewModel"
-             BackgroundColor="#FFFFFF"
-             Shell.NavBarIsVisible="false">
+             BackgroundColor="{StaticResource Background}"
+             Shell.NavBarIsVisible="false"
+             Shell.TabBarIsVisible="false"
+             Shell.FlyoutItemIsVisible="false">
 
     <ScrollView>
-        <Grid RowDefinitions="*, Auto" MinimumHeightRequest="680">
-            <VerticalStackLayout Grid.Row="0" 
-                                 Padding="32, 40, 32, 20" 
-                                 Spacing="0" 
+        <Grid RowDefinitions="*, Auto" MinimumHeightRequest="700" Padding="0, 10">
+            <VerticalStackLayout Grid.Row="0"
+                                 Padding="20, 20, 20, 16"
+                                 Spacing="0"
+                                 MaximumWidthRequest="480"
+                                 HorizontalOptions="Fill"
                                  VerticalOptions="Center">
-                
-                <!-- 1. Logotipo Oficial Flor de Loto Replicado -->
-                <Image Source="shunshine_logo.png"
+
+                <!-- 1. IDENTIDAD DE MARCA: Logotipo Oficial Flor de Loto -->
+                <Image Source="shunshine_logo.svg"
                        HeightRequest="115"
-                       WidthRequest="145"
+                       WidthRequest="150"
                        Aspect="AspectFit"
                        HorizontalOptions="Center"
                        Margin="0, 10, 0, 14" />
 
-                <!-- 2. Título Principal -->
-                <Label Text="Shunshine Estudio"
-                       FontSize="27"
-                       FontFamily="Serif"
+                <!-- 2. ENCABEZADO EDITORIAL (Stitch: Playfair Display / Hola de nuevo) -->
+                <Label Text="Hola de nuevo"
+                       Style="{StaticResource TitleLabelStyle}"
+                       FontSize="30"
                        FontAttributes="Bold"
-                       TextColor="#2C3E50"
-                       HorizontalOptions="Center" />
+                       TextColor="{StaticResource TextPrimary}"
+                       HorizontalTextAlignment="Center" />
 
-                <!-- 3. Subtítulo en Mayúsculas Espaciadas -->
-                <Label Text="BIENVENIDA DE NUEVO"
-                       FontSize="11"
-                       FontAttributes="Bold"
-                       CharacterSpacing="2.5"
-                       TextColor="#718096"
-                       HorizontalOptions="Center"
-                       Margin="0, 6, 0, 0" />
+                <Label Text="Ingresa a tu cuenta para continuar."
+                       Style="{StaticResource SubheaderLabelStyle}"
+                       FontSize="15"
+                       TextColor="{StaticResource TextSecondary}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0, 6, 0, 22" />
 
-                <!-- 4. Barra Divisoria Rosa Suave (Paleta de Wireframes) -->
-                <BoxView HeightRequest="3"
-                         WidthRequest="46"
-                         CornerRadius="2"
-                         BackgroundColor="{StaticResource PrimaryColor}"
-                         Opacity="0.65"
-                         HorizontalOptions="Center"
-                         Margin="0, 10, 0, 32" />
+                <!-- 3. TARJETA DEL FORMULARIO (Card Canvas) -->
+                <Border StrokeShape="RoundRectangle 20"
+                        Stroke="{StaticResource Border}"
+                        StrokeThickness="1"
+                        BackgroundColor="{StaticResource Surface}"
+                        Padding="24, 24"
+                        Margin="4, 0">
+                    <VerticalStackLayout Spacing="0">
+                        <!-- Línea decorativa dorada de acento superior -->
+                        <BoxView HeightRequest="3"
+                                 CornerRadius="1.5"
+                                 Color="{StaticResource Secondary}"
+                                 Margin="0, 0, 0, 18" />
 
-                <!-- 5. Campo: Correo Electrónico -->
-                <Label Text="Correo electrónico"
-                       FontSize="13"
-                       FontAttributes="Bold"
-                       TextColor="#374151"
-                       Margin="0, 0, 0, 8" />
+                        <!-- Banner de Error Contextual -->
+                        <Border StrokeShape="RoundRectangle 10"
+                                Stroke="{StaticResource StatusCanceladaBorder}"
+                                StrokeThickness="1"
+                                BackgroundColor="{StaticResource StatusCanceladaBg}"
+                                Padding="14, 12"
+                                Margin="0, 0, 0, 16"
+                                IsVisible="{Binding HasError}">
+                            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                                <Label Text="⚠️" FontSize="15" VerticalOptions="Center" />
+                                <Label Text="{Binding ErrorMessage}"
+                                       TextColor="{StaticResource Error}"
+                                       FontSize="13"
+                                       VerticalOptions="Center"
+                                       LineBreakMode="WordWrap" />
+                            </HorizontalStackLayout>
+                        </Border>
 
-                <Border StrokeThickness="1"
-                        Stroke="#E5E7EB"
-                        BackgroundColor="#F9FAFB"
-                        StrokeShape="RoundRectangle 14"
-                        Padding="14, 2"
-                        Margin="0, 0, 0, 18">
-                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12">
-                        <Image Grid.Column="0"
-                               Source="mail.png"
-                               HeightRequest="20"
-                               WidthRequest="20"
-                               VerticalOptions="Center" />
-                        <Entry Grid.Column="1"
-                               Placeholder="ejemplo@correo.com"
-                               PlaceholderColor="#9CA3AF"
-                               Text="{Binding Email}"
-                               TextColor="#1F2937"
-                               Keyboard="Email"
+                        <!-- Campo: Usuario o Correo -->
+                        <components:CustomEntry LabelText="Usuario o Correo"
+                                                Placeholder="admin o cliente"
+                                                Text="{Binding Email}"
+                                                Keyboard="Text"
+                                                ReturnType="Next"
+                                                LeadingIcon="mail.svg" />
+
+                        <!-- Campo: Contraseña -->
+                        <components:CustomEntry LabelText="Contraseña"
+                                                Placeholder="••••••••"
+                                                Text="{Binding Password}"
+                                                IsPassword="{Binding IsPasswordHidden}"
+                                                IsPasswordToggleEnabled="True"
+                                                ReturnType="Done"
+                                                LeadingIcon="lock.svg" />
+
+                        <!-- Enlace: ¿Olvidaste tu contraseña? -->
+                        <Label Text="¿Olvidaste tu contraseña?"
                                FontSize="14"
-                               HeightRequest="48"
-                               VerticalOptions="Center"
-                               BackgroundColor="Transparent"
-                               IsSpellCheckEnabled="False"
-                               IsTextPredictionEnabled="False"
-                               ReturnType="Next" />
-                    </Grid>
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Primary}"
+                               HorizontalOptions="End"
+                               Margin="0, 0, 0, 20">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ForgotPasswordCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+
+                        <!-- Botón Principal: Iniciar sesión -->
+                        <Button Text="Iniciar sesión"
+                                Command="{Binding LoginCommand}"
+                                IsEnabled="{Binding IsNotBusy}"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                HeightRequest="54"
+                                FontSize="16"
+                                FontAttributes="Bold"
+                                CornerRadius="16"
+                                Margin="0, 4, 0, 0" />
+
+                        <!-- Indicador de Carga Reactivo -->
+                        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                           IsVisible="{Binding IsBusy}"
+                                           Color="{StaticResource Primary}"
+                                           HeightRequest="32"
+                                           Margin="0, 12, 0, 0" />
+                    </VerticalStackLayout>
                 </Border>
-
-                <!-- 6. Campo: Contraseña -->
-                <Label Text="Contraseña"
-                       FontSize="13"
-                       FontAttributes="Bold"
-                       TextColor="#374151"
-                       Margin="0, 0, 0, 8" />
-
-                <Border StrokeThickness="1"
-                        Stroke="#E5E7EB"
-                        BackgroundColor="#F9FAFB"
-                        StrokeShape="RoundRectangle 14"
-                        Padding="14, 2"
-                        Margin="0, 0, 0, 12">
-                    <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12">
-                        <Image Grid.Column="0"
-                               Source="lock.png"
-                               HeightRequest="20"
-                               WidthRequest="20"
-                               VerticalOptions="Center" />
-                        <Entry Grid.Column="1"
-                               Placeholder="••••••••••••"
-                               PlaceholderColor="#9CA3AF"
-                               Text="{Binding Password}"
-                               TextColor="#1F2937"
-                               IsPassword="{Binding IsPasswordHidden}"
-                               FontSize="14"
-                               HeightRequest="48"
-                               VerticalOptions="Center"
-                               BackgroundColor="Transparent"
-                               IsSpellCheckEnabled="False"
-                               IsTextPredictionEnabled="False"
-                               ReturnType="Done" />
-                        <ImageButton Grid.Column="2"
-                                     Source="eye.png"
-                                     Command="{Binding TogglePasswordVisibilityCommand}"
-                                     HeightRequest="22"
-                                     WidthRequest="22"
-                                     BackgroundColor="Transparent"
-                                     Padding="0"
-                                     VerticalOptions="Center" />
-                    </Grid>
-                </Border>
-
-                <!-- 7. Enlace: ¿Olvidaste tu contraseña? -->
-                <Label Text="¿Olvidaste tu contraseña?"
-                       FontSize="13"
-                       TextColor="#6B7280"
-                       HorizontalOptions="End"
-                       Margin="0, 0, 0, 26">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding ForgotPasswordCommand}" />
-                    </Label.GestureRecognizers>
-                </Label>
-
-                <!-- 8. Botón: Iniciar sesión -->
-                <Button Text="Iniciar sesión"
-                        Command="{Binding LoginCommand}"
-                        BackgroundColor="{StaticResource PrimaryColor}"
-                        TextColor="White"
-                        FontSize="16"
-                        FontAttributes="Bold"
-                        CornerRadius="24"
-                        HeightRequest="52"
-                        Margin="0, 0, 0, 10">
-                    <Button.Shadow>
-                        <Shadow Brush="{StaticResource PrimaryColor}"
-                                Offset="0, 6"
-                                Radius="14"
-                                Opacity="0.35" />
-                    </Button.Shadow>
-                </Button>
-
-                <!-- Indicador de Carga Reactivo -->
-                <ActivityIndicator IsRunning="{Binding IsBusy}"
-                                   IsVisible="{Binding IsBusy}"
-                                   Color="{StaticResource PrimaryColor}"
-                                   HeightRequest="26"
-                                   Margin="0, 6, 0, 0" />
-
             </VerticalStackLayout>
 
-            <!-- 9. Pie de Pantalla: Enlace a Registro -->
+            <!-- 4. PIE DE PANTALLA: Enlace a Registro -->
             <HorizontalStackLayout Grid.Row="1"
                                    HorizontalOptions="Center"
-                                   Spacing="6"
-                                   Margin="0, 10, 0, 24">
+                                   Spacing="8"
+                                   Margin="0, 16, 0, 24">
                 <HorizontalStackLayout.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding NavigateToRegisterCommand}" />
                 </HorizontalStackLayout.GestureRecognizers>
-                <Label Text="¿Aún no tienes cuenta?" 
-                       TextColor="#6B7280" 
-                       FontSize="13" />
-                <Label Text="Regístrate aquí"
-                       TextColor="{StaticResource PrimaryColor}"
+                <Label Text="¿Aún no tienes una cuenta?"
+                       TextColor="{StaticResource TextSecondary}"
+                       FontSize="14" />
+                <Label Text="Crear cuenta →"
+                       TextColor="{StaticResource Primary}"
                        FontAttributes="Bold"
-                       FontSize="13" />
+                       FontSize="14" />
             </HorizontalStackLayout>
         </Grid>
     </ScrollView>

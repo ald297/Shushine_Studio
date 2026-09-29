@@ -3,160 +3,219 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShushineStudio.Mobile.Domain.Entities;
 using ShushineStudio.Mobile.Domain.Repositories;
+using ShushineStudio.Mobile.Domain.UseCases;
 
 namespace ShushineStudio.Mobile.Presentation.ViewModels.Appointments;
 
 /// <summary>
-/// ViewModel reactivo para la gestión e historial de citas del cliente (US-4.03 & US-4.04 / Wireframe Pág. 13).
-/// Soporta pestañas para citas futuras y pasadas, y cancelación con validación de política de 2 horas.
+/// ViewModel reactivo para la gestión e historial de citas del cliente.
+/// Soporta pestañas para citas próximas e historial, navegación a detalle y cancelación confirmada.
 /// </summary>
 public partial class MyAppointmentsViewModel : BaseViewModel
 {
-    private readonly IReservaRepository _reservaRepository;
+	private readonly GetMyAppointmentsUseCase _getMyAppointmentsUseCase;
+	private readonly CancelAppointmentUseCase _cancelAppointmentUseCase;
+	private readonly IReservaRepository _reservaRepository;
 
-    [ObservableProperty]
-    private ObservableCollection<Reserva> citasProximas = new();
+	[ObservableProperty]
+	private ObservableCollection<Reserva> citasProximas = new();
 
-    [ObservableProperty]
-    private ObservableCollection<Reserva> citasPasadas = new();
+	[ObservableProperty]
+	private ObservableCollection<Reserva> citasPasadas = new();
 
-    [ObservableProperty]
-    private bool mostrarFuturas = true;
+	[ObservableProperty]
+	private bool mostrarFuturas = true;
 
-    [ObservableProperty]
-    private bool mostrarPasadas = false;
+	[ObservableProperty]
+	private bool mostrarPasadas = false;
 
-    public MyAppointmentsViewModel(IReservaRepository reservaRepository)
-    {
-        _reservaRepository = reservaRepository;
-        Title = "Mis Citas";
-        _ = LoadCitasAsync();
-    }
+	[ObservableProperty]
+	private int totalProximas;
 
-    [RelayCommand]
-    private void VerFuturas()
-    {
-        MostrarFuturas = true;
-        MostrarPasadas = false;
-    }
+	[ObservableProperty]
+	private int totalPasadas;
 
-    [RelayCommand]
-    private void VerPasadas()
-    {
-        MostrarFuturas = false;
-        MostrarPasadas = true;
-    }
+	[ObservableProperty]
+	private bool hasProximas;
 
-    [RelayCommand]
-    public async Task LoadCitasAsync()
-    {
-        if (IsBusy) return;
+	[ObservableProperty]
+	private bool hasPasadas;
 
-        try
-        {
-            IsBusy = true;
-            ErrorMessage = null;
+	public MyAppointmentsViewModel(
+		GetMyAppointmentsUseCase getMyAppointmentsUseCase,
+		CancelAppointmentUseCase cancelAppointmentUseCase,
+		IReservaRepository reservaRepository)
+	{
+		_getMyAppointmentsUseCase = getMyAppointmentsUseCase;
+		_cancelAppointmentUseCase = cancelAppointmentUseCase;
+		_reservaRepository = reservaRepository;
+		Title = "Mis Citas";
+		_ = LoadCitasAsync();
+	}
 
-            var citas = await _reservaRepository.GetMisCitasAsync();
-            CitasProximas.Clear();
-            CitasPasadas.Clear();
+	[RelayCommand]
+	private void VerFuturas()
+	{
+		MostrarFuturas = true;
+		MostrarPasadas = false;
+	}
 
-            var now = DateTime.Now;
-            foreach (var cita in citas)
-            {
-                if (cita.Estado == "PENDIENTE" && cita.FechaHoraInicio >= now.AddHours(-1))
-                {
-                    CitasProximas.Add(cita);
-                }
-                else
-                {
-                    CitasPasadas.Add(cita);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = ex.Message;
-        }
-        finally
-        {
-            IsBusy = false;
-        }
-    }
+	[RelayCommand]
+	private void VerPasadas()
+	{
+		MostrarFuturas = false;
+		MostrarPasadas = true;
+	}
 
-    [RelayCommand]
-    private async Task CancelarCitaAsync(Reserva reserva)
-    {
-        if (reserva == null || Application.Current?.MainPage == null) return;
+	[RelayCommand]
+	public async Task LoadCitasAsync()
+	{
+		if (IsBusy) return;
 
-        // Validar política de cancelación (US-4.04: límite de 2 horas antes de la cita)
-        var tiempoRestante = reserva.FechaHoraInicio - DateTime.Now;
-        if (tiempoRestante.TotalHours < 2 && tiempoRestante.TotalSeconds > 0)
-        {
-            await Application.Current.MainPage.DisplayAlert(
-                "Política de Cancelación", 
-                "No es posible cancelar la cita con menos de 2 horas de anticipación desde la app. Por favor contacta directamente a recepción al (+503) 2400-0000.", 
-                "Entendido"
-            );
-            return;
-        }
+		try
+		{
+			IsBusy = true;
+			ErrorMessage = null;
 
-        bool confirm = await Application.Current.MainPage.DisplayAlert(
-            "Cancelar Reserva", 
-            $"¿Estás segura de cancelar tu cita para {reserva.ServicioNombre} ({reserva.CodigoReserva})?", 
-            "Sí, Cancelar", 
-            "Mantener Cita"
-        );
+			var citas = await _getMyAppointmentsUseCase.ExecuteAsync();
+			CitasProximas.Clear();
+			CitasPasadas.Clear();
 
-        if (confirm)
-        {
-            IsBusy = true;
-            try
-            {
-                var success = await _reservaRepository.CancelarReservaAsync(reserva.Id);
-                if (success)
-                {
-                    await Application.Current.MainPage.DisplayAlert(
-                        "Cita Cancelada", 
-                        "Tu reserva ha sido cancelada y el espacio del estilista ha sido liberado.", 
-                        "Aceptar"
-                    );
-                    await LoadCitasAsync();
-                }
-            }
-            finally
-            {
-                IsBusy = false;
-            }
-        }
-    }
+			var now = DateTime.Now;
+			foreach (var cita in citas)
+			{
+				var estado = (cita.Estado ?? string.Empty).Trim().ToUpperInvariant();
+				// Próximas: estados activos y fechas no vencidas
+				if ((estado == "PENDIENTE" || estado == "CONFIRMADA" || estado == "CONFIRMED" || estado == "PENDING" || estado == "EN PROCESO" || estado == "EN_PROCESO")
+					&& cita.FechaHoraInicio >= now.Date)
+				{
+					CitasProximas.Add(cita);
+				}
+				else
+				{
+					CitasPasadas.Add(cita);
+				}
+			}
 
-    [RelayCommand]
-    private async Task ReprogramarCitaAsync(Reserva reserva)
-    {
-        if (reserva == null) return;
+			TotalProximas = CitasProximas.Count;
+			TotalPasadas = CitasPasadas.Count;
+			HasProximas = CitasProximas.Count > 0;
+			HasPasadas = CitasPasadas.Count > 0;
+		}
+		catch (Exception ex)
+		{
+			ErrorMessage = ex.Message;
+		}
+		finally
+		{
+			IsBusy = false;
+		}
+	}
 
-        try
-        {
-            if (reserva.ServicioId > 0)
-            {
-                await Shell.Current.GoToAsync($"ServiceDetailPage?servicioId={reserva.ServicioId}");
-            }
-            else
-            {
-                await Shell.Current.GoToAsync("//CatalogPage");
-            }
-        }
-        catch
-        {
-            try
-            {
-                await Shell.Current.GoToAsync("//CatalogPage");
-            }
-            catch
-            {
-                // Navegacion fallback
-            }
-        }
-    }
+	[RelayCommand]
+	private async Task VerDetalleCitaAsync(Reserva reserva)
+	{
+		if (reserva == null) return;
+
+		try
+		{
+			await Shell.Current.GoToAsync("AppointmentDetailPage", new Dictionary<string, object>
+			{
+				{ "reserva", reserva },
+				{ "reservaId", reserva.Id }
+			});
+		}
+		catch (Exception ex)
+		{
+			await Application.Current.MainPage!.DisplayAlert("Error de Navegación", ex.Message, "Entendido");
+		}
+	}
+
+	[RelayCommand]
+	private async Task CancelarCitaAsync(Reserva reserva)
+	{
+		if (reserva == null || Application.Current?.MainPage == null || IsBusy) return;
+
+		bool confirm = await Application.Current.MainPage.DisplayAlert(
+			"Cancelar Reserva",
+			$"¿Estás segura de cancelar tu cita para {reserva.ServicioNombre} ({reserva.CodigoReserva})?",
+			"Sí, Cancelar",
+			"Mantener Cita"
+		);
+
+		if (!confirm) return;
+
+		try
+		{
+			IsBusy = true;
+			var success = await _cancelAppointmentUseCase.ExecuteAsync(reserva.Id);
+			if (success)
+			{
+				await Application.Current.MainPage.DisplayAlert(
+					"Cita Cancelada",
+					"Tu reserva ha sido cancelada exitosamente y el horario del especialista ha sido liberado.",
+					"Aceptar"
+				);
+				await LoadCitasAsync();
+			}
+			else
+			{
+				await Application.Current.MainPage.DisplayAlert(
+					"Error",
+					"No fue posible cancelar la cita. Por favor intenta más tarde.",
+					"Entendido"
+				);
+			}
+		}
+		catch (Exception ex)
+		{
+			await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "Entendido");
+		}
+		finally
+		{
+			IsBusy = false;
+		}
+	}
+
+	[RelayCommand]
+	private async Task ReprogramarCitaAsync(Reserva reserva)
+	{
+		if (reserva == null) return;
+
+		try
+		{
+			if (reserva.ServicioId > 0)
+			{
+				await Shell.Current.GoToAsync($"ServiceDetailPage?servicioId={reserva.ServicioId}");
+			}
+			else
+			{
+				await Shell.Current.GoToAsync("//MainTabs/CatalogPage");
+			}
+		}
+		catch
+		{
+			try
+			{
+				await Shell.Current.GoToAsync("//MainTabs/CatalogPage");
+			}
+			catch
+			{
+				// Navegacion fallback
+			}
+		}
+	}
+
+	[RelayCommand]
+	private async Task ExplorarServiciosAsync()
+	{
+		try
+		{
+			await Shell.Current.GoToAsync("//MainTabs/CatalogPage");
+		}
+		catch
+		{
+			// Fallback
+		}
+	}
 }
