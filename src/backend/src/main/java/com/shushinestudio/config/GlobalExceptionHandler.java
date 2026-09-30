@@ -38,10 +38,11 @@ public class GlobalExceptionHandler {
             TransactionException.class
     })
     public ResponseEntity<ProblemDetail> handleConcurrencyAndDataExceptions(Exception ex, HttpServletRequest request) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-                HttpStatus.CONFLICT,
-                "El estilista seleccionado ya no tiene disponible la franja horaria solicitada."
-        );
+        String detail = request.getRequestURI() != null && request.getRequestURI().contains("/citas")
+                ? "El estilista seleccionado ya no tiene disponible la franja horaria solicitada."
+                : (ex.getMessage() != null && !ex.getMessage().isBlank() ? ex.getMessage() : "Conflicto o error de concurrencia en la operación.");
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, detail);
         problem.setTitle("Conflict");
         problem.setType(URI.create("https://httpstatuses.io/409"));
         problem.setInstance(URI.create(request.getRequestURI()));

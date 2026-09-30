@@ -133,6 +133,8 @@ public class DataInitializer implements CommandLineRunner {
                 "ALTER TABLE public.solicitudes_diseno ADD COLUMN IF NOT EXISTS id_cliente INT REFERENCES public.clientes(id_cliente) ON DELETE CASCADE",
                 "ALTER TABLE public.solicitudes_diseno ADD COLUMN IF NOT EXISTS servicio_deseado VARCHAR(150)",
                 "ALTER TABLE public.solicitudes_diseno ALTER COLUMN imagenes_referencia_urls TYPE TEXT USING imagenes_referencia_urls::text",
+                "ALTER TABLE public.solicitudes_diseno ALTER COLUMN id_cita DROP NOT NULL",
+                "ALTER TABLE public.solicitudes_diseno ALTER COLUMN imagenes_referencia_urls DROP NOT NULL",
                 "CREATE INDEX IF NOT EXISTS idx_solicitudes_cliente ON public.solicitudes_diseno(id_cliente)",
 
                 """

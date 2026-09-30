@@ -72,6 +72,7 @@ public class ReporteController {
     }
 
     @GetMapping("/exportar")
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     @Operation(summary = "Exportar reporte financiero y operativo a CSV", description = "Genera un archivo CSV con el balance de citas e ingresos para Excel u hojas de cálculo.")
     public ResponseEntity<byte[]> exportarReporte() {
         List<Cita> citas = citaRepository.findAll();
