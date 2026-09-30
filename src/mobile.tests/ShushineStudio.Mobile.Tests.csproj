@@ -30,6 +30,7 @@
   <!-- Referencia a archivos de dominio del proyecto móvil sin MAUI (solo domain + DTOs) -->
   <ItemGroup>
     <Compile Include="..\mobile\Domain\Entities\*.cs" LinkBase="Domain\Entities" />
+    <Compile Include="..\mobile\Data\Dtos\*.cs" LinkBase="Data\Dtos" />
     <Compile Include="..\mobile\Domain\Repositories\IReservaRepository.cs" LinkBase="Domain\Repositories" />
     <Compile Include="..\mobile\Domain\Repositories\IServicioRepository.cs" LinkBase="Domain\Repositories" />
     <Compile Include="..\mobile\Domain\UseCases\CreateAppointmentUseCase.cs" LinkBase="Domain\UseCases" />
