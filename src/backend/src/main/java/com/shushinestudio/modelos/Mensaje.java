@@ -31,6 +31,9 @@ public class Mensaje {
     @Column(name = "contenido", nullable = false, length = 1000)
     private String contenido;
 
+    @Column(name = "imagen_url", length = 1000)
+    private String imagenUrl;
+
     @Builder.Default
     @Column(name = "fecha_envio", nullable = false)
     private LocalDateTime fechaEnvio = LocalDateTime.now();

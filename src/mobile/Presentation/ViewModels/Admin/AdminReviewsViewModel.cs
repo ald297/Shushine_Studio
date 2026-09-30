@@ -1,6 +1,8 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShushineStudio.Mobile.Data.Services;
+using ShushineStudio.Mobile.Domain.Entities;
 using ShushineStudio.Mobile.Domain.Repositories;
 
 namespace ShushineStudio.Mobile.Presentation.ViewModels.Admin;
@@ -9,9 +11,10 @@ public partial class AdminReviewsViewModel : ObservableObject
 {
     private readonly IAuthRepository _authRepository;
     private readonly ITokenStorageService _tokenStorageService;
+    private readonly IResenaRepository _resenaRepository;
 
     [ObservableProperty]
-    private string title = "Reseñas";
+    private string title = "Reseñas de Clientes";
 
     [ObservableProperty]
     private bool isAuthorized = true;
@@ -20,16 +23,36 @@ public partial class AdminReviewsViewModel : ObservableObject
     private bool isUnauthorized = false;
 
     [ObservableProperty]
-    private string avisoBackend = "La moderación y consulta centralizada de reseñas no está disponible en la API actual. No se simulan calificaciones ni comentarios falsos para preservar la autenticidad del servicio.";
+    private bool isBusy;
+
+    [ObservableProperty]
+    private string? errorMessage;
+
+    [ObservableProperty]
+    private ObservableCollection<Resena> resenas = new();
+
+    [ObservableProperty]
+    private bool tieneResenas;
 
     public AdminReviewsViewModel(
         IAuthRepository authRepository,
-        ITokenStorageService tokenStorageService)
+        ITokenStorageService tokenStorageService,
+        IResenaRepository resenaRepository)
     {
         _authRepository = authRepository;
         _tokenStorageService = tokenStorageService;
+        _resenaRepository = resenaRepository;
 
-        _ = VerificarRolAdminAsync();
+        _ = InicializarAsync();
+    }
+
+    private async Task InicializarAsync()
+    {
+        await VerificarRolAdminAsync();
+        if (IsAuthorized)
+        {
+            await CargarResenasAsync();
+        }
     }
 
     private async Task VerificarRolAdminAsync()
@@ -55,15 +78,31 @@ public partial class AdminReviewsViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task VerDetalleResenaAsync()
+    public async Task CargarResenasAsync()
     {
-        if (Application.Current?.MainPage != null)
+        if (IsBusy) return;
+
+        try
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Función Preparada",
-                "La moderación y respuesta pública de reseñas estará disponible cuando el backend habilite el módulo correspondiente (/api/resenas).",
-                "Entendido"
-            );
+            IsBusy = true;
+            ErrorMessage = null;
+
+            var lista = await _resenaRepository.GetResenasAdminAsync();
+            Resenas.Clear();
+            foreach (var r in lista)
+            {
+                Resenas.Add(r);
+            }
+
+            TieneResenas = Resenas.Count > 0;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Error al sincronizar reseñas: " + ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 
@@ -76,6 +115,14 @@ public partial class AdminReviewsViewModel : ObservableObject
     [RelayCommand]
     private async Task RegresarALoginAsync()
     {
-        await Shell.Current.GoToAsync("//LoginPage");
+        await _authRepository.LogoutAsync();
+        if (Shell.Current is AppShell appShell)
+        {
+            appShell.SwitchToLogin();
+        }
+        else
+        {
+            await Shell.Current.GoToAsync("//LoginPage");
+        }
     }
 }

@@ -130,8 +130,8 @@ public partial class BookingSummaryViewModel : BaseViewModel
             if (Application.Current?.MainPage != null)
             {
                 await Application.Current.MainPage.DisplayAlert(
-                    "Aviso de Disponibilidad", 
-                    "No se pudo completar la reserva en este instante. Por favor verifique el horario.", 
+                    "Aviso de Reserva", 
+                    ex.Message, 
                     "Entendido"
                 );
             }

@@ -223,4 +223,40 @@ public class AuthRepository : IAuthRepository
             Rol = role
         };
     }
+
+    public async Task<bool> CambiarClaveAsync(string claveActual, string nuevaClave, string confirmarClave)
+    {
+        var body = new
+        {
+            claveActual = claveActual,
+            nuevaClave = nuevaClave,
+            confirmarClave = confirmarClave
+        };
+
+        var response = await _httpClient.PutAsJsonAsync("auth/cambiar-clave", body);
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            throw new InvalidOperationException(!string.IsNullOrWhiteSpace(errorContent) ? errorContent : "Error al cambiar la contraseña en el servidor.");
+        }
+        return true;
+    }
+
+    public async Task<Usuario?> ActualizarPerfilAsync(string nombre, string apellido, string telefono, string? correo)
+    {
+        var body = new
+        {
+            nombre = nombre,
+            apellido = apellido,
+            telefono = telefono,
+            correo = correo
+        };
+
+        var response = await _httpClient.PutAsJsonAsync("auth/perfil", body);
+        response.EnsureSuccessStatusCode();
+
+        var perfilDto = await response.Content.ReadFromJsonAsync<UsuarioPerfilDto>();
+        return perfilDto?.ToEntity();
+    }
 }
+

@@ -1,16 +1,18 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShushineStudio.Mobile.Domain.Entities;
+using ShushineStudio.Mobile.Domain.Repositories;
 
 namespace ShushineStudio.Mobile.Presentation.ViewModels.Reviews;
 
 /// <summary>
 /// ViewModel para la pantalla de Calificar / Dejar Reseña.
-/// Recibe la cita completada y valida la calificación antes de enviar.
-/// Al no existir endpoint en el backend, informa con transparencia el estado de UI preparada.
+/// Recibe la cita completada, valida la calificación y persiste realmente en la Web API.
 /// </summary>
 public partial class LeaveReviewViewModel : BaseViewModel, IQueryAttributable
 {
+    private readonly IResenaRepository _resenaRepository;
+
     [ObservableProperty]
     private Reserva? cita;
 
@@ -26,8 +28,7 @@ public partial class LeaveReviewViewModel : BaseViewModel, IQueryAttributable
     [ObservableProperty]
     private bool mostrarModalPosponer;
 
-    // El backend no cuenta con endpoint POST /api/resenas actualmente
-    public bool BackendDisponible => false;
+    public bool BackendDisponible => true;
 
     public string ServicioNombre => Cita?.ServicioNombre ?? "Servicio del Atelier";
     public string EstilistaNombre => Cita?.EstilistaNombre ?? "Especialista asignada";
@@ -58,8 +59,9 @@ public partial class LeaveReviewViewModel : BaseViewModel, IQueryAttributable
 
     public string ContadorCaracteres => $"{Comentario?.Length ?? 0} / 500 caracteres";
 
-    public LeaveReviewViewModel()
+    public LeaveReviewViewModel(IResenaRepository resenaRepository)
     {
+        _resenaRepository = resenaRepository;
         Title = "Calificar Servicio";
     }
 
@@ -96,28 +98,44 @@ public partial class LeaveReviewViewModel : BaseViewModel, IQueryAttributable
     {
         if (IsBusy) return;
 
-        // Validación de calificación
+        if (Cita == null || Cita.Id <= 0)
+        {
+            ErrorMessage = "No se ha seleccionado una cita válida para calificar.";
+            return;
+        }
+
         if (Estrellas < 1 || Estrellas > 5)
         {
             ErrorMessage = "Por favor selecciona una valoración entre 1 y 5 estrellas.";
             return;
         }
 
-        ErrorMessage = string.Empty;
-
-        // Regla: No inventar persistencia ni simular que fue guardada.
-        // Al no existir endpoint POST /api/resenas, se muestra diálogo transparente.
-        if (Application.Current?.MainPage != null)
+        try
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Función Preparada",
-                "El formulario fue validado correctamente con tu calificación de " + Estrellas + " estrellas. Actualmente el servidor de Shunshine Studio no cuenta con el endpoint para registrar reseñas. La función quedará activa en cuanto se habilite en la API.",
-                "Entendido"
-            );
-        }
+            IsBusy = true;
+            ErrorMessage = string.Empty;
 
-        // Navegación de retorno al flujo
-        await Shell.Current.GoToAsync("..");
+            var resenaCreada = await _resenaRepository.CrearResenaAsync(Cita.Id, Estrellas, Comentario, VisiblePublica);
+
+            if (Application.Current?.MainPage != null)
+            {
+                await Application.Current.MainPage.DisplayAlert(
+                    "¡Gracias por tu Reseña!",
+                    $"Tu valoración de {Estrellas} estrellas ha sido enviada con éxito.",
+                    "Aceptar"
+                );
+            }
+
+            await Shell.Current.GoToAsync("..");
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "No se pudo registrar la reseña: " + ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     [RelayCommand]

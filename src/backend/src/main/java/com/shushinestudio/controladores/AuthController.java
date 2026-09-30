@@ -41,4 +41,27 @@ public class AuthController {
         String login = authentication.getName();
         return ResponseEntity.ok(usuarioService.obtenerPerfil(login));
     }
+
+    @PutMapping("/cambiar-clave")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @Operation(summary = "Cambiar contraseña del usuario autenticado", description = "Valida la contraseña actual y actualiza por la nueva contraseña codificada con BCrypt.")
+    public ResponseEntity<java.util.Map<String, String>> cambiarClave(
+            @jakarta.validation.Valid @RequestBody com.shushinestudio.dtos.auth.CambiarClaveDto dto,
+            Authentication authentication) {
+        String login = authentication.getName();
+        usuarioService.cambiarClave(login, dto);
+        return ResponseEntity.ok(java.util.Map.of("mensaje", "Contraseña actualizada exitosamente."));
+    }
+
+    @PutMapping("/perfil")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @Operation(summary = "Actualizar datos de perfil del usuario", description = "Actualiza nombre, apellido, teléfono y correo del usuario autenticado.")
+    public ResponseEntity<UsuarioPerfil> actualizarPerfil(
+            @jakarta.validation.Valid @RequestBody com.shushinestudio.dtos.auth.ActualizarPerfilDto dto,
+            Authentication authentication) {
+        String login = authentication.getName();
+        UsuarioPerfil actualizado = usuarioService.actualizarPerfil(login, dto);
+        return ResponseEntity.ok(actualizado);
+    }
 }
+

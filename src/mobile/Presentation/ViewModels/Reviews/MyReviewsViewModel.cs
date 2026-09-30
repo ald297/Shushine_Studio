@@ -8,12 +8,12 @@ namespace ShushineStudio.Mobile.Presentation.ViewModels.Reviews;
 
 /// <summary>
 /// ViewModel para la pantalla de 'Mis Reseñas'.
-/// Carga citas completadas pendientes de calificar desde el backend real de citas,
-/// e informa que la consulta de reseñas registradas estará disponible con el endpoint del backend.
+/// Carga citas completadas pendientes de calificar y el historial real de reseñas publicadas en la Web API.
 /// </summary>
 public partial class MyReviewsViewModel : BaseViewModel
 {
     private readonly IReservaRepository _reservaRepository;
+    private readonly IResenaRepository _resenaRepository;
 
     [ObservableProperty]
     private ObservableCollection<Reserva> citasPendientesCalificar = new();
@@ -27,12 +27,12 @@ public partial class MyReviewsViewModel : BaseViewModel
     [ObservableProperty]
     private bool tieneResenasPublicadas;
 
-    // No existe endpoint GET /api/resenas actualmente
-    public bool BackendResenasDisponible => false;
+    public bool BackendResenasDisponible => true;
 
-    public MyReviewsViewModel(IReservaRepository reservaRepository)
+    public MyReviewsViewModel(IReservaRepository reservaRepository, IResenaRepository resenaRepository)
     {
         _reservaRepository = reservaRepository;
+        _resenaRepository = resenaRepository;
         Title = "Mis Reseñas";
     }
 
@@ -49,10 +49,25 @@ public partial class MyReviewsViewModel : BaseViewModel
             // 1. Obtener citas reales del cliente autenticado
             var citas = await _reservaRepository.GetMisCitasAsync();
 
-            // Filtrar citas completadas para sugerir calificación (100% datos reales)
+            // 2. Obtener reseñas reales publicadas por el cliente
+            var misResenas = await _resenaRepository.GetMisResenasAsync();
+            ResenasPublicadas.Clear();
+            var idsCitasCalificadas = new HashSet<long>();
+            foreach (var r in misResenas)
+            {
+                ResenasPublicadas.Add(r);
+                if (r.CitaId > 0)
+                {
+                    idsCitasCalificadas.Add(r.CitaId);
+                }
+            }
+            TieneResenasPublicadas = ResenasPublicadas.Count > 0;
+
+            // 3. Filtrar citas completadas que NO hayan sido calificadas aún
             var completadas = citas.Where(c =>
-                c.Estado?.Equals("COMPLETADA", StringComparison.OrdinalIgnoreCase) == true ||
-                c.Estado?.Equals("COMPLETED", StringComparison.OrdinalIgnoreCase) == true
+                (c.Estado?.Equals("COMPLETADA", StringComparison.OrdinalIgnoreCase) == true ||
+                 c.Estado?.Equals("COMPLETED", StringComparison.OrdinalIgnoreCase) == true) &&
+                !idsCitasCalificadas.Contains(c.Id)
             ).ToList();
 
             CitasPendientesCalificar.Clear();
@@ -62,15 +77,10 @@ public partial class MyReviewsViewModel : BaseViewModel
             }
 
             TieneCitasPendientes = CitasPendientesCalificar.Count > 0;
-
-            // 2. Reseñas publicadas: Al no existir endpoint de consulta en el backend,
-            // no se insertan datos falsos ni simulados.
-            ResenasPublicadas.Clear();
-            TieneResenasPublicadas = false;
         }
         catch (Exception ex)
         {
-            ErrorMessage = "No se pudieron sincronizar las citas completadas.";
+            ErrorMessage = "No se pudieron sincronizar las reseñas: " + ex.Message;
             System.Diagnostics.Debug.WriteLine($"[MyReviewsViewModel] Error: {ex.Message}");
         }
         finally

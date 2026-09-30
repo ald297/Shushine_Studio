@@ -110,8 +110,15 @@ public partial class RegisterViewModel : BaseViewModel
                     "Continuar"
                 );
 
-                // Redirigir al catálogo principal
-                await Shell.Current.GoToAsync("//MainTabs/CatalogPage");
+                // Redirigir limpiamente usando la navegación central de AppShell
+                if (Shell.Current is AppShell appShell)
+                {
+                    appShell.SwitchToRole("CLIENTE");
+                }
+                else
+                {
+                    await Shell.Current.GoToAsync("//CatalogPage");
+                }
             }
             else
             {

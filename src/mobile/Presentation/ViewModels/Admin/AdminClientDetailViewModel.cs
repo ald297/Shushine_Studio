@@ -155,31 +155,7 @@ public partial class AdminClientDetailViewModel : ObservableObject, IQueryAttrib
         });
     }
 
-    [RelayCommand]
-    private async Task EditarClienteAsync()
-    {
-        if (Application.Current?.MainPage != null)
-        {
-            await Application.Current.MainPage.DisplayAlert(
-                "Función Preparada",
-                "Esta función estará disponible cuando el backend habilite el endpoint de edición de clientes.",
-                "Entendido"
-            );
-        }
-    }
 
-    [RelayCommand]
-    private async Task ActivarDesactivarAsync()
-    {
-        if (Application.Current?.MainPage != null)
-        {
-            await Application.Current.MainPage.DisplayAlert(
-                "Función Preparada",
-                "Esta función estará disponible cuando el backend habilite el endpoint de activación/desactivación de clientes.",
-                "Entendido"
-            );
-        }
-    }
 
     [RelayCommand]
     private async Task RegresarAsync()

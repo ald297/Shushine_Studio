@@ -8,43 +8,12 @@ using ShushineStudio.Mobile.Domain.Repositories;
 namespace ShushineStudio.Mobile.Data.Repositories;
 
 /// <summary>
-/// Repositorio de reservas conectado con la Web API en Render y con contingencia local (Fallback).
+/// Repositorio de reservas conectado exclusivamente con la Web API Spring Boot / PostgreSQL en Render.
+/// Cumple con las reglas estrictas de negocio: CERO mocks, CERO datos hardcodeados y persistencia real.
 /// </summary>
 public class ReservaRepository : IReservaRepository
 {
     private readonly HttpClient _httpClient;
-
-    private static readonly List<Reserva> FallbackReservas = new()
-    {
-        new Reserva
-        {
-            Id = 101,
-            CodigoCita = "#SHU-8492",
-            ServicioId = 1,
-            ServicioNombre = "Balayage Iluminador & Gloss",
-            EstilistaId = 1,
-            EstilistaNombre = "Sofía Ramos",
-            FechaHoraInicio = DateTime.Today.AddDays(2).AddHours(14),
-            FechaHoraFin = DateTime.Today.AddDays(2).AddHours(16),
-            Total = 66.39m,
-            Estado = "PENDIENTE",
-            Notas = "Cliente frecuente Nivel Oro"
-        },
-        new Reserva
-        {
-            Id = 102,
-            CodigoCita = "#SHU-7120",
-            ServicioId = 3,
-            ServicioNombre = "Manicura Rusa & Esmaltado Semi",
-            EstilistaId = 2,
-            EstilistaNombre = "Valentina Gómez",
-            FechaHoraInicio = DateTime.Today.AddDays(-5).AddHours(11),
-            FechaHoraFin = DateTime.Today.AddDays(-5).AddHours(12),
-            Total = 22.46m,
-            Estado = "COMPLETADA",
-            Notas = "Atención finalizada con éxito"
-        }
-    };
 
     public ReservaRepository(HttpClient httpClient)
     {
@@ -57,60 +26,23 @@ public class ReservaRepository : IReservaRepository
         {
             // Endpoint oficial en Render: GET /api/citas/mis-citas
             var dtos = await _httpClient.GetFromJsonAsync<List<ReservaDto>>("citas/mis-citas");
-            if (dtos != null && dtos.Count > 0)
+            if (dtos != null)
             {
-                var listaApi = dtos.Select(d => d.ToEntity()).ToList();
-                foreach (var item in listaApi)
-                {
-                    if (!FallbackReservas.Any(f => f.Id == item.Id || f.CodigoCita == item.CodigoCita))
-                    {
-                        FallbackReservas.Add(item);
-                    }
-                }
-                return FallbackReservas.OrderByDescending(r => r.FechaHoraInicio);
+                return dtos.Select(d => d.ToEntity()).OrderByDescending(r => r.FechaHoraInicio);
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Contingencia offline si no hay conexión con la Web API
+            System.Diagnostics.Debug.WriteLine($"[ReservaRepository] Error al obtener citas del cliente: {ex.Message}");
+            throw;
         }
 
-        return FallbackReservas;
+        return Enumerable.Empty<Reserva>();
     }
 
     public async Task<IEnumerable<Reserva>> GetTodasCitasAdminAsync()
     {
-        try
-        {
-            var response = await _httpClient.GetAsync("citas?size=50&sort=id,desc");
-            if (response.IsSuccessStatusCode)
-            {
-                var json = await response.Content.ReadAsStringAsync();
-                using var doc = System.Text.Json.JsonDocument.Parse(json);
-                if (doc.RootElement.TryGetProperty("content", out var contentElem))
-                {
-                    var dtos = System.Text.Json.JsonSerializer.Deserialize<List<ReservaDto>>(contentElem.GetRawText());
-                    if (dtos != null && dtos.Count > 0)
-                    {
-                        var listaApi = dtos.Select(d => d.ToEntity()).ToList();
-                        foreach (var item in listaApi)
-                        {
-                            if (!FallbackReservas.Any(f => f.Id == item.Id || f.CodigoCita == item.CodigoCita))
-                            {
-                                FallbackReservas.Add(item);
-                            }
-                        }
-                        return FallbackReservas.OrderByDescending(r => r.FechaHoraInicio);
-                    }
-                }
-            }
-        }
-        catch
-        {
-            // Contingencia offline
-        }
-
-        return FallbackReservas;
+        return await ObtenerTodasCitasAdminPaginadasAsync(0, 50);
     }
 
     public async Task<DashboardMetricasDto?> GetDashboardMetricasAsync()
@@ -172,7 +104,7 @@ public class ReservaRepository : IReservaRepository
             System.Diagnostics.Debug.WriteLine($"[ReservaRepository] Error al obtener cita {id}: {ex.Message}");
         }
 
-        return FallbackReservas.FirstOrDefault(r => r.Id == id);
+        return null;
     }
 
     public async Task<IEnumerable<Reserva>> ObtenerTodasCitasAdminPaginadasAsync(int page = 0, int size = 50)
@@ -186,8 +118,11 @@ public class ReservaRepository : IReservaRepository
                 using var doc = JsonDocument.Parse(json);
                 if (doc.RootElement.TryGetProperty("content", out var contentElem))
                 {
-                    var dtos = JsonSerializer.Deserialize<List<ReservaDto>>(contentElem.GetRawText());
-                    if (dtos != null && dtos.Count > 0)
+                    var dtos = JsonSerializer.Deserialize<List<ReservaDto>>(contentElem.GetRawText(), new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                    if (dtos != null)
                     {
                         return dtos.Select(d => d.ToEntity()).ToList();
                     }
@@ -199,7 +134,7 @@ public class ReservaRepository : IReservaRepository
             System.Diagnostics.Debug.WriteLine($"[ReservaRepository] Error al listar citas admin: {ex.Message}");
         }
 
-        return FallbackReservas.OrderByDescending(r => r.FechaHoraInicio);
+        return Enumerable.Empty<Reserva>();
     }
 
     public async Task<Reserva?> CambiarEstadoCitaAsync(long citaId, string nuevoEstado, string? motivoCancelacion = null)
@@ -219,13 +154,7 @@ public class ReservaRepository : IReservaRepository
             if (response.IsSuccessStatusCode)
             {
                 var dto = await response.Content.ReadFromJsonAsync<ReservaDto>();
-                if (dto != null)
-                {
-                    var entidad = dto.ToEntity();
-                    var match = FallbackReservas.FirstOrDefault(r => r.Id == citaId);
-                    if (match != null) match.Estado = entidad.Estado;
-                    return entidad;
-                }
+                return dto?.ToEntity();
             }
             else
             {
@@ -236,13 +165,7 @@ public class ReservaRepository : IReservaRepository
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[ReservaRepository] Excepción en CambiarEstadoCitaAsync: {ex.Message}");
-        }
-
-        var localMatch = FallbackReservas.FirstOrDefault(r => r.Id == citaId);
-        if (localMatch != null)
-        {
-            localMatch.Estado = nuevoEstado;
-            return localMatch;
+            throw;
         }
 
         return null;
@@ -256,13 +179,7 @@ public class ReservaRepository : IReservaRepository
             if (response.IsSuccessStatusCode)
             {
                 var dto = await response.Content.ReadFromJsonAsync<ReservaDto>();
-                if (dto != null)
-                {
-                    var entidad = dto.ToEntity();
-                    FallbackReservas.Insert(0, entidad);
-                    return entidad;
-                }
-                return null;
+                return dto?.ToEntity();
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
             {
@@ -300,55 +217,47 @@ public class ReservaRepository : IReservaRepository
         string? notas,
         string metodoPago = "Efectivo")
     {
-        try
+        var request = new CrearReservaRequestDto
         {
-            var request = new CrearReservaRequestDto
-            {
-                EstilistaId = estilistaId,
-                FechaCita = fechaCita.ToString("yyyy-MM-dd"),
-                HoraInicio = horaInicio,
-                ServicioIds = servicioIds,
-                NotasCliente = notas,
-                MetodoPagoPreferente = metodoPago
-            };
-
-            // Endpoint oficial en Render: POST /api/citas
-            var response = await _httpClient.PostAsJsonAsync("citas", request);
-            if (response.IsSuccessStatusCode)
-            {
-                var dto = await response.Content.ReadFromJsonAsync<ReservaDto>();
-                if (dto != null)
-                {
-                    var entidad = dto.ToEntity();
-                    FallbackReservas.Insert(0, entidad);
-                    return entidad;
-                }
-            }
-        }
-        catch
-        {
-            // Contingencia offline
-        }
-
-        // Si la API falla o está offline, generar reserva simulada en Fallback para permitir pruebas
-        var nuevaReserva = new Reserva
-        {
-            Id = Random.Shared.Next(200, 999),
-            CodigoCita = $"#SHU-{Random.Shared.Next(1000, 9999)}",
-            ServicioId = servicioIds.FirstOrDefault(),
-            ServicioNombre = "Tratamiento de Salón",
             EstilistaId = estilistaId,
-            EstilistaNombre = "Estilista Asignada",
-            FechaHoraInicio = DateTime.TryParse($"{fechaCita:yyyy-MM-dd} {horaInicio}", out var dt) ? dt : fechaCita,
-            FechaHoraFin = (DateTime.TryParse($"{fechaCita:yyyy-MM-dd} {horaInicio}", out var dtFin) ? dtFin : fechaCita).AddHours(1),
-            Total = 35.00m,
-            Estado = "PENDIENTE",
-            Notas = notas,
+            FechaCita = fechaCita.ToString("yyyy-MM-dd"),
+            HoraInicio = horaInicio,
+            ServicioIds = servicioIds,
+            NotasCliente = notas,
             MetodoPagoPreferente = metodoPago
         };
 
-        FallbackReservas.Insert(0, nuevaReserva);
-        return nuevaReserva;
+        // Endpoint oficial en Render: POST /api/citas
+        var response = await _httpClient.PostAsJsonAsync("citas", request);
+        if (response.IsSuccessStatusCode)
+        {
+            var dto = await response.Content.ReadFromJsonAsync<ReservaDto>();
+            if (dto != null)
+            {
+                return dto.ToEntity();
+            }
+            throw new InvalidOperationException("Respuesta inválida del servidor al confirmar la reserva.");
+        }
+        else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+        {
+            var errJson = await response.Content.ReadAsStringAsync();
+            var detail = "El horario seleccionado ya no se encuentra disponible. Por favor, selecciona otro turno.";
+            try
+            {
+                using var doc = JsonDocument.Parse(errJson);
+                if (doc.RootElement.TryGetProperty("detail", out var dElem))
+                {
+                    detail = dElem.GetString() ?? detail;
+                }
+            }
+            catch { }
+            throw new InvalidOperationException(detail);
+        }
+        else
+        {
+            var errStr = await response.Content.ReadAsStringAsync();
+            throw new InvalidOperationException($"Error al crear reserva: {errStr}");
+        }
     }
 
     public async Task<Reserva?> CrearReservaAsync(
@@ -368,26 +277,52 @@ public class ReservaRepository : IReservaRepository
     {
         try
         {
-            // Endpoint oficial en Render: PUT /api/citas/{id}/cancelar
+            // 1. Intentar endpoint oficial PUT /api/citas/{id}/cancelar
             var url = string.IsNullOrEmpty(motivo)
                 ? $"citas/{reservaId}/cancelar"
                 : $"citas/{reservaId}/cancelar?motivo={Uri.EscapeDataString(motivo)}";
 
             var response = await _httpClient.PutAsync(url, null);
-            if (response.IsSuccessStatusCode) return true;
-        }
-        catch
-        {
-            // Contingencia offline
-        }
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
 
-        var match = FallbackReservas.FirstOrDefault(r => r.Id == reservaId);
-        if (match != null)
+            // 2. Si el endpoint PUT no estuviera disponible, intentar PATCH /api/citas/{id}/estado
+            var payload = new
+            {
+                id = reservaId,
+                nuevoEstado = "Cancelled",
+                motivoCancelacion = motivo ?? "Cancelada desde la app móvil"
+            };
+            var patchResponse = await _httpClient.PatchAsJsonAsync($"citas/{reservaId}/estado", payload);
+            if (patchResponse.IsSuccessStatusCode)
+            {
+                return true;
+            }
+        }
+        catch (Exception ex)
         {
-            match.Estado = "CANCELADA";
-            return true;
+            System.Diagnostics.Debug.WriteLine($"[ReservaRepository] Error al cancelar cita: {ex.Message}");
         }
 
         return false;
+    }
+
+    public async Task<string?> DescargarReporteCsvAsync()
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync("admin/reportes/exportar");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsStringAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ReservaRepository] Error al descargar reporte CSV: {ex.Message}");
+        }
+        return null;
     }
 }

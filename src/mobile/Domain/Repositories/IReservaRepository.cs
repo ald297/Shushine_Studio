@@ -16,4 +16,5 @@ public interface IReservaRepository
     Task<Reserva?> CrearReservaAsync(long estilistaId, DateTime fechaCita, string horaInicio, List<int> servicioIds, string? notas, string metodoPago = "Efectivo");
     Task<Reserva?> CrearReservaAsync(long servicioId, long? estilistaId, DateTime fechaHora, string? notas);
     Task<bool> CancelarReservaAsync(long reservaId, string? motivo = null);
+    Task<string?> DescargarReporteCsvAsync();
 }

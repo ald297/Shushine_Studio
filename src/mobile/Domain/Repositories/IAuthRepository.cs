@@ -10,4 +10,6 @@ public interface IAuthRepository
     Task LogoutAsync();
     Task<bool> IsAuthenticatedAsync();
     Task<Usuario?> GetCurrentUserAsync();
+    Task<bool> CambiarClaveAsync(string claveActual, string nuevaClave, string confirmarClave);
+    Task<Usuario?> ActualizarPerfilAsync(string nombre, string apellido, string telefono, string? correo);
 }

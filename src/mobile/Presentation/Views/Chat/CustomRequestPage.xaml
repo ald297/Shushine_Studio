@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Chat"
+    xmlns:models="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
     x:DataType="vm:CustomRequestViewModel"
     Shell.NavBarIsVisible="false"
     BackgroundColor="{StaticResource Background}">
@@ -62,28 +63,28 @@
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Spacing="0" Padding="20,20,20,20">
 
-                <!-- Banner: UI preparada — backend no disponible -->
+                <!-- Mensaje de éxito -->
                 <Frame
-                    IsVisible="{Binding ShowUnavailableBanner}"
-                    BackgroundColor="#FFF3E0"
-                    BorderColor="#FFB300"
+                    IsVisible="{Binding HasSuccessMessage}"
+                    BackgroundColor="#E8F5E9"
+                    BorderColor="#81C784"
                     CornerRadius="10"
                     Padding="14,10"
                     HasShadow="False"
-                    Margin="0,0,0,20">
+                    Margin="0,0,0,16">
                     <HorizontalStackLayout Spacing="10">
-                        <Label Text="⚠" FontSize="15" VerticalOptions="Center" TextColor="#E65100" />
+                        <Label Text="✓" FontSize="16" FontAttributes="Bold" TextColor="#2E7D32" VerticalOptions="Center" />
                         <Label
-                            Text="UI preparada — backend no disponible. Este módulo se integrará cuando el backend soporte solicitudes personalizadas."
+                            Text="{Binding SuccessMessage}"
                             FontFamily="PlusJakartaSans"
-                            FontSize="12"
-                            TextColor="#BF360C"
+                            FontSize="13"
+                            TextColor="#1B5E20"
                             VerticalOptions="Center" />
                     </HorizontalStackLayout>
                 </Frame>
 
                 <!-- Introducción -->
-                <VerticalStackLayout Spacing="8" Margin="0,0,0,24">
+                <VerticalStackLayout Spacing="8" Margin="0,0,0,20">
                     <Label
                         Text="Cuéntanos qué diseño tienes en mente"
                         FontFamily="PlayfairDisplay"
@@ -102,6 +103,32 @@
                         BackgroundColor="{StaticResource Secondary}"
                         HorizontalOptions="Start"
                         Margin="0,4,0,0" />
+                </VerticalStackLayout>
+
+                <!-- Campo: Tipo de servicio (opcional) -->
+                <VerticalStackLayout Spacing="8" Margin="0,0,0,16">
+                    <Label
+                        Text="Servicio o especialidad (opcional)"
+                        FontFamily="PlusJakartaSans"
+                        FontSize="13"
+                        FontAttributes="Bold"
+                        TextColor="{StaticResource TextPrimary}" />
+                    <Frame
+                        BackgroundColor="{StaticResource InputBackground}"
+                        BorderColor="{StaticResource Border}"
+                        CornerRadius="12"
+                        Padding="16,0"
+                        HasShadow="False"
+                        HeightRequest="48">
+                        <Entry
+                            Text="{Binding ServicioDeseado}"
+                            Placeholder="Ej: Uñas acrílicas, Tintes, Peinado de fiesta..."
+                            PlaceholderColor="{StaticResource TextSecondary}"
+                            FontFamily="PlusJakartaSans"
+                            FontSize="14"
+                            TextColor="{StaticResource TextPrimary}"
+                            VerticalOptions="Center" />
+                    </Frame>
                 </VerticalStackLayout>
 
                 <!-- Campo: Descripción -->
@@ -130,7 +157,7 @@
                     </Frame>
                 </VerticalStackLayout>
 
-                <!-- Imagen de referencia (UI preparada) -->
+                <!-- Imagen de referencia -->
                 <VerticalStackLayout Spacing="8" Margin="0,0,0,20">
                     <Label
                         Text="Imagen de referencia (opcional)"
@@ -139,77 +166,73 @@
                         FontAttributes="Bold"
                         TextColor="{StaticResource TextPrimary}" />
 
-                    <Frame
+                    <!-- Estado: sin imagen adjunta -->
+                    <Border
+                        IsVisible="{Binding HasAttachedImage, Converter={StaticResource InvertedBoolConverter}}"
+                        Stroke="{StaticResource Border}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12"
                         BackgroundColor="{StaticResource InputBackground}"
-                        BorderColor="{StaticResource Border}"
-                        CornerRadius="12"
-                        Padding="0"
-                        HasShadow="False"
-                        HeightRequest="100">
-                        <VerticalStackLayout
-                            HorizontalOptions="Center"
-                            VerticalOptions="Center"
-                            Spacing="6">
+                        Padding="16">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding AttachImageCommand}" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
+                            <Label Text="📎" FontSize="26" HorizontalOptions="Center" />
                             <Label
-                                Text="📎"
-                                FontSize="28"
-                                HorizontalOptions="Center" />
-                            <Label
-                                Text="Agregar referencia"
+                                Text="Toca para adjuntar una foto de referencia"
                                 FontFamily="PlusJakartaSans"
-                                FontSize="14"
+                                FontSize="13"
                                 TextColor="{StaticResource Secondary}"
                                 FontAttributes="Bold"
                                 HorizontalOptions="Center" />
-                            <Label
-                                Text="Disponible cuando el backend lo soporte"
-                                FontFamily="PlusJakartaSans"
-                                FontSize="11"
-                                TextColor="{StaticResource TextSecondary}"
-                                HorizontalOptions="Center" />
+                            <ActivityIndicator
+                                IsRunning="{Binding IsUploadingImage}"
+                                IsVisible="{Binding IsUploadingImage}"
+                                Color="{StaticResource Primary}"
+                                WidthRequest="20"
+                                HeightRequest="20" />
                         </VerticalStackLayout>
-                    </Frame>
-                </VerticalStackLayout>
+                    </Border>
 
-                <!-- Aviso de cotización -->
-                <Frame
-                    BackgroundColor="#F3E5F5"
-                    BorderColor="#CE93D8"
-                    CornerRadius="10"
-                    Padding="14,12"
-                    HasShadow="False"
-                    Margin="0,0,0,24">
-                    <VerticalStackLayout Spacing="4">
-                        <Label
-                            Text="¿Cómo funciona?"
-                            FontFamily="PlusJakartaSans"
-                            FontSize="13"
-                            FontAttributes="Bold"
-                            TextColor="{StaticResource Primary}" />
-                        <Label
-                            Text="1. Envías tu solicitud con tu descripción e imagen de referencia."
-                            FontFamily="PlusJakartaSans"
-                            FontSize="12"
-                            TextColor="{StaticResource TextSecondary}" />
-                        <Label
-                            Text="2. Nuestro equipo la revisa y te responde con una cotización."
-                            FontFamily="PlusJakartaSans"
-                            FontSize="12"
-                            TextColor="{StaticResource TextSecondary}" />
-                        <Label
-                            Text="3. Si aceptas, puedes agendar tu cita directamente."
-                            FontFamily="PlusJakartaSans"
-                            FontSize="12"
-                            TextColor="{StaticResource TextSecondary}" />
-                        <Label
-                            Text="La cotización final depende de la revisión del administrador."
-                            FontFamily="PlusJakartaSans"
-                            FontSize="11"
-                            TextColor="{StaticResource Primary}"
-                            FontAttributes="Italic"
-                            Margin="0,4,0,0" />
-                    </VerticalStackLayout>
-                </Frame>
+                    <!-- Estado: imagen adjunta -->
+                    <Border
+                        IsVisible="{Binding HasAttachedImage}"
+                        Stroke="{StaticResource Secondary}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12"
+                        BackgroundColor="{StaticResource Surface}"
+                        Padding="12">
+                        <Grid ColumnDefinitions="60,*,Auto" ColumnSpacing="12">
+                            <Image
+                                Grid.Column="0"
+                                Source="{Binding AttachedImageUrl}"
+                                Aspect="AspectFill"
+                                WidthRequest="60"
+                                HeightRequest="60">
+                                <Image.Clip>
+                                    <RoundRectangleGeometry CornerRadius="8" Rect="0,0,60,60" />
+                                </Image.Clip>
+                            </Image>
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                <Label Text="Foto adjunta" FontFamily="PlusJakartaSans" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                <Label Text="Lista para enviar con tu solicitud" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+                            <Button
+                                Grid.Column="2"
+                                Text="✕"
+                                Command="{Binding QuitarImagenCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="#C62828"
+                                FontSize="16"
+                                FontAttributes="Bold"
+                                WidthRequest="40"
+                                HeightRequest="40"
+                                Padding="0"
+                                VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
 
                 <!-- Error banner -->
                 <Frame
@@ -229,12 +252,23 @@
 
                 <!-- Historial de solicitudes -->
                 <VerticalStackLayout Spacing="12" Margin="0,8,0,0">
-                    <Label
-                        Text="Mis solicitudes"
-                        FontFamily="PlayfairDisplay"
-                        FontSize="17"
-                        FontAttributes="Bold"
-                        TextColor="{StaticResource TextPrimary}" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Label
+                            Text="Mis solicitudes"
+                            FontFamily="PlayfairDisplay"
+                            FontSize="17"
+                            FontAttributes="Bold"
+                            TextColor="{StaticResource TextPrimary}" />
+                        <Button
+                            Text="↻"
+                            Command="{Binding CargarSolicitudesCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource Primary}"
+                            FontSize="16"
+                            Padding="4,0"
+                            HeightRequest="32"
+                            WidthRequest="32" />
+                    </HorizontalStackLayout>
 
                     <!-- Estado vacío -->
                     <Frame
@@ -245,10 +279,7 @@
                         Padding="20"
                         HasShadow="False">
                         <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                            <Label
-                                Text="✨"
-                                FontSize="28"
-                                HorizontalOptions="Center" />
+                            <Label Text="✨" FontSize="28" HorizontalOptions="Center" />
                             <Label
                                 Text="Sin solicitudes todavía"
                                 FontFamily="PlusJakartaSans"
@@ -257,7 +288,7 @@
                                 TextColor="{StaticResource TextPrimary}"
                                 HorizontalOptions="Center" />
                             <Label
-                                Text="Tus solicitudes personalizadas aparecerán aquí."
+                                Text="Tus solicitudes personalizadas y cotizaciones aparecerán aquí."
                                 FontFamily="PlusJakartaSans"
                                 FontSize="12"
                                 TextColor="{StaticResource TextSecondary}"
@@ -266,55 +297,111 @@
                         </VerticalStackLayout>
                     </Frame>
 
-                    <!-- Lista (vacía hasta que haya backend) -->
-                    <CollectionView
-                        IsVisible="{Binding HasRequests}"
-                        ItemsSource="{Binding Requests}">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="vm:CustomRequestItem">
-                                <Frame
+                    <!-- Lista de solicitudes reales -->
+                    <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Requests}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:SolicitudDiseno">
+                                <Border
                                     BackgroundColor="{StaticResource Surface}"
-                                    BorderColor="{StaticResource Border}"
-                                    CornerRadius="12"
-                                    Padding="16,14"
-                                    HasShadow="False"
-                                    Margin="0,0,0,10">
-                                    <Grid ColumnDefinitions="*,Auto">
-                                        <VerticalStackLayout Grid.Column="0" Spacing="4">
-                                            <Label
-                                                Text="{Binding Description}"
-                                                FontFamily="PlusJakartaSans"
-                                                FontSize="14"
-                                                FontAttributes="Bold"
-                                                TextColor="{StaticResource TextPrimary}"
-                                                LineBreakMode="TailTruncation"
-                                                MaxLines="2" />
-                                            <Label
-                                                Text="{Binding DateDisplay}"
-                                                FontFamily="PlusJakartaSans"
-                                                FontSize="12"
-                                                TextColor="{StaticResource TextSecondary}" />
-                                        </VerticalStackLayout>
-                                        <Frame
-                                            Grid.Column="1"
+                                    Stroke="{StaticResource Border}"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 12"
+                                    Padding="16,14">
+                                    <VerticalStackLayout Spacing="10">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                                <Label
+                                                    Text="{Binding NotasCliente}"
+                                                    FontFamily="PlusJakartaSans"
+                                                    FontSize="14"
+                                                    FontAttributes="Bold"
+                                                    TextColor="{StaticResource TextPrimary}" />
+                                                <Label
+                                                    Text="{Binding FechaTexto}"
+                                                    FontFamily="PlusJakartaSans"
+                                                    FontSize="11"
+                                                    TextColor="{StaticResource TextSecondary}" />
+                                            </VerticalStackLayout>
+
+                                            <!-- Badge de Estado -->
+                                            <Frame
+                                                Grid.Column="1"
+                                                BackgroundColor="#F3E5F5"
+                                                BorderColor="{StaticResource Border}"
+                                                CornerRadius="8"
+                                                Padding="10,4"
+                                                HasShadow="False"
+                                                VerticalOptions="Start">
+                                                <Label
+                                                    Text="{Binding Estado}"
+                                                    FontFamily="PlusJakartaSans"
+                                                    FontSize="11"
+                                                    FontAttributes="Bold"
+                                                    TextColor="{StaticResource Primary}" />
+                                            </Frame>
+                                        </Grid>
+
+                                        <!-- Foto de referencia enviada -->
+                                        <Image
+                                            IsVisible="{Binding TieneFoto}"
+                                            Source="{Binding ImagenesReferenciaUrls}"
+                                            Aspect="AspectFit"
+                                            HeightRequest="120"
+                                            HorizontalOptions="Start" />
+
+                                        <!-- Sección de Cotización si el salón ya respondió -->
+                                        <Border
+                                            IsVisible="{Binding TieneCotizacion}"
+                                            Stroke="#CE93D8"
+                                            StrokeThickness="1"
+                                            StrokeShape="RoundRectangle 8"
                                             BackgroundColor="#F3E5F5"
-                                            BorderColor="#CE93D8"
-                                            CornerRadius="8"
-                                            Padding="10,4"
-                                            HasShadow="False"
-                                            VerticalOptions="Center">
-                                            <Label
-                                                Text="{Binding StatusDisplay}"
-                                                FontFamily="PlusJakartaSans"
-                                                FontSize="11"
-                                                FontAttributes="Bold"
-                                                TextColor="{StaticResource Primary}" />
-                                        </Frame>
-                                    </Grid>
-                                </Frame>
+                                            Padding="12"
+                                            Margin="0,4,0,0">
+                                            <VerticalStackLayout Spacing="6">
+                                                <HorizontalStackLayout Spacing="8">
+                                                    <Label Text="Cotización:" FontFamily="PlusJakartaSans" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
+                                                    <Label Text="{Binding Cotizacion.PrecioTexto}" FontFamily="PlusJakartaSans" FontSize="14" FontAttributes="Bold" TextColor="#2E7D32" />
+                                                </HorizontalStackLayout>
+                                                <Label
+                                                    Text="{Binding Cotizacion.DescripcionTrabajo}"
+                                                    FontFamily="PlusJakartaSans"
+                                                    FontSize="12"
+                                                    TextColor="{StaticResource TextPrimary}" />
+
+                                                <!-- Botones Aceptar / Rechazar si está propuesta -->
+                                                <HorizontalStackLayout
+                                                    IsVisible="{Binding EsCotizacionPropuesta}"
+                                                    Spacing="12"
+                                                    Margin="0,6,0,0">
+                                                    <Button
+                                                        Text="Aceptar"
+                                                        BackgroundColor="#2E7D32"
+                                                        TextColor="White"
+                                                        FontSize="12"
+                                                        FontAttributes="Bold"
+                                                        HeightRequest="36"
+                                                        CornerRadius="8"
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CustomRequestViewModel}}, Path=AceptarCotizacionCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                                    <Button
+                                                        Text="Rechazar"
+                                                        BackgroundColor="#C62828"
+                                                        TextColor="White"
+                                                        FontSize="12"
+                                                        FontAttributes="Bold"
+                                                        HeightRequest="36"
+                                                        CornerRadius="8"
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CustomRequestViewModel}}, Path=RechazarCotizacionCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                                </HorizontalStackLayout>
+                                            </VerticalStackLayout>
+                                        </Border>
+                                    </VerticalStackLayout>
+                                </Border>
                             </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
 
             </VerticalStackLayout>

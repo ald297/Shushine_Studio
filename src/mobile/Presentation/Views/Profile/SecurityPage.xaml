@@ -40,23 +40,7 @@
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Padding="20,24,20,24" Spacing="20">
 
-                <!-- Banner: UI preparada -->
-                <Frame
-                    BackgroundColor="#FFF3E0"
-                    BorderColor="#FFB300"
-                    CornerRadius="10"
-                    Padding="14,12"
-                    HasShadow="False">
-                    <VerticalStackLayout Spacing="4">
-                        <Label Text="⚠ UI preparada — función no disponible"
-                               FontFamily="PlusJakartaSans"
-                               FontSize="13" FontAttributes="Bold"
-                               TextColor="#E65100" />
-                        <Label Text="Esta función requiere soporte de autenticación en el backend. No existe endpoint de cambio de contraseña en AuthController."
-                               FontFamily="PlusJakartaSans"
-                               FontSize="12" TextColor="#BF360C" />
-                    </VerticalStackLayout>
-                </Frame>
+
 
                 <!-- Título de sección -->
                 <VerticalStackLayout Spacing="6">

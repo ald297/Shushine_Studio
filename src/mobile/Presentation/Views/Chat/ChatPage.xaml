@@ -169,50 +169,64 @@
         <!-- ══════════════════════════════════════════ -->
         <!-- LISTA DE MENSAJES                          -->
         <!-- ══════════════════════════════════════════ -->
-        <ScrollView
+        <CollectionView
             Grid.Row="1"
-            IsVisible="{Binding HasMessages}">
-            <CollectionView
-                ItemsSource="{Binding Messages}"
-                Margin="16,12">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="vm:ChatMessageItem">
-                        <Grid Margin="0,4">
-                            <Frame Style="{StaticResource ClientBubble}" IsVisible="{Binding IsFromClient}">
-                                <VerticalStackLayout Spacing="4">
-                                    <Label
-                                        Text="{Binding Content}"
-                                        FontFamily="PlusJakartaSans"
-                                        FontSize="14"
-                                        TextColor="{StaticResource TextLight}" />
-                                    <Label
-                                        Text="{Binding TimeDisplay}"
-                                        FontFamily="PlusJakartaSans"
-                                        FontSize="10"
-                                        TextColor="#FFFFFF99"
-                                        HorizontalOptions="End" />
-                                </VerticalStackLayout>
-                            </Frame>
-                            <Frame Style="{StaticResource SalonBubble}" IsVisible="{Binding IsNotFromClient}">
-                                <VerticalStackLayout Spacing="4">
-                                    <Label
-                                        Text="{Binding Content}"
-                                        FontFamily="PlusJakartaSans"
-                                        FontSize="14"
-                                        TextColor="{StaticResource TextPrimary}" />
-                                    <Label
-                                        Text="{Binding TimeDisplay}"
-                                        FontFamily="PlusJakartaSans"
-                                        FontSize="10"
-                                        TextColor="{StaticResource TextSecondary}"
-                                        HorizontalOptions="End" />
-                                </VerticalStackLayout>
-                            </Frame>
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </ScrollView>
+            ItemsSource="{Binding Messages}"
+            IsVisible="{Binding HasMessages}"
+            Margin="16,12">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:ChatMessageItem">
+                    <Grid Margin="0,4">
+                        <Frame Style="{StaticResource ClientBubble}" IsVisible="{Binding IsFromClient}">
+                            <VerticalStackLayout Spacing="4">
+                                <Image
+                                    IsVisible="{Binding TieneImagen}"
+                                    Source="{Binding ImagenUrl}"
+                                    Aspect="AspectFill"
+                                    MaximumHeightRequest="200"
+                                    MaximumWidthRequest="220"
+                                    HorizontalOptions="End" />
+                                <Label
+                                    IsVisible="{Binding TieneTexto}"
+                                    Text="{Binding Content}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="14"
+                                    TextColor="{StaticResource TextLight}" />
+                                <Label
+                                    Text="{Binding TimeDisplay}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="10"
+                                    TextColor="#FFFFFF99"
+                                    HorizontalOptions="End" />
+                            </VerticalStackLayout>
+                        </Frame>
+                        <Frame Style="{StaticResource SalonBubble}" IsVisible="{Binding IsNotFromClient}">
+                            <VerticalStackLayout Spacing="4">
+                                <Image
+                                    IsVisible="{Binding TieneImagen}"
+                                    Source="{Binding ImagenUrl}"
+                                    Aspect="AspectFill"
+                                    MaximumHeightRequest="200"
+                                    MaximumWidthRequest="220"
+                                    HorizontalOptions="Start" />
+                                <Label
+                                    IsVisible="{Binding TieneTexto}"
+                                    Text="{Binding Content}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="14"
+                                    TextColor="{StaticResource TextPrimary}" />
+                                <Label
+                                    Text="{Binding TimeDisplay}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="10"
+                                    TextColor="{StaticResource TextSecondary}"
+                                    HorizontalOptions="End" />
+                            </VerticalStackLayout>
+                        </Frame>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
         <!-- ══════════════════════════════════════════ -->
         <!-- COMPOSITOR DE MENSAJE                      -->
@@ -254,14 +268,35 @@
                 </Grid>
             </Frame>
 
-            <!-- Campo texto + Enviar -->
+            <!-- Campo texto + Foto + Enviar -->
             <Grid
                 Grid.Row="1"
-                ColumnDefinitions="*,Auto"
-                ColumnSpacing="10">
+                ColumnDefinitions="Auto,*,Auto"
+                ColumnSpacing="8">
 
+                <!-- Botón adjuntar imagen -->
                 <Frame
                     Grid.Column="0"
+                    WidthRequest="44"
+                    HeightRequest="44"
+                    CornerRadius="22"
+                    Padding="0"
+                    HasShadow="False"
+                    BackgroundColor="{StaticResource InputBackground}">
+                    <Button
+                        Text="📷"
+                        Command="{Binding AttachImageCommand}"
+                        BackgroundColor="Transparent"
+                        FontSize="18"
+                        WidthRequest="44"
+                        HeightRequest="44"
+                        Padding="0"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center" />
+                </Frame>
+
+                <Frame
+                    Grid.Column="1"
                     BackgroundColor="{StaticResource InputBackground}"
                     BorderColor="{StaticResource Border}"
                     CornerRadius="22"
@@ -282,10 +317,10 @@
 
                 <!-- Botón enviar -->
                 <Frame
-                    Grid.Column="1"
-                    WidthRequest="48"
-                    HeightRequest="48"
-                    CornerRadius="24"
+                    Grid.Column="2"
+                    WidthRequest="44"
+                    HeightRequest="44"
+                    CornerRadius="22"
                     Padding="0"
                     HasShadow="False"
                     BackgroundColor="{StaticResource Primary}">
@@ -295,16 +330,16 @@
                             Source="send.png"
                             Command="{Binding SendMessageCommand}"
                             BackgroundColor="Transparent"
-                            WidthRequest="22"
-                            HeightRequest="22"
+                            WidthRequest="20"
+                            HeightRequest="20"
                             HorizontalOptions="Center"
                             VerticalOptions="Center" />
                         <ActivityIndicator
                             IsVisible="{Binding IsSending}"
                             IsRunning="{Binding IsSending}"
                             Color="{StaticResource TextLight}"
-                            WidthRequest="22"
-                            HeightRequest="22"
+                            WidthRequest="20"
+                            HeightRequest="20"
                             HorizontalOptions="Center"
                             VerticalOptions="Center" />
                     </Grid>

@@ -13,11 +13,19 @@ public partial class LoginViewModel : BaseViewModel
 {
     private readonly IAuthRepository _authRepository;
 
+#if DEBUG
+    [ObservableProperty]
+    private string email = "cliente";
+
+    [ObservableProperty]
+    private string password = "cliente123";
+#else
     [ObservableProperty]
     private string email = string.Empty;
 
     [ObservableProperty]
     private string password = string.Empty;
+#endif
 
     [ObservableProperty]
     private bool isPasswordHidden = true;
@@ -64,26 +72,15 @@ public partial class LoginViewModel : BaseViewModel
                 var currentUser = await _authRepository.GetCurrentUserAsync();
                 var rol = currentUser?.Rol?.ToUpperInvariant() ?? "CLIENTE";
 
-                if (rol.Contains("ADMIN"))
+                if (Shell.Current is AppShell appShell)
                 {
-                    if (Shell.Current is AppShell appShell)
+                    if (rol.Contains("ADMIN"))
                     {
                         appShell.SwitchToRole("ADMIN");
                     }
                     else
                     {
-                        await Shell.Current.GoToAsync("//AdminTabs/AdminDashboardPage");
-                    }
-                }
-                else
-                {
-                    if (Shell.Current is AppShell appShell)
-                    {
                         appShell.SwitchToRole("CLIENTE");
-                    }
-                    else
-                    {
-                        await Shell.Current.GoToAsync("//MainTabs/CatalogPage");
                     }
                 }
             }

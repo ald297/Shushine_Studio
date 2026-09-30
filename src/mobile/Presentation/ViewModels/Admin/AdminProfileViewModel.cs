@@ -5,8 +5,14 @@ using ShushineStudio.Mobile.Domain.Repositories;
 namespace ShushineStudio.Mobile.Presentation.ViewModels.Admin;
 
 /// <summary>
-/// ViewModel para el Perfil Administrativo y Parámetros Operativos del Salón (US-5.01 / Panel Ejecutivo).
-/// Ofrece al gerente visibilidad de identidad, configuración operativa, métricas globales y cierre de sesión seguro.
+/// ViewModel para el Perfil Administrativo de Shushine Studio.
+/// Carga datos reales desde GET /api/auth/me y métricas operativas del servidor.
+/// Organizado estrictamente en secciones:
+/// - Mi Información (Nombre, Apellido, Correo, Teléfono, Usuario)
+/// - Cuenta (Rol, Estado, Seguridad)
+/// - Preferencias Locales
+/// - Aplicación
+/// - Sesión (Cierre de sesión seguro)
 /// </summary>
 public partial class AdminProfileViewModel : BaseViewModel
 {
@@ -15,27 +21,39 @@ public partial class AdminProfileViewModel : BaseViewModel
     private readonly IEstilistaRepository _estilistaRepository;
     private readonly IReservaRepository _reservaRepository;
 
+    // ────────────────────────────────────────────────────────────
+    // 1. Mi Información (Datos Reales desde GET /api/auth/me)
+    // ────────────────────────────────────────────────────────────
     [ObservableProperty]
-    private string nombreGerente = "Alex Fernando Alfaro";
+    private string nombre = string.Empty;
 
     [ObservableProperty]
-    private string emailGerente = "admin@shunshinestudio.com";
+    private string apellido = string.Empty;
 
     [ObservableProperty]
-    private string rol = "ADMINISTRADOR GENERAL";
+    private string nombreCompleto = "Administrador General";
 
     [ObservableProperty]
-    private string sucursal = "Sede Central • ESFE AGAPE";
+    private string login = "admin";
 
     [ObservableProperty]
-    private string horarioOperativo = "Lunes a Sábado • 09:00 AM - 08:30 PM";
+    private string correo = "admin@shushinestudio.com";
 
     [ObservableProperty]
-    private string politicaFiscal = "13% IVA Incluido • Normativa El Salvador";
+    private string telefono = "No registrado";
 
     [ObservableProperty]
-    private string backendInfo = "Spring Boot 3.3.3 & Supabase Cloud";
+    private string rol = "Administrador";
 
+    [ObservableProperty]
+    private string estadoCuenta = "Activa / Operativa";
+
+    [ObservableProperty]
+    private string iniciales = "AD";
+
+    // ────────────────────────────────────────────────────────────
+    // 2. Métricas Operativas del Salón (Servidor Real)
+    // ────────────────────────────────────────────────────────────
     [ObservableProperty]
     private int totalServicios;
 
@@ -45,15 +63,24 @@ public partial class AdminProfileViewModel : BaseViewModel
     [ObservableProperty]
     private int totalCitasHoy;
 
-    // Toast de Notificación Boutique Flotante
+    // ────────────────────────────────────────────────────────────
+    // 3. Preferencias Locales
+    // ────────────────────────────────────────────────────────────
     [ObservableProperty]
-    private bool isToastVisible;
+    private bool notificacionesPush = true;
 
     [ObservableProperty]
-    private string toastTitulo = string.Empty;
+    private bool sonidoNotificaciones = true;
 
     [ObservableProperty]
-    private string toastMensaje = string.Empty;
+    private bool recordatoriosAgenda = true;
+
+    // ────────────────────────────────────────────────────────────
+    // 4. Información de la Aplicación
+    // ────────────────────────────────────────────────────────────
+    public string AppNombre => "Shushine Studio";
+    public string AppVersion => "1.1.0";
+    public string AppInfo => "Sistema de Gestión y Reservas de Salón de Belleza • Clean Architecture + MVVM";
 
     public AdminProfileViewModel(
         IAuthRepository authRepository,
@@ -66,9 +93,21 @@ public partial class AdminProfileViewModel : BaseViewModel
         _estilistaRepository = estilistaRepository;
         _reservaRepository = reservaRepository;
 
-        Title = "Perfil de Administración";
+        Title = "Perfil Administrador";
+        CargarPreferenciasLocales();
         _ = CargarDatosAdminAsync();
     }
+
+    private void CargarPreferenciasLocales()
+    {
+        NotificacionesPush = Preferences.Default.Get("Admin_NotifPush", true);
+        SonidoNotificaciones = Preferences.Default.Get("Admin_SonidoNotif", true);
+        RecordatoriosAgenda = Preferences.Default.Get("Admin_RecordatoriosAgenda", true);
+    }
+
+    partial void OnNotificacionesPushChanged(bool value) => Preferences.Default.Set("Admin_NotifPush", value);
+    partial void OnSonidoNotificacionesChanged(bool value) => Preferences.Default.Set("Admin_SonidoNotif", value);
+    partial void OnRecordatoriosAgendaChanged(bool value) => Preferences.Default.Set("Admin_RecordatoriosAgenda", value);
 
     [RelayCommand]
     public async Task CargarDatosAdminAsync()
@@ -78,27 +117,51 @@ public partial class AdminProfileViewModel : BaseViewModel
         try
         {
             IsBusy = true;
+            ErrorMessage = string.Empty;
 
+            // 1. Cargar usuario autenticado desde backend (GET /api/auth/me)
             var user = await _authRepository.GetCurrentUserAsync();
             if (user != null)
             {
-                NombreGerente = !string.IsNullOrWhiteSpace(user.NombreCompleto) ? user.NombreCompleto : "Administración Shunshine Studio";
-                EmailGerente = !string.IsNullOrWhiteSpace(user.Email) ? user.Email : "admin@shunshinestudio.com";
-                Rol = user.Rol == "ADMIN" ? "ADMINISTRADOR GENERAL" : user.Rol;
+                var partes = user.NombreCompleto?.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries) ?? [];
+                Nombre = !string.IsNullOrWhiteSpace(user.Nombre) ? user.Nombre : (partes.Length > 0 ? partes[0] : "Admin");
+                Apellido = !string.IsNullOrWhiteSpace(user.Apellido) ? user.Apellido : (partes.Length > 1 ? partes[1] : string.Empty);
+                NombreCompleto = !string.IsNullOrWhiteSpace(user.NombreCompleto) ? user.NombreCompleto : $"{Nombre} {Apellido}".Trim();
+                Login = !string.IsNullOrWhiteSpace(user.Login) ? user.Login : "admin";
+                Correo = !string.IsNullOrWhiteSpace(user.Email) ? user.Email : $"{Login}@shushinestudio.com";
+                Telefono = !string.IsNullOrWhiteSpace(user.Telefono) ? user.Telefono : "No registrado";
+                Rol = "Administrador";
+                EstadoCuenta = user.Activo ? "Activa / Operativa" : "Inactiva";
+
+                // Iniciales generadas localmente
+                if (!string.IsNullOrWhiteSpace(user.Iniciales))
+                {
+                    Iniciales = user.Iniciales;
+                }
+                else
+                {
+                    var initPartes = NombreCompleto.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    Iniciales = string.Concat(initPartes.Take(2).Select(p => p[0])).ToUpperInvariant();
+                }
             }
 
+            // 2. Cargar contadores operativos reales
             var servicios = await _servicioRepository.GetServiciosAsync();
             TotalServicios = servicios.Count();
 
             var estilistas = await _estilistaRepository.GetTodosEstilistasAsync();
             TotalEstilistas = estilistas.Count();
 
-            var citas = await _reservaRepository.GetTodasCitasAdminAsync();
-            TotalCitasHoy = citas.Count(c => c.FechaHoraInicio.Date == DateTime.Today);
+            var metricas = await _reservaRepository.GetDashboardMetricasAsync();
+            if (metricas != null)
+            {
+                TotalCitasHoy = (int)metricas.TotalCitasHoy;
+            }
         }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
+            ErrorMessage = "Error al sincronizar datos de perfil.";
+            System.Diagnostics.Debug.WriteLine($"[AdminProfileViewModel] Error: {ex.Message}");
         }
         finally
         {
@@ -106,22 +169,28 @@ public partial class AdminProfileViewModel : BaseViewModel
         }
     }
 
-    public void MostrarToast(string titulo, string mensaje)
+    [RelayCommand]
+    private async Task IrAEditarPerfilAsync()
     {
-        ToastTitulo = titulo;
-        ToastMensaje = mensaje;
-        IsToastVisible = true;
-        _ = Task.Run(async () =>
-        {
-            await Task.Delay(3500);
-            MainThread.BeginInvokeOnMainThread(() => IsToastVisible = false);
-        });
+        await Shell.Current.GoToAsync("EditProfilePage");
     }
 
     [RelayCommand]
-    private void CerrarToast()
+    private async Task IrASeguridadAsync()
     {
-        IsToastVisible = false;
+        await Shell.Current.GoToAsync("SecurityPage");
+    }
+
+    [RelayCommand]
+    private async Task IrAPreferenciasAsync()
+    {
+        await Shell.Current.GoToAsync("PreferencesPage");
+    }
+
+    [RelayCommand]
+    private async Task IrAInfoAppAsync()
+    {
+        await Shell.Current.GoToAsync("AppInfoPage");
     }
 
     [RelayCommand]
@@ -130,9 +199,9 @@ public partial class AdminProfileViewModel : BaseViewModel
         if (Application.Current?.MainPage == null) return;
 
         bool confirm = await Application.Current.MainPage.DisplayAlert(
-            "Cerrar Sesión de Administrador",
-            "¿Estás seguro de que deseas salir del panel de administración de Shunshine Studio?",
             "Cerrar Sesión",
+            "¿Estás seguro de que deseas cerrar tu sesión de Administrador?",
+            "Sí, salir",
             "Cancelar"
         );
 
@@ -143,25 +212,10 @@ public partial class AdminProfileViewModel : BaseViewModel
             {
                 appShell.SwitchToLogin();
             }
-            await Shell.Current.GoToAsync("//LoginPage");
+            else
+            {
+                await Shell.Current.GoToAsync("//LoginPage");
+            }
         }
-    }
-
-    [RelayCommand]
-    private async Task IrACatalogoAsync()
-    {
-        await Shell.Current.GoToAsync("//AdminTabs/AdminCatalogPage");
-    }
-
-    [RelayCommand]
-    private async Task IrAEstilistasAsync()
-    {
-        await Shell.Current.GoToAsync("//AdminTabs/AdminEstilistasPage");
-    }
-
-    [RelayCommand]
-    private async Task IrAAgendaAsync()
-    {
-        await Shell.Current.GoToAsync("//AdminTabs/TimelineAgendaPage");
     }
 }

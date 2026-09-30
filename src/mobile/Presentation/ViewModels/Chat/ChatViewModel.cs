@@ -66,6 +66,7 @@ public partial class ChatViewModel : ObservableObject
                     Id = m.Id,
                     ConversacionId = m.ConversacionId,
                     Content = m.Content,
+                    ImagenUrl = m.ImagenUrl,
                     IdRemitente = m.IdRemitente,
                     NombreRemitente = m.NombreRemitente,
                     RolRemitente = m.RolRemitente,
@@ -126,6 +127,7 @@ public partial class ChatViewModel : ObservableObject
                                         Id = item.Id,
                                         ConversacionId = item.ConversacionId,
                                         Content = item.Content,
+                                        ImagenUrl = item.ImagenUrl,
                                         IdRemitente = item.IdRemitente,
                                         NombreRemitente = item.NombreRemitente,
                                         RolRemitente = item.RolRemitente,
@@ -175,6 +177,75 @@ public partial class ChatViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task AttachImageAsync()
+    {
+        if (IsSending) return;
+
+        try
+        {
+            var accion = await Shell.Current.DisplayActionSheet(
+                "Enviar foto",
+                "Cancelar",
+                null,
+                "Tomar foto con cámara",
+                "Elegir de galería");
+
+            FileResult? result = null;
+            if (accion == "Tomar foto con cámara" && MediaPicker.Default.IsCaptureSupported)
+            {
+                result = await MediaPicker.Default.CapturePhotoAsync();
+            }
+            else if (accion == "Elegir de galería")
+            {
+                result = await MediaPicker.Default.PickPhotoAsync();
+            }
+
+            if (result == null) return;
+
+            IsSending = true;
+            OnPropertyChanged(nameof(IsNotSending));
+
+            using var stream = await result.OpenReadAsync();
+            var imageUrl = await _chatRepository.SubirImagenChatAsync(stream, result.FileName);
+
+            if (!string.IsNullOrEmpty(imageUrl))
+            {
+                var enviado = await _chatRepository.EnviarMensajeClienteAsync(string.Empty, imageUrl);
+                if (enviado != null)
+                {
+                    Messages.Add(new ChatMessageItem
+                    {
+                        Id = enviado.Id,
+                        ConversacionId = enviado.ConversacionId,
+                        Content = enviado.Content,
+                        ImagenUrl = enviado.ImagenUrl,
+                        IdRemitente = enviado.IdRemitente,
+                        NombreRemitente = enviado.NombreRemitente,
+                        RolRemitente = enviado.RolRemitente,
+                        EsMio = true,
+                        Timestamp = enviado.Timestamp,
+                        Leido = enviado.Leido
+                    });
+                    NotificarCambiosColeccion();
+                }
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert("Error", "No se pudo subir la imagen al servidor.", "OK");
+            }
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert("Error", "Error al procesar la foto: " + ex.Message, "OK");
+        }
+        finally
+        {
+            IsSending = false;
+            OnPropertyChanged(nameof(IsNotSending));
+        }
+    }
+
+    [RelayCommand]
     private async Task SendMessageAsync()
     {
         var texto = MessageText?.Trim();
@@ -196,6 +267,7 @@ public partial class ChatViewModel : ObservableObject
                     Id = enviado.Id,
                     ConversacionId = enviado.ConversacionId,
                     Content = enviado.Content,
+                    ImagenUrl = enviado.ImagenUrl,
                     IdRemitente = enviado.IdRemitente,
                     NombreRemitente = enviado.NombreRemitente,
                     RolRemitente = enviado.RolRemitente,
@@ -206,6 +278,11 @@ public partial class ChatViewModel : ObservableObject
 
                 MessageText = string.Empty;
                 NotificarCambiosColeccion();
+            }
+            else
+            {
+                HasError = true;
+                ErrorMessage = "No fue posible enviar el mensaje al servidor del salón. Por favor verifique su conexión o intente nuevamente.";
             }
         }
         catch (Exception ex)

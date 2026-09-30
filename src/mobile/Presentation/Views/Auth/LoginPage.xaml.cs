@@ -11,4 +11,10 @@ public partial class LoginPage : ContentPage
 		Shell.SetTabBarIsVisible(this, false);
 		Shell.SetNavBarIsVisible(this, false);
 	}
+
+	protected override bool OnBackButtonPressed()
+	{
+		// En la pantalla de login, no permitir que el botón Back de Android retroceda a pantallas protegidas
+		return true;
+	}
 }

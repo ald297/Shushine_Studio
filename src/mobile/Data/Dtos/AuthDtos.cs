@@ -66,6 +66,9 @@ public class UsuarioPerfilDto
     [JsonPropertyName("apellido")]
     public string? Apellido { get; set; }
 
+    [JsonPropertyName("correo")]
+    public string? Correo { get; set; }
+
     [JsonPropertyName("telefono")]
     public string? Telefono { get; set; }
 
@@ -78,9 +81,12 @@ public class UsuarioPerfilDto
     public Usuario ToEntity() => new()
     {
         Login = Login,
-        Email = Login.Contains("@") ? Login : $"{Login}@shushinestudio.com",
+        Email = !string.IsNullOrWhiteSpace(Correo) ? Correo : (Login.Contains("@") ? Login : $"{Login}@shushinestudio.com"),
         NombreCompleto = !string.IsNullOrEmpty(Apellido) ? $"{Nombre} {Apellido}" : Nombre,
+        Nombre = Nombre,
+        Apellido = Apellido,
         Rol = Rol,
-        Telefono = Telefono
+        Telefono = Telefono,
+        Activo = Activo
     };
 }

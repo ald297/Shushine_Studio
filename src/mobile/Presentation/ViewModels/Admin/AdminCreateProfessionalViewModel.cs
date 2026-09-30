@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShushineStudio.Mobile.Data.Services;
+using ShushineStudio.Mobile.Domain.Entities;
 using ShushineStudio.Mobile.Domain.Repositories;
 
 namespace ShushineStudio.Mobile.Presentation.ViewModels.Admin;
@@ -8,6 +9,8 @@ namespace ShushineStudio.Mobile.Presentation.ViewModels.Admin;
 public partial class AdminCreateProfessionalViewModel : ObservableObject
 {
     private readonly IAuthRepository _authRepository;
+    private readonly ITokenStorageService _tokenStorageService;
+    private readonly IEstilistaRepository _estilistaRepository;
 
     [ObservableProperty]
     private string title = "Nuevo Profesional";
@@ -18,7 +21,6 @@ public partial class AdminCreateProfessionalViewModel : ObservableObject
     [ObservableProperty]
     private bool isUnauthorized = false;
 
-    // Formulario preparado con campos de la entidad real Estilista
     [ObservableProperty]
     private string nombre = string.Empty;
 
@@ -38,14 +40,17 @@ public partial class AdminCreateProfessionalViewModel : ObservableObject
     private bool activo = true;
 
     [ObservableProperty]
-    private string avisoBackend = "La creación de profesionales no está disponible en el backend actual. La API de Shushine Studio cuenta actualmente con endpoints de consulta y disponibilidad para el equipo operativo.";
+    private bool isSaving = false;
 
-    private readonly ITokenStorageService _tokenStorageService;
-
-    public AdminCreateProfessionalViewModel(IAuthRepository authRepository, ITokenStorageService tokenStorageService)
+    public AdminCreateProfessionalViewModel(
+        IAuthRepository authRepository,
+        ITokenStorageService tokenStorageService,
+        IEstilistaRepository estilistaRepository)
     {
         _authRepository = authRepository;
         _tokenStorageService = tokenStorageService;
+        _estilistaRepository = estilistaRepository;
+
         _ = VerificarRolAdminAsync();
     }
 
@@ -74,13 +79,45 @@ public partial class AdminCreateProfessionalViewModel : ObservableObject
     [RelayCommand]
     private async Task GuardarAsync()
     {
-        if (Application.Current?.MainPage != null)
+        if (string.IsNullOrWhiteSpace(Nombre))
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Operación No Disponible",
-                "La creación de profesionales no está disponible en el backend actual.\n\nPara incorporar nuevos estilistas al equipo, contacte al administrador de la base de datos o espere a que la API habilite el endpoint POST correspondiente.",
-                "Entendido"
-            );
+            await Shell.Current.DisplayAlert("Validación", "Por favor ingresa el nombre del estilista.", "OK");
+            return;
+        }
+
+        try
+        {
+            IsSaving = true;
+            var nombreCompleto = string.IsNullOrWhiteSpace(Apellido)
+                ? Nombre.Trim()
+                : $"{Nombre.Trim()} {Apellido.Trim()}";
+
+            var estilista = new Estilista
+            {
+                NombreCompleto = nombreCompleto,
+                EspecialidadPrincipal = string.IsNullOrWhiteSpace(Especialidad) ? "Estilista Profesional" : Especialidad.Trim(),
+                ColorAgenda = string.IsNullOrWhiteSpace(ColorAgenda) ? "#C5A059" : ColorAgenda,
+                Activo = Activo
+            };
+
+            var exito = await _estilistaRepository.CrearEstilistaAsync(estilista);
+            if (exito)
+            {
+                await Shell.Current.DisplayAlert("Éxito", $"El profesional {nombreCompleto} fue registrado correctamente en la agenda.", "OK");
+                await Shell.Current.GoToAsync("..");
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert("Error", "No se pudo registrar al profesional en el servidor.", "OK");
+            }
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert("Error", "Error al registrar estilista: " + ex.Message, "OK");
+        }
+        finally
+        {
+            IsSaving = false;
         }
     }
 

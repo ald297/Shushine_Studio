@@ -86,19 +86,7 @@ public partial class AdminEstilistasViewModel : BaseViewModel
             ErrorMessage = null;
 
             var lista = await _estilistaRepository.GetTodosEstilistasAsync();
-            _todosEstilistas = lista.ToList();
-
-            // Si vino vacía de la API, asegurar lista inicial de estilistas para operar
-            if (_todosEstilistas.Count == 0)
-            {
-                _todosEstilistas = new List<Estilista>
-                {
-                    new Estilista { Id = 1, NombreCompleto = "Sofía Valenzuela", EspecialidadPrincipal = "Colorista Senior & Balayage", Activo = true, ColorAgenda = "#D48B96" },
-                    new Estilista { Id = 2, NombreCompleto = "Mateo Ramos", EspecialidadPrincipal = "Estilista & Cortes de Autor", Activo = true, ColorAgenda = "#C5A059" },
-                    new Estilista { Id = 3, NombreCompleto = "Camila Domínguez", EspecialidadPrincipal = "Especialista en Uñas & Spa", Activo = true, ColorAgenda = "#D8B4E2" },
-                    new Estilista { Id = 4, NombreCompleto = "Lucía Aguirre", EspecialidadPrincipal = "Estilista & Peinados de Novia", Activo = false, ColorAgenda = "#E8A598" }
-                };
-            }
+            _todosEstilistas = lista?.ToList() ?? new List<Estilista>();
 
             ActualizarContadores();
             AplicarFiltro();

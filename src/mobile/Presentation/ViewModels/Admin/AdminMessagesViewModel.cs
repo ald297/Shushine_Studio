@@ -189,6 +189,14 @@ public partial class AdminMessagesViewModel : ObservableObject
     private async Task RegresarALoginAsync()
     {
         DetenerPolling();
-        await Shell.Current.GoToAsync("//LoginPage");
+        await _authRepository.LogoutAsync();
+        if (Shell.Current is AppShell appShell)
+        {
+            appShell.SwitchToLogin();
+        }
+        else
+        {
+            await Shell.Current.GoToAsync("//LoginPage");
+        }
     }
 }

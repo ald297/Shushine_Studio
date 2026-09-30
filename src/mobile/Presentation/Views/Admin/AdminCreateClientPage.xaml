@@ -125,14 +125,12 @@
                             </Frame>
                         </VerticalStackLayout>
 
-                        <!-- BOTÓN GUARDAR (PREPARADO) -->
+                        <!-- BOTÓN GUARDAR -->
                         <Button
-                            Text="Guardar Cliente"
+                            Text="Guardar y Agendar Cita"
                             Command="{Binding GuardarClienteCommand}"
-                            BackgroundColor="Transparent"
-                            TextColor="{StaticResource Primary}"
-                            BorderColor="{StaticResource Primary}"
-                            BorderWidth="1"
+                            BackgroundColor="{StaticResource Primary}"
+                            TextColor="{StaticResource Surface}"
                             FontFamily="PlusJakartaSans"
                             FontSize="13" FontAttributes="Bold"
                             HeightRequest="46"

@@ -1,26 +1,17 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using ShushineStudio.Mobile.Domain.Entities;
+using ShushineStudio.Mobile.Domain.Repositories;
 
 namespace ShushineStudio.Mobile.Presentation.ViewModels.Chat;
 
 /// <summary>
-/// ViewModel para Solicitudes Personalizadas del cliente.
-///
-/// ESTADO BACKEND: UI preparada — backend no disponible.
-/// No existe ningún endpoint, entidad (Solicitud, SolicitudPersonalizada, Cotizacion),
-/// DTO ni repositorio en el backend actual (Spring Boot).
-/// Esta pantalla queda lista para integrarse cuando el backend implemente el módulo.
+/// ViewModel para Solicitudes Personalizadas del cliente conectadas a Spring Boot y PostgreSQL.
 /// </summary>
 public partial class CustomRequestViewModel : ObservableObject
 {
-    // ────────────────────────────────────────────────────────────
-    // Estado de UI
-    // ────────────────────────────────────────────────────────────
-
-    [ObservableProperty]
-    private bool _isBackendAvailable = false;
-    // ↑ false porque no existe endpoint de solicitudes en el backend actual.
+    private readonly ISolicitudRepository _solicitudRepository;
 
     [ObservableProperty]
     private bool _isLoading = false;
@@ -29,7 +20,19 @@ public partial class CustomRequestViewModel : ObservableObject
     private bool _isSubmitting = false;
 
     [ObservableProperty]
+    private bool _isUploadingImage = false;
+
+    [ObservableProperty]
     private string _description = string.Empty;
+
+    [ObservableProperty]
+    private string _servicioDeseado = string.Empty;
+
+    [ObservableProperty]
+    private string? _attachedImageUrl;
+
+    [ObservableProperty]
+    private bool _hasAttachedImage = false;
 
     [ObservableProperty]
     private bool _hasError = false;
@@ -43,49 +46,199 @@ public partial class CustomRequestViewModel : ObservableObject
     [ObservableProperty]
     private string _successMessage = string.Empty;
 
-    // Historial de solicitudes — vacío porque no existe backend real
-    public ObservableCollection<CustomRequestItem> Requests { get; } = new();
+    public ObservableCollection<SolicitudDiseno> Requests { get; } = new();
 
     public bool HasRequests => Requests.Count > 0;
     public bool ShowEmptyState => !IsLoading && !HasError && !HasRequests;
-    public bool ShowUnavailableBanner => !IsBackendAvailable;
+    public bool IsNotSubmitting => !IsSubmitting && !IsUploadingImage;
 
-    // Propiedades negadas para IsVisible (el proyecto no usa InvertedBoolConverter)
-    public bool IsNotSubmitting => !IsSubmitting;
+    public CustomRequestViewModel(ISolicitudRepository solicitudRepository)
+    {
+        _solicitudRepository = solicitudRepository;
+        _ = CargarSolicitudesAsync();
+    }
 
-    // ────────────────────────────────────────────────────────────
-    // Comandos
-    // ────────────────────────────────────────────────────────────
+    [RelayCommand]
+    public async Task CargarSolicitudesAsync()
+    {
+        if (IsLoading) return;
+
+        try
+        {
+            IsLoading = true;
+            HasError = false;
+            ErrorMessage = string.Empty;
+
+            var list = await _solicitudRepository.GetMisSolicitudesAsync();
+            Requests.Clear();
+            foreach (var item in list)
+            {
+                Requests.Add(item);
+            }
+
+            OnPropertyChanged(nameof(HasRequests));
+            OnPropertyChanged(nameof(ShowEmptyState));
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = "Error al cargar tus solicitudes: " + ex.Message;
+        }
+        finally
+        {
+            IsLoading = false;
+            OnPropertyChanged(nameof(ShowEmptyState));
+        }
+    }
 
     [RelayCommand]
     private async Task SubmitRequestAsync()
     {
-        if (string.IsNullOrWhiteSpace(Description)) return;
+        if (string.IsNullOrWhiteSpace(Description))
+        {
+            HasError = true;
+            ErrorMessage = "Por favor escribe una descripción de tu diseño.";
+            return;
+        }
+
         if (IsSubmitting) return;
 
-        // UI preparada — backend no disponible.
-        // Cuando el backend esté disponible, aquí se enviará la solicitud al repositorio.
-        IsSubmitting = true;
-        await Task.Delay(600);
-        IsSubmitting = false;
+        try
+        {
+            IsSubmitting = true;
+            HasError = false;
+            ErrorMessage = string.Empty;
 
-        ErrorMessage = "Esta función estará disponible próximamente.";
-        HasError = true;
+            var creada = await _solicitudRepository.CrearSolicitudAsync(
+                Description.Trim(),
+                string.IsNullOrWhiteSpace(ServicioDeseado) ? null : ServicioDeseado.Trim(),
+                AttachedImageUrl);
 
-        await Task.Delay(3000);
-        HasError = false;
-        ErrorMessage = string.Empty;
+            Description = string.Empty;
+            ServicioDeseado = string.Empty;
+            AttachedImageUrl = null;
+            HasAttachedImage = false;
+
+            SuccessMessage = "¡Tu solicitud ha sido enviada con éxito! La revisaremos pronto.";
+            HasSuccessMessage = true;
+
+            await CargarSolicitudesAsync();
+
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(4000);
+                HasSuccessMessage = false;
+                SuccessMessage = string.Empty;
+            });
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = "No se pudo enviar la solicitud: " + ex.Message;
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
     }
 
     [RelayCommand]
     private async Task AttachImageAsync()
     {
-        // UI preparada — backend no disponible.
-        // No existe mecanismo real de subida de imágenes (Supabase Storage, multipart API).
-        await Shell.Current.DisplayAlert(
-            "Función no disponible",
-            "La carga de imágenes de referencia estará disponible cuando el backend lo soporte.",
-            "Entendido");
+        if (IsUploadingImage) return;
+
+        try
+        {
+            var accion = await Shell.Current.DisplayActionSheet(
+                "Adjuntar imagen de referencia",
+                "Cancelar",
+                null,
+                "Tomar foto con cámara",
+                "Elegir de la galería");
+
+            FileResult? result = null;
+
+            if (accion == "Tomar foto con cámara" && MediaPicker.Default.IsCaptureSupported)
+            {
+                result = await MediaPicker.Default.CapturePhotoAsync();
+            }
+            else if (accion == "Elegir de la galería")
+            {
+                result = await MediaPicker.Default.PickPhotoAsync();
+            }
+
+            if (result == null) return;
+
+            IsUploadingImage = true;
+            using var stream = await result.OpenReadAsync();
+            var url = await _solicitudRepository.SubirImagenAsync(stream, result.FileName);
+
+            if (!string.IsNullOrEmpty(url))
+            {
+                AttachedImageUrl = url;
+                HasAttachedImage = true;
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert("Error", "No se pudo subir la imagen al servidor.", "OK");
+            }
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert("Error", "Error al procesar la imagen: " + ex.Message, "OK");
+        }
+        finally
+        {
+            IsUploadingImage = false;
+        }
+    }
+
+    [RelayCommand]
+    private void QuitarImagen()
+    {
+        AttachedImageUrl = null;
+        HasAttachedImage = false;
+    }
+
+    [RelayCommand]
+    private async Task AceptarCotizacionAsync(SolicitudDiseno? solicitud)
+    {
+        await ResponderCotizacionInternoAsync(solicitud, true);
+    }
+
+    [RelayCommand]
+    private async Task RechazarCotizacionAsync(SolicitudDiseno? solicitud)
+    {
+        await ResponderCotizacionInternoAsync(solicitud, false);
+    }
+
+    private async Task ResponderCotizacionInternoAsync(SolicitudDiseno? solicitud, bool aceptar)
+    {
+        if (solicitud == null || !solicitud.TieneCotizacion) return;
+
+        var accion = aceptar ? "aceptar" : "rechazar";
+        var confirm = await Shell.Current.DisplayAlert(
+            "Confirmación",
+            $"¿Estás segura de {accion} la cotización de ${solicitud.Cotizacion?.PrecioPropuesto:F2}?",
+            "Sí, confirmar", "Cancelar");
+
+        if (!confirm) return;
+
+        try
+        {
+            IsLoading = true;
+            await _solicitudRepository.ResponderCotizacionAsync(solicitud.Id, aceptar);
+            await Shell.Current.DisplayAlert("Cotización", $"Has {(aceptar ? "aceptado" : "rechazado")} la cotización.", "OK");
+            await CargarSolicitudesAsync();
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert("Error", "No se pudo actualizar la cotización: " + ex.Message, "OK");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 
     [RelayCommand]
@@ -100,17 +253,4 @@ public partial class CustomRequestViewModel : ObservableObject
         HasError = false;
         ErrorMessage = string.Empty;
     }
-}
-
-/// <summary>
-/// Modelo local de solicitud personalizada para la vista.
-/// Preparado para cuando el backend implemente el módulo de solicitudes.
-/// Los estados son conceptuales — no provienen de un backend real.
-/// </summary>
-public class CustomRequestItem
-{
-    public string Description { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; }
-    public string StatusDisplay { get; set; } = string.Empty;
-    public string DateDisplay => CreatedAt.ToString("dd/MM/yyyy");
 }
