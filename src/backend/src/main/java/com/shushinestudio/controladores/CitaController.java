@@ -152,10 +152,19 @@ public class CitaController {
         return ResponseEntity.ok(salida);
     }
 
-    @PatchMapping("/{id}/estado")
+    @RequestMapping(value = "/{id}/estado", method = {RequestMethod.PATCH, RequestMethod.PUT})
     @Operation(summary = "Cambiar estado de la cita", description = "Actualiza el estado de la cita (Confirmed, InProgress, Completed, Cancelled).")
-    public ResponseEntity<CitaSalida> cambiarEstado(@PathVariable Integer id, @RequestBody CitaCambiarEstado cambio) {
+    public ResponseEntity<CitaSalida> cambiarEstado(
+            @PathVariable Integer id,
+            @RequestBody(required = false) CitaCambiarEstado cambio,
+            @RequestParam(required = false) String nuevoEstado) {
+        if (cambio == null) {
+            cambio = new CitaCambiarEstado();
+        }
         cambio.setId(id);
+        if (nuevoEstado != null && !nuevoEstado.isBlank()) {
+            cambio.setNuevoEstado(nuevoEstado);
+        }
         return ResponseEntity.ok(citaService.cambiarEstado(cambio));
     }
 
