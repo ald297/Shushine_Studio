@@ -73,6 +73,9 @@ public static class MauiProgram
 		builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 		builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 		builder.Services.AddScoped<IChatRepository, ChatRepository>();
+		builder.Services.AddScoped<IResenaRepository, ResenaRepository>();
+		builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
+		builder.Services.AddScoped<ISolicitudRepository, SolicitudRepository>();
 
 		// ==========================================
 		// 4. Casos de Uso (Domain Layer)

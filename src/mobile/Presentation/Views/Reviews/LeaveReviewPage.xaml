@@ -107,30 +107,6 @@
                     </Frame>
 
                     <!-- BANNER INFORMATIVO: ESTADO BACKEND -->
-                    <Frame
-                        BackgroundColor="#FFF8E1"
-                        BorderColor="#FFE082"
-                        CornerRadius="12"
-                        Padding="14,12"
-                        HasShadow="False">
-                        <VerticalStackLayout Spacing="4">
-                            <Grid ColumnDefinitions="Auto,*">
-                                <Label Grid.Column="0" Text="ℹ️" FontSize="16" Margin="0,0,8,0" VerticalOptions="Center" />
-                                <Label Grid.Column="1"
-                                       Text="UI Preparada — Validación en Cliente"
-                                       FontFamily="PlusJakartaSans"
-                                       FontSize="12" FontAttributes="Bold"
-                                       TextColor="#F57F17"
-                                       VerticalOptions="Center" />
-                            </Grid>
-                            <Label
-                                Text="Tu reseña será validada localmente. La sincronización en base de datos se habilitará al desplegarse el endpoint de reseñas en la API."
-                                FontFamily="PlusJakartaSans"
-                                FontSize="11"
-                                TextColor="#5D4037"
-                                LineHeight="1.3" />
-                        </VerticalStackLayout>
-                    </Frame>
 
                     <!-- SECCIÓN: SELECTOR DE ESTRELLAS -->
                     <Frame

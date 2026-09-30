@@ -127,7 +127,14 @@ public class ErrorDelegatingHandler : DelegatingHandler
                                     "Tu sesión ha expirado. Por favor, ingresa de nuevo con tus credenciales.", 
                                     "Iniciar Sesión"
                                 );
-                                await Shell.Current.GoToAsync("//LoginPage");
+                                if (Shell.Current is AppShell appShell)
+                                {
+                                    appShell.SwitchToLogin();
+                                }
+                                else
+                                {
+                                    await Shell.Current.GoToAsync("//LoginPage");
+                                }
                             }
                             break;
 

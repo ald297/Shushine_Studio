@@ -474,7 +474,7 @@
                             HasShadow="False">
                             <Grid ColumnDefinitions="*,1,*" ColumnSpacing="14">
                                 <VerticalStackLayout Grid.Column="0" Spacing="4">
-                                    <Label Text="INGRESOS DE HOY"
+                                    <Label Text="FACTURACIÓN BRUTA (HOY)"
                                            FontFamily="PlusJakartaSans"
                                            FontSize="10" FontAttributes="Bold"
                                            TextColor="{StaticResource TextSecondary}"
@@ -483,7 +483,7 @@
                                            FontFamily="PlayfairDisplay"
                                            FontSize="22" FontAttributes="Bold"
                                            TextColor="{StaticResource Primary}" />
-                                    <Label Text="{Binding IngresosMes, StringFormat='Mes: ${0:N2}'}"
+                                    <Label Text="{Binding IngresosMes, StringFormat='Facturación Mes: ${0:N2}'}"
                                            FontFamily="PlusJakartaSans"
                                            FontSize="11"
                                            TextColor="{StaticResource TextSecondary}" />

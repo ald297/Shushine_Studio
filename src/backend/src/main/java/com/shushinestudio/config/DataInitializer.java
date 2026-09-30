@@ -36,6 +36,9 @@ public class DataInitializer implements CommandLineRunner {
     private IEstilistaRepository estilistaRepository;
 
     @Autowired
+    private com.shushinestudio.repositorios.IProductoRepository productoRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired(required = false)
@@ -71,9 +74,65 @@ public class DataInitializer implements CommandLineRunner {
                     CREATE INDEX IF NOT EXISTS idx_mensajes_remitente ON public.mensajes(id_remitente);
                     CREATE INDEX IF NOT EXISTS idx_mensajes_fecha_envio ON public.mensajes(fecha_envio ASC);
                     CREATE INDEX IF NOT EXISTS idx_mensajes_no_leidos ON public.mensajes(id_conversacion, leido);
+
+                    ALTER TABLE public.mensajes ADD COLUMN IF NOT EXISTS imagen_url VARCHAR(1000);
+
+                    CREATE TABLE IF NOT EXISTS public.resenas (
+                        id_resena SERIAL PRIMARY KEY,
+                        id_cita INT NOT NULL UNIQUE REFERENCES public.citas(id_cita) ON DELETE CASCADE,
+                        id_cliente INT NOT NULL REFERENCES public.clientes(id_cliente),
+                        id_estilista INT NOT NULL REFERENCES public.estilistas(id_estilista),
+                        estrellas_general INT NOT NULL CHECK (estrellas_general BETWEEN 1 AND 5),
+                        estrellas_calidad INT NOT NULL DEFAULT 5 CHECK (estrellas_calidad BETWEEN 1 AND 5),
+                        estrellas_atencion INT NOT NULL DEFAULT 5 CHECK (estrellas_atencion BETWEEN 1 AND 5),
+                        estrellas_ambiente INT NOT NULL DEFAULT 5 CHECK (estrellas_ambiente BETWEEN 1 AND 5),
+                        comentario TEXT,
+                        visible_publica BOOLEAN NOT NULL DEFAULT TRUE,
+                        fecha_emision TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                    );
+                    CREATE INDEX IF NOT EXISTS idx_resenas_cita ON public.resenas(id_cita);
+                    CREATE INDEX IF NOT EXISTS idx_resenas_cliente ON public.resenas(id_cliente);
+                    CREATE INDEX IF NOT EXISTS idx_resenas_estilista ON public.resenas(id_estilista);
+
+                    CREATE TABLE IF NOT EXISTS public.productos (
+                        id_producto SERIAL PRIMARY KEY,
+                        codigo_producto VARCHAR(20) NOT NULL UNIQUE,
+                        id_categoria INT NOT NULL REFERENCES public.categorias(id_categoria),
+                        nombre VARCHAR(150) NOT NULL,
+                        marca VARCHAR(100) NOT NULL,
+                        descripcion TEXT,
+                        precio NUMERIC(10,2) NOT NULL CHECK (precio >= 0),
+                        stock_actual INT NOT NULL DEFAULT 0 CHECK (stock_actual >= 0),
+                        stock_minimo INT NOT NULL DEFAULT 5,
+                        imagen_url VARCHAR(500),
+                        activo BOOLEAN NOT NULL DEFAULT TRUE
+                    );
+                    CREATE INDEX IF NOT EXISTS idx_productos_categoria ON public.productos(id_categoria);
+
+                    CREATE TABLE IF NOT EXISTS public.solicitudes_diseno (
+                        id_solicitud SERIAL PRIMARY KEY,
+                        id_cliente INT NOT NULL REFERENCES public.clientes(id_cliente) ON DELETE CASCADE,
+                        servicio_deseado VARCHAR(150),
+                        notas_cliente TEXT NOT NULL,
+                        imagenes_referencia_urls TEXT,
+                        estado VARCHAR(30) NOT NULL DEFAULT 'Pendiente',
+                        fecha_solicitud TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                    );
+                    CREATE INDEX IF NOT EXISTS idx_solicitudes_cliente ON public.solicitudes_diseno(id_cliente);
+
+                    CREATE TABLE IF NOT EXISTS public.cotizaciones (
+                        id_cotizacion SERIAL PRIMARY KEY,
+                        id_solicitud INT NOT NULL UNIQUE REFERENCES public.solicitudes_diseno(id_solicitud) ON DELETE CASCADE,
+                        precio_propuesto NUMERIC(10,2) NOT NULL,
+                        descripcion_trabajo TEXT NOT NULL,
+                        estado VARCHAR(30) NOT NULL DEFAULT 'Propuesta',
+                        fecha_cotizacion TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                        fecha_respuesta TIMESTAMPTZ
+                    );
+                    CREATE INDEX IF NOT EXISTS idx_cotizaciones_solicitud ON public.cotizaciones(id_solicitud);
                 """);
             } catch (Exception e) {
-                System.err.println("[DataInitializer] Aviso al verificar tablas de chat: " + e.getMessage());
+                System.err.println("[DataInitializer] Aviso al verificar tablas: " + e.getMessage());
             }
         }
 
@@ -263,6 +322,77 @@ public class DataInitializer implements CommandLineRunner {
                     .porcentajeComision(new BigDecimal("30.00"))
                     .activo(true)
                     .build());
+        }
+
+        // 7. Inicializar Productos de Belleza si el inventario está vacío
+        if (productoRepository.count() == 0) {
+            Categoria catTratamiento = categoriaRepository.findAll().stream()
+                    .filter(c -> c.getNombre().contains("Tratamiento") || c.getNombre().contains("Capilar"))
+                    .findFirst().orElse(null);
+
+            Categoria catColor = categoriaRepository.findAll().stream()
+                    .filter(c -> c.getNombre().contains("Color"))
+                    .findFirst().orElse(null);
+
+            Categoria catUnas = categoriaRepository.findAll().stream()
+                    .filter(c -> c.getNombre().contains("Uñas") || c.getNombre().contains("Manicura"))
+                    .findFirst().orElse(null);
+
+            Categoria categoriaDefecto = catTratamiento != null ? catTratamiento : categoriaRepository.findAll().stream().findFirst().orElse(null);
+
+            if (categoriaDefecto != null) {
+                productoRepository.save(com.shushinestudio.modelos.Producto.builder()
+                        .codigoProducto("PROD-SHAMP-01")
+                        .categoria(catTratamiento != null ? catTratamiento : categoriaDefecto)
+                        .nombre("Shampoo Reparador Molecular Keratin Glaze 250ml")
+                        .marca("Olaplex Professional")
+                        .descripcion("Fórmula profesional libre de sulfatos que reconstruye los enlaces de disulfuro capilares.")
+                        .precio(new BigDecimal("28.50"))
+                        .stockActual(14)
+                        .stockMinimo(5)
+                        .imagenUrl("https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=600&q=80")
+                        .activo(true)
+                        .build());
+
+                productoRepository.save(com.shushinestudio.modelos.Producto.builder()
+                        .codigoProducto("PROD-MASC-02")
+                        .categoria(catTratamiento != null ? catTratamiento : categoriaDefecto)
+                        .nombre("Mascarilla Hidratación Intensiva Aceite de Argán & Macadamia 500g")
+                        .marca("Moroccanoil")
+                        .descripcion("Tratamiento rico en antioxidantes para cabellos secos, decolorados o con procesos químicos.")
+                        .precio(new BigDecimal("34.00"))
+                        .stockActual(9)
+                        .stockMinimo(4)
+                        .imagenUrl("https://images.unsplash.com/photo-1608248597359-00e95ff9ef51?auto=format&fit=crop&w=600&q=80")
+                        .activo(true)
+                        .build());
+
+                productoRepository.save(com.shushinestudio.modelos.Producto.builder()
+                        .codigoProducto("PROD-SERUM-03")
+                        .categoria(catColor != null ? catColor : categoriaDefecto)
+                        .nombre("Sérum Capilar Termoprotector Anti-Frizz Shine Elixir 100ml")
+                        .marca("Kérastase")
+                        .descripcion("Protección térmica hasta 230°C y sellado de cutícula con brillo espejo.")
+                        .precio(new BigDecimal("39.00"))
+                        .stockActual(6)
+                        .stockMinimo(3)
+                        .imagenUrl("https://images.unsplash.com/photo-1526947425960-945c6e72858f?auto=format&fit=crop&w=600&q=80")
+                        .activo(true)
+                        .build());
+
+                productoRepository.save(com.shushinestudio.modelos.Producto.builder()
+                        .codigoProducto("PROD-ESM-04")
+                        .categoria(catUnas != null ? catUnas : categoriaDefecto)
+                        .nombre("Kit Esmaltado Semipermanente Nude & Rose Gold")
+                        .marca("OPI ProSpa")
+                        .descripcion("Trío de esmaltes de alta pigmentación y duración de 21 días con acabado profesional.")
+                        .precio(new BigDecimal("22.00"))
+                        .stockActual(18)
+                        .stockMinimo(5)
+                        .imagenUrl("https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=600&q=80")
+                        .activo(true)
+                        .build());
+            }
         }
     }
 }

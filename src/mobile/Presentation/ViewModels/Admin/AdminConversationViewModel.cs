@@ -178,6 +178,63 @@ public partial class AdminConversationViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task AttachImageAsync()
+    {
+        if (IsSending || ConversacionId <= 0) return;
+
+        try
+        {
+            var accion = await Shell.Current.DisplayActionSheet(
+                "Enviar foto al cliente",
+                "Cancelar",
+                null,
+                "Tomar foto con cámara",
+                "Elegir de galería");
+
+            FileResult? result = null;
+            if (accion == "Tomar foto con cámara" && MediaPicker.Default.IsCaptureSupported)
+            {
+                result = await MediaPicker.Default.CapturePhotoAsync();
+            }
+            else if (accion == "Elegir de galería")
+            {
+                result = await MediaPicker.Default.PickPhotoAsync();
+            }
+
+            if (result == null) return;
+
+            IsSending = true;
+            OnPropertyChanged(nameof(IsNotSending));
+
+            using var stream = await result.OpenReadAsync();
+            var imageUrl = await _chatRepository.SubirImagenChatAsync(stream, result.FileName);
+
+            if (!string.IsNullOrEmpty(imageUrl))
+            {
+                var enviado = await _chatRepository.EnviarMensajeAdminAsync(ConversacionId, string.Empty, imageUrl);
+                if (enviado != null)
+                {
+                    Messages.Add(enviado);
+                    NotificarCambios();
+                }
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert("Error", "No se pudo subir la foto.", "OK");
+            }
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert("Error", "Error al procesar la foto: " + ex.Message, "OK");
+        }
+        finally
+        {
+            IsSending = false;
+            OnPropertyChanged(nameof(IsNotSending));
+        }
+    }
+
+    [RelayCommand]
     private async Task EnviarRespuestaAsync()
     {
         var texto = MessageText?.Trim();
@@ -197,6 +254,11 @@ public partial class AdminConversationViewModel : ObservableObject
                 Messages.Add(enviado);
                 MessageText = string.Empty;
                 NotificarCambios();
+            }
+            else
+            {
+                HasError = true;
+                ErrorMessage = "No fue posible enviar la respuesta al servidor. Por favor verifique su conexión o intente nuevamente.";
             }
         }
         catch (Exception ex)

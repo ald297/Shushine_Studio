@@ -5,10 +5,7 @@ using ShushineStudio.Mobile.Domain.Repositories;
 namespace ShushineStudio.Mobile.Presentation.ViewModels.Profile;
 
 /// <summary>
-/// ViewModel para editar perfil. Los únicos campos soportados por backend (PUT no existe aún)
-/// son los que devuelve GET /api/auth/me: nombre, apellido, telefono.
-/// IMPORTANTE: No existe endpoint PUT /api/auth/me ni /api/usuarios/{id}.
-/// El guardado es UI preparada — backend no disponible para actualización de perfil.
+/// ViewModel para editar perfil conectado directamente con el endpoint PUT /api/auth/perfil.
 /// </summary>
 public partial class EditProfileViewModel : BaseViewModel
 {
@@ -29,8 +26,7 @@ public partial class EditProfileViewModel : BaseViewModel
     [ObservableProperty]
     private bool guardadoExitoso = false;
 
-    // No existe endpoint de actualización de perfil
-    public bool BackendActualizacionDisponible => false;
+    public bool BackendActualizacionDisponible => true;
 
     public EditProfileViewModel(IAuthRepository authRepository)
     {
@@ -58,7 +54,7 @@ public partial class EditProfileViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            ErrorMessage = "No se pudo cargar tu información.";
+            ErrorMessage = "No se pudo cargar tu información: " + ex.Message;
             System.Diagnostics.Debug.WriteLine($"[EditProfileVM] {ex.Message}");
         }
         finally
@@ -70,6 +66,8 @@ public partial class EditProfileViewModel : BaseViewModel
     [RelayCommand]
     private async Task GuardarCambiosAsync()
     {
+        if (IsBusy) return;
+
         if (string.IsNullOrWhiteSpace(Nombre))
         {
             ErrorMessage = "El nombre no puede estar vacío.";
@@ -81,14 +79,32 @@ public partial class EditProfileViewModel : BaseViewModel
             return;
         }
 
-        // UI preparada — no existe endpoint PUT de actualización de perfil
-        if (Application.Current?.MainPage != null)
+        try
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Función no disponible",
-                "La actualización de perfil requiere soporte en el backend (PUT /api/auth/perfil). Esta pantalla está preparada para cuando el endpoint esté disponible.",
-                "Entendido"
-            );
+            IsBusy = true;
+            ErrorMessage = string.Empty;
+
+            var actualizado = await _authRepository.ActualizarPerfilAsync(Nombre, Apellido, Telefono, Login);
+
+            GuardadoExitoso = true;
+            if (Application.Current?.MainPage != null)
+            {
+                await Application.Current.MainPage.DisplayAlert(
+                    "Perfil Actualizado",
+                    "Tus datos han sido actualizados exitosamente en Shushine Studio.",
+                    "Aceptar"
+                );
+            }
+
+            await Shell.Current.GoToAsync("..");
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Error al actualizar perfil: " + ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 

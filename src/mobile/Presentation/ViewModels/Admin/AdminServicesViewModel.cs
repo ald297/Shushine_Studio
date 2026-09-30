@@ -321,6 +321,14 @@ public partial class AdminServicesViewModel : ObservableObject
     [RelayCommand]
     private async Task RegresarALoginAsync()
     {
-        await Shell.Current.GoToAsync("//LoginPage");
+        await _authRepository.LogoutAsync();
+        if (Shell.Current is AppShell appShell)
+        {
+            appShell.SwitchToLogin();
+        }
+        else
+        {
+            await Shell.Current.GoToAsync("//LoginPage");
+        }
     }
 }

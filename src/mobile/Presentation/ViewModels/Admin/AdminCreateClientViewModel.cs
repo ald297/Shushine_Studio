@@ -39,14 +39,7 @@ public partial class AdminCreateClientViewModel : ObservableObject
             return;
         }
 
-        if (Application.Current?.MainPage != null)
-        {
-            await Application.Current.MainPage.DisplayAlert(
-                "Función Preparada",
-                "El backend de Shushine Studio no dispone actualmente del endpoint 'POST /api/clientes'. Los clientes se registran mediante la app móvil o al agendar citas Walk-in en recepción.",
-                "Entendido"
-            );
-        }
+        await IrACitaWalkinAsync();
     }
 
     [RelayCommand]

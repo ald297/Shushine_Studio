@@ -66,17 +66,84 @@ public partial class AppShell : Shell
 		bool isAdmin = !string.IsNullOrWhiteSpace(role) && role.ToUpperInvariant().Contains("ADMIN");
 		if (isAdmin)
 		{
-			CurrentItem = AdminTabBar;
+			SwitchToAdmin();
 		}
 		else
 		{
+			SwitchToClient();
+		}
+	}
+
+	public void SwitchToClient()
+	{
+		ClearNavigationStack();
+		if (ClientTabBar != null)
+		{
+			if (ClientTabBar.Items.Count > 0)
+			{
+				ClientTabBar.CurrentItem = ClientTabBar.Items[0];
+				if (ClientTabBar.CurrentItem?.Items?.Count > 0)
+				{
+					ClientTabBar.CurrentItem.CurrentItem = ClientTabBar.CurrentItem.Items[0];
+				}
+			}
 			CurrentItem = ClientTabBar;
+		}
+	}
+
+	public void SwitchToAdmin()
+	{
+		ClearNavigationStack();
+		if (AdminTabBar != null)
+		{
+			if (AdminTabBar.Items.Count > 0)
+			{
+				AdminTabBar.CurrentItem = AdminTabBar.Items[0];
+				if (AdminTabBar.CurrentItem?.Items?.Count > 0)
+				{
+					AdminTabBar.CurrentItem.CurrentItem = AdminTabBar.CurrentItem.Items[0];
+				}
+			}
+			CurrentItem = AdminTabBar;
+		}
+	}
+
+	public void SwitchToAdminTab(int index)
+	{
+		ClearNavigationStack();
+		if (AdminTabBar != null && index >= 0 && index < AdminTabBar.Items.Count)
+		{
+			AdminTabBar.CurrentItem = AdminTabBar.Items[index];
+			CurrentItem = AdminTabBar;
 		}
 	}
 
 	public void SwitchToLogin()
 	{
+		ClearNavigationStack();
 		CurrentItem = LoginShellContent;
+	}
+
+	private void ClearNavigationStack()
+	{
+		try
+		{
+			if (Navigation != null)
+			{
+				while (Navigation.ModalStack.Count > 0)
+				{
+					Navigation.PopModalAsync(false);
+				}
+				if (Navigation.NavigationStack.Count > 1)
+				{
+					Navigation.PopToRootAsync(false);
+				}
+			}
+		}
+		catch
+		{
+			// Si la pila ya está en la raíz, ignorar
+		}
 	}
 }
 

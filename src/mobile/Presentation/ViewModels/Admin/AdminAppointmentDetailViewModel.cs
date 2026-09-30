@@ -252,18 +252,6 @@ public partial class AdminAppointmentDetailViewModel : BaseViewModel, IQueryAttr
         }
     }
 
-    [RelayCommand]
-    private async Task ReprogramarNoDisponibleAsync()
-    {
-        if (Application.Current?.MainPage != null)
-        {
-            await Application.Current.MainPage.DisplayAlert(
-                "Función No Soportada",
-                "La reprogramación de fecha y reasignación de estilista no están disponibles en la versión actual del backend de Shushine Studio.",
-                "Entendido"
-            );
-        }
-    }
 
     [RelayCommand]
     private async Task RegresarAsync()

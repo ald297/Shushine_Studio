@@ -231,38 +231,6 @@
                             HeightRequest="44"
                             CornerRadius="10" />
 
-                        <!-- EDITAR CLIENTE (PREPARADA) -->
-                        <Button
-                            Text="Editar Cliente"
-                            Command="{Binding EditarClienteCommand}"
-                            BackgroundColor="Transparent"
-                            TextColor="{StaticResource TextPrimary}"
-                            BorderColor="{StaticResource Border}"
-                            BorderWidth="1"
-                            FontFamily="PlusJakartaSans"
-                            FontSize="13" FontAttributes="Bold"
-                            HeightRequest="44"
-                            CornerRadius="10" />
-
-                        <!-- ACTIVAR / DESACTIVAR (PREPARADA) -->
-                        <Button
-                            Text="Activar / Desactivar Cliente"
-                            Command="{Binding ActivarDesactivarCommand}"
-                            BackgroundColor="Transparent"
-                            TextColor="{StaticResource Secondary}"
-                            BorderColor="{StaticResource Secondary}"
-                            BorderWidth="1"
-                            FontFamily="PlusJakartaSans"
-                            FontSize="13" FontAttributes="Bold"
-                            HeightRequest="44"
-                            CornerRadius="10" />
-
-                        <Label
-                            Text="Esta función estará disponible cuando el backend la habilite."
-                            FontFamily="PlusJakartaSans"
-                            FontSize="11"
-                            TextColor="{StaticResource TextSecondary}"
-                            HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
                 </Frame>
 

@@ -167,7 +167,14 @@ public partial class AdminDashboardViewModel : BaseViewModel
     [RelayCommand]
     private async Task IrAAgendaAsync()
     {
-        await Shell.Current.GoToAsync("TimelineAgendaPage");
+        if (Shell.Current is AppShell appShell)
+        {
+            appShell.SwitchToAdminTab(1); // Índice 1 es la pestaña funcional Agenda en AdminTabBar
+        }
+        else
+        {
+            await Shell.Current.GoToAsync("//AdminTabs/TimelineAgendaPage");
+        }
     }
 
     [RelayCommand]
@@ -258,12 +265,27 @@ public partial class AdminDashboardViewModel : BaseViewModel
     private async Task CerrarSesionAdminAsync()
     {
         await _authRepository.LogoutAsync();
-        await Shell.Current.GoToAsync("//LoginPage");
+        if (Shell.Current is AppShell appShell)
+        {
+            appShell.SwitchToLogin();
+        }
+        else
+        {
+            await Shell.Current.GoToAsync("//LoginPage");
+        }
     }
 
     [RelayCommand]
     private async Task RegresarALoginAsync()
     {
-        await Shell.Current.GoToAsync("//LoginPage");
+        await _authRepository.LogoutAsync();
+        if (Shell.Current is AppShell appShell)
+        {
+            appShell.SwitchToLogin();
+        }
+        else
+        {
+            await Shell.Current.GoToAsync("//LoginPage");
+        }
     }
 }

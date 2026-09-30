@@ -208,31 +208,7 @@ public partial class AdminProfessionalDetailViewModel : ObservableObject, IQuery
         });
     }
 
-    [RelayCommand]
-    private async Task EditarProfesionalAsync()
-    {
-        if (Application.Current?.MainPage != null)
-        {
-            await Application.Current.MainPage.DisplayAlert(
-                "Función Preparada",
-                "La edición de profesionales estará disponible cuando el backend habilite esta operación.",
-                "Entendido"
-            );
-        }
-    }
 
-    [RelayCommand]
-    private async Task ActivarDesactivarAsync()
-    {
-        if (Application.Current?.MainPage != null)
-        {
-            await Application.Current.MainPage.DisplayAlert(
-                "Función Preparada",
-                "La activación/desactivación de profesionales estará disponible cuando el backend habilite esta operación.",
-                "Entendido"
-            );
-        }
-    }
 
     [RelayCommand]
     private async Task RegresarAsync()

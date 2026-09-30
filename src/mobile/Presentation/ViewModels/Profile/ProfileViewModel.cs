@@ -157,7 +157,10 @@ public partial class ProfileViewModel : BaseViewModel
             {
                 appShell.SwitchToLogin();
             }
-            await Shell.Current.GoToAsync("//LoginPage");
+            else
+            {
+                await Shell.Current.GoToAsync("//LoginPage");
+            }
         }
     }
 }

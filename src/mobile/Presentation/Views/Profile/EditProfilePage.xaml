@@ -40,23 +40,7 @@
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Padding="20,24,20,24" Spacing="20">
 
-                <!-- Banner: UI preparada para actualización -->
-                <Frame
-                    BackgroundColor="#FFF3E0"
-                    BorderColor="#FFB300"
-                    CornerRadius="10"
-                    Padding="14,12"
-                    HasShadow="False">
-                    <VerticalStackLayout Spacing="4">
-                        <Label Text="⚠ UI preparada — actualización no disponible"
-                               FontFamily="PlusJakartaSans"
-                               FontSize="13" FontAttributes="Bold"
-                               TextColor="#E65100" />
-                        <Label Text="No existe endpoint PUT de actualización de perfil en el backend actual. Los campos se muestran con los datos reales del servidor."
-                               FontFamily="PlusJakartaSans"
-                               FontSize="12" TextColor="#BF360C" />
-                    </VerticalStackLayout>
-                </Frame>
+
 
                 <!-- Loading -->
                 <ActivityIndicator

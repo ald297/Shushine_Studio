@@ -11,6 +11,7 @@
 		<CheckEolTargetFramework>false</CheckEolTargetFramework>
 		<CheckEolWorkloads>false</CheckEolWorkloads>
 		<SkipValidateMauiImplicitPackageReferences>true</SkipValidateMauiImplicitPackageReferences>
+		<EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
 
 		<!-- Display name -->
 		<ApplicationTitle>Shushine Studio</ApplicationTitle>

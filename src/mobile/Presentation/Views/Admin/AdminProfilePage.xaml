@@ -1,299 +1,427 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
-             x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminProfilePage"
-             x:DataType="vm:AdminProfileViewModel"
-             BackgroundColor="{StaticResource BackgroundColor}"
-             Shell.NavBarIsVisible="false"
-             Title="{Binding Title}">
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+    x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminProfilePage"
+    x:DataType="vm:AdminProfileViewModel"
+    BackgroundColor="{StaticResource BackgroundColor}"
+    Shell.NavBarIsVisible="false"
+    Title="{Binding Title}">
 
-    <Grid>
-        <!-- Toast de Notificación Boutique Flotante -->
-        <Border VerticalOptions="Start"
-                HorizontalOptions="Center"
-                Margin="20, 52, 20, 0"
-                Padding="16, 12"
-                StrokeShape="RoundRectangle 16"
-                BackgroundColor="#2C2420"
-                Stroke="#C5A059"
-                StrokeThickness="1"
-                IsVisible="{Binding IsToastVisible}"
-                ZIndex="999">
-            <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12">
-                <Border Grid.Column="0"
-                        StrokeShape="RoundRectangle 18"
-                        WidthRequest="36"
-                        HeightRequest="36"
-                        BackgroundColor="#3D322C"
-                        StrokeThickness="0"
-                        VerticalOptions="Center">
-                    <Label Text="✨" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
-                </Border>
-                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                    <Label Text="{Binding ToastTitulo}" FontSize="13" FontAttributes="Bold" TextColor="#F5EBE6" />
-                    <Label Text="{Binding ToastMensaje}" FontSize="11" TextColor="#D48B96" />
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- HEADER SUPERIOR -->
+        <Grid Grid.Row="0" BackgroundColor="{StaticResource SurfaceColor}" Padding="20,50,20,16">
+            <Grid ColumnDefinitions="*,Auto">
+                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <Label
+                            Text="SHUSHINE STUDIO"
+                            FontFamily="PlusJakartaSans"
+                            FontSize="11" FontAttributes="Bold"
+                            TextColor="{StaticResource SecondaryColor}"
+                            CharacterSpacing="2" />
+                        <Frame
+                            BackgroundColor="{StaticResource PrimaryColor}"
+                            CornerRadius="6"
+                            Padding="6,2"
+                            HasShadow="False">
+                            <Label
+                                Text="ADMIN"
+                                FontFamily="PlusJakartaSans"
+                                FontSize="9" FontAttributes="Bold"
+                                TextColor="White" />
+                        </Frame>
+                    </HorizontalStackLayout>
+                    <Label
+                        Text="Perfil Administrativo"
+                        FontFamily="PlayfairDisplay"
+                        FontSize="22" FontAttributes="Bold"
+                        TextColor="{StaticResource TextColorPrimary}" />
                 </VerticalStackLayout>
+
+                <!-- BOTÓN REFRESCAR -->
+                <ImageButton
+                    Grid.Column="1"
+                    Source="arrow_left.png"
+                    Command="{Binding CargarDatosAdminCommand}"
+                    WidthRequest="36" HeightRequest="36"
+                    BackgroundColor="{StaticResource BackgroundColor}"
+                    CornerRadius="18"
+                    Padding="10"
+                    Rotation="90"
+                    ToolTipProperties.Text="Actualizar perfil"
+                    VerticalOptions="Center" />
             </Grid>
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Command="{Binding CerrarToastCommand}" />
-            </Border.GestureRecognizers>
-        </Border>
+        </Grid>
 
-        <!-- Contenido Principal -->
-        <ScrollView>
-            <VerticalStackLayout Padding="20, 52, 20, 36" Spacing="18">
+        <!-- CONTENIDO SCROLLEABLE -->
+        <RefreshView Grid.Row="1" IsRefreshing="{Binding IsBusy}" Command="{Binding CargarDatosAdminCommand}">
+            <ScrollView>
+                <VerticalStackLayout Padding="20,16,20,36" Spacing="20">
 
-                <!-- 1. Cabecera Hero de Gerencia / Administrador -->
-                <VerticalStackLayout Spacing="8" HorizontalOptions="Center" Margin="0, 8, 0, 4">
-                    <!-- Avatar Circular con Borde Dorado -->
-                    <Border StrokeShape="RoundRectangle 50"
-                            HeightRequest="100"
-                            WidthRequest="100"
-                            Stroke="#C5A059"
-                            StrokeThickness="3"
-                            BackgroundColor="#FAF8F5"
-                            HorizontalOptions="Center">
-                        <Grid>
-                            <Label Text="👑"
-                                   FontSize="46"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center" />
-                            <Border StrokeShape="RoundRectangle 12"
-                                    HeightRequest="24"
-                                    WidthRequest="24"
-                                    BackgroundColor="#C5A059"
+                    <!-- CABECERA ELEGANTE CON AVATAR DE INICIALES -->
+                    <Border
+                        Stroke="{StaticResource SecondaryColor}"
+                        StrokeThickness="1"
+                        BackgroundColor="{StaticResource SurfaceColor}"
+                        StrokeShape="RoundRectangle 20"
+                        Padding="20">
+                        <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
+
+                            <!-- AVATAR VISUAL CON INICIALES LOCALES -->
+                            <Grid WidthRequest="84" HeightRequest="84" HorizontalOptions="Center">
+                                <Border
+                                    Stroke="{StaticResource SecondaryColor}"
+                                    StrokeThickness="2"
+                                    BackgroundColor="{StaticResource PrimaryColor}"
+                                    StrokeShape="RoundRectangle 42"
+                                    WidthRequest="84" HeightRequest="84">
+                                    <Label
+                                        Text="{Binding Iniciales}"
+                                        FontFamily="PlayfairDisplay"
+                                        FontSize="32" FontAttributes="Bold"
+                                        TextColor="White"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center" />
+                                </Border>
+
+                                <!-- BADGE VERIFICADO DORADO -->
+                                <Border
                                     Stroke="White"
                                     StrokeThickness="2"
+                                    BackgroundColor="{StaticResource SecondaryColor}"
+                                    StrokeShape="RoundRectangle 12"
+                                    WidthRequest="24" HeightRequest="24"
                                     HorizontalOptions="End"
-                                    VerticalOptions="End"
-                                    Margin="0, 0, 4, 4">
-                                <Label Text="✓"
-                                       TextColor="White"
-                                       FontSize="12"
-                                       FontAttributes="Bold"
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Center" />
+                                    VerticalOptions="End">
+                                    <Label
+                                        Text="✓"
+                                        FontSize="12" FontAttributes="Bold"
+                                        TextColor="White"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center" />
+                                </Border>
+                            </Grid>
+
+                            <!-- NOMBRE COMPLETO Y ROL -->
+                            <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                <Label
+                                    Text="{Binding NombreCompleto}"
+                                    FontFamily="PlayfairDisplay"
+                                    FontSize="20" FontAttributes="Bold"
+                                    TextColor="{StaticResource TextColorPrimary}"
+                                    HorizontalTextAlignment="Center" />
+
+                                <Label
+                                    Text="{Binding Correo}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="13"
+                                    TextColor="{StaticResource TextColorSecondary}"
+                                    HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+
+                            <!-- CHIP ROL ADMINISTRADOR -->
+                            <Border
+                                BackgroundColor="#FAF4E8"
+                                Stroke="{StaticResource SecondaryColor}"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 12"
+                                Padding="12,5"
+                                HorizontalOptions="Center">
+                                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                    <Label Text="🛡️" FontSize="12" VerticalOptions="Center" />
+                                    <Label
+                                        Text="{Binding Rol}"
+                                        FontFamily="PlusJakartaSans"
+                                        FontSize="11" FontAttributes="Bold"
+                                        TextColor="{StaticResource SecondaryColor}"
+                                        VerticalOptions="Center" />
+                                </HorizontalStackLayout>
                             </Border>
-                        </Grid>
-                    </Border>
 
-                    <!-- Nombre y Correo del Gerente -->
-                    <Label Text="{Binding NombreGerente}"
-                           FontSize="22"
-                           FontAttributes="Bold"
-                           TextColor="{StaticResource TextColorPrimary}"
-                           HorizontalOptions="Center" />
-                    <Label Text="{Binding EmailGerente}"
-                           FontSize="13"
-                           TextColor="{StaticResource TextColorSecondary}"
-                           HorizontalOptions="Center" />
+                            <!-- RESUMEN OPERATIVO RÁPIDO (DATOS REALES) -->
+                            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8" Margin="0,8,0,0">
+                                <Border Stroke="{StaticResource BorderColor}" BackgroundColor="{StaticResource BackgroundColor}" StrokeShape="RoundRectangle 10" Padding="8,10">
+                                    <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                                        <Label Text="{Binding TotalServicios}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource PrimaryColor}" HorizontalOptions="Center" />
+                                        <Label Text="Servicios" FontSize="10" TextColor="{StaticResource TextColorSecondary}" HorizontalOptions="Center" />
+                                    </VerticalStackLayout>
+                                </Border>
+                                <Border Stroke="{StaticResource BorderColor}" BackgroundColor="{StaticResource BackgroundColor}" StrokeShape="RoundRectangle 10" Padding="8,10">
+                                    <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                                        <Label Text="{Binding TotalEstilistas}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource PrimaryColor}" HorizontalOptions="Center" />
+                                        <Label Text="Estilistas" FontSize="10" TextColor="{StaticResource TextColorSecondary}" HorizontalOptions="Center" />
+                                    </VerticalStackLayout>
+                                </Border>
+                                <Border Stroke="{StaticResource BorderColor}" BackgroundColor="{StaticResource BackgroundColor}" StrokeShape="RoundRectangle 10" Padding="8,10">
+                                    <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                                        <Label Text="{Binding TotalCitasHoy}" FontSize="16" FontAttributes="Bold" TextColor="#2E7D32" HorizontalOptions="Center" />
+                                        <Label Text="Citas Hoy" FontSize="10" TextColor="{StaticResource TextColorSecondary}" HorizontalOptions="Center" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </Grid>
 
-                    <!-- Badge Rol Administrador -->
-                    <Border StrokeShape="RoundRectangle 12"
-                            BackgroundColor="#FAF4E8"
-                            Stroke="#EADCC6"
-                            StrokeThickness="1"
-                            Padding="14, 5"
-                            HorizontalOptions="Center">
-                        <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
-                            <Label Text="💼" FontSize="12" VerticalOptions="Center" />
-                            <Label Text="{Binding Rol}"
-                                   FontSize="11"
-                                   FontAttributes="Bold"
-                                   TextColor="#A68038"
-                                   VerticalOptions="Center" />
-                        </HorizontalStackLayout>
-                    </Border>
-                </VerticalStackLayout>
-
-                <!-- 2. Tarjeta Ejecutiva del Salón (Estilo Espresso & Oro) -->
-                <Border StrokeShape="RoundRectangle 20"
-                        Stroke="#C5A059"
-                        StrokeThickness="1.5"
-                        Padding="20"
-                        Margin="0, 4, 0, 0">
-                    <Border.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#2C2420" Offset="0.0" />
-                            <GradientStop Color="#1E1916" Offset="0.7" />
-                            <GradientStop Color="#120F0D" Offset="1.0" />
-                        </LinearGradientBrush>
-                    </Border.Background>
-
-                    <VerticalStackLayout Spacing="14">
-                        <Grid ColumnDefinitions="*, Auto">
-                            <HorizontalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
-                                <Label Text="SHUNSHINE STUDIO"
-                                       FontSize="12"
-                                       FontAttributes="Bold"
-                                       TextColor="#C5A059"
-                                       CharacterSpacing="1.5" />
-                            </HorizontalStackLayout>
-                            <Border Grid.Column="1"
-                                    StrokeShape="RoundRectangle 8"
-                                    BackgroundColor="#3D322C"
-                                    Padding="8, 3">
-                                <Label Text="SALÓN &amp; SPA"
-                                       FontSize="9"
-                                       FontAttributes="Bold"
-                                       TextColor="#D48B96" />
-                            </Border>
-                        </Grid>
-
-                        <VerticalStackLayout Spacing="4">
-                            <Label Text="Panel de Control &amp; Gestión"
-                                   FontSize="18"
-                                   FontAttributes="Bold"
-                                   TextColor="#FFFFFF" />
-                            <Label Text="Supervisión en tiempo real de citas, catálogo y equipo profesional."
-                                   FontSize="12"
-                                   TextColor="#D1C7BD" />
                         </VerticalStackLayout>
+                    </Border>
 
-                        <!-- Indicadores Rápidos -->
-                        <Grid ColumnDefinitions="*, *, *" ColumnSpacing="8" Margin="0, 6, 0, 0">
-                            <!-- Métricas Servicios -->
-                            <Border Grid.Column="0"
-                                    StrokeShape="RoundRectangle 10"
-                                    BackgroundColor="#3A302A"
-                                    Padding="8, 10">
-                                <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
-                                    <Label Text="{Binding TotalServicios}" FontSize="18" FontAttributes="Bold" TextColor="#C5A059" HorizontalOptions="Center" />
-                                    <Label Text="Servicios" FontSize="10" TextColor="#D1C7BD" HorizontalOptions="Center" />
+                    <!-- SECCIÓN 1: MI INFORMACIÓN -->
+                    <Border
+                        Stroke="{StaticResource BorderColor}"
+                        StrokeThickness="1"
+                        BackgroundColor="{StaticResource SurfaceColor}"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="18">
+                        <VerticalStackLayout Spacing="14">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label
+                                    Grid.Column="0"
+                                    Text="MI INFORMACIÓN"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="11" FontAttributes="Bold"
+                                    TextColor="{StaticResource TextColorSecondary}"
+                                    CharacterSpacing="1"
+                                    VerticalOptions="Center" />
+                                <Button
+                                    Grid.Column="1"
+                                    Text="Editar"
+                                    Command="{Binding IrAEditarPerfilCommand}"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource PrimaryColor}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="12" FontAttributes="Bold"
+                                    Padding="4,0"
+                                    HeightRequest="32" />
+                            </Grid>
+
+                            <!-- NOMBRE -->
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Nombre" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
+                                    <Label Text="{Binding Nombre}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
                                 </VerticalStackLayout>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding IrACatalogoCommand}" />
-                                </Border.GestureRecognizers>
-                            </Border>
+                            </Grid>
+                            <BoxView HeightRequest="1" BackgroundColor="{StaticResource BorderColor}" />
 
-                            <!-- Métricas Estilistas -->
-                            <Border Grid.Column="1"
-                                    StrokeShape="RoundRectangle 10"
-                                    BackgroundColor="#3A302A"
-                                    Padding="8, 10">
-                                <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
-                                    <Label Text="{Binding TotalEstilistas}" FontSize="18" FontAttributes="Bold" TextColor="#D48B96" HorizontalOptions="Center" />
-                                    <Label Text="Estilistas" FontSize="10" TextColor="#D1C7BD" HorizontalOptions="Center" />
+                            <!-- APELLIDO -->
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Apellido" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
+                                    <Label Text="{Binding Apellido}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
                                 </VerticalStackLayout>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding IrAEstilistasCommand}" />
-                                </Border.GestureRecognizers>
-                            </Border>
+                            </Grid>
+                            <BoxView HeightRequest="1" BackgroundColor="{StaticResource BorderColor}" />
 
-                            <!-- Métricas Citas Hoy -->
-                            <Border Grid.Column="2"
-                                    StrokeShape="RoundRectangle 10"
-                                    BackgroundColor="#3A302A"
-                                    Padding="8, 10">
-                                <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
-                                    <Label Text="{Binding TotalCitasHoy}" FontSize="18" FontAttributes="Bold" TextColor="#A7F3D0" HorizontalOptions="Center" />
-                                    <Label Text="Citas Hoy" FontSize="10" TextColor="#D1C7BD" HorizontalOptions="Center" />
+                            <!-- USUARIO / LOGIN -->
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Usuario / Login" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
+                                    <Label Text="{Binding Login}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
                                 </VerticalStackLayout>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding IrAAgendaCommand}" />
-                                </Border.GestureRecognizers>
-                            </Border>
-                        </Grid>
-                    </VerticalStackLayout>
-                </Border>
+                            </Grid>
+                            <BoxView HeightRequest="1" BackgroundColor="{StaticResource BorderColor}" />
 
-                <!-- 3. Parámetros Operativos del Negocio -->
-                <Border Style="{StaticResource CardBorderStyle}" Padding="18">
-                    <VerticalStackLayout Spacing="14">
-                        <Label Text="PARÁMETROS OPERATIVOS DEL SALÓN"
-                               FontSize="11"
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource TextColorSecondary}"
-                               CharacterSpacing="1" />
+                            <!-- CORREO -->
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Correo Electrónico" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
+                                    <Label Text="{Binding Correo}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <BoxView HeightRequest="1" BackgroundColor="{StaticResource BorderColor}" />
 
-                        <!-- Sucursal -->
-                        <Grid ColumnDefinitions="32, *" ColumnSpacing="10" VerticalOptions="Center">
-                            <Border Grid.Column="0" StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource SecondaryLight}" HeightRequest="32" WidthRequest="32">
-                                <Label Text="📍" FontSize="14" HorizontalOptions="Center" VerticalOptions="Center" />
-                            </Border>
-                            <VerticalStackLayout Grid.Column="1" Spacing="1">
-                                <Label Text="Sede Principal" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
-                                <Label Text="{Binding Sucursal}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                            <!-- TELÉFONO -->
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Teléfono de Contacto" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
+                                    <Label Text="{Binding Telefono}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- SECCIÓN 2: CUENTA Y SEGURIDAD -->
+                    <Border
+                        Stroke="{StaticResource BorderColor}"
+                        StrokeThickness="1"
+                        BackgroundColor="{StaticResource SurfaceColor}"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="18">
+                        <VerticalStackLayout Spacing="14">
+                            <Label
+                                Text="CUENTA"
+                                FontFamily="PlusJakartaSans"
+                                FontSize="11" FontAttributes="Bold"
+                                TextColor="{StaticResource TextColorSecondary}"
+                                CharacterSpacing="1" />
+
+                            <!-- ROL -->
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Rol de Aplicación" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
+                                    <Label Text="{Binding Rol}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource PrimaryColor}" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1" Text="Administrador" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource SecondaryColor}" VerticalOptions="Center" />
+                            </Grid>
+                            <BoxView HeightRequest="1" BackgroundColor="{StaticResource BorderColor}" />
+
+                            <!-- ESTADO DE LA CUENTA -->
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Estado de Cuenta" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
+                                    <Label Text="{Binding EstadoCuenta}" FontSize="13" FontAttributes="Bold" TextColor="#2E7D32" />
+                                </VerticalStackLayout>
+                                <Frame Grid.Column="1" BackgroundColor="#E8F5E9" CornerRadius="6" Padding="8,4" HasShadow="False" VerticalOptions="Center">
+                                    <Label Text="Activo" FontSize="10" FontAttributes="Bold" TextColor="#2E7D32" />
+                                </Frame>
+                            </Grid>
+                            <BoxView HeightRequest="1" BackgroundColor="{StaticResource BorderColor}" />
+
+                            <!-- SEGURIDAD / CONTRASEÑA -->
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Seguridad y Credenciales" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
+                                    <Label Text="Protegido con JWT &amp; BCrypt" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                                </VerticalStackLayout>
+                                <Button
+                                    Grid.Column="1"
+                                    Text="Gestionar"
+                                    Command="{Binding IrASeguridadCommand}"
+                                    BackgroundColor="{StaticResource BackgroundColor}"
+                                    TextColor="{StaticResource TextColorPrimary}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="11" FontAttributes="Bold"
+                                    CornerRadius="8"
+                                    HeightRequest="32"
+                                    Padding="10,0"
+                                    VerticalOptions="Center" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- SECCIÓN 3: PREFERENCIAS LOCALES -->
+                    <Border
+                        Stroke="{StaticResource BorderColor}"
+                        StrokeThickness="1"
+                        BackgroundColor="{StaticResource SurfaceColor}"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="18">
+                        <VerticalStackLayout Spacing="14">
+                            <Label
+                                Text="PREFERENCIAS"
+                                FontFamily="PlusJakartaSans"
+                                FontSize="11" FontAttributes="Bold"
+                                TextColor="{StaticResource TextColorSecondary}"
+                                CharacterSpacing="1" />
+
+                            <!-- NOTIFICACIONES PUSH -->
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Notificaciones del Salón" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                                    <Label Text="Avisos de nuevas citas y mensajes" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
+                                </VerticalStackLayout>
+                                <Switch Grid.Column="1" IsToggled="{Binding NotificacionesPush}" OnColor="{StaticResource PrimaryColor}" VerticalOptions="Center" />
+                            </Grid>
+                            <BoxView HeightRequest="1" BackgroundColor="{StaticResource BorderColor}" />
+
+                            <!-- SONIDO NOTIFICACIONES -->
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Alertas Sonoras" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                                    <Label Text="Emitir tono al recibir reservas" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
+                                </VerticalStackLayout>
+                                <Switch Grid.Column="1" IsToggled="{Binding SonidoNotificaciones}" OnColor="{StaticResource PrimaryColor}" VerticalOptions="Center" />
+                            </Grid>
+                            <BoxView HeightRequest="1" BackgroundColor="{StaticResource BorderColor}" />
+
+                            <!-- RECORDATORIOS AGENDA -->
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Recordatorios de Agenda" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                                    <Label Text="Avisar 15 min antes de cada servicio" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
+                                </VerticalStackLayout>
+                                <Switch Grid.Column="1" IsToggled="{Binding RecordatoriosAgenda}" OnColor="{StaticResource PrimaryColor}" VerticalOptions="Center" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- SECCIÓN 4: APLICACIÓN -->
+                    <Border
+                        Stroke="{StaticResource BorderColor}"
+                        StrokeThickness="1"
+                        BackgroundColor="{StaticResource SurfaceColor}"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="18">
+                        <VerticalStackLayout Spacing="14">
+                            <Label
+                                Text="APLICACIÓN"
+                                FontFamily="PlusJakartaSans"
+                                FontSize="11" FontAttributes="Bold"
+                                TextColor="{StaticResource TextColorSecondary}"
+                                CharacterSpacing="1" />
+
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Nombre de la App" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
+                                    <Label Text="{Binding AppNombre}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1" Text="Oficial" FontSize="11" TextColor="{StaticResource SecondaryColor}" FontAttributes="Bold" VerticalOptions="Center" />
+                            </Grid>
+                            <BoxView HeightRequest="1" BackgroundColor="{StaticResource BorderColor}" />
+
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Versión Actual" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
+                                    <Label Text="{Binding AppVersion}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1" Text="Release" FontSize="11" TextColor="{StaticResource TextColorSecondary}" VerticalOptions="Center" />
+                            </Grid>
+                            <BoxView HeightRequest="1" BackgroundColor="{StaticResource BorderColor}" />
+
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Arquitectura del Sistema" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
+                                <Label Text="{Binding AppInfo}" FontSize="12" TextColor="{StaticResource TextColorPrimary}" LineHeight="1.2" />
                             </VerticalStackLayout>
-                        </Grid>
 
-                        <BoxView HeightRequest="1" Color="{StaticResource SecondaryLight}" />
+                            <Button
+                                Text="Ver información del sistema ›"
+                                Command="{Binding IrAInfoAppCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{StaticResource PrimaryColor}"
+                                FontFamily="PlusJakartaSans"
+                                FontSize="12" FontAttributes="Bold"
+                                HorizontalOptions="Start"
+                                Padding="0"
+                                HeightRequest="32" />
+                        </VerticalStackLayout>
+                    </Border>
 
-                        <!-- Horario de Operación -->
-                        <Grid ColumnDefinitions="32, *" ColumnSpacing="10" VerticalOptions="Center">
-                            <Border Grid.Column="0" StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource SecondaryLight}" HeightRequest="32" WidthRequest="32">
-                                <Label Text="⏱" FontSize="14" HorizontalOptions="Center" VerticalOptions="Center" />
-                            </Border>
-                            <VerticalStackLayout Grid.Column="1" Spacing="1">
-                                <Label Text="Horario de Atención" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
-                                <Label Text="{Binding HorarioOperativo}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
-                            </VerticalStackLayout>
-                        </Grid>
-
-                        <BoxView HeightRequest="1" Color="{StaticResource SecondaryLight}" />
-
-                        <!-- Política Fiscal -->
-                        <Grid ColumnDefinitions="32, *" ColumnSpacing="10" VerticalOptions="Center">
-                            <Border Grid.Column="0" StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource SecondaryLight}" HeightRequest="32" WidthRequest="32">
-                                <Label Text="🧾" FontSize="14" HorizontalOptions="Center" VerticalOptions="Center" />
-                            </Border>
-                            <VerticalStackLayout Grid.Column="1" Spacing="1">
-                                <Label Text="Régimen Fiscal &amp; Facturación" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
-                                <Label Text="{Binding PoliticaFiscal}" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
-                            </VerticalStackLayout>
-                        </Grid>
-                    </VerticalStackLayout>
-                </Border>
-
-                <!-- 4. Infraestructura & Conectividad del Sistema -->
-                <Border Style="{StaticResource CardBorderStyle}" Padding="18">
-                    <VerticalStackLayout Spacing="12">
-                        <Label Text="INFRAESTRUCTURA &amp; SEGURIDAD"
-                               FontSize="11"
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource TextColorSecondary}"
-                               CharacterSpacing="1" />
-
-                        <Grid ColumnDefinitions="32, *" ColumnSpacing="10" VerticalOptions="Center">
-                            <Border Grid.Column="0" StrokeShape="RoundRectangle 8" BackgroundColor="#ECFDF5" HeightRequest="32" WidthRequest="32">
-                                <Label Text="🟢" FontSize="12" HorizontalOptions="Center" VerticalOptions="Center" />
-                            </Border>
-                            <VerticalStackLayout Grid.Column="1" Spacing="1">
-                                <Label Text="Estado de la Web API" FontSize="11" TextColor="{StaticResource TextColorSecondary}" />
-                                <Label Text="{Binding BackendInfo}" FontSize="13" FontAttributes="Bold" TextColor="#059669" />
-                            </VerticalStackLayout>
-                        </Grid>
-
-                        <Label Text="Base de datos PostgreSQL en la nube protegida con Spring Security 6 y JJWT."
-                               FontSize="11"
-                               TextColor="{StaticResource TextColorSecondary}" />
-                    </VerticalStackLayout>
-                </Border>
-
-                <!-- 5. Botón Cerrar Sesión Administrativa de Lujo -->
-                <Border StrokeShape="RoundRectangle 24"
-                        BackgroundColor="#FFF5F5"
+                    <!-- SECCIÓN 5: SESIÓN (CERRAR SESIÓN) -->
+                    <Border
                         Stroke="#FED7D7"
                         StrokeThickness="1"
-                        HeightRequest="48"
-                        Margin="0, 8, 0, 24"
-                        HorizontalOptions="Fill">
-                    <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                        <Label Text="🚪" FontSize="16" VerticalOptions="Center" />
-                        <Label Text="Cerrar Sesión de Administrador"
-                               FontSize="13"
-                               FontAttributes="Bold"
-                               TextColor="#E53E3E"
-                               VerticalOptions="Center" />
-                    </HorizontalStackLayout>
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding CerrarSesionCommand}" />
-                    </Border.GestureRecognizers>
-                </Border>
+                        BackgroundColor="#FFF5F5"
+                        StrokeShape="RoundRectangle 16"
+                        HeightRequest="52"
+                        Margin="0,4,0,16">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding CerrarSesionCommand}" />
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Label Text="🚪" FontSize="18" VerticalOptions="Center" />
+                            <Label
+                                Text="Cerrar Sesión de Administrador"
+                                FontFamily="PlusJakartaSans"
+                                FontSize="14" FontAttributes="Bold"
+                                TextColor="#C53030"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Border>
 
-            </VerticalStackLayout>
-        </ScrollView>
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
     </Grid>
 
 </ContentPage>

@@ -107,4 +107,69 @@ public class UsuarioService {
                 .activo(usuario.getActivo())
                 .build();
     }
+
+    @Transactional
+    public void cambiarClave(String login, com.shushinestudio.dtos.auth.CambiarClaveDto dto) {
+        if (dto.getNuevaClave() == null || dto.getNuevaClave().isBlank()) {
+            throw new IllegalArgumentException("La nueva contraseña no puede estar vacía.");
+        }
+        if (!dto.getNuevaClave().equals(dto.getConfirmarClave())) {
+            throw new IllegalArgumentException("La nueva contraseña y la confirmación no coinciden.");
+        }
+        if (dto.getNuevaClave().length() < 6) {
+            throw new IllegalArgumentException("La nueva contraseña debe tener al menos 6 caracteres.");
+        }
+
+        Usuario usuario = usuarioRepository.findByLogin(login)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + login));
+
+        if (!passwordEncoder.matches(dto.getClaveActual(), usuario.getClave())) {
+            throw new IllegalArgumentException("La contraseña actual es incorrecta.");
+        }
+
+        if (passwordEncoder.matches(dto.getNuevaClave(), usuario.getClave())) {
+            throw new IllegalArgumentException("La nueva contraseña debe ser diferente a la contraseña actual.");
+        }
+
+        usuario.setClave(passwordEncoder.encode(dto.getNuevaClave()));
+        usuarioRepository.save(usuario);
+    }
+
+    @Transactional
+    public UsuarioPerfil actualizarPerfil(String login, com.shushinestudio.dtos.auth.ActualizarPerfilDto dto) {
+        Usuario usuario = usuarioRepository.findByLogin(login)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + login));
+
+        if (dto.getNombre() == null || dto.getNombre().isBlank()) {
+            throw new IllegalArgumentException("El nombre no puede estar vacío.");
+        }
+
+        usuario.setNombre(dto.getNombre().trim());
+        if (dto.getApellido() != null) {
+            usuario.setApellido(dto.getApellido().trim());
+        }
+        if (dto.getTelefono() != null) {
+            usuario.setTelefono(dto.getTelefono().trim());
+        }
+        if (dto.getCorreo() != null && !dto.getCorreo().isBlank()) {
+            usuario.setCorreo(dto.getCorreo().trim());
+        }
+
+        usuario.setNombreCompleto((usuario.getNombre() != null ? usuario.getNombre() : "") + 
+                                  (usuario.getApellido() != null ? " " + usuario.getApellido() : ""));
+
+        Usuario guardado = usuarioRepository.save(usuario);
+
+        return UsuarioPerfil.builder()
+                .id(guardado.getId())
+                .login(guardado.getLogin())
+                .correo(guardado.getCorreo())
+                .nombre(guardado.getNombre())
+                .apellido(guardado.getApellido())
+                .telefono(guardado.getTelefono())
+                .rol(guardado.getRol() != null ? guardado.getRol().getNombre() : null)
+                .activo(guardado.getActivo())
+                .build();
+    }
 }
+

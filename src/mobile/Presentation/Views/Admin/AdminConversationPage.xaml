@@ -61,31 +61,53 @@
         </ScrollView>
 
         <!-- 3. LISTA DE MENSAJES -->
-        <ScrollView Grid.Row="1" IsVisible="{Binding HasMessages}">
-            <CollectionView ItemsSource="{Binding Messages}" Margin="16,12">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="entities:ChatMessageItem">
-                        <Grid Margin="0,4">
-                            <!-- Mensaje enviado por el Administrador (propio) -->
-                            <Frame Style="{StaticResource AdminBubble}" IsVisible="{Binding EsMio}">
-                                <VerticalStackLayout Spacing="4">
-                                    <Label Text="{Binding Content}" FontFamily="PlusJakartaSans" FontSize="14" TextColor="{StaticResource TextLight}" />
-                                    <Label Text="{Binding TimeDisplay}" FontFamily="PlusJakartaSans" FontSize="10" TextColor="#FFFFFF99" HorizontalOptions="End" />
-                                </VerticalStackLayout>
-                            </Frame>
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Messages}" IsVisible="{Binding HasMessages}" Margin="16,12">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="entities:ChatMessageItem">
+                    <Grid Margin="0,4">
+                        <!-- Mensaje enviado por el Administrador (propio) -->
+                        <Frame Style="{StaticResource AdminBubble}" IsVisible="{Binding EsMio}">
+                            <VerticalStackLayout Spacing="4">
+                                <Image
+                                    IsVisible="{Binding TieneImagen}"
+                                    Source="{Binding ImagenUrl}"
+                                    Aspect="AspectFill"
+                                    MaximumHeightRequest="200"
+                                    MaximumWidthRequest="220"
+                                    HorizontalOptions="End" />
+                                <Label
+                                    IsVisible="{Binding TieneTexto}"
+                                    Text="{Binding Content}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="14"
+                                    TextColor="{StaticResource TextLight}" />
+                                <Label Text="{Binding TimeDisplay}" FontFamily="PlusJakartaSans" FontSize="10" TextColor="#FFFFFF99" HorizontalOptions="End" />
+                            </VerticalStackLayout>
+                        </Frame>
 
-                            <!-- Mensaje enviado por el Cliente -->
-                            <Frame Style="{StaticResource ClientBubble}" IsVisible="{Binding NoEsMio}">
-                                <VerticalStackLayout Spacing="4">
-                                    <Label Text="{Binding Content}" FontFamily="PlusJakartaSans" FontSize="14" TextColor="{StaticResource TextPrimary}" />
-                                    <Label Text="{Binding TimeDisplay}" FontFamily="PlusJakartaSans" FontSize="10" TextColor="{StaticResource TextSecondary}" HorizontalOptions="End" />
-                                </VerticalStackLayout>
-                            </Frame>
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </ScrollView>
+                        <!-- Mensaje enviado por el Cliente -->
+                        <Frame Style="{StaticResource ClientBubble}" IsVisible="{Binding NoEsMio}">
+                            <VerticalStackLayout Spacing="4">
+                                <Image
+                                    IsVisible="{Binding TieneImagen}"
+                                    Source="{Binding ImagenUrl}"
+                                    Aspect="AspectFill"
+                                    MaximumHeightRequest="200"
+                                    MaximumWidthRequest="220"
+                                    HorizontalOptions="Start" />
+                                <Label
+                                    IsVisible="{Binding TieneTexto}"
+                                    Text="{Binding Content}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="14"
+                                    TextColor="{StaticResource TextPrimary}" />
+                                <Label Text="{Binding TimeDisplay}" FontFamily="PlusJakartaSans" FontSize="10" TextColor="{StaticResource TextSecondary}" HorizontalOptions="End" />
+                            </VerticalStackLayout>
+                        </Frame>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
         <!-- 4. COMPOSITOR DE RESPUESTA ADMIN -->
         <Grid Grid.Row="2" BackgroundColor="{StaticResource Surface}" Padding="12,10,12,28">
@@ -111,9 +133,30 @@
             </Frame>
 
             <!-- Input bar -->
-            <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                <!-- Botón adjuntar imagen -->
                 <Frame
                     Grid.Column="0"
+                    WidthRequest="44"
+                    HeightRequest="44"
+                    CornerRadius="22"
+                    Padding="0"
+                    HasShadow="False"
+                    BackgroundColor="{StaticResource InputBackground}">
+                    <Button
+                        Text="📷"
+                        Command="{Binding AttachImageCommand}"
+                        BackgroundColor="Transparent"
+                        FontSize="18"
+                        WidthRequest="44"
+                        HeightRequest="44"
+                        Padding="0"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center" />
+                </Frame>
+
+                <Frame
+                    Grid.Column="1"
                     BackgroundColor="{StaticResource InputBackground}"
                     BorderColor="{StaticResource Border}"
                     CornerRadius="24"
@@ -132,7 +175,7 @@
                 </Frame>
 
                 <Button
-                    Grid.Column="1"
+                    Grid.Column="2"
                     Text="➤"
                     Command="{Binding EnviarRespuestaCommand}"
                     IsVisible="{Binding IsNotSending}"
@@ -140,17 +183,17 @@
                     TextColor="{StaticResource TextLight}"
                     FontSize="18"
                     CornerRadius="24"
-                    WidthRequest="48"
-                    HeightRequest="48"
+                    WidthRequest="44"
+                    HeightRequest="44"
                     Padding="0" />
 
                 <ActivityIndicator
-                    Grid.Column="1"
+                    Grid.Column="2"
                     IsRunning="True"
                     IsVisible="{Binding IsSending}"
                     Color="{StaticResource Primary}"
-                    WidthRequest="48"
-                    HeightRequest="48" />
+                    WidthRequest="44"
+                    HeightRequest="44" />
             </Grid>
         </Grid>
     </Grid>

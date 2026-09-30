@@ -91,12 +91,12 @@ public class ChatRepository : IChatRepository
         return new List<ChatMessageItem>();
     }
 
-    public async Task<ChatMessageItem?> EnviarMensajeClienteAsync(string contenido)
+    public async Task<ChatMessageItem?> EnviarMensajeClienteAsync(string contenido, string? imagenUrl = null)
     {
         await PrepararHeaderAutenticacionAsync();
         try
         {
-            var payload = new { contenido };
+            var payload = new { contenido, imagenUrl };
             var response = await _httpClient.PostAsJsonAsync("chat/mensajes", payload, JsonOptions);
             if (response.IsSuccessStatusCode)
             {
@@ -217,12 +217,12 @@ public class ChatRepository : IChatRepository
         return new List<ChatMessageItem>();
     }
 
-    public async Task<ChatMessageItem?> EnviarMensajeAdminAsync(int conversacionId, string contenido)
+    public async Task<ChatMessageItem?> EnviarMensajeAdminAsync(int conversacionId, string contenido, string? imagenUrl = null)
     {
         await PrepararHeaderAutenticacionAsync();
         try
         {
-            var payload = new { contenido };
+            var payload = new { contenido, imagenUrl };
             var response = await _httpClient.PostAsJsonAsync($"admin/chat/conversaciones/{conversacionId}/mensajes", payload, JsonOptions);
             if (response.IsSuccessStatusCode)
             {
@@ -248,6 +248,41 @@ public class ChatRepository : IChatRepository
         {
             System.Diagnostics.Debug.WriteLine($"[ChatRepository] Error en MarcarMensajesLeidosAdminAsync: {ex.Message}");
             return false;
+        }
+    }
+
+    public async Task<string?> SubirImagenChatAsync(Stream stream, string nombreArchivo)
+    {
+        await PrepararHeaderAutenticacionAsync();
+        try
+        {
+            using var content = new MultipartFormDataContent();
+            var streamContent = new StreamContent(stream);
+            var extension = Path.GetExtension(nombreArchivo).ToLowerInvariant();
+            var mime = extension switch
+            {
+                ".png" => "image/png",
+                ".webp" => "image/webp",
+                _ => "image/jpeg"
+            };
+            streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(mime);
+            content.Add(streamContent, "archivo", nombreArchivo);
+
+            var response = await _httpClient.PostAsync("archivos/subir", content);
+            if (!response.IsSuccessStatusCode) return null;
+
+            var json = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("url", out var urlProp))
+            {
+                return urlProp.GetString();
+            }
+            return null;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ChatRepository] Error al subir imagen de chat: {ex.Message}");
+            return null;
         }
     }
 }

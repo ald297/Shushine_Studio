@@ -242,7 +242,7 @@
                                     FontSize="15"
                                     TextColor="{StaticResource TextPrimary}" />
                                 <Label
-                                    Text="UI preparada — backend no disponible"
+                                    Text="Contraseña y privacidad"
                                     FontFamily="PlusJakartaSans"
                                     FontSize="11"
                                     TextColor="{StaticResource TextSecondary}" />

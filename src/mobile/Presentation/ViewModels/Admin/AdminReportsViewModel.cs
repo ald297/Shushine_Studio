@@ -147,13 +147,33 @@ public partial class AdminReportsViewModel : ObservableObject
     [RelayCommand]
     private async Task ExportarReporteAsync()
     {
-        if (Application.Current?.MainPage != null)
+        try
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Exportación Preparada",
-                "La generación de reportes en PDF/Excel estará disponible en la próxima versión del backend con soporte tributario oficial.",
-                "Entendido"
-            );
+            IsBusy = true;
+            var csv = await _reservaRepository.DescargarReporteCsvAsync();
+            if (string.IsNullOrEmpty(csv))
+            {
+                await Shell.Current.DisplayAlert("Exportación", "No se pudo obtener el reporte del servidor.", "OK");
+                return;
+            }
+
+            var fileName = $"Reporte_Shushine_{DateTime.Now:yyyyMMdd_HHmm}.csv";
+            var filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
+            await File.WriteAllTextAsync(filePath, csv);
+
+            await Share.Default.RequestAsync(new ShareFileRequest
+            {
+                Title = "Reporte Oficial de Citas y Finanzas - Shushine Studio",
+                File = new ShareFile(filePath)
+            });
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert("Error", "Error al exportar reporte: " + ex.Message, "OK");
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 
@@ -166,6 +186,14 @@ public partial class AdminReportsViewModel : ObservableObject
     [RelayCommand]
     private async Task RegresarALoginAsync()
     {
-        await Shell.Current.GoToAsync("//LoginPage");
+        await _authRepository.LogoutAsync();
+        if (Shell.Current is AppShell appShell)
+        {
+            appShell.SwitchToLogin();
+        }
+        else
+        {
+            await Shell.Current.GoToAsync("//LoginPage");
+        }
     }
 }

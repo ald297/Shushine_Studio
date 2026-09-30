@@ -115,14 +115,7 @@ public partial class AdminSettingsViewModel : ObservableObject
     [RelayCommand]
     private async Task CambiarPasswordAsync()
     {
-        if (Application.Current?.MainPage != null)
-        {
-            await Application.Current.MainPage.DisplayAlert(
-                "Función Preparada",
-                "El cambio de contraseña en línea estará disponible cuando la API de seguridad habilite el endpoint PUT /api/auth/password.\n\nPara restablecimiento de credenciales, contacte al administrador de la base de datos.",
-                "Entendido"
-            );
-        }
+        await Shell.Current.GoToAsync("SecurityPage");
     }
 
     [RelayCommand]
@@ -140,7 +133,14 @@ public partial class AdminSettingsViewModel : ObservableObject
         }
 
         await _authRepository.LogoutAsync();
-        await Shell.Current.GoToAsync("//LoginPage");
+        if (Shell.Current is AppShell appShell)
+        {
+            appShell.SwitchToLogin();
+        }
+        else
+        {
+            await Shell.Current.GoToAsync("//LoginPage");
+        }
     }
 
     [RelayCommand]
@@ -152,6 +152,14 @@ public partial class AdminSettingsViewModel : ObservableObject
     [RelayCommand]
     private async Task RegresarALoginAsync()
     {
-        await Shell.Current.GoToAsync("//LoginPage");
+        await _authRepository.LogoutAsync();
+        if (Shell.Current is AppShell appShell)
+        {
+            appShell.SwitchToLogin();
+        }
+        else
+        {
+            await Shell.Current.GoToAsync("//LoginPage");
+        }
     }
 }

@@ -13,6 +13,9 @@ public class ChatMessageItem
     [JsonPropertyName("contenido")]
     public string Content { get; set; } = string.Empty;
 
+    [JsonPropertyName("imagenUrl")]
+    public string? ImagenUrl { get; set; }
+
     [JsonPropertyName("idRemitente")]
     public string? IdRemitente { get; set; }
 
@@ -32,8 +35,11 @@ public class ChatMessageItem
     public bool Leido { get; set; }
 
     // Propiedades de ayuda para bindings de la UI (.NET MAUI)
+    public bool TieneImagen => !string.IsNullOrWhiteSpace(ImagenUrl);
+    public bool TieneTexto => !string.IsNullOrWhiteSpace(Content) && Content != "[Foto adjunta]";
     public bool IsFromClient => EsMio;
     public bool IsNotFromClient => !IsFromClient;
+    public bool NoEsMio => !EsMio;
     public string TimeDisplay => Timestamp.ToString("HH:mm");
 }
 

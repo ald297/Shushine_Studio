@@ -91,7 +91,7 @@ public class ChatService implements IChatService {
     @Override
     @Transactional
     public MensajeSalidaDto enviarMensajeCliente(String userLogin, MensajeEnviarDto dto) {
-        validarContenido(dto.getContenido());
+        validarContenido(dto.getContenido(), dto.getImagenUrl());
 
         Usuario usuario = obtenerUsuarioPorLogin(userLogin);
         Cliente cliente = obtenerOCrearClienteParaUsuario(usuario);
@@ -109,11 +109,16 @@ public class ChatService implements IChatService {
                     return conversacionRepository.save(nueva);
                 });
 
+        String texto = (dto.getContenido() != null && !dto.getContenido().isBlank())
+                ? dto.getContenido().trim()
+                : "[Foto adjunta]";
+
         LocalDateTime now = LocalDateTime.now();
         Mensaje mensaje = Mensaje.builder()
                 .conversacion(conversacion)
                 .remitente(usuario)
-                .contenido(dto.getContenido().trim())
+                .contenido(texto)
+                .imagenUrl(dto.getImagenUrl())
                 .fechaEnvio(now)
                 .leido(false)
                 .activo(true)
@@ -211,17 +216,22 @@ public class ChatService implements IChatService {
     @Override
     @Transactional
     public MensajeSalidaDto enviarMensajeAdmin(Integer conversacionId, String adminLogin, MensajeEnviarDto dto) {
-        validarContenido(dto.getContenido());
+        validarContenido(dto.getContenido(), dto.getImagenUrl());
 
         Usuario admin = obtenerUsuarioPorLogin(adminLogin);
         Conversacion conversacion = conversacionRepository.findById(conversacionId)
                 .orElseThrow(() -> new IllegalArgumentException("Conversación con ID " + conversacionId + " no encontrada"));
 
+        String texto = (dto.getContenido() != null && !dto.getContenido().isBlank())
+                ? dto.getContenido().trim()
+                : "[Foto adjunta]";
+
         LocalDateTime now = LocalDateTime.now();
         Mensaje mensaje = Mensaje.builder()
                 .conversacion(conversacion)
                 .remitente(admin)
-                .contenido(dto.getContenido().trim())
+                .contenido(texto)
+                .imagenUrl(dto.getImagenUrl())
                 .fechaEnvio(now)
                 .leido(false)
                 .activo(true)
@@ -250,11 +260,13 @@ public class ChatService implements IChatService {
     // UTILIDADES Y MAPEOS
     // =========================================================================
 
-    private void validarContenido(String contenido) {
-        if (contenido == null || contenido.trim().isEmpty()) {
+    private void validarContenido(String contenido, String imagenUrl) {
+        boolean sinTexto = contenido == null || contenido.trim().isEmpty();
+        boolean sinImagen = imagenUrl == null || imagenUrl.trim().isEmpty();
+        if (sinTexto && sinImagen) {
             throw new IllegalArgumentException("El contenido del mensaje no puede estar vacío ni contener solo espacios.");
         }
-        if (contenido.length() > 1000) {
+        if (contenido != null && contenido.length() > 1000) {
             throw new IllegalArgumentException("El mensaje supera el límite máximo permitido de 1000 caracteres.");
         }
     }
@@ -305,6 +317,7 @@ public class ChatService implements IChatService {
                 .id(m.getId())
                 .conversacionId(m.getConversacion() != null ? m.getConversacion().getId() : null)
                 .contenido(m.getContenido())
+                .imagenUrl(m.getImagenUrl())
                 .idRemitente(m.getRemitente() != null ? m.getRemitente().getId() : null)
                 .nombreRemitente(nombreRemitente)
                 .rolRemitente(rolRemitente)

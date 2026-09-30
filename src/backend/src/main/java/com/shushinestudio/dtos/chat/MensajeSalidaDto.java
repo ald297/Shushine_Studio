@@ -15,6 +15,7 @@ public class MensajeSalidaDto {
     private Integer id;
     private Integer conversacionId;
     private String contenido;
+    private String imagenUrl;
     private UUID idRemitente;
     private String nombreRemitente;
     private String rolRemitente;

@@ -247,31 +247,6 @@
                     </VerticalStackLayout>
                 </Frame>
 
-                <!-- BANNER DE REPROGRAMACIÓN (HONESTIDAD DE BACKEND) -->
-                <Frame
-                    BackgroundColor="#F8F5F1"
-                    BorderColor="{StaticResource Border}"
-                    CornerRadius="14"
-                    Padding="16,12"
-                    HasShadow="False">
-                    <Grid ColumnDefinitions="*,Auto">
-                        <VerticalStackLayout Grid.Column="0" Spacing="2">
-                            <Label Text="Reprogramación y Reasignación" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
-                            <Label Text="Función no soportada en la versión actual del backend." FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
-                        </VerticalStackLayout>
-                        <Button
-                            Grid.Column="1"
-                            Text="Consultar"
-                            Command="{Binding ReprogramarNoDisponibleCommand}"
-                            BackgroundColor="Transparent"
-                            TextColor="{StaticResource Secondary}"
-                            FontFamily="PlusJakartaSans"
-                            FontSize="12" FontAttributes="Bold"
-                            HeightRequest="32"
-                            Padding="8,0" />
-                    </Grid>
-                </Frame>
-
             </VerticalStackLayout>
         </ScrollView>
 
