@@ -25,10 +25,14 @@ import java.util.UUID;
 @Tag(name = "Archivos y Multimedia", description = "Endpoints para subida persistente de imágenes a Supabase Storage")
 public class ArchivoController {
 
-    private static final String SUPABASE_STORAGE_URL = "https://acikahicfjtojuvqcvxv.supabase.co/storage/v1/object";
-    private static final String SUPABASE_PUBLIC_URL = "https://acikahicfjtojuvqcvxv.supabase.co/storage/v1/object/public";
-    private static final String DEFAULT_BUCKET = "shushine-media";
-    private static final String SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjaWthaGljZmp0b2p1dnFjdnh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwNTIzNzQsImV4cCI6MjEwNDYyODM3NH0.DQsPt8hNgCNhEyda7Wv03VCH66ZqwEGe09NRj2Md5MI";
+    @Value("${supabase.url:https://acikahicfjtojuvqcvxv.supabase.co}")
+    private String supabaseUrl;
+
+    @Value("${supabase.storage.bucket:shushine-media}")
+    private String storageBucket;
+
+    @Value("${supabase.service-role-key:}")
+    private String serviceRoleKey;
 
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(15))
@@ -36,7 +40,7 @@ public class ArchivoController {
 
     @PostMapping(value = "/subir", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @SecurityRequirement(name = "Bearer Authentication")
-    @Operation(summary = "Subir imagen adjunta a Supabase Storage", description = "Almacena la imagen de forma persistente en Supabase Storage y retorna su URL pública accesible.")
+    @Operation(summary = "Subir imagen adjunta", description = "Sube la imagen a Supabase Storage y retorna su URL pública accesible para vincular a chats, solicitudes o perfiles.")
     public ResponseEntity<Map<String, Object>> subirArchivo(@RequestParam("archivo") MultipartFile archivo) {
         if (archivo == null || archivo.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "No se proporcionó ningún archivo válido"));
@@ -51,34 +55,48 @@ public class ArchivoController {
             byte[] bytes = archivo.getBytes();
             String originalName = archivo.getOriginalFilename() != null ? archivo.getOriginalFilename() : "imagen.jpg";
             String extension = originalName.contains(".") ? originalName.substring(originalName.lastIndexOf(".")) : ".jpg";
-            String fileName = UUID.randomUUID().toString() + extension;
+            String cleanName = UUID.randomUUID() + extension.toLowerCase();
 
-            // 1. Subida persistente a Supabase Storage
-            String uploadUrl = SUPABASE_STORAGE_URL + "/" + DEFAULT_BUCKET + "/" + fileName;
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(uploadUrl))
-                    .timeout(Duration.ofSeconds(20))
-                    .header("Authorization", "Bearer " + SUPABASE_ANON_KEY)
-                    .header("Content-Type", contentType)
-                    .POST(HttpRequest.BodyPublishers.ofByteArray(bytes))
-                    .build();
+            // 1. Intentar subir directamente a Supabase Storage
+            if (serviceRoleKey != null && !serviceRoleKey.isBlank()) {
+                try {
+                    String uploadUrl = supabaseUrl.replaceAll("/+$", "") + "/storage/v1/object/" + storageBucket + "/" + cleanName;
+                    HttpRequest request = HttpRequest.newBuilder()
+                            .uri(URI.create(uploadUrl))
+                            .header("Authorization", "Bearer " + serviceRoleKey)
+                            .header("Content-Type", contentType)
+                            .timeout(Duration.ofSeconds(15))
+                            .POST(HttpRequest.BodyPublishers.ofByteArray(bytes))
+                            .build();
 
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            String finalUrl;
-            if (response.statusCode() >= 200 && response.statusCode() < 300) {
-                finalUrl = SUPABASE_PUBLIC_URL + "/" + DEFAULT_BUCKET + "/" + fileName;
-            } else {
-                // Fallback de contingencia a Base64 si Supabase Storage no estuviera accesible
-                String base64 = Base64.getEncoder().encodeToString(bytes);
-                finalUrl = "data:" + contentType + ";base64," + base64;
+                    HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    if (response.statusCode() == 200 || response.statusCode() == 201) {
+                        String publicUrl = supabaseUrl.replaceAll("/+$", "") + "/storage/v1/object/public/" + storageBucket + "/" + cleanName;
+                        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                                "url", publicUrl,
+                                "nombreOriginal", originalName,
+                                "tamanoBytes", archivo.getSize(),
+                                "contentType", contentType,
+                                "storage", "supabase"
+                        ));
+                    } else {
+                        System.err.println("[ArchivoController] Supabase Storage respondió con status " + response.statusCode() + ": " + response.body());
+                    }
+                } catch (Exception ex) {
+                    System.err.println("[ArchivoController] Excepción al contactar Supabase Storage: " + ex.getMessage());
+                }
             }
 
+            // 2. Fallback de contingencia: Data URL Base64 seguro para no bloquear la experiencia de usuario
+            String base64 = Base64.getEncoder().encodeToString(bytes);
+            String dataUrl = "data:" + contentType + ";base64," + base64;
+
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-                    "url", finalUrl,
+                    "url", dataUrl,
                     "nombreOriginal", originalName,
                     "tamanoBytes", archivo.getSize(),
-                    "contentType", contentType
+                    "contentType", contentType,
+                    "storage", "base64-fallback"
             ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

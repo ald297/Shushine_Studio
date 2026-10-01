@@ -48,91 +48,115 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) {
         // 0. Asegurar Existencia de Tablas para Chat en PostgreSQL / Supabase
         if (jdbcTemplate != null) {
-            try {
-                jdbcTemplate.execute("""
-                    CREATE TABLE IF NOT EXISTS public.conversaciones (
-                        id_conversacion SERIAL PRIMARY KEY,
-                        id_cliente INT NOT NULL REFERENCES public.clientes(id_cliente) ON DELETE CASCADE,
-                        id_admin UUID REFERENCES public.usuarios(id_usuario) ON DELETE SET NULL,
-                        fecha_creacion TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                        fecha_ultimo_mensaje TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                        activa BOOLEAN NOT NULL DEFAULT TRUE,
-                        CONSTRAINT uq_conversacion_cliente UNIQUE (id_cliente)
-                    );
-                    CREATE TABLE IF NOT EXISTS public.mensajes (
-                        id_mensaje SERIAL PRIMARY KEY,
-                        id_conversacion INT NOT NULL REFERENCES public.conversaciones(id_conversacion) ON DELETE CASCADE,
-                        id_remitente UUID NOT NULL REFERENCES public.usuarios(id_usuario) ON DELETE CASCADE,
-                        contenido VARCHAR(1000) NOT NULL,
-                        fecha_envio TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                        leido BOOLEAN NOT NULL DEFAULT FALSE,
-                        activo BOOLEAN NOT NULL DEFAULT TRUE
-                    );
-                    CREATE INDEX IF NOT EXISTS idx_conversaciones_cliente ON public.conversaciones(id_cliente);
-                    CREATE INDEX IF NOT EXISTS idx_conversaciones_fecha ON public.conversaciones(fecha_ultimo_mensaje DESC);
-                    CREATE INDEX IF NOT EXISTS idx_mensajes_conversacion ON public.mensajes(id_conversacion);
-                    CREATE INDEX IF NOT EXISTS idx_mensajes_remitente ON public.mensajes(id_remitente);
-                    CREATE INDEX IF NOT EXISTS idx_mensajes_fecha_envio ON public.mensajes(fecha_envio ASC);
-                    CREATE INDEX IF NOT EXISTS idx_mensajes_no_leidos ON public.mensajes(id_conversacion, leido);
+            String[] ddlStatements = {
+                // Tablas de Chat
+                """
+                CREATE TABLE IF NOT EXISTS public.conversaciones (
+                    id_conversacion SERIAL PRIMARY KEY,
+                    id_cliente INT NOT NULL REFERENCES public.clientes(id_cliente) ON DELETE CASCADE,
+                    id_admin UUID REFERENCES public.usuarios(id_usuario) ON DELETE SET NULL,
+                    fecha_creacion TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    fecha_ultimo_mensaje TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    activa BOOLEAN NOT NULL DEFAULT TRUE,
+                    CONSTRAINT uq_conversacion_cliente UNIQUE (id_cliente)
+                )
+                """,
+                """
+                CREATE TABLE IF NOT EXISTS public.mensajes (
+                    id_mensaje SERIAL PRIMARY KEY,
+                    id_conversacion INT NOT NULL REFERENCES public.conversaciones(id_conversacion) ON DELETE CASCADE,
+                    id_remitente UUID NOT NULL REFERENCES public.usuarios(id_usuario) ON DELETE CASCADE,
+                    contenido VARCHAR(1000) NOT NULL,
+                    fecha_envio TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    leido BOOLEAN NOT NULL DEFAULT FALSE,
+                    activo BOOLEAN NOT NULL DEFAULT TRUE
+                )
+                """,
+                "CREATE INDEX IF NOT EXISTS idx_conversaciones_cliente ON public.conversaciones(id_cliente)",
+                "CREATE INDEX IF NOT EXISTS idx_conversaciones_fecha ON public.conversaciones(fecha_ultimo_mensaje DESC)",
+                "CREATE INDEX IF NOT EXISTS idx_mensajes_conversacion ON public.mensajes(id_conversacion)",
+                "CREATE INDEX IF NOT EXISTS idx_mensajes_remitente ON public.mensajes(id_remitente)",
+                "CREATE INDEX IF NOT EXISTS idx_mensajes_fecha_envio ON public.mensajes(fecha_envio ASC)",
+                "CREATE INDEX IF NOT EXISTS idx_mensajes_no_leidos ON public.mensajes(id_conversacion, leido)",
+                "ALTER TABLE public.mensajes ADD COLUMN IF NOT EXISTS imagen_url VARCHAR(1000)",
 
-                    ALTER TABLE public.mensajes ADD COLUMN IF NOT EXISTS imagen_url VARCHAR(1000);
+                // Tablas de Reseñas
+                """
+                CREATE TABLE IF NOT EXISTS public.resenas (
+                    id_resena SERIAL PRIMARY KEY,
+                    id_cita INT NOT NULL UNIQUE REFERENCES public.citas(id_cita) ON DELETE CASCADE,
+                    id_cliente INT NOT NULL REFERENCES public.clientes(id_cliente),
+                    id_estilista INT NOT NULL REFERENCES public.estilistas(id_estilista),
+                    estrellas_general INT NOT NULL CHECK (estrellas_general BETWEEN 1 AND 5),
+                    estrellas_calidad INT NOT NULL DEFAULT 5 CHECK (estrellas_calidad BETWEEN 1 AND 5),
+                    estrellas_atencion INT NOT NULL DEFAULT 5 CHECK (estrellas_atencion BETWEEN 1 AND 5),
+                    estrellas_ambiente INT NOT NULL DEFAULT 5 CHECK (estrellas_ambiente BETWEEN 1 AND 5),
+                    comentario TEXT,
+                    visible_publica BOOLEAN NOT NULL DEFAULT TRUE,
+                    fecha_emision TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+                """,
+                "CREATE INDEX IF NOT EXISTS idx_resenas_cita ON public.resenas(id_cita)",
+                "CREATE INDEX IF NOT EXISTS idx_resenas_cliente ON public.resenas(id_cliente)",
+                "CREATE INDEX IF NOT EXISTS idx_resenas_estilista ON public.resenas(id_estilista)",
 
-                    CREATE TABLE IF NOT EXISTS public.resenas (
-                        id_resena SERIAL PRIMARY KEY,
-                        id_cita INT NOT NULL UNIQUE REFERENCES public.citas(id_cita) ON DELETE CASCADE,
-                        id_cliente INT NOT NULL REFERENCES public.clientes(id_cliente),
-                        id_estilista INT NOT NULL REFERENCES public.estilistas(id_estilista),
-                        estrellas_general INT NOT NULL CHECK (estrellas_general BETWEEN 1 AND 5),
-                        estrellas_calidad INT NOT NULL DEFAULT 5 CHECK (estrellas_calidad BETWEEN 1 AND 5),
-                        estrellas_atencion INT NOT NULL DEFAULT 5 CHECK (estrellas_atencion BETWEEN 1 AND 5),
-                        estrellas_ambiente INT NOT NULL DEFAULT 5 CHECK (estrellas_ambiente BETWEEN 1 AND 5),
-                        comentario TEXT,
-                        visible_publica BOOLEAN NOT NULL DEFAULT TRUE,
-                        fecha_emision TIMESTAMPTZ NOT NULL DEFAULT NOW()
-                    );
-                    CREATE INDEX IF NOT EXISTS idx_resenas_cita ON public.resenas(id_cita);
-                    CREATE INDEX IF NOT EXISTS idx_resenas_cliente ON public.resenas(id_cliente);
-                    CREATE INDEX IF NOT EXISTS idx_resenas_estilista ON public.resenas(id_estilista);
+                // Tablas de Productos
+                """
+                CREATE TABLE IF NOT EXISTS public.productos (
+                    id_producto SERIAL PRIMARY KEY,
+                    codigo_producto VARCHAR(20) NOT NULL UNIQUE,
+                    id_categoria INT NOT NULL REFERENCES public.categorias(id_categoria),
+                    nombre VARCHAR(150) NOT NULL,
+                    marca VARCHAR(100) NOT NULL,
+                    descripcion TEXT,
+                    precio NUMERIC(10,2) NOT NULL CHECK (precio >= 0),
+                    stock_actual INT NOT NULL DEFAULT 0 CHECK (stock_actual >= 0),
+                    stock_minimo INT NOT NULL DEFAULT 5,
+                    imagen_url VARCHAR(500),
+                    activo BOOLEAN NOT NULL DEFAULT TRUE
+                )
+                """,
+                "CREATE INDEX IF NOT EXISTS idx_productos_categoria ON public.productos(id_categoria)",
 
-                    CREATE TABLE IF NOT EXISTS public.productos (
-                        id_producto SERIAL PRIMARY KEY,
-                        codigo_producto VARCHAR(20) NOT NULL UNIQUE,
-                        id_categoria INT NOT NULL REFERENCES public.categorias(id_categoria),
-                        nombre VARCHAR(150) NOT NULL,
-                        marca VARCHAR(100) NOT NULL,
-                        descripcion TEXT,
-                        precio NUMERIC(10,2) NOT NULL CHECK (precio >= 0),
-                        stock_actual INT NOT NULL DEFAULT 0 CHECK (stock_actual >= 0),
-                        stock_minimo INT NOT NULL DEFAULT 5,
-                        imagen_url VARCHAR(500),
-                        activo BOOLEAN NOT NULL DEFAULT TRUE
-                    );
-                    CREATE INDEX IF NOT EXISTS idx_productos_categoria ON public.productos(id_categoria);
+                // Tablas y columnas de Solicitudes de Diseño y Cotizaciones
+                """
+                CREATE TABLE IF NOT EXISTS public.solicitudes_diseno (
+                    id_solicitud SERIAL PRIMARY KEY,
+                    id_cliente INT NOT NULL REFERENCES public.clientes(id_cliente) ON DELETE CASCADE,
+                    servicio_deseado VARCHAR(150),
+                    notas_cliente TEXT NOT NULL,
+                    imagenes_referencia_urls TEXT,
+                    estado VARCHAR(30) NOT NULL DEFAULT 'Pendiente',
+                    fecha_solicitud TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+                """,
+                "ALTER TABLE public.solicitudes_diseno ADD COLUMN IF NOT EXISTS id_cliente INT REFERENCES public.clientes(id_cliente) ON DELETE CASCADE",
+                "ALTER TABLE public.solicitudes_diseno ADD COLUMN IF NOT EXISTS servicio_deseado VARCHAR(150)",
+                "ALTER TABLE public.solicitudes_diseno ALTER COLUMN imagenes_referencia_urls TYPE TEXT USING imagenes_referencia_urls::text",
+                "ALTER TABLE public.solicitudes_diseno ALTER COLUMN id_cita DROP NOT NULL",
+                "ALTER TABLE public.solicitudes_diseno ALTER COLUMN imagenes_referencia_urls DROP NOT NULL",
+                "CREATE INDEX IF NOT EXISTS idx_solicitudes_cliente ON public.solicitudes_diseno(id_cliente)",
 
-                    CREATE TABLE IF NOT EXISTS public.solicitudes_diseno (
-                        id_solicitud SERIAL PRIMARY KEY,
-                        id_cliente INT NOT NULL REFERENCES public.clientes(id_cliente) ON DELETE CASCADE,
-                        servicio_deseado VARCHAR(150),
-                        notas_cliente TEXT NOT NULL,
-                        imagenes_referencia_urls TEXT,
-                        estado VARCHAR(30) NOT NULL DEFAULT 'Pendiente',
-                        fecha_solicitud TIMESTAMPTZ NOT NULL DEFAULT NOW()
-                    );
-                    CREATE INDEX IF NOT EXISTS idx_solicitudes_cliente ON public.solicitudes_diseno(id_cliente);
+                """
+                CREATE TABLE IF NOT EXISTS public.cotizaciones (
+                    id_cotizacion SERIAL PRIMARY KEY,
+                    id_solicitud INT NOT NULL UNIQUE REFERENCES public.solicitudes_diseno(id_solicitud) ON DELETE CASCADE,
+                    precio_propuesto NUMERIC(10,2) NOT NULL,
+                    descripcion_trabajo TEXT NOT NULL,
+                    estado VARCHAR(30) NOT NULL DEFAULT 'Propuesta',
+                    fecha_cotizacion TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    fecha_respuesta TIMESTAMPTZ
+                )
+                """,
+                "CREATE INDEX IF NOT EXISTS idx_cotizaciones_solicitud ON public.cotizaciones(id_solicitud)"
+            };
 
-                    CREATE TABLE IF NOT EXISTS public.cotizaciones (
-                        id_cotizacion SERIAL PRIMARY KEY,
-                        id_solicitud INT NOT NULL UNIQUE REFERENCES public.solicitudes_diseno(id_solicitud) ON DELETE CASCADE,
-                        precio_propuesto NUMERIC(10,2) NOT NULL,
-                        descripcion_trabajo TEXT NOT NULL,
-                        estado VARCHAR(30) NOT NULL DEFAULT 'Propuesta',
-                        fecha_cotizacion TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                        fecha_respuesta TIMESTAMPTZ
-                    );
-                    CREATE INDEX IF NOT EXISTS idx_cotizaciones_solicitud ON public.cotizaciones(id_solicitud);
-                """);
-            } catch (Exception e) {
-                System.err.println("[DataInitializer] Aviso al verificar tablas: " + e.getMessage());
+            for (String sql : ddlStatements) {
+                try {
+                    jdbcTemplate.execute(sql.trim());
+                } catch (Exception e) {
+                    System.err.println("[DataInitializer] Nota en DDL: " + e.getMessage());
+                }
             }
         }
 

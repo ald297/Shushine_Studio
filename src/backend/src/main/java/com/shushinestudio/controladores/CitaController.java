@@ -152,13 +152,20 @@ public class CitaController {
         return ResponseEntity.ok(salida);
     }
 
-    @PatchMapping("/{id}/estado")
+    @RequestMapping(value = "/{id}/estado", method = {RequestMethod.PATCH, RequestMethod.PUT})
     @Operation(summary = "Cambiar estado de la cita", description = "Actualiza el estado de la cita (Confirmed, InProgress, Completed, Cancelled).")
     public ResponseEntity<CitaSalida> cambiarEstado(
             @PathVariable Integer id,
-            @RequestBody CitaCambiarEstado cambio,
+            @RequestBody(required = false) CitaCambiarEstado cambio,
+            @RequestParam(required = false) String nuevoEstado,
             Authentication authentication) {
+        if (cambio == null) {
+            cambio = new CitaCambiarEstado();
+        }
         cambio.setId(id);
+        if (nuevoEstado != null && !nuevoEstado.isBlank()) {
+            cambio.setNuevoEstado(nuevoEstado);
+        }
         String userLogin = authentication != null ? authentication.getName() : null;
         boolean isAdmin = authentication != null && authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_ADMIN") || a.getAuthority().equalsIgnoreCase("ADMIN"));
