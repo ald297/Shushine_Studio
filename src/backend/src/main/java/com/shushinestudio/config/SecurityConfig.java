@@ -43,7 +43,7 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/error"
                         ).permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/categorias/**", "/api/servicios/**", "/api/estilistas/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/categorias/**", "/api/servicios/**", "/api/estilistas/**", "/api/disponibilidad/**", "/api/productos/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionManager ->

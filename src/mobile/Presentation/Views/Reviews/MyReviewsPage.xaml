@@ -156,9 +156,71 @@
                         FontAttributes="Bold"
                         TextColor="{StaticResource TextPrimary}" />
 
-                    <!-- ESTADO VACÍO PREPARADO (BACKEND EN PROCESO) -->
+                    <!-- LISTA REAL DE RESEÑAS PUBLICADAS -->
+                    <CollectionView
+                        ItemsSource="{Binding ResenasPublicadas}"
+                        IsVisible="{Binding TieneResenasPublicadas}"
+                        SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="entities:Resena">
+                                <Frame
+                                    BackgroundColor="{StaticResource Surface}"
+                                    BorderColor="{StaticResource Border}"
+                                    CornerRadius="16"
+                                    Padding="16"
+                                    Margin="0,0,0,12"
+                                    HasShadow="False">
+                                    <VerticalStackLayout Spacing="8">
+                                        <Grid ColumnDefinitions="*, Auto">
+                                            <Label
+                                                Text="{Binding ServicioNombre}"
+                                                FontFamily="PlayfairDisplay"
+                                                FontSize="15"
+                                                FontAttributes="Bold"
+                                                TextColor="{StaticResource Primary}" />
+                                            <Label
+                                                Grid.Column="1"
+                                                Text="{Binding FechaFormateada}"
+                                                FontFamily="PlusJakartaSans"
+                                                FontSize="11"
+                                                TextColor="{StaticResource TextSecondary}" />
+                                        </Grid>
+
+                                        <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                            <Label
+                                                Text="{Binding EstrellasTexto}"
+                                                FontSize="16"
+                                                TextColor="#F59E0B" />
+                                            <Label
+                                                Text="{Binding NivelTexto}"
+                                                FontFamily="PlusJakartaSans"
+                                                FontSize="12"
+                                                FontAttributes="Bold"
+                                                TextColor="{StaticResource Secondary}"
+                                                VerticalOptions="Center" />
+                                        </HorizontalStackLayout>
+
+                                        <Label
+                                            Text="{Binding Comentario}"
+                                            FontFamily="PlusJakartaSans"
+                                            FontSize="13"
+                                            TextColor="{StaticResource TextPrimary}"
+                                            LineHeight="1.3" />
+
+                                        <Label
+                                            Text="{Binding EstilistaNombre, StringFormat='Atendida por {0}'}"
+                                            FontFamily="PlusJakartaSans"
+                                            FontSize="11"
+                                            TextColor="{StaticResource TextSecondary}" />
+                                    </VerticalStackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <!-- ESTADO VACÍO CUANDO NO HAY RESEÑAS -->
                     <Frame
-                        IsVisible="{Binding TieneResenasPublicadas, Converter={x:Null}}"
+                        IsVisible="{Binding NoTieneResenasPublicadas}"
                         BackgroundColor="{StaticResource Surface}"
                         BorderColor="{StaticResource Border}"
                         CornerRadius="16"
@@ -171,7 +233,7 @@
                                 HorizontalOptions="Center" />
 
                             <Label
-                                Text="Sin Reseñas Registradas"
+                                Text="Sin Reseñas Publicadas"
                                 FontFamily="PlayfairDisplay"
                                 FontSize="17"
                                 FontAttributes="Bold"
@@ -179,27 +241,12 @@
                                 HorizontalTextAlignment="Center" />
 
                             <Label
-                                Text="Tus reseñas y testimonios publicados aparecerán listados aquí. Esta sección se sincronizará automáticamente cuando se active el endpoint de opiniones en la API de Shunshine Studio."
+                                Text="Tus valoraciones y testimonios aparecerán listados aquí una vez califiques tus citas completadas."
                                 FontFamily="PlusJakartaSans"
                                 FontSize="12"
                                 TextColor="{StaticResource TextSecondary}"
                                 HorizontalTextAlignment="Center"
                                 LineHeight="1.3" />
-
-                            <Frame
-                                BackgroundColor="#FFF8E1"
-                                BorderColor="#FFE082"
-                                CornerRadius="10"
-                                Padding="12,8"
-                                HasShadow="False"
-                                HorizontalOptions="Center">
-                                <Label
-                                    Text="ℹ️ Módulo preparado para integración futura"
-                                    FontFamily="PlusJakartaSans"
-                                    FontSize="11"
-                                    TextColor="#F57F17"
-                                    FontAttributes="Bold" />
-                            </Frame>
                         </VerticalStackLayout>
                     </Frame>
                 </VerticalStackLayout>

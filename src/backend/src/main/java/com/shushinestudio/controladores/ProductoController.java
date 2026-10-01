@@ -26,7 +26,7 @@ public class ProductoController {
         return ResponseEntity.ok(productoService.obtenerProductosActivosPaginados(pageable));
     }
 
-    @GetMapping("/lista")
+    @GetMapping({"/lista", "/activos"})
     @Operation(summary = "Listado completo de productos activos", description = "Retorna todos los productos activos para vistas móviles y selectores.")
     public ResponseEntity<List<ProductoSalidaDto>> obtenerProductosLista() {
         return ResponseEntity.ok(productoService.obtenerProductosActivos());

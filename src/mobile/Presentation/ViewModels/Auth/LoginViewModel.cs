@@ -84,18 +84,21 @@ public partial class LoginViewModel : BaseViewModel
                     }
                 }
             }
-            else
-            {
-                await ShowAlertAsync(
-                    "Credenciales Incorrectas", 
-                    "El usuario o contraseña no coinciden con ninguna cuenta registrada. Por favor verifica tus datos."
-                );
-            }
+        }
+        catch (TimeoutException tex)
+        {
+            ErrorMessage = tex.Message;
+            await ShowAlertAsync("Tiempo de Espera", tex.Message);
+        }
+        catch (HttpRequestException hex)
+        {
+            ErrorMessage = hex.Message;
+            await ShowAlertAsync("Sin Conexión", hex.Message);
         }
         catch (Exception ex)
         {
             ErrorMessage = ex.Message;
-            await ShowAlertAsync("Atención", ex.Message);
+            await ShowAlertAsync("Aviso de Autenticación", ex.Message);
         }
         finally
         {

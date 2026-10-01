@@ -144,14 +144,14 @@
                                             <!-- Precio -->
                                             <VerticalStackLayout Grid.Column="1" HorizontalOptions="End" Spacing="4">
                                                 <Label Text="{Binding PrecioTexto}" FontFamily="PlusJakartaSans" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource Primary}" HorizontalTextAlignment="End" />
-                                                <Frame
-                                                    BackgroundColor="{Binding Activo, Converter={StaticResource InvertedBoolConverter}, ConverterParameter='#FFEBEE'}"
-                                                    BorderColor="{StaticResource Outline}"
-                                                    CornerRadius="6"
-                                                    Padding="6,2"
-                                                    HasShadow="False">
+                                                <Border
+                                                    BackgroundColor="{StaticResource SurfaceVariant}"
+                                                    Stroke="{StaticResource Outline}"
+                                                    StrokeThickness="1"
+                                                    StrokeShape="RoundRectangle 6"
+                                                    Padding="6,2">
                                                     <Label Text="{Binding EstadoTexto}" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
-                                                </Frame>
+                                                </Border>
                                             </VerticalStackLayout>
                                         </Grid>
 

@@ -23,10 +23,11 @@ public class EstilistaController {
     @Autowired
     private IDisponibilidadService disponibilidadService;
 
-    @GetMapping
+    @GetMapping({"", "/activos", "/lista"})
     @Operation(summary = "Listar estilistas", description = "Retorna el listado del equipo profesional del salón.")
     public ResponseEntity<List<EstilistaSalida>> obtenerEstilistas(@RequestParam(required = false) Boolean soloActivos) {
-        List<EstilistaSalida> estilistas = (soloActivos != null && soloActivos)
+        boolean activos = (soloActivos == null || soloActivos);
+        List<EstilistaSalida> estilistas = activos
                 ? disponibilidadService.obtenerEstilistasActivos()
                 : disponibilidadService.obtenerTodosEstilistas();
         return ResponseEntity.ok(estilistas);
@@ -76,4 +77,40 @@ public class EstilistaController {
         DisponibilidadSalida disponibilidad = disponibilidadService.calcularDisponibilidad(id, fecha, duracionMinutos);
         return ResponseEntity.ok(disponibilidad);
     }
+
+    @GetMapping("/{id}/horarios")
+    @Operation(summary = "Obtener horarios de trabajo semanales del estilista")
+    public ResponseEntity<List<com.shushinestudio.modelos.HorarioEstilista>> obtenerHorarios(@PathVariable Integer id) {
+        return ResponseEntity.ok(disponibilidadService.obtenerHorariosEstilista(id));
+    }
+
+    @PutMapping("/{id}/horarios")
+    @Operation(summary = "Guardar o actualizar horario de trabajo del estilista")
+    public ResponseEntity<com.shushinestudio.modelos.HorarioEstilista> guardarHorario(
+            @PathVariable Integer id,
+            @RequestBody com.shushinestudio.modelos.HorarioEstilista horario) {
+        return ResponseEntity.ok(disponibilidadService.guardarHorarioEstilista(id, horario));
+    }
+
+    @GetMapping("/{id}/bloqueos")
+    @Operation(summary = "Obtener bloqueos de agenda del estilista")
+    public ResponseEntity<List<com.shushinestudio.modelos.BloqueoHorario>> obtenerBloqueos(@PathVariable Integer id) {
+        return ResponseEntity.ok(disponibilidadService.obtenerBloqueosEstilista(id));
+    }
+
+    @PostMapping("/{id}/bloqueos")
+    @Operation(summary = "Crear bloqueo de horario para estilista")
+    public ResponseEntity<com.shushinestudio.modelos.BloqueoHorario> crearBloqueo(
+            @PathVariable Integer id,
+            @RequestBody com.shushinestudio.modelos.BloqueoHorario bloqueo) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(disponibilidadService.crearBloqueo(id, bloqueo));
+    }
+
+    @DeleteMapping("/bloqueos/{bloqueoId}")
+    @Operation(summary = "Eliminar bloqueo de horario")
+    public ResponseEntity<Void> eliminarBloqueo(@PathVariable Integer bloqueoId) {
+        disponibilidadService.eliminarBloqueo(bloqueoId);
+        return ResponseEntity.noContent().build();
+    }
 }
+

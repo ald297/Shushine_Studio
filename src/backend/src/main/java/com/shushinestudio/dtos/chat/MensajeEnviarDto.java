@@ -8,6 +8,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 public class MensajeEnviarDto {
 
     @Size(max = 1000, message = "El mensaje no puede superar los 1000 caracteres.")

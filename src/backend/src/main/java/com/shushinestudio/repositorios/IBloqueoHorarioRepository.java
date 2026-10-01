@@ -9,5 +9,6 @@ import java.util.List;
 
 @Repository
 public interface IBloqueoHorarioRepository extends JpaRepository<BloqueoHorario, Integer> {
+    List<BloqueoHorario> findByEstilistaId(Integer estilistaId);
     List<BloqueoHorario> findByEstilistaIdAndFecha(Integer estilistaId, LocalDate fecha);
 }

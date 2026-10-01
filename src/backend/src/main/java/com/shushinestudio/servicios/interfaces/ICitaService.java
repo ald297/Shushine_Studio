@@ -16,4 +16,6 @@ public interface ICitaService {
     CitaSalida obtenerPorId(Integer id);
     CitaSalida obtenerPorCodigo(String codigoCita);
     CitaSalida cambiarEstado(CitaCambiarEstado cambio);
+    CitaSalida cambiarEstado(CitaCambiarEstado cambio, String userLogin, boolean isAdmin);
+    CitaSalida cancelarCita(Integer id, String motivo, String userLogin, boolean isAdmin);
 }

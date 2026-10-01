@@ -22,7 +22,7 @@ public class AuthController {
     @Autowired
     private UsuarioService usuarioService;
 
-    @PostMapping("/login")
+    @PostMapping({"/login", "/authenticate"})
     @Operation(summary = "Iniciar sesión y obtener token JWT", description = "Valida credenciales y emite un token JWT con los roles del usuario.")
     public ResponseEntity<UsuarioToken> login(@RequestBody UsuarioLogin loginRequest) {
         return ResponseEntity.ok(usuarioService.login(loginRequest));

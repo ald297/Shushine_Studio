@@ -36,7 +36,7 @@ public class ServicioController {
         return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/lista")
+    @GetMapping({"/lista", "/activos"})
     @Operation(summary = "Listar todos los servicios", description = "Retorna la lista completa de servicios activos para la app móvil.")
     public ResponseEntity<List<ServicioSalida>> mostrarTodos() {
         List<ServicioSalida> servicios = servicioService.obtenerTodos();

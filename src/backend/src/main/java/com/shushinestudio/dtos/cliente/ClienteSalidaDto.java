@@ -1,4 +1,4 @@
-package com.shushinestudio.dtos.auth;
+package com.shushinestudio.dtos.cliente;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,24 +6,27 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.UUID;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UsuarioPerfil {
-    private UUID id;
-    private String login;
-    private String correo;
+public class ClienteSalidaDto {
+    private Integer id;
+    private String nombreCompleto;
     private String nombre;
     private String apellido;
     private String telefono;
-    private String rol;
-    private Boolean activo;
-    private Integer puntosAcumulados;
+    private String correo;
+    private String login;
     private String nivelFidelidad;
+    private Integer puntosAcumulados;
     private String tipoCabello;
     private String notasPreferencias;
+    private Boolean esWalkin;
+    private Integer totalCitas;
+    private Boolean activo;
+    private LocalDateTime fechaCreacion;
 }

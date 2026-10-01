@@ -21,11 +21,18 @@ public class ErrorDelegatingHandler : DelegatingHandler
         HttpRequestMessage request, 
         CancellationToken cancellationToken)
     {
-        // 1. Inyectar token de autenticación si existe en SecureStorage
-        var token = await SecureStorage.Default.GetAsync(ApiConstants.AuthTokenKey);
-        if (!string.IsNullOrWhiteSpace(token) && request.Headers.Authorization == null)
+        // 1. Inyectar token de autenticación si existe en SecureStorage (excepto en login y registro)
+        var isLoginOrRegister = request.RequestUri?.AbsolutePath.EndsWith("/auth/login") == true 
+                             || request.RequestUri?.AbsolutePath.EndsWith("/auth/registro") == true
+                             || request.RequestUri?.AbsolutePath.EndsWith("/auth/authenticate") == true;
+
+        if (!isLoginOrRegister)
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var token = await SecureStorage.Default.GetAsync(ApiConstants.AuthTokenKey);
+            if (!string.IsNullOrWhiteSpace(token) && request.Headers.Authorization == null)
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
         }
 
         // 2. Ejecutar la petición HTTP
@@ -172,12 +179,15 @@ public class ErrorDelegatingHandler : DelegatingHandler
                         case HttpStatusCode.BadGateway:
                         case HttpStatusCode.ServiceUnavailable:
                         case HttpStatusCode.GatewayTimeout:
-                            // 5xx: Fallas en servidor
-                            await mainPage.DisplayAlert(
-                                "Aviso del Salón", 
-                                "El sistema del salón experimenta una interrupción momentánea. Intente nuevamente en unos minutos.", 
-                                "Cerrar"
-                            );
+                            // 5xx: Fallas en servidor (solo peticiones protegidas de negocio; login maneja su propio mensaje)
+                            if (!isAuthEndpoint && !isLoginOrRegister)
+                            {
+                                await mainPage.DisplayAlert(
+                                    "Aviso del Salón", 
+                                    "El sistema del salón experimenta una interrupción momentánea. Intente nuevamente en unos minutos.", 
+                                    "Cerrar"
+                                );
+                            }
                             break;
                     }
                 }

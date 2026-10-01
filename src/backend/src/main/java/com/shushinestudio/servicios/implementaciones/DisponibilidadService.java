@@ -184,6 +184,58 @@ public class DisponibilidadService implements IDisponibilidadService {
         estilistaRepository.deleteById(id);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<HorarioEstilista> obtenerHorariosEstilista(Integer estilistaId) {
+        return horarioEstilistaRepository.findByEstilistaId(estilistaId);
+    }
+
+    @Override
+    @Transactional
+    public HorarioEstilista guardarHorarioEstilista(Integer estilistaId, HorarioEstilista horario) {
+        Estilista estilista = estilistaRepository.findById(estilistaId)
+                .orElseThrow(() -> new IllegalArgumentException("Estilista no encontrado con ID: " + estilistaId));
+
+        var existenteOpt = horarioEstilistaRepository.findByEstilistaIdAndDiaSemana(estilistaId, horario.getDiaSemana());
+        HorarioEstilista target = existenteOpt.orElseGet(() -> HorarioEstilista.builder()
+                .estilista(estilista)
+                .diaSemana(horario.getDiaSemana())
+                .build());
+
+        target.setHoraInicio(horario.getHoraInicio());
+        target.setHoraFin(horario.getHoraFin());
+        target.setHoraInicioAlmuerzo(horario.getHoraInicioAlmuerzo());
+        target.setHoraFinAlmuerzo(horario.getHoraFinAlmuerzo());
+        target.setActivo(horario.getActivo() != null ? horario.getActivo() : true);
+
+        return horarioEstilistaRepository.save(target);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BloqueoHorario> obtenerBloqueosEstilista(Integer estilistaId) {
+        return bloqueoHorarioRepository.findByEstilistaId(estilistaId);
+    }
+
+    @Override
+    @Transactional
+    public BloqueoHorario crearBloqueo(Integer estilistaId, BloqueoHorario bloqueo) {
+        Estilista estilista = estilistaRepository.findById(estilistaId)
+                .orElseThrow(() -> new IllegalArgumentException("Estilista no encontrado con ID: " + estilistaId));
+
+        bloqueo.setEstilista(estilista);
+        if (bloqueo.getMotivo() == null || bloqueo.getMotivo().isBlank()) {
+            bloqueo.setMotivo("Bloqueo administrativo");
+        }
+        return bloqueoHorarioRepository.save(bloqueo);
+    }
+
+    @Override
+    @Transactional
+    public void eliminarBloqueo(Integer bloqueoId) {
+        bloqueoHorarioRepository.deleteById(bloqueoId);
+    }
+
     private boolean seSolapan(LocalTime inicioA, LocalTime finA, LocalTime inicioB, LocalTime finB) {
         return inicioA.isBefore(finB) && finA.isAfter(inicioB);
     }

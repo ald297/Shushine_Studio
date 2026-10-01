@@ -27,6 +27,9 @@ public partial class MyReviewsViewModel : BaseViewModel
     [ObservableProperty]
     private bool tieneResenasPublicadas;
 
+    [ObservableProperty]
+    private bool noTieneResenasPublicadas = true;
+
     public bool BackendResenasDisponible => true;
 
     public MyReviewsViewModel(IReservaRepository reservaRepository, IResenaRepository resenaRepository)
@@ -62,6 +65,7 @@ public partial class MyReviewsViewModel : BaseViewModel
                 }
             }
             TieneResenasPublicadas = ResenasPublicadas.Count > 0;
+            NoTieneResenasPublicadas = !TieneResenasPublicadas;
 
             // 3. Filtrar citas completadas que NO hayan sido calificadas aún
             var completadas = citas.Where(c =>

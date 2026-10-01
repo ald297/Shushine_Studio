@@ -34,6 +34,9 @@ public partial class AdminReviewsViewModel : ObservableObject
     [ObservableProperty]
     private bool tieneResenas;
 
+    [ObservableProperty]
+    private bool noTieneResenas = true;
+
     public AdminReviewsViewModel(
         IAuthRepository authRepository,
         ITokenStorageService tokenStorageService,
@@ -95,6 +98,7 @@ public partial class AdminReviewsViewModel : ObservableObject
             }
 
             TieneResenas = Resenas.Count > 0;
+            NoTieneResenas = !TieneResenas;
         }
         catch (Exception ex)
         {

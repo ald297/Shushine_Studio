@@ -13,5 +13,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UsuarioLogin {
     private String login;
+
+    @com.fasterxml.jackson.annotation.JsonProperty("clave")
+    @com.fasterxml.jackson.annotation.JsonAlias({"password", "contrasena"})
     private String clave;
 }

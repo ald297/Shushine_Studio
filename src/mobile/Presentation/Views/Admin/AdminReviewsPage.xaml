@@ -66,14 +66,14 @@
                 <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}" HorizontalOptions="Center" VerticalOptions="Center" />
 
                 <!-- ESTADO VACÍO -->
-                <VerticalStackLayout IsVisible="{Binding TieneResenas, Converter={x:Null}}" VerticalOptions="Center" HorizontalOptions="Center" Padding="32" Spacing="8">
+                <VerticalStackLayout IsVisible="{Binding NoTieneResenas}" VerticalOptions="Center" HorizontalOptions="Center" Padding="32" Spacing="8">
                     <Label Text="🌟" FontSize="44" HorizontalOptions="Center" />
                     <Label Text="No hay reseñas registradas" FontFamily="PlayfairDisplay" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalTextAlignment="Center" />
                     <Label Text="Las evaluaciones otorgadas por las clientas tras completar sus citas se listarán aquí en tiempo real." FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
                 </VerticalStackLayout>
 
                 <!-- LISTADO REAL -->
-                <CollectionView ItemsSource="{Binding Resenas}" SelectionMode="None">
+                <CollectionView ItemsSource="{Binding Resenas}" IsVisible="{Binding TieneResenas}" SelectionMode="None">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:Resena">
                             <Border

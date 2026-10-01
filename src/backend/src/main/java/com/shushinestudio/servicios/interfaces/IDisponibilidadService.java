@@ -15,4 +15,9 @@ public interface IDisponibilidadService {
     EstilistaSalida crearEstilista(EstilistaGuardarDto dto);
     void actualizarEstadoEstilista(Integer id, Boolean activo);
     void eliminarEstilista(Integer id);
+    List<com.shushinestudio.modelos.HorarioEstilista> obtenerHorariosEstilista(Integer estilistaId);
+    com.shushinestudio.modelos.HorarioEstilista guardarHorarioEstilista(Integer estilistaId, com.shushinestudio.modelos.HorarioEstilista horario);
+    List<com.shushinestudio.modelos.BloqueoHorario> obtenerBloqueosEstilista(Integer estilistaId);
+    com.shushinestudio.modelos.BloqueoHorario crearBloqueo(Integer estilistaId, com.shushinestudio.modelos.BloqueoHorario bloqueo);
+    void eliminarBloqueo(Integer bloqueoId);
 }

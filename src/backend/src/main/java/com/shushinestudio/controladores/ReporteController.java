@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/admin/reportes")
+@RequestMapping({"/api/admin/reportes", "/api/reportes"})
 @Tag(name = "Reportes Administrativos", description = "Endpoints de inteligencia de negocio, balances operativos y exportación oficial")
 @SecurityRequirement(name = "Bearer Authentication")
 @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
@@ -72,6 +72,7 @@ public class ReporteController {
     }
 
     @GetMapping("/exportar")
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     @Operation(summary = "Exportar reporte financiero y operativo a CSV", description = "Genera un archivo CSV con el balance de citas e ingresos para Excel u hojas de cálculo.")
     public ResponseEntity<byte[]> exportarReporte() {
         List<Cita> citas = citaRepository.findAll();

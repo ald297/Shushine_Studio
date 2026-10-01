@@ -184,4 +184,79 @@ class CitaConcurrenciaTest {
         assertTrue(ex.getMessage().contains("no se encuentra activo"));
         verify(citaRepository, never()).save(any(Cita.class));
     }
+
+    @Test
+    @DisplayName("Seguridad IDOR: CLIENTE A puede cancelar su propia cita")
+    void testClienteCancelaCitaPropia() {
+        Cita citaPropia = Cita.builder()
+                .id(101)
+                .cliente(cliente)
+                .estado("Confirmed")
+                .build();
+
+        when(citaRepository.findById(101)).thenReturn(Optional.of(citaPropia));
+        when(citaRepository.save(any(Cita.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        CitaSalida salida = citaService.cancelarCita(101, "Imprevisto", "cliente", false);
+
+        assertNotNull(salida);
+        assertEquals("Cancelled", citaPropia.getEstado());
+        verify(citaRepository).save(citaPropia);
+    }
+
+    @Test
+    @DisplayName("Seguridad IDOR: CLIENTE A no puede cancelar la cita de CLIENTE B (Rechazado con AccessDeniedException)")
+    void testClienteNoPuedeCancelarCitaAjena() {
+        Usuario usuarioB = Usuario.builder()
+                .id(UUID.randomUUID())
+                .login("cliente_b")
+                .nombre("Otro")
+                .build();
+        Cliente clienteB = Cliente.builder()
+                .id(202)
+                .usuario(usuarioB)
+                .build();
+        Cita citaDeB = Cita.builder()
+                .id(200)
+                .cliente(clienteB)
+                .estado("Confirmed")
+                .build();
+
+        when(citaRepository.findById(200)).thenReturn(Optional.of(citaDeB));
+
+        assertThrows(org.springframework.security.access.AccessDeniedException.class, () ->
+                citaService.cancelarCita(200, "Intento no autorizado", "cliente", false)
+        );
+
+        verify(citaRepository, never()).save(any(Cita.class));
+    }
+
+    @Test
+    @DisplayName("Seguridad: ADMIN puede cancelar cualquier cita por motivos operativos")
+    void testAdminPuedeCancelarCualquierCita() {
+        Usuario usuarioB = Usuario.builder()
+                .id(UUID.randomUUID())
+                .login("cliente_b")
+                .nombre("Otro")
+                .build();
+        Cliente clienteB = Cliente.builder()
+                .id(202)
+                .usuario(usuarioB)
+                .build();
+        Cita citaDeB = Cita.builder()
+                .id(200)
+                .cliente(clienteB)
+                .estado("Confirmed")
+                .build();
+
+        when(citaRepository.findById(200)).thenReturn(Optional.of(citaDeB));
+        when(citaRepository.save(any(Cita.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        CitaSalida salida = citaService.cancelarCita(200, "Cierre por emergencia", "admin", true);
+
+        assertNotNull(salida);
+        assertEquals("Cancelled", citaDeB.getEstado());
+        verify(citaRepository).save(citaDeB);
+    }
 }
+

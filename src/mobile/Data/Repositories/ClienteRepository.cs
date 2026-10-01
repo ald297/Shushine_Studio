@@ -39,8 +39,12 @@ public class ClienteRepository : IClienteRepository
 
         try
         {
-            // 1. Intentar consultar endpoint dedicado si existe o se habilita en el backend
-            var response = await _httpClient.GetAsync($"clientes?page={page}&size={size}");
+            var response = await _httpClient.GetAsync($"admin/clientes?page={page}&size={size}");
+            if (!response.IsSuccessStatusCode)
+            {
+                response = await _httpClient.GetAsync($"clientes?page={page}&size={size}");
+            }
+
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
@@ -74,6 +78,8 @@ public class ClienteRepository : IClienteRepository
                             Correo = elem.TryGetProperty("correo", out var cProp) ? cProp.GetString() :
                                      elem.TryGetProperty("email", out var eProp) ? eProp.GetString() : null,
                             NivelFidelidad = elem.TryGetProperty("nivelFidelidad", out var nfProp) ? nfProp.GetString() : "Bronce",
+                            PuntosAcumulados = elem.TryGetProperty("puntosAcumulados", out var paProp) ? paProp.GetInt32() : 0,
+                            TotalCitas = elem.TryGetProperty("totalCitas", out var tcProp) ? tcProp.GetInt32() : 0,
                             EsWalkin = elem.TryGetProperty("esWalkin", out var ewProp) && ewProp.GetBoolean()
                         };
                         lista.Add(cliente);
@@ -84,67 +90,55 @@ public class ClienteRepository : IClienteRepository
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[ClienteRepository] Consulta a /api/clientes no disponible: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[ClienteRepository] Error al consultar /api/admin/clientes: {ex.Message}");
         }
 
-        // 2. Si /api/clientes no está disponible en el backend actual,
-        // derivamos los clientes reales a partir de las citas registradas en el backend
-        try
-        {
-            var citasEnumerable = await _reservaRepository.ObtenerTodasCitasAdminPaginadasAsync(0, 100);
-            var citas = citasEnumerable?.ToList() ?? new List<Reserva>();
-            if (citas.Count == 0)
-            {
-                return new List<Cliente>();
-            }
-
-            // Agrupar por ID de cliente o por nombre si ID es 0
-            var grupos = citas
-                .Where(c => !string.IsNullOrWhiteSpace(c.ClienteNombre))
-                .GroupBy(c => c.ClienteId > 0 ? c.ClienteId.ToString() : c.ClienteNombre.Trim().ToLowerInvariant())
-                .ToList();
-
-            var clientesDerivados = new List<Cliente>();
-            long fallbackId = 1;
-
-            foreach (var grupo in grupos)
-            {
-                var primeraCita = grupo.First();
-                var citasCliente = grupo.OrderByDescending(c => c.FechaHoraInicio).ToList();
-
-                var cliente = new Cliente
-                {
-                    Id = primeraCita.ClienteId > 0 ? primeraCita.ClienteId : fallbackId++,
-                    NombreCompleto = primeraCita.ClienteNombre,
-                    Telefono = !string.IsNullOrWhiteSpace(primeraCita.ClienteTelefono) ? primeraCita.ClienteTelefono : null,
-                    EsWalkin = primeraCita.Notas?.Contains("Walk-in", StringComparison.OrdinalIgnoreCase) == true,
-                    TotalCitas = citasCliente.Count,
-                    Citas = citasCliente,
-                    NivelFidelidad = citasCliente.Count >= 5 ? "Oro" : citasCliente.Count >= 3 ? "Plata" : "Bronce"
-                };
-
-                clientesDerivados.Add(cliente);
-            }
-
-            return clientesDerivados.OrderBy(c => c.NombreCompleto).ToList();
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[ClienteRepository] Error al derivar clientes de citas: {ex.Message}");
-            return new List<Cliente>();
-        }
+        return new List<Cliente>();
     }
 
     public async Task<Cliente?> ObtenerClientePorIdAsync(long id)
     {
+        await PrepararHeaderAutenticacionAsync();
+        try
+        {
+            var response = await _httpClient.GetAsync($"admin/clientes/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                using var doc = JsonDocument.Parse(content);
+                var elem = doc.RootElement;
+                return new Cliente
+                {
+                    Id = elem.TryGetProperty("id", out var idProp) ? idProp.GetInt64() : id,
+                    NombreCompleto = elem.TryGetProperty("nombreCompleto", out var ncProp) ? ncProp.GetString() ?? "" : "Cliente",
+                    Telefono = elem.TryGetProperty("telefono", out var tProp) ? tProp.GetString() : null,
+                    Correo = elem.TryGetProperty("correo", out var cProp) ? cProp.GetString() : null,
+                    NivelFidelidad = elem.TryGetProperty("nivelFidelidad", out var nfProp) ? nfProp.GetString() : "Bronce",
+                    PuntosAcumulados = elem.TryGetProperty("puntosAcumulados", out var paProp) ? paProp.GetInt32() : 0,
+                    TotalCitas = elem.TryGetProperty("totalCitas", out var tcProp) ? tcProp.GetInt32() : 0,
+                    EsWalkin = elem.TryGetProperty("esWalkin", out var ewProp) && ewProp.GetBoolean()
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ClienteRepository] Error al consultar cliente por id: {ex.Message}");
+        }
+
         var todos = await ObtenerClientesAsync(0, 100);
         return todos.FirstOrDefault(c => c.Id == id);
     }
 
     public async Task<List<Reserva>> ObtenerHistorialCitasClienteAsync(long clienteId)
     {
-        var todos = await ObtenerClientesAsync(0, 100);
-        var cliente = todos.FirstOrDefault(c => c.Id == clienteId);
-        return cliente?.Citas ?? new List<Reserva>();
+        try
+        {
+            var citas = await _reservaRepository.ObtenerTodasCitasAdminPaginadasAsync(0, 100);
+            return citas?.Where(c => c.ClienteId == clienteId).ToList() ?? new List<Reserva>();
+        }
+        catch
+        {
+            return new List<Reserva>();
+        }
     }
 }

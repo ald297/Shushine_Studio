@@ -78,6 +78,18 @@ public class UsuarioPerfilDto
     [JsonPropertyName("activo")]
     public bool Activo { get; set; } = true;
 
+    [JsonPropertyName("puntosAcumulados")]
+    public int PuntosAcumulados { get; set; } = 0;
+
+    [JsonPropertyName("nivelFidelidad")]
+    public string NivelFidelidad { get; set; } = "Bronce";
+
+    [JsonPropertyName("tipoCabello")]
+    public string? TipoCabello { get; set; }
+
+    [JsonPropertyName("notasPreferencias")]
+    public string? NotasPreferencias { get; set; }
+
     public Usuario ToEntity() => new()
     {
         Login = Login,
@@ -87,6 +99,8 @@ public class UsuarioPerfilDto
         Apellido = Apellido,
         Rol = Rol,
         Telefono = Telefono,
-        Activo = Activo
+        Activo = Activo,
+        NivelFidelidad = NivelFidelidad,
+        PuntosAcumulados = PuntosAcumulados
     };
 }

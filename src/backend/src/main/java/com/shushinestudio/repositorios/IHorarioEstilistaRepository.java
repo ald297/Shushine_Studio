@@ -9,6 +9,8 @@ import java.util.Optional;
 
 @Repository
 public interface IHorarioEstilistaRepository extends JpaRepository<HorarioEstilista, Integer> {
+    List<HorarioEstilista> findByEstilistaId(Integer estilistaId);
     List<HorarioEstilista> findByEstilistaIdAndActivoTrue(Integer estilistaId);
     Optional<HorarioEstilista> findByEstilistaIdAndDiaSemanaAndActivoTrue(Integer estilistaId, Integer diaSemana);
+    Optional<HorarioEstilista> findByEstilistaIdAndDiaSemana(Integer estilistaId, Integer diaSemana);
 }

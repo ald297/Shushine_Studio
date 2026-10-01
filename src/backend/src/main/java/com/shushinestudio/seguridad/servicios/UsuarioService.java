@@ -21,6 +21,9 @@ public class UsuarioService {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
+    private com.shushinestudio.repositorios.IClienteRepository clienteRepository;
+
+    @Autowired
     private RolService rolService;
 
     @Autowired
@@ -80,6 +83,20 @@ public class UsuarioService {
                 .build();
 
         Usuario usuarioGuardado = usuarioRepository.save(nuevoUsuario);
+
+        // Auto-crear entidad Cliente si el rol es CLIENTE para persistencia íntegra
+        if (rol.getNombre() != null && rol.getNombre().equalsIgnoreCase("CLIENTE")) {
+            com.shushinestudio.modelos.Cliente nuevoCliente = com.shushinestudio.modelos.Cliente.builder()
+                    .usuario(usuarioGuardado)
+                    .nombreWalkin(usuarioGuardado.getNombre() + (usuarioGuardado.getApellido() != null ? " " + usuarioGuardado.getApellido() : ""))
+                    .telefonoWalkin(usuarioGuardado.getTelefono())
+                    .nivelFidelidad("Bronce")
+                    .puntosAcumulados(0)
+                    .esWalkin(false)
+                    .build();
+            clienteRepository.save(nuevoCliente);
+        }
+
         String token = jwtService.getToken(usuarioGuardado);
 
         return UsuarioToken.builder()
@@ -96,7 +113,7 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findByLogin(login)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con login: " + login));
 
-        return UsuarioPerfil.builder()
+        UsuarioPerfil perfil = UsuarioPerfil.builder()
                 .id(usuario.getId())
                 .login(usuario.getLogin())
                 .correo(usuario.getCorreo() != null ? usuario.getCorreo() : (usuario.getLogin() != null && usuario.getLogin().contains("@") ? usuario.getLogin() : usuario.getLogin() + "@shushinestudio.com"))
@@ -105,7 +122,22 @@ public class UsuarioService {
                 .telefono(usuario.getTelefono())
                 .rol(usuario.getRol() != null ? usuario.getRol().getNombre() : null)
                 .activo(usuario.getActivo())
+                .puntosAcumulados(0)
+                .nivelFidelidad("Bronce")
                 .build();
+
+        clienteRepository.findByUsuarioId(usuario.getId()).ifPresent(cliente -> {
+            if (cliente.getPuntosAcumulados() != null) {
+                perfil.setPuntosAcumulados(cliente.getPuntosAcumulados());
+            }
+            if (cliente.getNivelFidelidad() != null) {
+                perfil.setNivelFidelidad(cliente.getNivelFidelidad());
+            }
+            perfil.setTipoCabello(cliente.getTipoCabello());
+            perfil.setNotasPreferencias(cliente.getNotasPreferencias());
+        });
+
+        return perfil;
     }
 
     @Transactional

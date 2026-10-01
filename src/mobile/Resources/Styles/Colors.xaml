@@ -21,6 +21,7 @@
     <Color x:Key="InputBackground">#F5F3EF</Color>      <!-- Fondo de inputs y superficies suaves -->
     <Color x:Key="TextPrimary">#1A1412</Color>          <!-- Tipografía principal de alto contraste -->
     <Color x:Key="TextSecondary">#564144</Color>        <!-- Tipografía secundaria / descriptiva -->
+    <Color x:Key="TextTertiary">#857375</Color>         <!-- Tipografía terciaria / metadatos -->
     <Color x:Key="TextLight">#FFFFFF</Color>            <!-- Texto claro sobre fondos oscuros -->
 
     <!-- Sombra Cálida Sutil: rgba(43, 33, 30, 0.04) -->

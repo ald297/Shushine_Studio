@@ -58,7 +58,7 @@ public partial class AdminReportsViewModel : ObservableObject
     private string periodoSeleccionado = "Hoy"; // "Hoy", "Semana", "Mes"
 
     [ObservableProperty]
-    private string avisoExportacion = "La exportación automatizada a PDF o Excel estará disponible cuando el backend implemente el servicio de generación de reportes tributarios.";
+    private string avisoExportacion = "Exportación oficial a CSV habilitada con datos financieros y operativos en tiempo real.";
 
     public AdminReportsViewModel(
         IReservaRepository reservaRepository,

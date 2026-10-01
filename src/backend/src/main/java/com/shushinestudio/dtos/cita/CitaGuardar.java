@@ -20,7 +20,7 @@ public class CitaGuardar implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate fechaCita;
 
-    @JsonFormat(pattern = "HH:mm")
+    @JsonFormat(pattern = "[HH:mm:ss][HH:mm]")
     private LocalTime horaInicio;
 
     private List<Integer> servicioIds;

@@ -31,6 +31,12 @@ public partial class ProfileViewModel : BaseViewModel
     [ObservableProperty]
     private string rol = "CLIENTE";
 
+    [ObservableProperty]
+    private string nivelFidelidad = "Bronce";
+
+    [ObservableProperty]
+    private int puntosAcumulados = 0;
+
     // Propiedad derivada: nombre completo para mostrar
     public string NombreCompleto => string.IsNullOrWhiteSpace(Apellido)
         ? Nombre
@@ -86,6 +92,8 @@ public partial class ProfileViewModel : BaseViewModel
                 Telefono = usuario.Telefono ?? string.Empty;
                 Login = usuario.Login ?? string.Empty;
                 Rol = usuario.Rol ?? "CLIENTE";
+                NivelFidelidad = !string.IsNullOrWhiteSpace(usuario.NivelFidelidad) ? usuario.NivelFidelidad : "Bronce";
+                PuntosAcumulados = usuario.PuntosAcumulados;
 
                 OnPropertyChanged(nameof(NombreCompleto));
                 OnPropertyChanged(nameof(Iniciales));

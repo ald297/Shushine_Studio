@@ -154,21 +154,30 @@ public class CitaController {
 
     @PatchMapping("/{id}/estado")
     @Operation(summary = "Cambiar estado de la cita", description = "Actualiza el estado de la cita (Confirmed, InProgress, Completed, Cancelled).")
-    public ResponseEntity<CitaSalida> cambiarEstado(@PathVariable Integer id, @RequestBody CitaCambiarEstado cambio) {
+    public ResponseEntity<CitaSalida> cambiarEstado(
+            @PathVariable Integer id,
+            @RequestBody CitaCambiarEstado cambio,
+            Authentication authentication) {
         cambio.setId(id);
-        return ResponseEntity.ok(citaService.cambiarEstado(cambio));
+        String userLogin = authentication != null ? authentication.getName() : null;
+        boolean isAdmin = authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_ADMIN") || a.getAuthority().equalsIgnoreCase("ADMIN"));
+        return ResponseEntity.ok(citaService.cambiarEstado(cambio, userLogin, isAdmin));
     }
 
     @PutMapping("/{id}/cancelar")
     @Operation(summary = "Cancelar cita por ID", description = "Cancela una cita activa liberando el horario del estilista.")
     public ResponseEntity<CitaSalida> cancelarCita(
             @PathVariable Integer id,
-            @RequestParam(required = false) String motivo) {
-        CitaCambiarEstado cambio = CitaCambiarEstado.builder()
-                .id(id)
-                .nuevoEstado("Cancelled")
-                .motivoCancelacion(motivo != null && !motivo.isBlank() ? motivo : "Cancelada por el cliente desde la app móvil")
-                .build();
-        return ResponseEntity.ok(citaService.cambiarEstado(cambio));
+            @RequestParam(required = false) String motivo,
+            @RequestBody(required = false) java.util.Map<String, String> body,
+            Authentication authentication) {
+        String finalMotivo = (motivo != null && !motivo.isBlank()) 
+                ? motivo 
+                : (body != null && body.containsKey("motivo") ? body.get("motivo") : "Cancelación por usuario");
+        String userLogin = authentication != null ? authentication.getName() : null;
+        boolean isAdmin = authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_ADMIN") || a.getAuthority().equalsIgnoreCase("ADMIN"));
+        return ResponseEntity.ok(citaService.cancelarCita(id, finalMotivo, userLogin, isAdmin));
     }
 }

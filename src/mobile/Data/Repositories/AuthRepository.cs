@@ -19,99 +19,101 @@ public class AuthRepository : IAuthRepository
 
     public async Task<bool> LoginAsync(string emailOrLogin, string password)
     {
+        // 1. Limpiar cualquier token previo residual para garantizar un inicio limpio
+        await _tokenStorage.ClearAsync();
+
+        var cleanInput = emailOrLogin.Trim();
+        var request = new LoginRequestDto
+        {
+            Login = cleanInput,
+            Clave = password
+        };
+
+        HttpResponseMessage response;
         try
         {
-            var cleanInput = emailOrLogin.Trim();
-            var request = new LoginRequestDto
-            {
-                Login = cleanInput,
-                Clave = password
-            };
+            response = await _httpClient.PostAsJsonAsync("auth/login", request);
 
-            var response = await _httpClient.PostAsJsonAsync("auth/login", request);
-            if (response.IsSuccessStatusCode)
+            // Si falla con 401 y hay variantes comunes (ej. mayúscula por autocapitalización o correo con @)
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
-                var authResult = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
-                if (authResult != null && !string.IsNullOrWhiteSpace(authResult.Token))
+                var lowerLogin = cleanInput.ToLowerInvariant();
+                if (lowerLogin != cleanInput)
                 {
-                    await _tokenStorage.SaveTokenAsync(
-                        authResult.Token, 
-                        null, 
-                        authResult.Rol, 
-                        authResult.Id ?? authResult.Login ?? "user"
-                    );
-                    return true;
-                }
-            }
-
-            // Fallback 1: Si se ingresó con mayúscula por autocapitalización del teclado (ej. Admin o Cliente)
-            var lowerLogin = cleanInput.ToLowerInvariant();
-            if (lowerLogin != cleanInput)
-            {
-                var lowerRequest = new LoginRequestDto
-                {
-                    Login = lowerLogin,
-                    Clave = password
-                };
-
-                var lowerResponse = await _httpClient.PostAsJsonAsync("auth/login", lowerRequest);
-                if (lowerResponse.IsSuccessStatusCode)
-                {
-                    var authResult = await lowerResponse.Content.ReadFromJsonAsync<AuthResponseDto>();
-                    if (authResult != null && !string.IsNullOrWhiteSpace(authResult.Token))
+                    var lowerRequest = new LoginRequestDto { Login = lowerLogin, Clave = password };
+                    var lowerResponse = await _httpClient.PostAsJsonAsync("auth/login", lowerRequest);
+                    if (lowerResponse.IsSuccessStatusCode)
                     {
-                        await _tokenStorage.SaveTokenAsync(
-                            authResult.Token, 
-                            null, 
-                            authResult.Rol, 
-                            authResult.Id ?? authResult.Login ?? "user"
-                        );
-                        return true;
+                        response = lowerResponse;
                     }
                 }
-            }
-
-            // Fallback 2: Si el usuario ingresó un correo completo pero se registró con el nombre de usuario (ej. camila@gmail.com -> camila)
-            if (cleanInput.Contains("@"))
-            {
-                var fallbackUsername = cleanInput.Split('@')[0].ToLowerInvariant();
-                var fallbackRequest = new LoginRequestDto
+                else if (cleanInput.Contains("@"))
                 {
-                    Login = fallbackUsername,
-                    Clave = password
-                };
-
-                var fallbackResponse = await _httpClient.PostAsJsonAsync("auth/login", fallbackRequest);
-                if (fallbackResponse.IsSuccessStatusCode)
-                {
-                    var authResult = await fallbackResponse.Content.ReadFromJsonAsync<AuthResponseDto>();
-                    if (authResult != null && !string.IsNullOrWhiteSpace(authResult.Token))
+                    var fallbackUsername = cleanInput.Split('@')[0].ToLowerInvariant();
+                    var fallbackRequest = new LoginRequestDto { Login = fallbackUsername, Clave = password };
+                    var fallbackResponse = await _httpClient.PostAsJsonAsync("auth/login", fallbackRequest);
+                    if (fallbackResponse.IsSuccessStatusCode)
                     {
-                        await _tokenStorage.SaveTokenAsync(
-                            authResult.Token, 
-                            null, 
-                            authResult.Rol, 
-                            authResult.Id ?? authResult.Login ?? "user"
-                        );
-                        return true;
+                        response = fallbackResponse;
                     }
                 }
             }
         }
         catch (TaskCanceledException)
         {
-            throw new InvalidOperationException("El servidor está iniciando o tardó en responder. Por favor espera unos segundos e intenta nuevamente.");
+            await _tokenStorage.ClearAsync();
+            throw new TimeoutException("El servidor tardó demasiado en responder (timeout). Por favor intenta nuevamente.");
         }
         catch (HttpRequestException)
         {
-            throw new InvalidOperationException("No se pudo conectar con el servidor. Por favor verifica tu conexión a internet o intenta de nuevo.");
-        }
-        catch (Exception)
-        {
-            return false;
+            await _tokenStorage.ClearAsync();
+            throw new HttpRequestException("Sin conexión con el salón. Por favor verifica tu acceso a internet.");
         }
 
-        return false;
+        // 2. Procesar respuesta según código HTTP exacto
+        if (response.IsSuccessStatusCode)
+        {
+            var authResult = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
+            if (authResult != null && !string.IsNullOrWhiteSpace(authResult.Token))
+            {
+                await _tokenStorage.SaveTokenAsync(
+                    authResult.Token, 
+                    null, 
+                    authResult.Rol, 
+                    authResult.Id ?? authResult.Login ?? "user"
+                );
+                return true;
+            }
+            await _tokenStorage.ClearAsync();
+            throw new InvalidOperationException("La respuesta del servidor no contiene un token válido.");
+        }
+
+        await _tokenStorage.ClearAsync();
+
+        // 3. Diferenciar errores estrictamente
+        switch (response.StatusCode)
+        {
+            case System.Net.HttpStatusCode.Unauthorized:
+                throw new InvalidOperationException("El usuario o contraseña ingresados son incorrectos. Por favor verifica tus credenciales.");
+
+            case System.Net.HttpStatusCode.Forbidden:
+                throw new InvalidOperationException("Acceso restringido. Tu cuenta no cuenta con permisos suficientes o está suspendida.");
+
+            case System.Net.HttpStatusCode.NotFound:
+                throw new InvalidOperationException("El servicio de autenticación no fue encontrado en el servidor (404).");
+
+            case System.Net.HttpStatusCode.Conflict:
+                throw new InvalidOperationException("Existe un conflicto de sesión activo en el servidor (409).");
+
+            case System.Net.HttpStatusCode.InternalServerError:
+            case System.Net.HttpStatusCode.BadGateway:
+            case System.Net.HttpStatusCode.ServiceUnavailable:
+            case System.Net.HttpStatusCode.GatewayTimeout:
+                throw new InvalidOperationException("El servidor del salón está iniciando o en mantenimiento momentáneo. Por favor espera unos momentos e intenta de nuevo.");
+
+            default:
+                throw new InvalidOperationException($"Error de autenticación ({response.StatusCode}). Por favor intenta de nuevo.");
+        }
     }
 
     public Task<bool> RegisterAsync(string nombre, string email, string password, string telefono)

@@ -260,8 +260,28 @@ public class CitaService implements ICitaService {
     @Override
     @Transactional
     public CitaSalida cambiarEstado(CitaCambiarEstado cambio) {
+        return cambiarEstado(cambio, null, true);
+    }
+
+    @Override
+    @Transactional
+    public CitaSalida cambiarEstado(CitaCambiarEstado cambio, String userLogin, boolean isAdmin) {
         Cita cita = citaRepository.findById(cambio.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Cita no encontrada con ID: " + cambio.getId()));
+
+        if (!isAdmin) {
+            boolean esDueno = cita.getCliente() != null
+                    && cita.getCliente().getUsuario() != null
+                    && userLogin != null
+                    && userLogin.equalsIgnoreCase(cita.getCliente().getUsuario().getLogin());
+            if (!esDueno) {
+                throw new org.springframework.security.access.AccessDeniedException("No posee privilegios para modificar una cita que no le pertenece.");
+            }
+            String targetVerif = normalizarEstado(cambio.getNuevoEstado());
+            if (!"Cancelled".equalsIgnoreCase(targetVerif)) {
+                throw new org.springframework.security.access.AccessDeniedException("Solo los administradores pueden cambiar el estado a " + targetVerif);
+            }
+        }
 
         String estadoActual = cita.getEstado();
         if ("Completed".equalsIgnoreCase(estadoActual) || "Cancelled".equalsIgnoreCase(estadoActual)) {
@@ -273,6 +293,34 @@ public class CitaService implements ICitaService {
         if (cambio.getMotivoCancelacion() != null) {
             cita.setMotivoCancelacion(cambio.getMotivoCancelacion());
         }
+
+        Cita actualizada = citaRepository.save(cita);
+        return mapToSalida(actualizada);
+    }
+
+    @Override
+    @Transactional
+    public CitaSalida cancelarCita(Integer id, String motivo, String userLogin, boolean isAdmin) {
+        Cita cita = citaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Cita no encontrada con ID: " + id));
+
+        if (!isAdmin) {
+            boolean esDueno = cita.getCliente() != null
+                    && cita.getCliente().getUsuario() != null
+                    && userLogin != null
+                    && userLogin.equalsIgnoreCase(cita.getCliente().getUsuario().getLogin());
+            if (!esDueno) {
+                throw new org.springframework.security.access.AccessDeniedException("No tiene permisos para cancelar una cita que no le pertenece.");
+            }
+        }
+
+        String estadoActual = cita.getEstado();
+        if ("Completed".equalsIgnoreCase(estadoActual) || "Cancelled".equalsIgnoreCase(estadoActual)) {
+            throw new IllegalStateException("No se puede cancelar una cita finalizada o ya cancelada.");
+        }
+
+        cita.setEstado("Cancelled");
+        cita.setMotivoCancelacion(motivo != null && !motivo.isBlank() ? motivo : "Cancelada por el cliente desde la app móvil");
 
         Cita actualizada = citaRepository.save(cita);
         return mapToSalida(actualizada);

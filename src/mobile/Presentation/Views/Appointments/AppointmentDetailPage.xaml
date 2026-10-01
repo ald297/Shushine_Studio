@@ -187,7 +187,7 @@
                                    HorizontalOptions="Center" />
 
                 <!-- 5. Acciones Disponibles -->
-                <VerticalStackLayout Spacing="10" IsVisible="{Binding IsBusy, Converter={x:Null}}">
+                <VerticalStackLayout Spacing="10" IsVisible="{Binding IsNotBusy}">
                     <!-- Si la cita está Activa (Pendiente o Confirmada) -->
                     <VerticalStackLayout Spacing="10" IsVisible="{Binding PuedeCancelar}">
                         <Button Text="Reprogramar Cita"
