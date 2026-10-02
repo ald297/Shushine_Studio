@@ -183,7 +183,7 @@
                         <Grid ColumnDefinitions="*, Auto">
                             <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
                                 <Label Text="Total a pagar:" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
-                                <Label Text="Cancelación directa en salón" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                <Label Text="Desglose oficial con IVA incluido" FontSize="11" TextColor="{StaticResource TextSecondary}" />
                             </VerticalStackLayout>
                             <Label Grid.Column="1" 
                                    Text="{Binding TotalPagarFormateado}" 
@@ -192,6 +192,69 @@
                                    TextColor="{StaticResource Primary}" 
                                    VerticalOptions="Center" />
                         </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Selección de Método de Pago -->
+                <Border Style="{StaticResource CardBorderStyle}" Padding="18">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Forma de Pago" 
+                               FontAttributes="Bold" 
+                               FontSize="15" 
+                               TextColor="{StaticResource TextPrimary}" />
+                        <Label Text="Selecciona el método de pago que prefieras para tu cita:" 
+                               FontSize="12" 
+                               TextColor="{StaticResource TextSecondary}" />
+
+                        <!-- Opción Efectivo -->
+                        <Border StrokeShape="RoundRectangle 12"
+                                Stroke="{StaticResource Border}"
+                                StrokeThickness="1"
+                                BackgroundColor="{StaticResource Surface}"
+                                Padding="14, 12">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SeleccionarMetodoPagoCommand}" CommandParameter="Efectivo" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12" VerticalOptions="Center">
+                                <Label Grid.Column="0" Text="💵" FontSize="22" VerticalOptions="Center" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="Efectivo (en el salón)" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                    <Label Text="Pagas al asistir a tu cita. Quedará como 'Pago pendiente'." FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="2" 
+                                       IsVisible="{Binding EsEfectivo}"
+                                       TextColor="{StaticResource Primary}"
+                                       FontAttributes="Bold"
+                                       FontSize="16"
+                                       Text="✓"
+                                       VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+
+                        <!-- Opción Tarjeta (Simulación) -->
+                        <Border StrokeShape="RoundRectangle 12"
+                                Stroke="{StaticResource Border}"
+                                StrokeThickness="1"
+                                BackgroundColor="{StaticResource Surface}"
+                                Padding="14, 12">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SeleccionarMetodoPagoCommand}" CommandParameter="Tarjeta" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12" VerticalOptions="Center">
+                                <Label Grid.Column="0" Text="💳" FontSize="22" VerticalOptions="Center" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="Tarjeta (Simulación académica)" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                    <Label Text="Simula el pago inmediato sin cargos bancarios reales." FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="2" 
+                                       IsVisible="{Binding EsTarjeta}"
+                                       TextColor="{StaticResource Primary}"
+                                       FontAttributes="Bold"
+                                       FontSize="16"
+                                       Text="✓"
+                                       VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
                     </VerticalStackLayout>
                 </Border>
 

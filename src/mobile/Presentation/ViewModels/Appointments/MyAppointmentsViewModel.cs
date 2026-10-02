@@ -151,6 +151,15 @@ public partial class MyAppointmentsViewModel : BaseViewModel
 			var success = await _cancelAppointmentUseCase.ExecuteAsync(reserva.Id);
 			if (success)
 			{
+				// Actualización visual reactiva inmediata
+				CitasProximas.Remove(reserva);
+				reserva.Estado = "Cancelled";
+				CitasPasadas.Insert(0, reserva);
+				TotalProximas = CitasProximas.Count;
+				TotalPasadas = CitasPasadas.Count;
+				HasProximas = CitasProximas.Count > 0;
+				HasPasadas = CitasPasadas.Count > 0;
+
 				await Application.Current.MainPage.DisplayAlert(
 					"Cita Cancelada",
 					"Tu reserva ha sido cancelada exitosamente y el horario del especialista ha sido liberado.",
@@ -161,8 +170,8 @@ public partial class MyAppointmentsViewModel : BaseViewModel
 			else
 			{
 				await Application.Current.MainPage.DisplayAlert(
-					"Error",
-					"No fue posible cancelar la cita. Por favor intenta más tarde.",
+					"Aviso",
+					"No fue posible cancelar la cita en este momento. Por favor intenta más tarde o comunícate con el salón.",
 					"Entendido"
 				);
 			}

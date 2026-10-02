@@ -37,8 +37,13 @@ public static class MauiProgram
 			.UseMauiCommunityToolkit()
 			.ConfigureFonts(fonts =>
 			{
-				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+				fonts.AddFont("PlayfairDisplay-Regular.ttf", "PlayfairDisplay");
+				fonts.AddFont("PlayfairDisplay-SemiBold.ttf", "PlayfairDisplaySemiBold");
+				fonts.AddFont("PlayfairDisplay-Bold.ttf", "PlayfairDisplayBold");
+				fonts.AddFont("PlusJakartaSans-Regular.ttf", "PlusJakartaSans");
+				fonts.AddFont("PlusJakartaSans-Medium.ttf", "PlusJakartaSansMedium");
+				fonts.AddFont("PlusJakartaSans-SemiBold.ttf", "PlusJakartaSansSemiBold");
+				fonts.AddFont("PlusJakartaSans-Bold.ttf", "PlusJakartaSansBold");
 			});
 
 #if DEBUG
@@ -53,7 +58,7 @@ public static class MauiProgram
 		builder.Services.AddHttpClient("ShushineApi", client =>
 		{
 			client.BaseAddress = new Uri(ApiConstants.BaseUrl.TrimEnd('/') + "/");
-			client.Timeout = TimeSpan.FromSeconds(75);
+			client.Timeout = TimeSpan.FromSeconds(120);
 		})
 		.AddHttpMessageHandler<ErrorDelegatingHandler>();
 
@@ -93,6 +98,7 @@ public static class MauiProgram
 		builder.Services.AddTransient<LoginViewModel>();
 		builder.Services.AddTransient<RegisterViewModel>();
 		builder.Services.AddTransient<CatalogViewModel>();
+		builder.Services.AddTransient<ClientProductsViewModel>();
 		builder.Services.AddTransient<ServiceDetailViewModel>();
 		builder.Services.AddTransient<StylistSelectionViewModel>();
 		builder.Services.AddTransient<SlotSelectionViewModel>();
@@ -147,6 +153,7 @@ public static class MauiProgram
 		builder.Services.AddTransient<LoginPage>();
 		builder.Services.AddTransient<RegisterPage>();
 		builder.Services.AddTransient<CatalogPage>();
+		builder.Services.AddTransient<ClientProductsPage>();
 		builder.Services.AddTransient<ServiceDetailPage>();
 		builder.Services.AddTransient<StylistSelectionPage>();
 		builder.Services.AddTransient<SlotSelectionPage>();

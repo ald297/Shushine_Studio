@@ -211,7 +211,7 @@
                                 </Frame.GestureRecognizers>
                                 <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
                                     <Label Text="➕" FontSize="18" HorizontalOptions="Center" />
-                                    <Label Text="Walk-in" FontFamily="PlusJakartaSans" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource Primary}" HorizontalOptions="Center" />
+                                    <Label Text="Atención sin cita" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource Primary}" HorizontalOptions="Center" />
                                 </VerticalStackLayout>
                             </Frame>
                         </Grid>

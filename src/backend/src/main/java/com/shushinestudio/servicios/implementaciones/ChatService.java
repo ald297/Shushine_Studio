@@ -139,10 +139,12 @@ public class ChatService implements IChatService {
         Cliente cliente = clienteRepository.findByUsuarioId(usuario.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Perfil de cliente no encontrado"));
 
-        Conversacion conversacion = conversacionRepository.findByClienteId(cliente.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Conversación no encontrada"));
+        Optional<Conversacion> conversacionOpt = conversacionRepository.findByClienteId(cliente.getId());
+        if (conversacionOpt.isEmpty()) {
+            return 0;
+        }
 
-        return mensajeRepository.marcarComoLeidos(conversacion.getId(), usuario.getId());
+        return mensajeRepository.marcarComoLeidos(conversacionOpt.get().getId(), usuario.getId());
     }
 
     // =========================================================================

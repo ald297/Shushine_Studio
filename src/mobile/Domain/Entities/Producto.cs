@@ -42,6 +42,21 @@ public class Producto
 
     [JsonPropertyName("stockBajo")]
     public bool StockBajo { get; set; }
+    public bool TieneMarca => !string.IsNullOrWhiteSpace(Marca);
+    public bool TieneImagen => !string.IsNullOrWhiteSpace(ImagenUrl);
+    public bool NoTieneImagen => !TieneImagen;
+    public string ImagenValidaUrl
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(ImagenUrl)) return string.Empty;
+            if (ImagenUrl.Contains("unsplash.com") && !ImagenUrl.Contains("?"))
+            {
+                return $"{ImagenUrl}?auto=format&fit=crop&w=400&q=80";
+            }
+            return ImagenUrl;
+        }
+    }
 
     public string PrecioTexto => $"${Precio:F2}";
     public string StockTexto => $"{StockActual} unidades";

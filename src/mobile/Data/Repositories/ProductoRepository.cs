@@ -27,7 +27,14 @@ public class ProductoRepository : IProductoRepository
 
     public async Task<Producto?> GetProductoPorIdAsync(int id)
     {
-        return await _httpClient.GetFromJsonAsync<Producto>($"admin/productos/{id}");
+        try
+        {
+            return await _httpClient.GetFromJsonAsync<Producto>($"productos/{id}");
+        }
+        catch
+        {
+            return await _httpClient.GetFromJsonAsync<Producto>($"admin/productos/{id}");
+        }
     }
 
     public async Task<Producto> CrearProductoAsync(Producto producto)

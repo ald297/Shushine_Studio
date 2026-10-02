@@ -136,6 +136,10 @@ public partial class ProfileViewModel : BaseViewModel
         => await Shell.Current.GoToAsync("MyReviewsPage");
 
     [RelayCommand]
+    private async Task IrASolicitudesAsync()
+        => await Shell.Current.GoToAsync("CustomRequestPage");
+
+    [RelayCommand]
     private async Task IrAInfoAppAsync()
         => await Shell.Current.GoToAsync("AppInfoPage");
 

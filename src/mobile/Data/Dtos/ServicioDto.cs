@@ -56,10 +56,22 @@ public class ServicioDto
         DuracionMinutos = DuracionMinutos,
         CategoriaId = CategoriaId,
         CategoriaNombre = CategoriaNombre ?? "General",
-        ImagenUrl = ImagenUrl,
+        ImagenUrl = SanitizarUrlPublica(ImagenUrl),
         Activo = Activo,
         Protocolo = Protocolo
     };
+
+    private static string? SanitizarUrlPublica(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return null;
+        var trimmed = url.Trim();
+        if (trimmed.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            trimmed.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            return trimmed;
+        }
+        return null;
+    }
 }
 
 public class ServicioGuardarDto

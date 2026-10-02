@@ -158,9 +158,28 @@ public partial class CustomRequestViewModel : ObservableObject
 
             FileResult? result = null;
 
-            if (accion == "Tomar foto con cámara" && MediaPicker.Default.IsCaptureSupported)
+            if (accion == "Tomar foto con cámara")
             {
-                result = await MediaPicker.Default.CapturePhotoAsync();
+                var cameraStatus = await Permissions.CheckStatusAsync<Permissions.Camera>();
+                if (cameraStatus != PermissionStatus.Granted)
+                {
+                    cameraStatus = await Permissions.RequestAsync<Permissions.Camera>();
+                }
+
+                if (cameraStatus != PermissionStatus.Granted)
+                {
+                    await Shell.Current.DisplayAlert(
+                        "Permiso de Cámara",
+                        "Para capturar una foto de referencia se requiere acceso a la cámara. Puedes habilitar el permiso en la configuración de tu teléfono o elegir una imagen desde tu galería.",
+                        "Entendido"
+                    );
+                    return;
+                }
+
+                if (MediaPicker.Default.IsCaptureSupported)
+                {
+                    result = await MediaPicker.Default.CapturePhotoAsync();
+                }
             }
             else if (accion == "Elegir de la galería")
             {
@@ -228,8 +247,25 @@ public partial class CustomRequestViewModel : ObservableObject
         {
             IsLoading = true;
             await _solicitudRepository.ResponderCotizacionAsync(solicitud.Id, aceptar);
-            await Shell.Current.DisplayAlert("Cotización", $"Has {(aceptar ? "aceptado" : "rechazado")} la cotización.", "OK");
             await CargarSolicitudesAsync();
+
+            if (aceptar)
+            {
+                var agendar = await Shell.Current.DisplayAlert(
+                    "¡Cotización Aceptada!",
+                    $"Has aceptado la propuesta de ${solicitud.Cotizacion?.PrecioPropuesto:F2}.\n\n¿Deseas agendar tu cita ahora para realizar este diseño en el salón?",
+                    "Sí, Agendar Cita",
+                    "Más tarde");
+
+                if (agendar)
+                {
+                    await Shell.Current.GoToAsync("StylistSelectionPage");
+                }
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert("Cotización Rechazada", "Has rechazado la cotización. La solicitud ha quedado actualizada.", "Entendido");
+            }
         }
         catch (Exception ex)
         {
@@ -244,7 +280,25 @@ public partial class CustomRequestViewModel : ObservableObject
     [RelayCommand]
     private async Task GoBackAsync()
     {
-        await Shell.Current.GoToAsync("..");
+        try
+        {
+            if (Shell.Current?.Navigation?.NavigationStack?.Count > 1)
+            {
+                await Shell.Current.GoToAsync("..");
+            }
+            else
+            {
+                await Shell.Current.GoToAsync("//MainTabs/ChatPage");
+            }
+        }
+        catch
+        {
+            try
+            {
+                await Shell.Current.GoToAsync("//MainTabs/ChatPage");
+            }
+            catch { }
+        }
     }
 
     [RelayCommand]

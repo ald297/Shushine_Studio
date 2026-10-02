@@ -32,11 +32,13 @@
     <!-- Estilo Base para Etiquetas -->
     <Style TargetType="Label">
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="FontFamily" Value="PlusJakartaSans" />
         <Setter Property="FontSize" Value="14" />
     </Style>
 
     <!-- Título Principal / Headline (Playfair Display) -->
     <Style x:Key="TitleLabelStyle" TargetType="Label">
+        <Setter Property="FontFamily" Value="PlayfairDisplay" />
         <Setter Property="FontSize" Value="24" />
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
@@ -48,24 +50,28 @@
 
     <!-- Subtítulo / Subheader -->
     <Style x:Key="SubheaderLabelStyle" TargetType="Label">
-        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontFamily" Value="PlusJakartaSans" />
+        <Setter Property="FontSize" Value="15" />
         <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
     </Style>
 
     <!-- Cuerpo de Texto (Body) -->
     <Style x:Key="BodyLabelStyle" TargetType="Label">
+        <Setter Property="FontFamily" Value="PlusJakartaSans" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
     </Style>
 
     <!-- Subtexto / Caption -->
     <Style x:Key="CaptionLabelStyle" TargetType="Label">
+        <Setter Property="FontFamily" Value="PlusJakartaSans" />
         <Setter Property="FontSize" Value="12" />
         <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
     </Style>
 
     <!-- Etiqueta de Precio (Acentuado) -->
     <Style x:Key="PriceLabelStyle" TargetType="Label">
+        <Setter Property="FontFamily" Value="PlusJakartaSans" />
         <Setter Property="FontSize" Value="18" />
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="TextColor" Value="{StaticResource Primary}" />
@@ -73,6 +79,7 @@
 
     <!-- Etiqueta de Campo de Formulario -->
     <Style x:Key="FormLabelStyle" TargetType="Label">
+        <Setter Property="FontFamily" Value="PlusJakartaSans" />
         <Setter Property="FontSize" Value="13" />
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
@@ -83,14 +90,21 @@
     <!--  BOTONES OFICIALES (STITCH)                              -->
     <!-- ======================================================== -->
 
+    <!-- Estilo Base para Botones -->
+    <Style TargetType="Button">
+        <Setter Property="FontFamily" Value="PlusJakartaSans" />
+        <Setter Property="FontSize" Value="15" />
+    </Style>
+
     <!-- Botón Principal (Royal Lotus Wine - Altura 50px, Radio 16) -->
     <Style x:Key="PrimaryButtonStyle" TargetType="Button">
         <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
         <Setter Property="TextColor" Value="{StaticResource TextLight}" />
+        <Setter Property="FontFamily" Value="PlusJakartaSans" />
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="CornerRadius" Value="16" />
         <Setter Property="HeightRequest" Value="50" />
-        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontSize" Value="15" />
         <Setter Property="VisualStateManager.VisualStateGroups">
             <VisualStateGroupList>
                 <VisualStateGroup x:Name="CommonStates">
@@ -115,10 +129,11 @@
     <Style x:Key="GoldButtonStyle" TargetType="Button">
         <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
         <Setter Property="TextColor" Value="{StaticResource TextLight}" />
+        <Setter Property="FontFamily" Value="PlusJakartaSans" />
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="CornerRadius" Value="16" />
         <Setter Property="HeightRequest" Value="50" />
-        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontSize" Value="15" />
         <Setter Property="VisualStateManager.VisualStateGroups">
             <VisualStateGroupList>
                 <VisualStateGroup x:Name="CommonStates">
@@ -148,6 +163,19 @@
         <Setter Property="CornerRadius" Value="16" />
         <Setter Property="HeightRequest" Value="50" />
         <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontFamily" Value="PlusJakartaSans" />
+        <Setter Property="FontAttributes" Value="Bold" />
+    </Style>
+
+    <!-- Botón de Peligro / Cancelar (Rojo Error oficial) -->
+    <Style x:Key="DangerButtonStyle" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource Error}" />
+        <Setter Property="TextColor" Value="{StaticResource TextLight}" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="HeightRequest" Value="50" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontFamily" Value="PlusJakartaSans" />
         <Setter Property="FontAttributes" Value="Bold" />
     </Style>
 
@@ -159,9 +187,27 @@
     <Style TargetType="Entry">
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
         <Setter Property="PlaceholderColor" Value="{StaticResource TextSecondary}" />
+        <Setter Property="FontFamily" Value="PlusJakartaSans" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="HeightRequest" Value="48" />
         <Setter Property="BackgroundColor" Value="Transparent" />
+    </Style>
+
+    <!-- Editor de Texto Base -->
+    <Style TargetType="Editor">
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="PlaceholderColor" Value="{StaticResource TextSecondary}" />
+        <Setter Property="FontFamily" Value="PlusJakartaSans" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+    </Style>
+
+    <!-- SearchBar Base -->
+    <Style TargetType="SearchBar">
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="PlaceholderColor" Value="{StaticResource TextSecondary}" />
+        <Setter Property="FontFamily" Value="PlusJakartaSans" />
+        <Setter Property="FontSize" Value="14" />
     </Style>
 
     <!-- Contenedor con Borde Redondeado para Inputs (Radio 8, Fondo #F5F3EF) -->

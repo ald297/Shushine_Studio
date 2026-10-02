@@ -13,19 +13,11 @@ public partial class LoginViewModel : BaseViewModel
 {
     private readonly IAuthRepository _authRepository;
 
-#if DEBUG
-    [ObservableProperty]
-    private string email = "cliente";
-
-    [ObservableProperty]
-    private string password = "cliente123";
-#else
     [ObservableProperty]
     private string email = string.Empty;
 
     [ObservableProperty]
     private string password = string.Empty;
-#endif
 
     [ObservableProperty]
     private bool isPasswordHidden = true;
@@ -88,12 +80,12 @@ public partial class LoginViewModel : BaseViewModel
         catch (TimeoutException tex)
         {
             ErrorMessage = tex.Message;
-            await ShowAlertAsync("Tiempo de Espera", tex.Message);
+            await ShowAlertAsync("Servidor Iniciando", tex.Message);
         }
         catch (HttpRequestException hex)
         {
             ErrorMessage = hex.Message;
-            await ShowAlertAsync("Sin Conexión", hex.Message);
+            await ShowAlertAsync("Aviso de Conexión", hex.Message);
         }
         catch (Exception ex)
         {
@@ -103,9 +95,9 @@ public partial class LoginViewModel : BaseViewModel
              || ex.Message.Contains("closed", StringComparison.OrdinalIgnoreCase)
              || ex.Message.Contains("reset", StringComparison.OrdinalIgnoreCase))
             {
-                var msg = "La conexión con el salón se interrumpió o el servidor está iniciando. Por favor intenta de nuevo en unos segundos.";
+                var msg = "El servidor del salón está iniciando en la nube. Por favor presiona 'Iniciar Sesión' nuevamente.";
                 ErrorMessage = msg;
-                await ShowAlertAsync("Conexión Interrumpida", msg);
+                await ShowAlertAsync("Servidor Iniciando", msg);
             }
             else
             {

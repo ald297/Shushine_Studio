@@ -314,6 +314,37 @@
                     </Grid>
                 </Frame>
 
+                <!-- Mis solicitudes y cotizaciones -->
+                <Frame
+                    BackgroundColor="{StaticResource Surface}"
+                    BorderColor="{StaticResource Border}"
+                    CornerRadius="14"
+                    Padding="0"
+                    HasShadow="False"
+                    Margin="0,0,0,8">
+                    <Grid>
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding IrASolicitudesCommand}" />
+                        </Grid.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,14">
+                            <Label Grid.Column="0" Text="✨" FontSize="18" VerticalOptions="Center" Margin="0,0,12,0" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label
+                                    Text="Mis solicitudes y cotizaciones"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="15"
+                                    TextColor="{StaticResource TextPrimary}" />
+                                <Label
+                                    Text="Diseños personalizados y presupuestos"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="11"
+                                    TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource TextSecondary}" VerticalOptions="Center" />
+                        </Grid>
+                    </Grid>
+                </Frame>
+
                 <!-- Mis reseñas -->
                 <Frame
                     BackgroundColor="{StaticResource Surface}"

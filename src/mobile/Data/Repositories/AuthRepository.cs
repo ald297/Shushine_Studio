@@ -60,23 +60,32 @@ public class AuthRepository : IAuthRepository
                 }
             }
         }
-        catch (TaskCanceledException)
-        {
-            await _tokenStorage.ClearAsync();
-            throw new TimeoutException("El servidor tardó demasiado en responder (timeout). Por favor intenta nuevamente.");
-        }
-        catch (HttpRequestException)
-        {
-            await _tokenStorage.ClearAsync();
-            throw new HttpRequestException("Sin conexión con el salón. Por favor verifica tu acceso a internet.");
-        }
         catch (Exception ex) when (ex is System.IO.IOException 
                                 || ex.Message.Contains("Socket", StringComparison.OrdinalIgnoreCase) 
                                 || ex.Message.Contains("closed", StringComparison.OrdinalIgnoreCase)
                                 || ex.Message.Contains("reset", StringComparison.OrdinalIgnoreCase))
         {
+            // Reintento único transparente ante inicio en frío (cold start) de Render
+            try
+            {
+                await Task.Delay(2500);
+                response = await _httpClient.PostAsJsonAsync("auth/login", request);
+            }
+            catch
+            {
+                await _tokenStorage.ClearAsync();
+                throw new HttpRequestException("El servidor del salón está iniciando en la nube. Por favor presiona 'Iniciar Sesión' nuevamente.");
+            }
+        }
+        catch (TaskCanceledException)
+        {
             await _tokenStorage.ClearAsync();
-            throw new HttpRequestException("La conexión con el salón se interrumpió o el servidor está iniciando. Por favor reintenta en unos instantes.");
+            throw new TimeoutException("El servidor del salón está iniciando y tardó en responder. Por favor presiona 'Iniciar Sesión' nuevamente.");
+        }
+        catch (HttpRequestException)
+        {
+            await _tokenStorage.ClearAsync();
+            throw new HttpRequestException("No se pudo conectar con el servidor del salón. Por favor verifica tu acceso a internet.");
         }
 
         // 2. Procesar respuesta según código HTTP exacto

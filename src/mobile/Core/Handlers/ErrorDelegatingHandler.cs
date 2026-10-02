@@ -51,50 +51,56 @@ public class ErrorDelegatingHandler : DelegatingHandler
         }
         catch (TaskCanceledException)
         {
-            await MainThread.InvokeOnMainThreadAsync(async () =>
+            if (!isLoginOrRegister)
             {
-                if (!await _dialogLock.WaitAsync(0)) return;
-                try
+                await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    if (Application.Current?.MainPage != null)
+                    if (!await _dialogLock.WaitAsync(0)) return;
+                    try
                     {
-                        await Application.Current.MainPage.DisplayAlert(
-                            "Tiempo de Espera Agotado", 
-                            "El servidor del salón está tardando demasiado en responder. Por favor intente de nuevo en unos momentos.", 
-                            "Aceptar"
-                        );
+                        if (Application.Current?.MainPage != null)
+                        {
+                            await Application.Current.MainPage.DisplayAlert(
+                                "Tiempo de Espera Agotado", 
+                                "El servidor del salón está tardando demasiado en responder. Por favor intente de nuevo en unos momentos.", 
+                                "Aceptar"
+                            );
+                        }
                     }
-                }
-                catch { }
-                finally
-                {
-                    _dialogLock.Release();
-                }
-            });
+                    catch { }
+                    finally
+                    {
+                        _dialogLock.Release();
+                    }
+                });
+            }
             throw;
         }
         catch (HttpRequestException)
         {
-            await MainThread.InvokeOnMainThreadAsync(async () =>
+            if (!isLoginOrRegister)
             {
-                if (!await _dialogLock.WaitAsync(0)) return;
-                try
+                await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    if (Application.Current?.MainPage != null)
+                    if (!await _dialogLock.WaitAsync(0)) return;
+                    try
                     {
-                        await Application.Current.MainPage.DisplayAlert(
-                            "Sin Conexión", 
-                            "No se pudo establecer comunicación con el servidor del salón. Verifique su conexión a internet.", 
-                            "Aceptar"
-                        );
+                        if (Application.Current?.MainPage != null)
+                        {
+                            await Application.Current.MainPage.DisplayAlert(
+                                "Sin Conexión", 
+                                "No se pudo establecer comunicación con el servidor del salón. Verifique su conexión a internet.", 
+                                "Aceptar"
+                            );
+                        }
                     }
-                }
-                catch { }
-                finally
-                {
-                    _dialogLock.Release();
-                }
-            });
+                    catch { }
+                    finally
+                    {
+                        _dialogLock.Release();
+                    }
+                });
+            }
             throw;
         }
         catch (Exception ex) when (ex is System.IO.IOException 
@@ -103,26 +109,29 @@ public class ErrorDelegatingHandler : DelegatingHandler
                                 || ex.Message.Contains("closed", StringComparison.OrdinalIgnoreCase)
                                 || ex.Message.Contains("reset", StringComparison.OrdinalIgnoreCase))
         {
-            await MainThread.InvokeOnMainThreadAsync(async () =>
+            if (!isLoginOrRegister)
             {
-                if (!await _dialogLock.WaitAsync(0)) return;
-                try
+                await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    if (Application.Current?.MainPage != null)
+                    if (!await _dialogLock.WaitAsync(0)) return;
+                    try
                     {
-                        await Application.Current.MainPage.DisplayAlert(
-                            "Conexión Interrumpida", 
-                            "La comunicación con el salón fue interrumpida o el servidor está iniciando. Por favor intente de nuevo en unos segundos.", 
-                            "Aceptar"
-                        );
+                        if (Application.Current?.MainPage != null)
+                        {
+                            await Application.Current.MainPage.DisplayAlert(
+                                "Conexión Interrumpida", 
+                                "La comunicación con el salón fue interrumpida o el servidor está iniciando. Por favor intente de nuevo en unos segundos.", 
+                                "Aceptar"
+                            );
+                        }
                     }
-                }
-                catch { }
-                finally
-                {
-                    _dialogLock.Release();
-                }
-            });
+                    catch { }
+                    finally
+                    {
+                        _dialogLock.Release();
+                    }
+                });
+            }
             throw new HttpRequestException("La conexión con el salón fue interrumpida o el servidor está iniciando.", ex);
         }
 
@@ -217,14 +226,23 @@ public class ErrorDelegatingHandler : DelegatingHandler
                         case HttpStatusCode.BadGateway:
                         case HttpStatusCode.ServiceUnavailable:
                         case HttpStatusCode.GatewayTimeout:
-                            // 5xx: Fallas en servidor (solo peticiones protegidas de negocio; login maneja su propio mensaje)
-                            if (!isAuthEndpoint && !isLoginOrRegister)
+                            // 5xx: Fallas en servidor (solo peticiones protegidas de negocio; login y subidas manejan su propio mensaje)
+                            var isUploadEndpoint = request.RequestUri?.AbsolutePath.Contains("/archivos/") == true;
+                            if (!isAuthEndpoint && !isLoginOrRegister && !isUploadEndpoint)
                             {
-                                await mainPage.DisplayAlert(
-                                    "Aviso del Salón", 
-                                    "El sistema del salón experimenta una interrupción momentánea. Intente nuevamente en unos minutos.", 
-                                    "Cerrar"
-                                );
+                                var serverMessage = problem?.GetPrimaryErrorMessage();
+                                if (!string.IsNullOrWhiteSpace(serverMessage) && !serverMessage.Contains("Internal Server Error", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    await mainPage.DisplayAlert("Aviso del Salón", serverMessage, "Cerrar");
+                                }
+                                else
+                                {
+                                    await mainPage.DisplayAlert(
+                                        "Aviso del Salón", 
+                                        "El sistema del salón experimenta una interrupción momentánea. Intente nuevamente en unos minutos.", 
+                                        "Cerrar"
+                                    );
+                                }
                             }
                             break;
                     }

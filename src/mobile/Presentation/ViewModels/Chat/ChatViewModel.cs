@@ -78,19 +78,35 @@ public partial class ChatViewModel : ObservableObject
 
             NotificarCambiosColeccion();
 
-            // Marcar mensajes como leídos en backend
+            // Marcar mensajes como leídos en backend de forma segura
             _ = _chatRepository.MarcarMensajesLeidosClienteAsync();
         }
         catch (Exception ex)
         {
-            HasError = true;
-            ErrorMessage = "No se pudieron cargar los mensajes. " + ex.Message;
+            if (ex.Message.Contains("conversaci", StringComparison.OrdinalIgnoreCase) || 
+                ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+            {
+                // Si el cliente aún no tiene conversación, es un estado vacío normal y no un error
+                HasError = false;
+                ErrorMessage = string.Empty;
+            }
+            else
+            {
+                HasError = true;
+                ErrorMessage = "No se pudieron cargar los mensajes. " + ex.Message;
+            }
         }
         finally
         {
             IsLoading = false;
             NotificarCambiosColeccion();
         }
+    }
+
+    [RelayCommand]
+    private void IniciarConversacion()
+    {
+        MessageText = "¡Hola! Quisiera información sobre sus servicios.";
     }
 
     public void IniciarPolling()
@@ -147,7 +163,11 @@ public partial class ChatViewModel : ObservableObject
                         });
                     }
                 }
-                catch (TaskCanceledException)
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (ObjectDisposedException)
                 {
                     break;
                 }
@@ -164,7 +184,6 @@ public partial class ChatViewModel : ObservableObject
         try
         {
             _pollingCts?.Cancel();
-            _pollingCts?.Dispose();
         }
         catch
         {
@@ -191,9 +210,28 @@ public partial class ChatViewModel : ObservableObject
                 "Elegir de galería");
 
             FileResult? result = null;
-            if (accion == "Tomar foto con cámara" && MediaPicker.Default.IsCaptureSupported)
+            if (accion == "Tomar foto con cámara")
             {
-                result = await MediaPicker.Default.CapturePhotoAsync();
+                var cameraStatus = await Permissions.CheckStatusAsync<Permissions.Camera>();
+                if (cameraStatus != PermissionStatus.Granted)
+                {
+                    cameraStatus = await Permissions.RequestAsync<Permissions.Camera>();
+                }
+
+                if (cameraStatus != PermissionStatus.Granted)
+                {
+                    await Shell.Current.DisplayAlert(
+                        "Permiso de Cámara",
+                        "Para capturar una foto se requiere acceso a la cámara. Puedes habilitar el permiso en la configuración de tu teléfono o elegir una imagen desde tu galería.",
+                        "Entendido"
+                    );
+                    return;
+                }
+
+                if (MediaPicker.Default.IsCaptureSupported)
+                {
+                    result = await MediaPicker.Default.CapturePhotoAsync();
+                }
             }
             else if (accion == "Elegir de galería")
             {
@@ -313,7 +351,28 @@ public partial class ChatViewModel : ObservableObject
     private async Task GoBackAsync()
     {
         DetenerPolling();
-        await Shell.Current.GoToAsync("..");
+        try
+        {
+            if (Shell.Current?.Navigation?.NavigationStack?.Count > 1)
+            {
+                await Shell.Current.GoToAsync("..");
+            }
+            else
+            {
+                await Shell.Current.GoToAsync("//MainTabs/CatalogPage");
+            }
+        }
+        catch
+        {
+            try
+            {
+                if (Shell.Current != null)
+                {
+                    await Shell.Current.GoToAsync("//MainTabs/CatalogPage");
+                }
+            }
+            catch { }
+        }
     }
 
     [RelayCommand]

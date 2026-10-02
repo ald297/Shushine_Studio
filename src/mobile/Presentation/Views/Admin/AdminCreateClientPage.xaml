@@ -61,16 +61,16 @@
                             FontSize="12" FontAttributes="Bold"
                             TextColor="#92400E" />
                         <Label
-                            Text="Esta función estará disponible cuando el backend la habilite. Actualmente, los clientes se registran autónomamente en la app o al registrar una cita Walk-in en recepción."
+                            Text="Esta función estará disponible cuando el backend la habilite. Actualmente, los clientes se registran autónomamente en la app o al registrar una atención sin cita en recepción."
                             FontFamily="PlusJakartaSans"
                             FontSize="11"
                             TextColor="#78350F" />
                     </VerticalStackLayout>
                 </Frame>
 
-                <!-- BOTÓN ACCESO DIRECTO WALK-IN -->
+                <!-- BOTÓN ACCESO DIRECTO ATENCIÓN SIN CITA -->
                 <Button
-                    Text="Agendar Cita Walk-in en Recepción"
+                    Text="Registrar Atención sin Cita en Recepción"
                     Command="{Binding IrACitaWalkinCommand}"
                     BackgroundColor="{StaticResource Primary}"
                     TextColor="{StaticResource Surface}"

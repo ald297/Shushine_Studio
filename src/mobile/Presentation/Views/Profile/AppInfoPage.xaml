@@ -40,31 +40,16 @@
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Padding="20,28,20,40" Spacing="24">
 
-                <!-- LOGO & BRANDING HERO -->
-                <VerticalStackLayout HorizontalOptions="Center" Spacing="12">
-                    <Frame
-                        WidthRequest="88" HeightRequest="88"
-                        CornerRadius="44"
-                        BackgroundColor="{StaticResource Surface}"
-                        BorderColor="{StaticResource Secondary}"
-                        Padding="0"
-                        HasShadow="True">
-                        <Label
-                            Text="✨"
-                            FontSize="38"
-                            HorizontalOptions="Center"
-                            VerticalOptions="Center" />
-                    </Frame>
+                <!-- LOGO & BRANDING HERO: Logotipo Oficial -->
+                <VerticalStackLayout HorizontalOptions="Center" Spacing="8">
+                    <Image
+                        Source="shunshine_logo.svg"
+                        HeightRequest="115"
+                        WidthRequest="150"
+                        Aspect="AspectFit"
+                        HorizontalOptions="Center" />
 
                     <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
-                        <Label
-                            Text="SHUNSHINE STUDIO"
-                            FontFamily="PlayfairDisplay"
-                            FontSize="22"
-                            FontAttributes="Bold"
-                            TextColor="{StaticResource TextPrimary}"
-                            HorizontalTextAlignment="Center"
-                            CharacterSpacing="1.5" />
                         <Label
                             Text="Salón de Belleza &amp; Estética Integral"
                             FontFamily="PlusJakartaSans"

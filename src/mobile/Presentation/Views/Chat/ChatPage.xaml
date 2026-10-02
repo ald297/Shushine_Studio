@@ -44,7 +44,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0" ColumnDefinitions="44,*,44">
+            <Grid Grid.Row="0" ColumnDefinitions="44,*,Auto">
                 <ImageButton
                     Grid.Column="0"
                     Source="arrow_left.png"
@@ -71,15 +71,29 @@
                         HorizontalOptions="Center" />
                 </VerticalStackLayout>
 
-                <ImageButton
+                <Border
                     Grid.Column="2"
-                    Source="edit_pen.png"
-                    Command="{Binding NavigateToCustomRequestCommand}"
-                    WidthRequest="26"
-                    HeightRequest="26"
-                    BackgroundColor="Transparent"
+                    BackgroundColor="#FCECEF"
+                    Stroke="#F7CAD3"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="8,5"
                     HorizontalOptions="End"
-                    VerticalOptions="Center" />
+                    VerticalOptions="Center">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToCustomRequestCommand}" />
+                    </Border.GestureRecognizers>
+                    <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
+                        <Label Text="✨" FontSize="12" VerticalOptions="Center" />
+                        <Label
+                            Text="Solicitud"
+                            FontFamily="PlusJakartaSans"
+                            FontSize="11"
+                            FontAttributes="Bold"
+                            TextColor="{StaticResource Primary}"
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
             </Grid>
 
             <BoxView
@@ -128,7 +142,7 @@
                     HorizontalTextAlignment="Center" />
 
                 <Label
-                    Text="Escríbenos si tienes alguna consulta sobre nuestros servicios o tu cita."
+                    Text="Escríbenos si tienes alguna pregunta o necesitas ayuda."
                     FontFamily="PlusJakartaSans"
                     FontSize="14"
                     TextColor="{StaticResource TextSecondary}"
@@ -136,33 +150,27 @@
                     HorizontalTextAlignment="Center"
                     LineBreakMode="WordWrap" />
 
-                <BoxView
-                    HeightRequest="2"
-                    WidthRequest="48"
-                    BackgroundColor="{StaticResource Secondary}"
-                    HorizontalOptions="Center"
-                    Margin="0,4,0,4" />
-
-                <Label
-                    Text="También puedes enviarnos una solicitud de diseño personalizado"
-                    FontFamily="PlusJakartaSans"
-                    FontSize="13"
-                    TextColor="{StaticResource TextSecondary}"
-                    HorizontalOptions="Center"
-                    HorizontalTextAlignment="Center"
-                    LineBreakMode="WordWrap" />
-
+                <!-- Botón: Iniciar conversación -->
                 <Button
-                    Text="Nueva Solicitud Personalizada"
-                    Command="{Binding NavigateToCustomRequestCommand}"
+                    Text="Iniciar conversación"
+                    Command="{Binding IniciarConversacionCommand}"
                     BackgroundColor="{StaticResource Primary}"
                     TextColor="{StaticResource TextLight}"
                     FontFamily="PlusJakartaSans"
                     FontAttributes="Bold"
                     FontSize="15"
-                    CornerRadius="12"
-                    HeightRequest="52"
+                    CornerRadius="16"
+                    HeightRequest="50"
                     Margin="0,8,0,0" />
+
+                <!-- Acción independiente: ✨ Solicitud personalizada -->
+                <Button
+                    Text="✨ Solicitud personalizada"
+                    Command="{Binding NavigateToCustomRequestCommand}"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    HeightRequest="50"
+                    CornerRadius="16"
+                    Margin="0,4,0,0" />
             </VerticalStackLayout>
         </ScrollView>
 

@@ -51,54 +51,56 @@ public class ArchivoController {
             return ResponseEntity.badRequest().body(Map.of("error", "Solo se permiten archivos de imagen (JPEG, PNG, WEBP)"));
         }
 
+        if (serviceRoleKey == null || serviceRoleKey.isBlank()) {
+            System.err.println("[ArchivoController] Error de configuración: SUPABASE_SERVICE_ROLE_KEY ausente.");
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of(
+                    "status", 503,
+                    "title", "Service Unavailable",
+                    "error", "El servicio de almacenamiento seguro (Supabase Storage) no está configurado en el servidor."
+            ));
+        }
+
         try {
             byte[] bytes = archivo.getBytes();
             String originalName = archivo.getOriginalFilename() != null ? archivo.getOriginalFilename() : "imagen.jpg";
             String extension = originalName.contains(".") ? originalName.substring(originalName.lastIndexOf(".")) : ".jpg";
             String cleanName = UUID.randomUUID() + extension.toLowerCase();
 
-            // 1. Intentar subir directamente a Supabase Storage
-            if (serviceRoleKey != null && !serviceRoleKey.isBlank()) {
-                try {
-                    String uploadUrl = supabaseUrl.replaceAll("/+$", "") + "/storage/v1/object/" + storageBucket + "/" + cleanName;
-                    HttpRequest request = HttpRequest.newBuilder()
-                            .uri(URI.create(uploadUrl))
-                            .header("Authorization", "Bearer " + serviceRoleKey)
-                            .header("Content-Type", contentType)
-                            .timeout(Duration.ofSeconds(15))
-                            .POST(HttpRequest.BodyPublishers.ofByteArray(bytes))
-                            .build();
+            try {
+                String uploadUrl = supabaseUrl.replaceAll("/+$", "") + "/storage/v1/object/" + storageBucket + "/" + cleanName;
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(uploadUrl))
+                        .header("Authorization", "Bearer " + serviceRoleKey)
+                        .header("apiKey", serviceRoleKey)
+                        .header("Content-Type", contentType)
+                        .timeout(Duration.ofSeconds(15))
+                        .POST(HttpRequest.BodyPublishers.ofByteArray(bytes))
+                        .build();
 
-                    HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-                    if (response.statusCode() == 200 || response.statusCode() == 201) {
-                        String publicUrl = supabaseUrl.replaceAll("/+$", "") + "/storage/v1/object/public/" + storageBucket + "/" + cleanName;
-                        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-                                "url", publicUrl,
-                                "nombreOriginal", originalName,
-                                "tamanoBytes", archivo.getSize(),
-                                "contentType", contentType,
-                                "storage", "supabase"
-                        ));
-                    } else {
-                        System.err.println("[ArchivoController] Supabase Storage respondió con status " + response.statusCode() + ": " + response.body());
-                        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of(
-                                "status", 502,
-                                "error", "Supabase Storage respondió con status " + response.statusCode()
-                        ));
-                    }
-                } catch (Exception ex) {
-                    System.err.println("[ArchivoController] Excepción al contactar Supabase Storage: " + ex.getMessage());
-                    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of(
-                            "status", 503,
-                            "error", "Error de comunicación con Supabase Storage: " + ex.getMessage()
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() == 200 || response.statusCode() == 201) {
+                    String publicUrl = supabaseUrl.replaceAll("/+$", "") + "/storage/v1/object/public/" + storageBucket + "/" + cleanName;
+                    return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                            "url", publicUrl,
+                            "nombreOriginal", originalName,
+                            "tamanoBytes", archivo.getSize(),
+                            "contentType", contentType,
+                            "storage", "supabase"
+                    ));
+                } else {
+                    System.err.println("[ArchivoController] Supabase Storage respondió con status " + response.statusCode());
+                    return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of(
+                            "status", 502,
+                            "error", "Supabase Storage respondió con status " + response.statusCode()
                     ));
                 }
+            } catch (Exception ex) {
+                System.err.println("[ArchivoController] Excepción al contactar Supabase Storage: " + ex.getMessage());
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of(
+                        "status", 503,
+                        "error", "Error de comunicación con Supabase Storage: " + ex.getMessage()
+                ));
             }
-
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of(
-                    "status", 503,
-                    "error", "El servicio de almacenamiento en la nube (Supabase Storage) no está configurado. Se requiere la variable de entorno SUPABASE_SERVICE_ROLE_KEY."
-            ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error al procesar el archivo: " + e.getMessage()));

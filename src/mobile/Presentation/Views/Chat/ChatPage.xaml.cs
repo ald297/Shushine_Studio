@@ -24,4 +24,23 @@ public partial class ChatPage : ContentPage
         base.OnDisappearing();
         _viewModel.DetenerPolling();
     }
+
+    protected override bool OnBackButtonPressed()
+    {
+        _viewModel.DetenerPolling();
+        if (Navigation.NavigationStack.Count > 1)
+        {
+            return base.OnBackButtonPressed();
+        }
+
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            try
+            {
+                await Shell.Current.GoToAsync("//MainTabs/CatalogPage");
+            }
+            catch { }
+        });
+        return true;
+    }
 }

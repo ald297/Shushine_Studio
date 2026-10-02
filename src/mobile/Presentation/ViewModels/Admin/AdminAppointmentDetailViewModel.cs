@@ -150,12 +150,23 @@ public partial class AdminAppointmentDetailViewModel : BaseViewModel, IQueryAttr
         TotalFormateado = r.TotalFormateado;
         SubtotalFormateado = r.SubtotalFormateado;
         IvaFormateado = r.IvaFormateado;
-        MetodoPago = r.MetodoPagoPreferente ?? "Efectivo";
-        EstadoPago = r.EstadoPago ?? "Pending";
+        MetodoPago = !string.IsNullOrWhiteSpace(r.MetodoPagoPreferente) ? r.MetodoPagoPreferente : "Efectivo";
+        EstadoPago = !string.IsNullOrWhiteSpace(r.EstadoPago) ? r.EstadoPago : "Pending";
         Notas = !string.IsNullOrWhiteSpace(r.Notas) ? r.Notas : "Sin notas adicionales para esta cita.";
 
         ActualizarReglasDeEstado();
     }
+
+    [ObservableProperty]
+    private bool puedeRegistrarPago;
+
+    public bool EstaPagado => EstadoPago?.Equals("Paid", StringComparison.OrdinalIgnoreCase) == true
+                           || EstadoPago?.Equals("Pagado", StringComparison.OrdinalIgnoreCase) == true
+                           || EstadoPago?.Equals("Aprobado", StringComparison.OrdinalIgnoreCase) == true;
+
+    public string EstadoPagoTexto => EstaPagado ? "Pagado" : "Pago pendiente";
+    public string EstadoPagoColor => EstaPagado ? "#2E7D32" : "#E65100";
+    public string MetodoPagoTexto => MetodoPago;
 
     private void ActualizarReglasDeEstado()
     {
@@ -168,6 +179,71 @@ public partial class AdminAppointmentDetailViewModel : BaseViewModel, IQueryAttr
         PuedeIniciar = est is "CONFIRMED" or "CONFIRMADA";
         PuedeCompletar = est is "INPROGRESS" or "IN_PROGRESS" or "EN_PROCESO";
         PuedeCancelar = !CitaFinalizada;
+        PuedeRegistrarPago = !EstaPagado && !CitaFinalizada;
+
+        OnPropertyChanged(nameof(EstaPagado));
+        OnPropertyChanged(nameof(EstadoPagoTexto));
+        OnPropertyChanged(nameof(EstadoPagoColor));
+        OnPropertyChanged(nameof(MetodoPagoTexto));
+    }
+
+    [RelayCommand]
+    private async Task RegistrarPagoEfectivoAsync()
+    {
+        if (EstaPagado)
+        {
+            if (Application.Current?.MainPage != null)
+            {
+                await Application.Current.MainPage.DisplayAlert("Pago Registrado", "Esta cita ya figura como pagada.", "OK");
+            }
+            return;
+        }
+
+        if (Application.Current?.MainPage == null) return;
+
+        var confirmar = await Application.Current.MainPage.DisplayAlert(
+            "Registrar Pago",
+            $"¿Confirmas que recibiste el pago en Efectivo por {TotalFormateado}?",
+            "Sí, Registrar",
+            "Cancelar"
+        );
+
+        if (!confirmar) return;
+
+        try
+        {
+            IsBusy = true;
+            var monto = Reserva?.Total ?? 0m;
+            var ok = await _reservaRepository.RegistrarPagoAsync(CitaId, monto, "Efectivo");
+            if (ok)
+            {
+                EstadoPago = "Paid";
+                MetodoPago = "Efectivo";
+                ActualizarReglasDeEstado();
+
+                await Application.Current.MainPage.DisplayAlert(
+                    "Pago Exitoso",
+                    $"El pago en Efectivo ha sido registrado correctamente para la cita {CodigoCita}. Estado: Pagado — Efectivo.",
+                    "Aceptar"
+                );
+            }
+            else
+            {
+                await Application.Current.MainPage.DisplayAlert(
+                    "Error",
+                    "No se pudo registrar el pago en el servidor. Intente nuevamente.",
+                    "OK"
+                );
+            }
+        }
+        catch (Exception ex)
+        {
+            await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     [RelayCommand]

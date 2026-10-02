@@ -95,7 +95,12 @@ public class SolicitudRepository : ISolicitudRepository
             content.Add(streamContent, "archivo", nombreArchivo);
 
             var response = await _httpClient.PostAsync("archivos/subir", content);
-            if (!response.IsSuccessStatusCode) return null;
+            if (!response.IsSuccessStatusCode)
+            {
+                var errContent = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"[SolicitudRepository] Error al subir imagen (Status {(int)response.StatusCode}): {errContent}");
+                return null;
+            }
 
             var json = await response.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(json);
@@ -105,8 +110,9 @@ public class SolicitudRepository : ISolicitudRepository
             }
             return null;
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[SolicitudRepository] Excepción al subir imagen: {ex.Message}");
             return null;
         }
     }

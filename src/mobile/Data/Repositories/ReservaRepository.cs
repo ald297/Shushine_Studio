@@ -277,36 +277,48 @@ public class ReservaRepository : IReservaRepository
     {
         try
         {
-            // 1. Intentar endpoint oficial PUT /api/citas/{id}/cancelar
-            var url = string.IsNullOrEmpty(motivo)
-                ? $"citas/{reservaId}/cancelar"
-                : $"citas/{reservaId}/cancelar?motivo={Uri.EscapeDataString(motivo)}";
+            var body = new
+            {
+                motivo = motivo ?? "Cancelada por el cliente desde la app móvil"
+            };
 
-            var response = await _httpClient.PutAsync(url, null);
+            var response = await _httpClient.PutAsJsonAsync($"citas/{reservaId}/cancelar", body);
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ReservaRepository] Error al cancelar cita: {ex.Message}");
+            return false;
+        }
+    }
+
+    public async Task<bool> RegistrarPagoAsync(long citaId, decimal monto, string metodoPago, string? referenciaPos = null)
+    {
+        try
+        {
+            var pagoReq = new
+            {
+                citaId = (int)citaId,
+                monto = monto,
+                metodoPago = metodoPago,
+                referenciaPos = referenciaPos
+            };
+
+            var response = await _httpClient.PostAsJsonAsync("pagos", pagoReq);
             if (response.IsSuccessStatusCode)
             {
                 return true;
             }
 
-            // 2. Si el endpoint PUT no estuviera disponible, intentar PATCH /api/citas/{id}/estado
-            var payload = new
-            {
-                id = reservaId,
-                nuevoEstado = "Cancelled",
-                motivoCancelacion = motivo ?? "Cancelada desde la app móvil"
-            };
-            var patchResponse = await _httpClient.PatchAsJsonAsync($"citas/{reservaId}/estado", payload);
-            if (patchResponse.IsSuccessStatusCode)
-            {
-                return true;
-            }
+            var err = await response.Content.ReadAsStringAsync();
+            System.Diagnostics.Debug.WriteLine($"[ReservaRepository] Error al registrar pago para cita {citaId}: {err}");
+            return false;
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[ReservaRepository] Error al cancelar cita: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[ReservaRepository] Excepción al registrar pago: {ex.Message}");
+            return false;
         }
-
-        return false;
     }
 
     public async Task<string?> DescargarReporteCsvAsync()

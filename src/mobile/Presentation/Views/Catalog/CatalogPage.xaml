@@ -25,6 +25,26 @@
                    Style="{StaticResource CaptionLabelStyle}"
                    TextColor="{StaticResource TextSecondary}"
                    Margin="16, 0, 16, 8" />
+
+            <!-- Acceso Rápido a Productos -->
+            <Border Margin="16, 0, 16, 8"
+                    Padding="12, 8"
+                    BackgroundColor="#FCECEF"
+                    Stroke="#F7CAD3"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding IrAProductosCommand}" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto, *, Auto">
+                    <Label Grid.Column="0" Text="🛍️" FontSize="16" VerticalOptions="Center" Margin="0,0,8,0" />
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
+                        <Label Text="¿Buscas productos para llevar?" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
+                        <Label Text="Explora nuestra tienda de productos de belleza" FontFamily="PlusJakartaSans" FontSize="10" TextColor="{StaticResource TextSecondary}" />
+                    </VerticalStackLayout>
+                    <Label Grid.Column="2" Text="Ver ›" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Primary}" VerticalOptions="Center" />
+                </Grid>
+            </Border>
         </VerticalStackLayout>
 
         <!-- 2. Barra de Búsqueda Moderna -->

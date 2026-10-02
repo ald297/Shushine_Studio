@@ -25,15 +25,21 @@
         Route="LoginPage"
         ContentTemplate="{DataTemplate auth:LoginPage}" />
 
-    <!-- Barra de Pestañas Cliente (Wireframes Págs. 7-14) -->
+    <!-- Barra de Pestañas Cliente (Inicio | Catálogo | Citas | Chat | Perfil) -->
     <TabBar x:Name="ClientTabBar" Route="MainTabs">
-        <Tab Title="Catálogo" Icon="scissors.png">
+        <Tab Title="Inicio" Icon="scissors.png">
             <ShellContent
                 Route="CatalogPage"
                 ContentTemplate="{DataTemplate catalog:CatalogPage}" />
         </Tab>
 
-        <Tab Title="Mis Citas" Icon="calendar.png">
+        <Tab Title="Catálogo" Icon="scissors.png">
+            <ShellContent
+                Route="ClientProductsPage"
+                ContentTemplate="{DataTemplate catalog:ClientProductsPage}" />
+        </Tab>
+
+        <Tab Title="Citas" Icon="calendar.png">
             <ShellContent
                 Route="MyAppointmentsPage"
                 ContentTemplate="{DataTemplate appointments:MyAppointmentsPage}" />
@@ -52,14 +58,8 @@
         </Tab>
     </TabBar>
 
-    <!-- Barra de Pestañas Administrador (Wireframes Págs. 15-19) -->
+    <!-- Barra de Pestañas Administrador (Agenda | Catálogo | Estilistas | Mensajes | Perfil) -->
     <TabBar x:Name="AdminTabBar" Route="AdminTabs">
-        <Tab Title="Dashboard" Icon="calendar.png">
-            <ShellContent
-                Route="AdminDashboardPage"
-                ContentTemplate="{DataTemplate admin:AdminDashboardPage}" />
-        </Tab>
-
         <Tab Title="Agenda" Icon="calendar.png">
             <ShellContent
                 Route="TimelineAgendaPage"
@@ -76,6 +76,12 @@
             <ShellContent
                 Route="AdminEstilistasPage"
                 ContentTemplate="{DataTemplate admin:AdminEstilistasPage}" />
+        </Tab>
+
+        <Tab Title="Mensajes" Icon="chat.png">
+            <ShellContent
+                Route="AdminRequestsPage"
+                ContentTemplate="{DataTemplate admin:AdminRequestsPage}" />
         </Tab>
 
         <Tab Title="Perfil" Icon="user.png">

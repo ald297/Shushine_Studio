@@ -67,8 +67,8 @@
 
                             <Frame
                                 Grid.Column="1"
-                                BackgroundColor="#F3E5F5"
-                                BorderColor="{StaticResource Outline}"
+                                BackgroundColor="#FCECEF"
+                                BorderColor="#F7CAD3"
                                 CornerRadius="8"
                                 Padding="10,4"
                                 HasShadow="False"

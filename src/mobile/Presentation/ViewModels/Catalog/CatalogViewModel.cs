@@ -153,4 +153,10 @@ public partial class CatalogViewModel : BaseViewModel
         if (servicio == null) return;
         await Shell.Current.GoToAsync($"ServiceDetailPage?servicioId={servicio.Id}");
     }
+
+    [RelayCommand]
+    private async Task IrAProductosAsync()
+    {
+        await Shell.Current.GoToAsync("ClientProductsPage");
+    }
 }

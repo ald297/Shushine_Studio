@@ -19,6 +19,7 @@ public partial class BookingSummaryViewModel : BaseViewModel
 {
     private readonly IServicioRepository _servicioRepository;
     private readonly CreateAppointmentUseCase _createAppointmentUseCase;
+    private readonly IReservaRepository _reservaRepository;
 
     [ObservableProperty]
     private long servicioId;
@@ -41,17 +42,33 @@ public partial class BookingSummaryViewModel : BaseViewModel
     [ObservableProperty]
     private decimal totalPagar;
 
+    [ObservableProperty]
+    private string metodoPago = "Efectivo";
+
+    public bool EsEfectivo => MetodoPago == "Efectivo";
+    public bool EsTarjeta => MetodoPago == "Tarjeta";
+
     public bool HasErrorMessage => !string.IsNullOrWhiteSpace(ErrorMessage);
 
     public string TotalPagarFormateado => $"${TotalPagar:N2}";
 
     public BookingSummaryViewModel(
         IServicioRepository servicioRepository,
-        CreateAppointmentUseCase createAppointmentUseCase)
+        CreateAppointmentUseCase createAppointmentUseCase,
+        IReservaRepository reservaRepository)
     {
         _servicioRepository = servicioRepository;
         _createAppointmentUseCase = createAppointmentUseCase;
+        _reservaRepository = reservaRepository;
         Title = "Resumen de Cita";
+    }
+
+    [RelayCommand]
+    private void SeleccionarMetodoPago(string metodo)
+    {
+        MetodoPago = metodo;
+        OnPropertyChanged(nameof(EsEfectivo));
+        OnPropertyChanged(nameof(EsTarjeta));
     }
 
     async partial void OnServicioIdChanged(long value)
@@ -101,12 +118,36 @@ public partial class BookingSummaryViewModel : BaseViewModel
 
             var estilistaIdLong = long.TryParse(EstilistaId, out var eId) && eId > 0 ? (long?)eId : 1;
 
+            if (EsTarjeta)
+            {
+                var confirmarSimulacion = await Shell.Current.DisplayAlert(
+                    "Simulación de Pago",
+                    $"Monto a simular: {TotalPagarFormateado}\n\nEsta operación es una simulación académica segura. No se requieren datos bancarios ni se aplicará ningún cobro monetario real.\n\n¿Deseas confirmar la transacción simulada?",
+                    "Confirmar Pago",
+                    "Cancelar"
+                );
+
+                if (!confirmarSimulacion) return;
+            }
+
+            var horaInicioStr = fechaHoraInicio.ToString("HH:mm");
+            var servicioIds = new List<int> { (int)Servicio.Id };
+
             var reserva = await _createAppointmentUseCase.ExecuteAsync(
-                Servicio.Id,
-                estilistaIdLong,
-                fechaHoraInicio,
-                "Reserva generada desde App Móvil .NET MAUI"
+                estilistaIdLong.Value,
+                fechaHoraInicio.Date,
+                horaInicioStr,
+                servicioIds,
+                "Reserva generada desde App Móvil .NET MAUI",
+                MetodoPago
             );
+
+            // Si es pago simulado con tarjeta, registramos inmediatamente la liquidación
+            if (reserva != null && EsTarjeta)
+            {
+                var refPos = $"SIM-POS-{Random.Shared.Next(1000, 9999)}";
+                await _reservaRepository.RegistrarPagoAsync(reserva.Id, TotalPagar, "Tarjeta", refPos);
+            }
 
             // Obtener el código o identificador real devuelto por la API sin fabricar códigos ficticios
             string codigoGenerado = string.Empty;

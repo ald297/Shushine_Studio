@@ -315,8 +315,11 @@ public class CitaService implements ICitaService {
         }
 
         String estadoActual = cita.getEstado();
-        if ("Completed".equalsIgnoreCase(estadoActual) || "Cancelled".equalsIgnoreCase(estadoActual)) {
-            throw new IllegalStateException("No se puede cancelar una cita finalizada o ya cancelada.");
+        if ("Cancelled".equalsIgnoreCase(estadoActual)) {
+            return mapToSalida(cita);
+        }
+        if ("Completed".equalsIgnoreCase(estadoActual)) {
+            throw new IllegalStateException("No se puede cancelar una cita que ya fue finalizada.");
         }
 
         cita.setEstado("Cancelled");

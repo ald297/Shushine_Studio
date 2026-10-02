@@ -5,44 +5,50 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <!-- ======================================================== -->
-    <!--  SISTEMA DE DISEÑO OFICIAL — SHUSHINE STUDIO (STITCH)    -->
-    <!--  Tema: Luxe Lotus & Warm Gold (Visual Identity Manager)  -->
+    <!--  SISTEMA DE DISEÑO OFICIAL — SHUNSHINE STUDIO            -->
+    <!--  Especificación Visual Definitiva: Luxe Lotus & Warm Gold-->
     <!-- ======================================================== -->
 
     <!-- Colores Principales Oficiales -->
-    <Color x:Key="Primary">#9B2D47</Color>              <!-- Royal Lotus Wine -->
-    <Color x:Key="Secondary">#C5A059</Color>            <!-- Champagne Metallic Gold -->
-    <Color x:Key="Tertiary">#E87A90</Color>             <!-- Lotus Rose Blush -->
+    <Color x:Key="Primary">#9B2D47</Color>              <!-- Primary Wine -->
+    <Color x:Key="Secondary">#C5A059</Color>            <!-- Champagne Gold -->
+    <Color x:Key="Tertiary">#E87A90</Color>             <!-- Lotus Rose -->
     <Color x:Key="NeutralCore">#1A1412</Color>          <!-- Espresso Noir -->
-    <Color x:Key="Background">#FFF8F6</Color>           <!-- Canvas cálido principal -->
-    <Color x:Key="BackgroundSecondary">#FAFAF9</Color>  <!-- Warm Alabaster secundario -->
-    <Color x:Key="Surface">#FFFFFF</Color>              <!-- Pure Porcelain -->
-    <Color x:Key="Border">#EDE7E1</Color>               <!-- Borde sutil cálido -->
+    <Color x:Key="Background">#FFF8F6</Color>           <!-- Warm Background -->
+    <Color x:Key="BackgroundSecondary">#FBF9F8</Color>  <!-- Secondary Background -->
+    <Color x:Key="Card">#FFFFFF</Color>                 <!-- Card -->
+    <Color x:Key="Surface">#FFFFFF</Color>              <!-- Surface Pure Porcelain -->
+    <Color x:Key="MutedText">#7D7571</Color>            <!-- Muted Text oficial -->
+    <Color x:Key="Border">#EDE7E1</Color>               <!-- Border oficial -->
     <Color x:Key="InputBackground">#F5F3EF</Color>      <!-- Fondo de inputs y superficies suaves -->
-    <Color x:Key="TextPrimary">#1A1412</Color>          <!-- Tipografía principal de alto contraste -->
-    <Color x:Key="TextSecondary">#564144</Color>        <!-- Tipografía secundaria / descriptiva -->
+    <Color x:Key="TextPrimary">#1A1412</Color>          <!-- Tipografía principal Espresso Noir -->
+    <Color x:Key="TextSecondary">#7D7571</Color>        <!-- Tipografía secundaria Muted Text -->
     <Color x:Key="TextTertiary">#857375</Color>         <!-- Tipografía terciaria / metadatos -->
     <Color x:Key="TextLight">#FFFFFF</Color>            <!-- Texto claro sobre fondos oscuros -->
 
     <!-- Sombra Cálida Sutil: rgba(43, 33, 30, 0.04) -->
     <Color x:Key="WarmShadowColor">#0A2B211E</Color>
 
-    <!-- Semántica de Estados del Negocio -->
-    <Color x:Key="Success">#1B6A38</Color>
-    <Color x:Key="Warning">#8C6514</Color>
-    <Color x:Key="Error">#BA1A1A</Color>
+    <!-- Semántica de Estados del Negocio Oficiales -->
+    <Color x:Key="Success">#2E7D32</Color>              <!-- Success oficial -->
+    <Color x:Key="SuccessBg">#E8F5E9</Color>            <!-- Success Background oficial -->
+    <Color x:Key="Warning">#ED6C02</Color>              <!-- Warning oficial -->
+    <Color x:Key="WarningBg">#FFF3E0</Color>            <!-- Warning Background oficial -->
+    <Color x:Key="Error">#D32F2F</Color>                <!-- Error oficial -->
+    <Color x:Key="ErrorBg">#FFEBEE</Color>              <!-- Error Background oficial -->
     <Color x:Key="Info">#0288D1</Color>
+    <Color x:Key="InfoBg">#E1F5FE</Color>
 
     <!-- Estados Específicos de Citas (Appointment Status Semantic Tokens) -->
     <!-- CONFIRMADA (Botanical Emerald) -->
-    <Color x:Key="StatusConfirmadaBg">#EBF6EE</Color>
-    <Color x:Key="StatusConfirmadaText">#1B6A38</Color>
-    <Color x:Key="StatusConfirmadaBorder">#C5E7CD</Color>
+    <Color x:Key="StatusConfirmadaBg">#E8F5E9</Color>
+    <Color x:Key="StatusConfirmadaText">#2E7D32</Color>
+    <Color x:Key="StatusConfirmadaBorder">#C8E6C9</Color>
 
-    <!-- PENDIENTE (Champagne Gold) -->
-    <Color x:Key="StatusPendienteBg">#FDF8EB</Color>
-    <Color x:Key="StatusPendienteText">#8C6514</Color>
-    <Color x:Key="StatusPendienteBorder">#F5E2B3</Color>
+    <!-- PENDIENTE (Champagne Gold / Warning) -->
+    <Color x:Key="StatusPendienteBg">#FFF3E0</Color>
+    <Color x:Key="StatusPendienteText">#ED6C02</Color>
+    <Color x:Key="StatusPendienteBorder">#FFE0B2</Color>
 
     <!-- EN PROCESO (Lotus Rose) -->
     <Color x:Key="StatusEnProcesoBg">#FCECEF</Color>
@@ -55,9 +61,9 @@
     <Color x:Key="StatusTerminadaBorder">#E2DCD5</Color>
 
     <!-- CANCELADA (Muted Scarlet) -->
-    <Color x:Key="StatusCanceladaBg">#FBEBEB</Color>
-    <Color x:Key="StatusCanceladaText">#8E2323</Color>
-    <Color x:Key="StatusCanceladaBorder">#F2B8B8</Color>
+    <Color x:Key="StatusCanceladaBg">#FFEBEE</Color>
+    <Color x:Key="StatusCanceladaText">#D32F2F</Color>
+    <Color x:Key="StatusCanceladaBorder">#FFCDD2</Color>
 
     <!-- ======================================================== -->
     <!--  ALIASES DE COMPATIBILIDAD CON VISTAS EXISTENTES         -->
@@ -75,14 +81,14 @@
     <Color x:Key="SurfaceDark">#F5F3EF</Color>
 
     <Color x:Key="TextColorPrimary">#1A1412</Color>
-    <Color x:Key="TextColorSecondary">#564144</Color>
+    <Color x:Key="TextColorSecondary">#7D7571</Color>
 
-    <Color x:Key="BorderColor">#EDE7E1</Color>
-    <Color x:Key="DividerColor">#EDE7E1</Color>
+    <Color x:Key="BorderColor">#EFEAE6</Color>
+    <Color x:Key="DividerColor">#EFEAE6</Color>
 
-    <Color x:Key="SuccessColor">#1B6A38</Color>
-    <Color x:Key="WarningColor">#8C6514</Color>
-    <Color x:Key="ErrorColor">#BA1A1A</Color>
+    <Color x:Key="SuccessColor">#2E7D32</Color>
+    <Color x:Key="WarningColor">#ED6C02</Color>
+    <Color x:Key="ErrorColor">#D32F2F</Color>
     <Color x:Key="InfoColor">#0288D1</Color>
 
     <!-- Paleta Dorada / Salón Luxury -->
@@ -91,11 +97,11 @@
     <Color x:Key="GoldLight">#F5E6BE</Color>
     <Color x:Key="GoldBackground">#FFF8F6</Color>
     <Color x:Key="GoldSurface">#FFFFFF</Color>
-    <Color x:Key="GoldBorder">#EDE7E1</Color>
+    <Color x:Key="GoldBorder">#EFEAE6</Color>
 
     <!-- Tokens Adicionales Stitch / Compatibilidad de Vistas -->
     <Color x:Key="SurfaceVariant">#F5F3EF</Color>
-    <Color x:Key="Outline">#EDE7E1</Color>
+    <Color x:Key="Outline">#EFEAE6</Color>
     <Color x:Key="Accent">#C5A059</Color>
 
     <!-- Pinceles (SolidColorBrushes) -->
