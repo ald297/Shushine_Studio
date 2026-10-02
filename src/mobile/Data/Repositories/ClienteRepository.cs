@@ -24,18 +24,8 @@ public class ClienteRepository : IClienteRepository
         _tokenStorageService = tokenStorageService;
     }
 
-    private async Task PrepararHeaderAutenticacionAsync()
-    {
-        var token = await _tokenStorageService.GetTokenAsync();
-        if (!string.IsNullOrEmpty(token))
-        {
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        }
-    }
-
     public async Task<List<Cliente>> ObtenerClientesAsync(int page = 0, int size = 50)
     {
-        await PrepararHeaderAutenticacionAsync();
 
         try
         {
@@ -98,7 +88,6 @@ public class ClienteRepository : IClienteRepository
 
     public async Task<Cliente?> ObtenerClientePorIdAsync(long id)
     {
-        await PrepararHeaderAutenticacionAsync();
         try
         {
             var response = await _httpClient.GetAsync($"admin/clientes/{id}");

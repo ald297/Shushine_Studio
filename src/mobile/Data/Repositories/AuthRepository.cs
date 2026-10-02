@@ -21,6 +21,7 @@ public class AuthRepository : IAuthRepository
     {
         // 1. Limpiar cualquier token previo residual para garantizar un inicio limpio
         await _tokenStorage.ClearAsync();
+        _httpClient.DefaultRequestHeaders.Authorization = null;
 
         var cleanInput = emailOrLogin.Trim();
         var request = new LoginRequestDto
@@ -68,6 +69,14 @@ public class AuthRepository : IAuthRepository
         {
             await _tokenStorage.ClearAsync();
             throw new HttpRequestException("Sin conexión con el salón. Por favor verifica tu acceso a internet.");
+        }
+        catch (Exception ex) when (ex is System.IO.IOException
+                                || ex.Message.Contains("Socket", StringComparison.OrdinalIgnoreCase)
+                                || ex.Message.Contains("closed", StringComparison.OrdinalIgnoreCase)
+                                || ex.Message.Contains("reset", StringComparison.OrdinalIgnoreCase))
+        {
+            await _tokenStorage.ClearAsync();
+            throw new HttpRequestException("La conexión con el salón se interrumpió o el servidor está iniciando. Por favor reintenta en unos instantes.");
         }
 
         // 2. Procesar respuesta según código HTTP exacto
@@ -187,6 +196,7 @@ public class AuthRepository : IAuthRepository
     public async Task LogoutAsync()
     {
         await _tokenStorage.ClearAsync();
+        _httpClient.DefaultRequestHeaders.Authorization = null;
     }
 
     public async Task<bool> IsAuthenticatedAsync()

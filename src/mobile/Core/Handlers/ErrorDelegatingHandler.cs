@@ -29,10 +29,18 @@ public class ErrorDelegatingHandler : DelegatingHandler
         if (!isLoginOrRegister)
         {
             var token = await SecureStorage.Default.GetAsync(ApiConstants.AuthTokenKey);
-            if (!string.IsNullOrWhiteSpace(token) && request.Headers.Authorization == null)
+            if (!string.IsNullOrWhiteSpace(token))
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
+            else
+            {
+                request.Headers.Authorization = null;
+            }
+        }
+        else
+        {
+            request.Headers.Authorization = null;
         }
 
         // 2. Ejecutar la petición HTTP
@@ -89,6 +97,34 @@ public class ErrorDelegatingHandler : DelegatingHandler
             });
             throw;
         }
+        catch (Exception ex) when (ex is System.IO.IOException
+                                || ex.GetType().Name.Contains("Socket", StringComparison.OrdinalIgnoreCase)
+                                || ex.Message.Contains("Socket", StringComparison.OrdinalIgnoreCase)
+                                || ex.Message.Contains("closed", StringComparison.OrdinalIgnoreCase)
+                                || ex.Message.Contains("reset", StringComparison.OrdinalIgnoreCase))
+        {
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                if (!await _dialogLock.WaitAsync(0)) return;
+                try
+                {
+                    if (Application.Current?.MainPage != null)
+                    {
+                        await Application.Current.MainPage.DisplayAlert(
+                            "Conexión Interrumpida",
+                            "La comunicación con el salón fue interrumpida o el servidor está iniciando. Por favor intente de nuevo en unos segundos.",
+                            "Aceptar"
+                        );
+                    }
+                }
+                catch { }
+                finally
+                {
+                    _dialogLock.Release();
+                }
+            });
+            throw new HttpRequestException("La conexión con el salón fue interrumpida o el servidor está iniciando.", ex);
+        }
 
         // 3. Procesar códigos de error
         if (!response.IsSuccessStatusCode)
@@ -128,7 +164,9 @@ public class ErrorDelegatingHandler : DelegatingHandler
                             if (!isAuthEndpoint)
                             {
                                 SecureStorage.Default.Remove(ApiConstants.AuthTokenKey);
+                                SecureStorage.Default.Remove(ApiConstants.RefreshTokenKey);
                                 SecureStorage.Default.Remove(ApiConstants.UserRoleKey);
+                                SecureStorage.Default.Remove(ApiConstants.UserIdKey);
                                 await mainPage.DisplayAlert(
                                     "Sesión Finalizada", 
                                     "Tu sesión ha expirado. Por favor, ingresa de nuevo con tus credenciales.", 

@@ -19,19 +19,10 @@ public class ChatRepository : IChatRepository
 
     public ChatRepository(
         HttpClient httpClient,
-        ITokenStorageService tokenStorageService)
+        ITokenStorageService? tokenStorageService = null)
     {
         _httpClient = httpClient;
         _tokenStorageService = tokenStorageService;
-    }
-
-    private async Task PrepararHeaderAutenticacionAsync()
-    {
-        var token = await _tokenStorageService.GetTokenAsync();
-        if (!string.IsNullOrEmpty(token))
-        {
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        }
     }
 
     // =========================================================================
@@ -40,7 +31,6 @@ public class ChatRepository : IChatRepository
 
     public async Task<ConversacionChat?> ObtenerOCrearConversacionClienteAsync()
     {
-        await PrepararHeaderAutenticacionAsync();
         try
         {
             var response = await _httpClient.GetAsync("chat/conversacion");
@@ -58,7 +48,6 @@ public class ChatRepository : IChatRepository
 
     public async Task<List<ChatMessageItem>> ObtenerMensajesClienteAsync(int page = 0, int size = 50)
     {
-        await PrepararHeaderAutenticacionAsync();
         try
         {
             var response = await _httpClient.GetAsync($"chat/mensajes?page={page}&size={size}");
@@ -93,7 +82,6 @@ public class ChatRepository : IChatRepository
 
     public async Task<ChatMessageItem?> EnviarMensajeClienteAsync(string contenido, string? imagenUrl = null)
     {
-        await PrepararHeaderAutenticacionAsync();
         try
         {
             var payload = new { contenido, imagenUrl };
@@ -112,7 +100,6 @@ public class ChatRepository : IChatRepository
 
     public async Task<bool> MarcarMensajesLeidosClienteAsync()
     {
-        await PrepararHeaderAutenticacionAsync();
         try
         {
             var response = await _httpClient.PutAsync("chat/mensajes/leidos", null);
@@ -131,7 +118,6 @@ public class ChatRepository : IChatRepository
 
     public async Task<List<ConversacionChat>> ObtenerConversacionesAdminAsync(int page = 0, int size = 50)
     {
-        await PrepararHeaderAutenticacionAsync();
         try
         {
             var response = await _httpClient.GetAsync($"admin/chat/conversaciones?page={page}&size={size}");
@@ -166,7 +152,6 @@ public class ChatRepository : IChatRepository
 
     public async Task<ConversacionChat?> ObtenerConversacionPorIdAdminAsync(int conversacionId)
     {
-        await PrepararHeaderAutenticacionAsync();
         try
         {
             var response = await _httpClient.GetAsync($"admin/chat/conversaciones/{conversacionId}");
@@ -184,7 +169,6 @@ public class ChatRepository : IChatRepository
 
     public async Task<List<ChatMessageItem>> ObtenerMensajesAdminAsync(int conversacionId, int page = 0, int size = 50)
     {
-        await PrepararHeaderAutenticacionAsync();
         try
         {
             var response = await _httpClient.GetAsync($"admin/chat/conversaciones/{conversacionId}/mensajes?page={page}&size={size}");
@@ -219,7 +203,6 @@ public class ChatRepository : IChatRepository
 
     public async Task<ChatMessageItem?> EnviarMensajeAdminAsync(int conversacionId, string contenido, string? imagenUrl = null)
     {
-        await PrepararHeaderAutenticacionAsync();
         try
         {
             var payload = new { contenido, imagenUrl };
@@ -238,7 +221,6 @@ public class ChatRepository : IChatRepository
 
     public async Task<bool> MarcarMensajesLeidosAdminAsync(int conversacionId)
     {
-        await PrepararHeaderAutenticacionAsync();
         try
         {
             var response = await _httpClient.PutAsync($"admin/chat/conversaciones/{conversacionId}/mensajes/leidos", null);
@@ -253,7 +235,6 @@ public class ChatRepository : IChatRepository
 
     public async Task<string?> SubirImagenChatAsync(Stream stream, string nombreArchivo)
     {
-        await PrepararHeaderAutenticacionAsync();
         try
         {
             using var content = new MultipartFormDataContent();

@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,8 +39,15 @@ public class CitaController {
     @PostMapping
     @Operation(summary = "Crear nueva reserva de cita", description = "Crea una cita atómicamente con verificación de disponibilidad de estilista y cálculo financiero automático.")
     public ResponseEntity<?> crearCita(@Valid @RequestBody CitaGuardar citaGuardar, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equalsIgnoreCase(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(java.util.Map.of(
+                    "status", 401,
+                    "title", "Unauthorized",
+                    "detail", "Token de autenticación ausente o inválido."
+            ));
+        }
         try {
-            String login = authentication != null ? authentication.getName() : "cliente";
+            String login = authentication.getName();
             CitaSalida resultado = citaService.crearCita(citaGuardar, login);
             return ResponseEntity.status(HttpStatus.CREATED).body(resultado);
         } catch (IllegalStateException e) {
@@ -121,12 +129,20 @@ public class CitaController {
 
     @GetMapping("/mis-citas")
     @Operation(summary = "Obtener citas del usuario autenticado", description = "Retorna el historial y citas activas del cliente asociado al token de sesión.")
-    public ResponseEntity<List<CitaSalida>> misCitas(Authentication authentication) {
-        String login = authentication != null ? authentication.getName() : "cliente";
+    public ResponseEntity<?> misCitas(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equalsIgnoreCase(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(java.util.Map.of(
+                    "status", 401,
+                    "title", "Unauthorized",
+                    "detail", "Token de autenticación ausente o inválido."
+            ));
+        }
+        String login = authentication.getName();
         return ResponseEntity.ok(citaService.obtenerMisCitas(login));
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
     @Operation(summary = "Listar todas las citas paginadas", description = "Permite a recepción y administración visualizar todas las citas con paginación y ordenamiento.")
     public ResponseEntity<Page<CitaSalida>> listarPaginado(Pageable pageable) {
         return ResponseEntity.ok(citaService.obtenerTodasPaginadas(pageable));
@@ -166,8 +182,11 @@ public class CitaController {
         if (nuevoEstado != null && !nuevoEstado.isBlank()) {
             cambio.setNuevoEstado(nuevoEstado);
         }
-        String userLogin = authentication != null ? authentication.getName() : null;
-        boolean isAdmin = authentication != null && authentication.getAuthorities().stream()
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equalsIgnoreCase(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String userLogin = authentication.getName();
+        boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_ADMIN") || a.getAuthority().equalsIgnoreCase("ADMIN"));
         return ResponseEntity.ok(citaService.cambiarEstado(cambio, userLogin, isAdmin));
     }
@@ -179,11 +198,14 @@ public class CitaController {
             @RequestParam(required = false) String motivo,
             @RequestBody(required = false) java.util.Map<String, String> body,
             Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equalsIgnoreCase(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         String finalMotivo = (motivo != null && !motivo.isBlank()) 
                 ? motivo 
                 : (body != null && body.containsKey("motivo") ? body.get("motivo") : "Cancelación por usuario");
-        String userLogin = authentication != null ? authentication.getName() : null;
-        boolean isAdmin = authentication != null && authentication.getAuthorities().stream()
+        String userLogin = authentication.getName();
+        boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_ADMIN") || a.getAuthority().equalsIgnoreCase("ADMIN"));
         return ResponseEntity.ok(citaService.cancelarCita(id, finalMotivo, userLogin, isAdmin));
     }
