@@ -193,7 +193,7 @@ public class ServicioRepository : IServicioRepository
                 EsPrecioVariable = false,
                 DuracionMinutos = servicio.DuracionMinutos > 0 ? servicio.DuracionMinutos : 45,
                 IntervaloSeguimientoDias = 30,
-                ImagenUrl = servicio.ImagenUrl,
+                ImagenUrl = SanitizarImagenUrl(servicio.ImagenUrl),
                 CostoInsumos = 0
             };
 
@@ -229,7 +229,7 @@ public class ServicioRepository : IServicioRepository
                 EsPrecioVariable = false,
                 DuracionMinutos = servicio.DuracionMinutos > 0 ? servicio.DuracionMinutos : 45,
                 IntervaloSeguimientoDias = 30,
-                ImagenUrl = servicio.ImagenUrl,
+                ImagenUrl = SanitizarImagenUrl(servicio.ImagenUrl),
                 CostoInsumos = 0,
                 Activo = servicio.Activo
             };
@@ -254,6 +254,51 @@ public class ServicioRepository : IServicioRepository
         {
             return false;
         }
+    }
+
+    public async Task<string?> SubirImagenAsync(Stream stream, string nombreArchivo)
+    {
+        try
+        {
+            using var content = new MultipartFormDataContent();
+            var streamContent = new StreamContent(stream);
+            var extension = Path.GetExtension(nombreArchivo).ToLowerInvariant();
+            var mime = extension switch
+            {
+                ".png" => "image/png",
+                ".webp" => "image/webp",
+                _ => "image/jpeg"
+            };
+            streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(mime);
+            content.Add(streamContent, "archivo", nombreArchivo);
+
+            var response = await _httpClient.PostAsync("archivos/subir", content);
+            if (!response.IsSuccessStatusCode) return null;
+
+            var json = await response.Content.ReadAsStringAsync();
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("url", out var urlProp))
+            {
+                return urlProp.GetString();
+            }
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static string? SanitizarImagenUrl(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return null;
+        var lower = url.Trim().ToLowerInvariant();
+        if (lower.StartsWith("/data/") || lower.StartsWith("file:") || lower.Contains("/cache/") 
+            || lower.StartsWith("c:\\") || lower.StartsWith("/storage/emulated/") || lower.StartsWith("/sdcard/"))
+        {
+            return null;
+        }
+        return url.Trim();
     }
 }
 

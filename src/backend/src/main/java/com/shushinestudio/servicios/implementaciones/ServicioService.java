@@ -89,7 +89,7 @@ public class ServicioService implements IServicioService {
                 .esPrecioVariable(servicioGuardar.getEsPrecioVariable() != null ? servicioGuardar.getEsPrecioVariable() : false)
                 .duracionMinutos(servicioGuardar.getDuracionMinutos())
                 .intervaloSeguimientoDias(servicioGuardar.getIntervaloSeguimientoDias() != null ? servicioGuardar.getIntervaloSeguimientoDias() : 21)
-                .imagenUrl(servicioGuardar.getImagenUrl())
+                .imagenUrl(validarYSanitizarImagenUrl(servicioGuardar.getImagenUrl()))
                 .costoInsumos(servicioGuardar.getCostoInsumos() != null ? servicioGuardar.getCostoInsumos() : BigDecimal.ZERO)
                 .activo(true)
                 .build();
@@ -117,12 +117,24 @@ public class ServicioService implements IServicioService {
         if (servicioModificar.getEsPrecioVariable() != null) existente.setEsPrecioVariable(servicioModificar.getEsPrecioVariable());
         if (servicioModificar.getDuracionMinutos() != null) existente.setDuracionMinutos(servicioModificar.getDuracionMinutos());
         if (servicioModificar.getIntervaloSeguimientoDias() != null) existente.setIntervaloSeguimientoDias(servicioModificar.getIntervaloSeguimientoDias());
-        if (servicioModificar.getImagenUrl() != null) existente.setImagenUrl(servicioModificar.getImagenUrl());
+        if (servicioModificar.getImagenUrl() != null) existente.setImagenUrl(validarYSanitizarImagenUrl(servicioModificar.getImagenUrl()));
         if (servicioModificar.getCostoInsumos() != null) existente.setCostoInsumos(servicioModificar.getCostoInsumos());
         if (servicioModificar.getActivo() != null) existente.setActivo(servicioModificar.getActivo());
 
         Servicio actualizado = servicioRepository.save(existente);
         return mapToSalida(actualizado);
+    }
+
+    private String validarYSanitizarImagenUrl(String imagenUrl) {
+        if (imagenUrl == null || imagenUrl.isBlank()) {
+            return null;
+        }
+        String lower = imagenUrl.trim().toLowerCase();
+        if (lower.startsWith("/data/") || lower.startsWith("file:") || lower.contains("/cache/")
+                || lower.startsWith("c:\\") || lower.startsWith("/storage/emulated/") || lower.startsWith("/sdcard/")) {
+            throw new IllegalArgumentException("La imagen debe ser una URL HTTP/HTTPS válida, no una ruta local del dispositivo.");
+        }
+        return imagenUrl.trim();
     }
 
     @Override

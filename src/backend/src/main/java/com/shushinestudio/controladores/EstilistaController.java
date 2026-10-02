@@ -4,12 +4,15 @@ import com.shushinestudio.dtos.disponibilidad.DisponibilidadSalida;
 import com.shushinestudio.dtos.disponibilidad.EstilistaGuardarDto;
 import com.shushinestudio.dtos.disponibilidad.EstilistaSalida;
 import com.shushinestudio.servicios.interfaces.IDisponibilidadService;
+import com.shushinestudio.servicios.interfaces.IServicioService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -23,6 +26,9 @@ public class EstilistaController {
     @Autowired
     private IDisponibilidadService disponibilidadService;
 
+    @Autowired(required = false)
+    private IServicioService servicioService;
+
     @GetMapping({"", "/activos", "/lista"})
     @Operation(summary = "Listar estilistas", description = "Retorna el listado del equipo profesional del salón.")
     public ResponseEntity<List<EstilistaSalida>> obtenerEstilistas(@RequestParam(required = false) Boolean soloActivos) {
@@ -34,6 +40,8 @@ public class EstilistaController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Crear nuevo estilista", description = "Registra un nuevo miembro del equipo profesional del salón.")
     public ResponseEntity<EstilistaSalida> crearEstilista(@RequestBody EstilistaGuardarDto dto) {
         EstilistaSalida nuevo = disponibilidadService.crearEstilista(dto);
@@ -41,6 +49,8 @@ public class EstilistaController {
     }
 
     @PutMapping("/{id}/estado")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Actualizar disponibilidad de estilista", description = "Activa o inactiva a un estilista en la agenda.")
     public ResponseEntity<Void> actualizarEstado(@PathVariable Integer id, @RequestParam Boolean activo) {
         disponibilidadService.actualizarEstadoEstilista(id, activo);
@@ -48,6 +58,8 @@ public class EstilistaController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Eliminar estilista", description = "Elimina permanentemente a un estilista del sistema.")
     public ResponseEntity<Void> eliminarEstilista(@PathVariable Integer id) {
         disponibilidadService.eliminarEstilista(id);
@@ -72,9 +84,19 @@ public class EstilistaController {
     public ResponseEntity<DisponibilidadSalida> calcularDisponibilidad(
             @PathVariable Integer id,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
-            @RequestParam(required = false, defaultValue = "30") Integer duracionMinutos
+            @RequestParam(required = false) Integer duracionMinutos,
+            @RequestParam(required = false) Integer servicioId
     ) {
-        DisponibilidadSalida disponibilidad = disponibilidadService.calcularDisponibilidad(id, fecha, duracionMinutos);
+        int duracion = (duracionMinutos != null && duracionMinutos > 0) ? duracionMinutos : 30;
+        if (duracionMinutos == null && servicioId != null && servicioService != null) {
+            try {
+                var serv = servicioService.obtenerPorId(servicioId);
+                if (serv != null && serv.getDuracionMinutos() != null && serv.getDuracionMinutos() > 0) {
+                    duracion = serv.getDuracionMinutos();
+                }
+            } catch (Exception ignored) {}
+        }
+        DisponibilidadSalida disponibilidad = disponibilidadService.calcularDisponibilidad(id, fecha, duracion);
         return ResponseEntity.ok(disponibilidad);
     }
 
@@ -85,6 +107,8 @@ public class EstilistaController {
     }
 
     @PutMapping("/{id}/horarios")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Guardar o actualizar horario de trabajo del estilista")
     public ResponseEntity<com.shushinestudio.modelos.HorarioEstilista> guardarHorario(
             @PathVariable Integer id,
@@ -99,6 +123,8 @@ public class EstilistaController {
     }
 
     @PostMapping("/{id}/bloqueos")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Crear bloqueo de horario para estilista")
     public ResponseEntity<com.shushinestudio.modelos.BloqueoHorario> crearBloqueo(
             @PathVariable Integer id,
@@ -107,6 +133,8 @@ public class EstilistaController {
     }
 
     @DeleteMapping("/bloqueos/{bloqueoId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Eliminar bloqueo de horario")
     public ResponseEntity<Void> eliminarBloqueo(@PathVariable Integer bloqueoId) {
         disponibilidadService.eliminarBloqueo(bloqueoId);

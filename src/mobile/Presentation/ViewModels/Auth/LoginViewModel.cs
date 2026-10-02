@@ -97,8 +97,21 @@ public partial class LoginViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
-            await ShowAlertAsync("Aviso de Autenticación", ex.Message);
+            if (ex is System.IO.IOException 
+             || ex.GetType().Name.Contains("Socket", StringComparison.OrdinalIgnoreCase)
+             || ex.Message.Contains("Socket", StringComparison.OrdinalIgnoreCase) 
+             || ex.Message.Contains("closed", StringComparison.OrdinalIgnoreCase)
+             || ex.Message.Contains("reset", StringComparison.OrdinalIgnoreCase))
+            {
+                var msg = "La conexión con el salón se interrumpió o el servidor está iniciando. Por favor intenta de nuevo en unos segundos.";
+                ErrorMessage = msg;
+                await ShowAlertAsync("Conexión Interrumpida", msg);
+            }
+            else
+            {
+                ErrorMessage = ex.Message;
+                await ShowAlertAsync("Aviso de Autenticación", ex.Message);
+            }
         }
         finally
         {

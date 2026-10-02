@@ -10,5 +10,6 @@ public interface IServicioRepository
     Task<Servicio?> CrearServicioAsync(Servicio servicio);
     Task<bool> ActualizarServicioAsync(Servicio servicio);
     Task<bool> EliminarServicioAsync(long id);
+    Task<string?> SubirImagenAsync(Stream stream, string nombreArchivo);
 }
 

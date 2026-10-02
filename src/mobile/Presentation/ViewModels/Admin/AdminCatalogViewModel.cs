@@ -227,12 +227,29 @@ public partial class AdminCatalogViewModel : BaseViewModel
             });
             if (result != null)
             {
-                EditandoImagenUrl = result.FullPath;
+                IsBusy = true;
+                try
+                {
+                    using var stream = await result.OpenReadAsync();
+                    var url = await _servicioRepository.SubirImagenAsync(stream, result.FileName);
+                    if (!string.IsNullOrWhiteSpace(url))
+                    {
+                        EditandoImagenUrl = url;
+                    }
+                    else
+                    {
+                        await ShowAlertAsync("Error de Imagen", "No se pudo subir la imagen al servidor. Por favor verifique la conexión.");
+                    }
+                }
+                finally
+                {
+                    IsBusy = false;
+                }
             }
         }
         catch (Exception ex)
         {
-            await ShowAlertAsync("Imagen", $"No se pudo abrir la galería: {ex.Message}");
+            await ShowAlertAsync("Imagen", $"No se pudo procesar la imagen: {ex.Message}");
         }
     }
 
@@ -247,12 +264,29 @@ public partial class AdminCatalogViewModel : BaseViewModel
             });
             if (result != null)
             {
-                NuevoImagenUrl = result.FullPath;
+                IsBusy = true;
+                try
+                {
+                    using var stream = await result.OpenReadAsync();
+                    var url = await _servicioRepository.SubirImagenAsync(stream, result.FileName);
+                    if (!string.IsNullOrWhiteSpace(url))
+                    {
+                        NuevoImagenUrl = url;
+                    }
+                    else
+                    {
+                        await ShowAlertAsync("Error de Imagen", "No se pudo subir la imagen al servidor. Por favor verifique la conexión.");
+                    }
+                }
+                finally
+                {
+                    IsBusy = false;
+                }
             }
         }
         catch (Exception ex)
         {
-            await ShowAlertAsync("Imagen", $"No se pudo abrir la galería: {ex.Message}");
+            await ShowAlertAsync("Imagen", $"No se pudo procesar la imagen: {ex.Message}");
         }
     }
 

@@ -37,7 +37,14 @@ public class AuthController {
     @GetMapping("/me")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Obtener perfil del usuario autenticado", description = "Retorna la información del usuario autenticado mediante su token JWT.")
-    public ResponseEntity<UsuarioPerfil> me(Authentication authentication) {
+    public ResponseEntity<?> me(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equalsIgnoreCase(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(java.util.Map.of(
+                    "status", 401,
+                    "title", "Unauthorized",
+                    "detail", "Token de autenticación ausente o inválido."
+            ));
+        }
         String login = authentication.getName();
         return ResponseEntity.ok(usuarioService.obtenerPerfil(login));
     }
@@ -45,9 +52,16 @@ public class AuthController {
     @PutMapping("/cambiar-clave")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Cambiar contraseña del usuario autenticado", description = "Valida la contraseña actual y actualiza por la nueva contraseña codificada con BCrypt.")
-    public ResponseEntity<java.util.Map<String, String>> cambiarClave(
+    public ResponseEntity<?> cambiarClave(
             @jakarta.validation.Valid @RequestBody com.shushinestudio.dtos.auth.CambiarClaveDto dto,
             Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equalsIgnoreCase(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(java.util.Map.of(
+                    "status", 401,
+                    "title", "Unauthorized",
+                    "detail", "Token de autenticación ausente o inválido."
+            ));
+        }
         String login = authentication.getName();
         usuarioService.cambiarClave(login, dto);
         return ResponseEntity.ok(java.util.Map.of("mensaje", "Contraseña actualizada exitosamente."));
@@ -56,9 +70,16 @@ public class AuthController {
     @PutMapping("/perfil")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Actualizar datos de perfil del usuario", description = "Actualiza nombre, apellido, teléfono y correo del usuario autenticado.")
-    public ResponseEntity<UsuarioPerfil> actualizarPerfil(
+    public ResponseEntity<?> actualizarPerfil(
             @jakarta.validation.Valid @RequestBody com.shushinestudio.dtos.auth.ActualizarPerfilDto dto,
             Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equalsIgnoreCase(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(java.util.Map.of(
+                    "status", 401,
+                    "title", "Unauthorized",
+                    "detail", "Token de autenticación ausente o inválido."
+            ));
+        }
         String login = authentication.getName();
         UsuarioPerfil actualizado = usuarioService.actualizarPerfil(login, dto);
         return ResponseEntity.ok(actualizado);

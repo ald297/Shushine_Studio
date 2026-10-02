@@ -81,22 +81,23 @@ public class ArchivoController {
                         ));
                     } else {
                         System.err.println("[ArchivoController] Supabase Storage respondió con status " + response.statusCode() + ": " + response.body());
+                        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of(
+                                "status", 502,
+                                "error", "Supabase Storage respondió con status " + response.statusCode()
+                        ));
                     }
                 } catch (Exception ex) {
                     System.err.println("[ArchivoController] Excepción al contactar Supabase Storage: " + ex.getMessage());
+                    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of(
+                            "status", 503,
+                            "error", "Error de comunicación con Supabase Storage: " + ex.getMessage()
+                    ));
                 }
             }
 
-            // 2. Fallback de contingencia: Data URL Base64 seguro para no bloquear la experiencia de usuario
-            String base64 = Base64.getEncoder().encodeToString(bytes);
-            String dataUrl = "data:" + contentType + ";base64," + base64;
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-                    "url", dataUrl,
-                    "nombreOriginal", originalName,
-                    "tamanoBytes", archivo.getSize(),
-                    "contentType", contentType,
-                    "storage", "base64-fallback"
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of(
+                    "status", 503,
+                    "error", "El servicio de almacenamiento en la nube (Supabase Storage) no está configurado. Se requiere la variable de entorno SUPABASE_SERVICE_ROLE_KEY."
             ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

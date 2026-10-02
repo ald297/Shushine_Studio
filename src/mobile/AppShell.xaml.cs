@@ -121,6 +121,14 @@ public partial class AppShell : Shell
 	public void SwitchToLogin()
 	{
 		ClearNavigationStack();
+		if (ClientTabBar?.Items?.Count > 0)
+		{
+			ClientTabBar.CurrentItem = ClientTabBar.Items[0];
+		}
+		if (AdminTabBar?.Items?.Count > 0)
+		{
+			AdminTabBar.CurrentItem = AdminTabBar.Items[0];
+		}
 		CurrentItem = LoginShellContent;
 	}
 
@@ -137,6 +145,38 @@ public partial class AppShell : Shell
 				if (Navigation.NavigationStack.Count > 1)
 				{
 					Navigation.PopToRootAsync(false);
+				}
+			}
+
+			// Limpiar pilas de navegación internas de cada pestaña de Cliente
+			if (ClientTabBar?.Items != null)
+			{
+				foreach (var section in ClientTabBar.Items)
+				{
+					try
+					{
+						if (section.Navigation != null && section.Navigation.NavigationStack.Count > 1)
+						{
+							section.Navigation.PopToRootAsync(false);
+						}
+					}
+					catch { }
+				}
+			}
+
+			// Limpiar pilas de navegación internas de cada pestaña de Administrador
+			if (AdminTabBar?.Items != null)
+			{
+				foreach (var section in AdminTabBar.Items)
+				{
+					try
+					{
+						if (section.Navigation != null && section.Navigation.NavigationStack.Count > 1)
+						{
+							section.Navigation.PopToRootAsync(false);
+						}
+					}
+					catch { }
 				}
 			}
 		}
