@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping({"/api/admin/clientes", "/api/clientes"})
 @Tag(name = "Directorio de Clientes", description = "Endpoints administrativos para gestión y consulta del directorio de clientes de Shushine Studio")
 @SecurityRequirement(name = "Bearer Authentication")
-@PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class ClienteController {
 
     @Autowired

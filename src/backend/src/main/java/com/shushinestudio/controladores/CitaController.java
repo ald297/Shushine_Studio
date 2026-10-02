@@ -142,7 +142,7 @@ public class CitaController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @Operation(summary = "Listar todas las citas paginadas", description = "Permite a recepción y administración visualizar todas las citas con paginación y ordenamiento.")
     public ResponseEntity<Page<CitaSalida>> listarPaginado(Pageable pageable) {
         return ResponseEntity.ok(citaService.obtenerTodasPaginadas(pageable));

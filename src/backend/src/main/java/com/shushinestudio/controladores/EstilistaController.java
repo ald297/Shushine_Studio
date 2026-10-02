@@ -40,7 +40,7 @@ public class EstilistaController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Crear nuevo estilista", description = "Registra un nuevo miembro del equipo profesional del salón.")
     public ResponseEntity<EstilistaSalida> crearEstilista(@RequestBody EstilistaGuardarDto dto) {
@@ -49,7 +49,7 @@ public class EstilistaController {
     }
 
     @PutMapping("/{id}/estado")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Actualizar disponibilidad de estilista", description = "Activa o inactiva a un estilista en la agenda.")
     public ResponseEntity<Void> actualizarEstado(@PathVariable Integer id, @RequestParam Boolean activo) {
@@ -58,7 +58,7 @@ public class EstilistaController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Eliminar estilista", description = "Elimina permanentemente a un estilista del sistema.")
     public ResponseEntity<Void> eliminarEstilista(@PathVariable Integer id) {
@@ -107,7 +107,7 @@ public class EstilistaController {
     }
 
     @PutMapping("/{id}/horarios")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Guardar o actualizar horario de trabajo del estilista")
     public ResponseEntity<com.shushinestudio.modelos.HorarioEstilista> guardarHorario(
@@ -123,7 +123,7 @@ public class EstilistaController {
     }
 
     @PostMapping("/{id}/bloqueos")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Crear bloqueo de horario para estilista")
     public ResponseEntity<com.shushinestudio.modelos.BloqueoHorario> crearBloqueo(
@@ -133,7 +133,7 @@ public class EstilistaController {
     }
 
     @DeleteMapping("/bloqueos/{bloqueoId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Eliminar bloqueo de horario")
     public ResponseEntity<Void> eliminarBloqueo(@PathVariable Integer bloqueoId) {

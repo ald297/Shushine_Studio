@@ -26,7 +26,7 @@ public class ResenaController {
 
     @PostMapping("/resenas")
     @SecurityRequirement(name = "Bearer Authentication")
-    @PreAuthorize("hasRole('CLIENTE') or hasRole('ROLE_CLIENTE') or hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CLIENTE', 'ROLE_ADMIN')")
     @Operation(summary = "Registrar reseña de una cita", description = "Permite al cliente calificar una cita completada con 1-5 estrellas y comentario.")
     public ResponseEntity<ResenaSalidaDto> crearResena(
             @Valid @RequestBody ResenaCrearDto dto,
@@ -38,7 +38,7 @@ public class ResenaController {
 
     @GetMapping("/resenas/mis-resenas")
     @SecurityRequirement(name = "Bearer Authentication")
-    @PreAuthorize("hasRole('CLIENTE') or hasRole('ROLE_CLIENTE') or hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_CLIENTE', 'ROLE_ADMIN')")
     @Operation(summary = "Obtener mis reseñas", description = "Retorna el historial de reseñas publicadas por el cliente autenticado.")
     public ResponseEntity<List<ResenaSalidaDto>> obtenerMisResenas(Authentication authentication) {
         String login = authentication.getName();
@@ -53,7 +53,7 @@ public class ResenaController {
 
     @GetMapping("/admin/resenas")
     @SecurityRequirement(name = "Bearer Authentication")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @Operation(summary = "Bandeja administrativa de reseñas", description = "Lista todas las reseñas registradas en el sistema para moderación.")
     public ResponseEntity<List<ResenaSalidaDto>> obtenerTodasAdmin() {
         return ResponseEntity.ok(resenaService.obtenerTodasResenasAdmin());

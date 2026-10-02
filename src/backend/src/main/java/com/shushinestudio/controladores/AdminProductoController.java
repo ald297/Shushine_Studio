@@ -22,7 +22,7 @@ import java.util.List;
 @RequestMapping("/api/admin/productos")
 @Tag(name = "Productos (Administración e Inventario)", description = "Endpoints de gestión y control de inventario de productos para administradores")
 @SecurityRequirement(name = "Bearer Authentication")
-@PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class AdminProductoController {
 
     @Autowired

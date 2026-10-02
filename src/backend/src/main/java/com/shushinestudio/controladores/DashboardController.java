@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin/dashboard")
 @Tag(name = "Dashboard Administrativo", description = "Endpoints de inteligencia de negocio, KPIs diarios, ingresos consolidados y métricas operativas del salón")
 @SecurityRequirement(name = "Bearer Authentication")
-@PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class DashboardController {
 
     @Autowired

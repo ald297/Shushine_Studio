@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping("/api/admin/solicitudes")
 @Tag(name = "Solicitudes (Administración)", description = "Endpoints para que el administrador revise solicitudes, fotos y registre cotizaciones")
 @SecurityRequirement(name = "Bearer Authentication")
-@PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class AdminSolicitudController {
 
     @Autowired

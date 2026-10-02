@@ -27,7 +27,7 @@ import java.util.Map;
 @RequestMapping({"/api/admin/reportes", "/api/reportes"})
 @Tag(name = "Reportes Administrativos", description = "Endpoints de inteligencia de negocio, balances operativos y exportación oficial")
 @SecurityRequirement(name = "Bearer Authentication")
-@PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class ReporteController {
 
     @Autowired

@@ -57,7 +57,7 @@ public class CategoriaController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Crear nueva categoría", description = "Requiere rol de ADMIN.")
     public ResponseEntity<CategoriaSalida> crear(@RequestBody CategoriaGuardar categoriaGuardar) {
@@ -66,7 +66,7 @@ public class CategoriaController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Modificar categoría", description = "Requiere rol de ADMIN.")
     public ResponseEntity<CategoriaSalida> editar(@PathVariable Integer id, @RequestBody CategoriaModificar categoriaModificar) {
@@ -76,7 +76,7 @@ public class CategoriaController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Eliminar categoría", description = "Requiere rol de ADMIN.")
     public ResponseEntity<String> eliminar(@PathVariable Integer id) {

@@ -23,7 +23,7 @@ import java.util.Map;
 @RequestMapping("/api/chat")
 @Tag(name = "Chat Cliente", description = "Endpoints de comunicación bidireccional entre Cliente y Administración del Salón")
 @SecurityRequirement(name = "Bearer Authentication")
-@PreAuthorize("hasRole('CLIENTE') or hasRole('ROLE_CLIENTE') or hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+@PreAuthorize("hasAnyAuthority('ROLE_CLIENTE', 'ROLE_ADMIN')")
 public class ChatController {
 
     @Autowired

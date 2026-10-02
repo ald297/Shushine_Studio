@@ -43,10 +43,11 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/auth/authenticate",
                                 "/api/auth/registro",
+                                "/api/auth/register",
                                 "/error"
                         ).permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/categorias/**", "/api/servicios/**", "/api/estilistas/**", "/api/disponibilidad/**", "/api/productos/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "ROLE_ADMIN")
+                        .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionManager ->

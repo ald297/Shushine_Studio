@@ -21,7 +21,7 @@ import java.util.List;
 @RequestMapping("/api/solicitudes")
 @Tag(name = "Solicitudes Personalizadas", description = "Endpoints para que clientes envíen diseños de referencia y gestionen cotizaciones")
 @SecurityRequirement(name = "Bearer Authentication")
-@PreAuthorize("hasRole('CLIENTE') or hasRole('ROLE_CLIENTE') or hasRole('ADMIN') or hasRole('ROLE_ADMIN')")
+@PreAuthorize("hasAnyAuthority('ROLE_CLIENTE', 'ROLE_ADMIN')")
 public class SolicitudController {
 
     @Autowired

@@ -71,7 +71,7 @@ public class ServicioController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Crear nuevo servicio", description = "Requiere rol de ADMIN.")
     public ResponseEntity<ServicioSalida> crear(@RequestBody ServicioGuardar servicioGuardar) {
@@ -80,7 +80,7 @@ public class ServicioController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Modificar servicio existente", description = "Requiere rol de ADMIN.")
     public ResponseEntity<ServicioSalida> editar(@PathVariable Integer id, @RequestBody ServicioModificar servicioModificar) {
@@ -90,7 +90,7 @@ public class ServicioController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Eliminar servicio", description = "Requiere rol de ADMIN.")
     public ResponseEntity<String> eliminar(@PathVariable Integer id) {
