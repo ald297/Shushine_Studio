@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+    xmlns:models="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
+    x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminRequestsPage"
+    x:DataType="vm:AdminRequestsViewModel"
+    Title="{Binding Title}"
+    BackgroundColor="{StaticResource Background}">
+
+    <Grid>
+        <!-- ACCESO RESTRINGIDO (NO ADMIN) -->
+        <VerticalStackLayout
+            IsVisible="{Binding IsUnauthorized}"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Padding="32"
+            Spacing="16">
+
+            <Frame BackgroundColor="{StaticResource SurfaceVariant}" CornerRadius="36" WidthRequest="72" HeightRequest="72" HorizontalOptions="Center" HasShadow="False">
+                <Label Text="🔒" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center" />
+            </Frame>
+            <Label Text="Acceso Restringido" FontFamily="PlayfairDisplay" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalTextAlignment="Center" />
+            <Label Text="Esta pantalla requiere privilegios de Administrador de Shushine Studio." FontFamily="PlusJakartaSans" FontSize="14" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
+            <Button Text="Regresar al Login" Command="{Binding RegresarALoginCommand}" Style="{StaticResource PrimaryButtonStyle}" HeightRequest="48" FontSize="14" CornerRadius="12" />
+        </VerticalStackLayout>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <Grid IsVisible="{Binding IsAuthorized}" RowDefinitions="Auto,*">
+
+            <!-- 1. HEADER -->
+            <Grid Grid.Row="0" BackgroundColor="{StaticResource Surface}" Padding="20,50,20,16">
+                <Grid ColumnDefinitions="40,*,40">
+                    <ImageButton
+                        Grid.Column="0"
+                        Source="arrow_left.png"
+                        Command="{Binding RegresarCommand}"
+                        WidthRequest="28" HeightRequest="28"
+                        BackgroundColor="Transparent"
+                        HorizontalOptions="Start" VerticalOptions="Center" />
+
+                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4">
+                        <HorizontalStackLayout Spacing="6" HorizontalOptions="Center">
+                            <Label Text="Solicitudes de Clientes" FontFamily="PlayfairDisplay" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Frame BackgroundColor="{StaticResource Primary}" CornerRadius="4" Padding="5,1" HasShadow="False" VerticalOptions="Center">
+                                <Label Text="ADMIN" FontFamily="PlusJakartaSans" FontSize="8" FontAttributes="Bold" TextColor="{StaticResource Surface}" />
+                            </Frame>
+                        </HorizontalStackLayout>
+                        <Label Text="Diseños Personalizados y Cotizaciones" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+
+                    <Button
+                        Grid.Column="2"
+                        Text="↻"
+                        Command="{Binding CargarSolicitudesCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="{StaticResource Primary}"
+                        FontSize="18"
+                        Padding="0"
+                        HorizontalOptions="End"
+                        VerticalOptions="Center" />
+                </Grid>
+            </Grid>
+
+            <!-- 2. CUERPO -->
+            <ScrollView Grid.Row="1" Padding="20,20,20,32">
+                <VerticalStackLayout Spacing="16">
+
+                    <!-- Loading -->
+                    <ActivityIndicator
+                        IsRunning="{Binding IsLoading}"
+                        IsVisible="{Binding IsLoading}"
+                        Color="{StaticResource Primary}"
+                        HorizontalOptions="Center" />
+
+                    <!-- Error -->
+                    <Border
+                        IsVisible="{Binding HasError}"
+                        Stroke="#FFCDD2"
+                        StrokeThickness="1"
+                        BackgroundColor="#FFEBEE"
+                        StrokeShape="RoundRectangle 8"
+                        Padding="12,8">
+                        <Label Text="{Binding ErrorMessage}" FontFamily="PlusJakartaSans" FontSize="12" TextColor="#C62828" />
+                    </Border>
+
+                    <!-- ESTADO VACÍO -->
+                    <VerticalStackLayout
+                        IsVisible="{Binding ShowEmptyState}"
+                        Padding="32"
+                        Spacing="8"
+                        HorizontalOptions="Center">
+                        <Label Text="✨" FontSize="36" HorizontalOptions="Center" />
+                        <Label Text="No hay solicitudes pendientes" FontFamily="PlayfairDisplay" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalTextAlignment="Center" />
+                        <Label Text="Las peticiones de diseño enviadas por clientas aparecerán en esta bandeja." FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+
+                    <!-- LISTA REAL DE SOLICITUDES -->
+                    <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Solicitudes}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:SolicitudDiseno">
+                                <Border
+                                    BackgroundColor="{StaticResource Surface}"
+                                    Stroke="{StaticResource Outline}"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 14"
+                                    Padding="16">
+                                    <Border.Shadow>
+                                        <Shadow Brush="#10000000" Offset="0,2" Radius="8" Opacity="0.8" />
+                                    </Border.Shadow>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRequestsViewModel}}, Path=VerDetalleSolicitudCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+
+                                    <VerticalStackLayout Spacing="10">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                                <Label Text="{Binding NombreCliente, TargetNullValue='Cliente'}" FontFamily="PlusJakartaSans" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                                <Label Text="{Binding FechaTexto}" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                            </VerticalStackLayout>
+                                            <Frame
+                                                Grid.Column="1"
+                                                BackgroundColor="#FCECEF"
+                                                BorderColor="#F7CAD3"
+                                                CornerRadius="8"
+                                                Padding="8,4"
+                                                HasShadow="False">
+                                                <Label Text="{Binding Estado}" FontFamily="PlusJakartaSans" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
+                                            </Frame>
+                                        </Grid>
+
+                                        <Label Text="{Binding NotasCliente}" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextSecondary}" LineBreakMode="TailTruncation" MaxLines="2" />
+
+                                        <!-- Miniatura si tiene foto -->
+                                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" IsVisible="{Binding TieneFoto}">
+                                            <Image
+                                                Grid.Column="0"
+                                                Source="{Binding ImagenesReferenciaUrls}"
+                                                Aspect="AspectFill"
+                                                WidthRequest="50"
+                                                HeightRequest="50">
+                                                <Image.Clip>
+                                                    <RoundRectangleGeometry CornerRadius="6" Rect="0,0,50,50" />
+                                                </Image.Clip>
+                                            </Image>
+                                            <Label Grid.Column="1" Text="📷 Foto de referencia adjunta" FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource Secondary}" VerticalOptions="Center" />
+                                        </Grid>
+
+                                        <!-- Cotización previa si ya tiene -->
+                                        <HorizontalStackLayout Spacing="8" IsVisible="{Binding TieneCotizacion}">
+                                            <Label Text="Presupuesto propuesto:" FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                                            <Label Text="{Binding Cotizacion.PrecioTexto}" FontFamily="PlusJakartaSans" FontSize="13" FontAttributes="Bold" TextColor="#2E7D32" />
+                                        </HorizontalStackLayout>
+
+                                        <Button
+                                            Text="Ver y Cotizar"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRequestsViewModel}}, Path=VerDetalleSolicitudCommand}"
+                                            CommandParameter="{Binding .}"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            HeightRequest="36"
+                                            FontSize="12"
+                                            CornerRadius="8" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
+    </Grid>
+</ContentPage>

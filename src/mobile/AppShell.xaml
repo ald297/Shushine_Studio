@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="ShushineStudio.Mobile.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:auth="clr-namespace:ShushineStudio.Mobile.Presentation.Views.Auth"
+    xmlns:catalog="clr-namespace:ShushineStudio.Mobile.Presentation.Views.Catalog"
+    xmlns:appointments="clr-namespace:ShushineStudio.Mobile.Presentation.Views.Appointments"
+    xmlns:profile="clr-namespace:ShushineStudio.Mobile.Presentation.Views.Profile"
+    xmlns:chat="clr-namespace:ShushineStudio.Mobile.Presentation.Views.Chat"
+    xmlns:admin="clr-namespace:ShushineStudio.Mobile.Presentation.Views.Admin"
+    Shell.FlyoutBehavior="Disabled"
+    Shell.NavBarIsVisible="false"
+    Shell.BackgroundColor="{StaticResource BackgroundColor}"
+    Shell.ForegroundColor="{StaticResource TextColorPrimary}"
+    Shell.TitleColor="{StaticResource TextColorPrimary}"
+    Shell.TabBarBackgroundColor="{StaticResource SurfaceColor}"
+    Shell.TabBarForegroundColor="{StaticResource PrimaryColor}"
+    Shell.TabBarUnselectedColor="{StaticResource TextColorSecondary}"
+    Shell.TabBarTitleColor="{StaticResource PrimaryColor}">
+
+    <!-- Pantalla de Login fuera de las pestañas -->
+    <ShellContent
+        x:Name="LoginShellContent"
+        Route="LoginPage"
+        ContentTemplate="{DataTemplate auth:LoginPage}" />
+
+    <!-- Barra de Pestañas Cliente (Inicio | Catálogo | Citas | Chat | Perfil) -->
+    <TabBar x:Name="ClientTabBar" Route="MainTabs">
+        <Tab Title="Inicio" Icon="scissors.png">
+            <ShellContent
+                Route="CatalogPage"
+                ContentTemplate="{DataTemplate catalog:CatalogPage}" />
+        </Tab>
+
+        <Tab Title="Catálogo" Icon="scissors.png">
+            <ShellContent
+                Route="ClientProductsPage"
+                ContentTemplate="{DataTemplate catalog:ClientProductsPage}" />
+        </Tab>
+
+        <Tab Title="Citas" Icon="calendar.png">
+            <ShellContent
+                Route="MyAppointmentsPage"
+                ContentTemplate="{DataTemplate appointments:MyAppointmentsPage}" />
+        </Tab>
+
+        <Tab Title="Chat" Icon="chat.png">
+            <ShellContent
+                Route="ChatPage"
+                ContentTemplate="{DataTemplate chat:ChatPage}" />
+        </Tab>
+
+        <Tab Title="Perfil" Icon="user.png">
+            <ShellContent
+                Route="ProfilePage"
+                ContentTemplate="{DataTemplate profile:ProfilePage}" />
+        </Tab>
+    </TabBar>
+
+    <!-- Barra de Pestañas Administrador (Agenda | Catálogo | Estilistas | Mensajes | Perfil) -->
+    <TabBar x:Name="AdminTabBar" Route="AdminTabs">
+        <Tab Title="Agenda" Icon="calendar.png">
+            <ShellContent
+                Route="TimelineAgendaPage"
+                ContentTemplate="{DataTemplate admin:TimelineAgendaPage}" />
+        </Tab>
+
+        <Tab Title="Catálogo" Icon="scissors.png">
+            <ShellContent
+                Route="AdminCatalogPage"
+                ContentTemplate="{DataTemplate admin:AdminCatalogPage}" />
+        </Tab>
+
+        <Tab Title="Estilistas" Icon="user.png">
+            <ShellContent
+                Route="AdminEstilistasPage"
+                ContentTemplate="{DataTemplate admin:AdminEstilistasPage}" />
+        </Tab>
+
+        <Tab Title="Mensajes" Icon="chat.png">
+            <ShellContent
+                Route="AdminRequestsPage"
+                ContentTemplate="{DataTemplate admin:AdminRequestsPage}" />
+        </Tab>
+
+        <Tab Title="Perfil" Icon="user.png">
+            <ShellContent
+                Route="AdminProfilePage"
+                ContentTemplate="{DataTemplate admin:AdminProfilePage}" />
+        </Tab>
+    </TabBar>
+
+</Shell>

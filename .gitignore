@@ -19,3 +19,29 @@ node_modules/
 .flutter-plugins
 .flutter-plugins-dependencies
 build/
+*.apk
+*.aab
+
+# Secrets and Environment Variables
+*.env
+*.env.*
+.env
+.env.local
+.env.*.local
+appsettings.Development.json
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+appsettings.Local.json
+*.secrets.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class

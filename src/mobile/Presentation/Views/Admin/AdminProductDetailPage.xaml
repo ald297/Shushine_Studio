@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+    x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminProductDetailPage"
+    x:DataType="vm:AdminProductDetailViewModel"
+    Title="{Binding Title}"
+    BackgroundColor="{StaticResource Background}">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- HEADER -->
+        <Grid Grid.Row="0" BackgroundColor="{StaticResource Surface}" Padding="20,50,20,16">
+            <Grid ColumnDefinitions="40,*,40">
+                <ImageButton
+                    Grid.Column="0"
+                    Source="arrow_left.png"
+                    Command="{Binding RegresarCommand}"
+                    WidthRequest="28" HeightRequest="28"
+                    BackgroundColor="Transparent"
+                    HorizontalOptions="Start" VerticalOptions="Center" />
+
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4">
+                    <Label Text="{Binding Title}" FontFamily="PlayfairDisplay" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalTextAlignment="Center" />
+                    <Label Text="Inventario de Salón" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Grid>
+        </Grid>
+
+        <!-- CONTENIDO -->
+        <ScrollView Grid.Row="1" Padding="20,16,20,32">
+            <VerticalStackLayout Spacing="16">
+
+                <!-- Loading -->
+                <ActivityIndicator
+                    IsRunning="{Binding IsLoading}"
+                    IsVisible="{Binding IsLoading}"
+                    Color="{StaticResource Primary}"
+                    HorizontalOptions="Center" />
+
+                <!-- Error -->
+                <Border
+                    IsVisible="{Binding HasError}"
+                    Stroke="#FFCDD2"
+                    StrokeThickness="1"
+                    BackgroundColor="#FFEBEE"
+                    StrokeShape="RoundRectangle 8"
+                    Padding="12,8">
+                    <Label Text="{Binding ErrorMessage}" FontFamily="PlusJakartaSans" FontSize="12" TextColor="#C62828" />
+                </Border>
+
+                <!-- FORMULARIO -->
+                <Border
+                    Stroke="{StaticResource Outline}"
+                    StrokeThickness="1"
+                    BackgroundColor="{StaticResource Surface}"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="20">
+                    <VerticalStackLayout Spacing="14">
+
+                        <!-- Código / SKU -->
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Código / SKU" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Frame BackgroundColor="{StaticResource InputBackground}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="14,0" HasShadow="False" HeightRequest="46">
+                                <Entry
+                                    Text="{Binding CodigoProducto}"
+                                    Placeholder="Ej: PROD-101"
+                                    PlaceholderColor="{StaticResource TextSecondary}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="13"
+                                    TextColor="{StaticResource TextPrimary}"
+                                    VerticalOptions="Center" />
+                            </Frame>
+                        </VerticalStackLayout>
+
+                        <!-- Nombre -->
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Nombre del producto *" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Frame BackgroundColor="{StaticResource InputBackground}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="14,0" HasShadow="False" HeightRequest="46">
+                                <Entry
+                                    Text="{Binding Nombre}"
+                                    Placeholder="Ej: Shampoo Keratina Reparador 500ml"
+                                    PlaceholderColor="{StaticResource TextSecondary}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="13"
+                                    TextColor="{StaticResource TextPrimary}"
+                                    VerticalOptions="Center" />
+                            </Frame>
+                        </VerticalStackLayout>
+
+                        <!-- Marca y Categoría -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <VerticalStackLayout Grid.Column="0" Spacing="6">
+                                <Label Text="Marca" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                <Frame BackgroundColor="{StaticResource InputBackground}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="14,0" HasShadow="False" HeightRequest="46">
+                                    <Entry
+                                        Text="{Binding Marca}"
+                                        Placeholder="Ej: L'Oréal"
+                                        PlaceholderColor="{StaticResource TextSecondary}"
+                                        FontFamily="PlusJakartaSans"
+                                        FontSize="13"
+                                        TextColor="{StaticResource TextPrimary}"
+                                        VerticalOptions="Center" />
+                                </Frame>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="6">
+                                <Label Text="Categoría" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                <Frame BackgroundColor="{StaticResource InputBackground}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="14,0" HasShadow="False" HeightRequest="46">
+                                    <Entry
+                                        Text="{Binding NombreCategoria}"
+                                        Placeholder="Ej: Cuidado Capilar"
+                                        PlaceholderColor="{StaticResource TextSecondary}"
+                                        FontFamily="PlusJakartaSans"
+                                        FontSize="13"
+                                        TextColor="{StaticResource TextPrimary}"
+                                        VerticalOptions="Center" />
+                                </Frame>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- Precio y Stock -->
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                            <VerticalStackLayout Grid.Column="0" Spacing="6">
+                                <Label Text="Precio ($) *" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                <Frame BackgroundColor="{StaticResource InputBackground}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="14,0" HasShadow="False" HeightRequest="46">
+                                    <Entry
+                                        Text="{Binding Precio}"
+                                        Keyboard="Numeric"
+                                        Placeholder="0.00"
+                                        PlaceholderColor="{StaticResource TextSecondary}"
+                                        FontFamily="PlusJakartaSans"
+                                        FontSize="13"
+                                        TextColor="{StaticResource TextPrimary}"
+                                        VerticalOptions="Center" />
+                                </Frame>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="6">
+                                <Label Text="Stock Actual" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                <Frame BackgroundColor="{StaticResource InputBackground}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="14,0" HasShadow="False" HeightRequest="46">
+                                    <Entry
+                                        Text="{Binding StockActual}"
+                                        Keyboard="Numeric"
+                                        Placeholder="0"
+                                        PlaceholderColor="{StaticResource TextSecondary}"
+                                        FontFamily="PlusJakartaSans"
+                                        FontSize="13"
+                                        TextColor="{StaticResource TextPrimary}"
+                                        VerticalOptions="Center" />
+                                </Frame>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="2" Spacing="6">
+                                <Label Text="Stock Mínimo" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                <Frame BackgroundColor="{StaticResource InputBackground}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="14,0" HasShadow="False" HeightRequest="46">
+                                    <Entry
+                                        Text="{Binding StockMinimo}"
+                                        Keyboard="Numeric"
+                                        Placeholder="5"
+                                        PlaceholderColor="{StaticResource TextSecondary}"
+                                        FontFamily="PlusJakartaSans"
+                                        FontSize="13"
+                                        TextColor="{StaticResource TextPrimary}"
+                                        VerticalOptions="Center" />
+                                </Frame>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- Descripción -->
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Descripción (opcional)" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Frame BackgroundColor="{StaticResource InputBackground}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="14,10" HasShadow="False">
+                                <Editor
+                                    Text="{Binding Descripcion}"
+                                    Placeholder="Detalles del producto o modo de uso..."
+                                    PlaceholderColor="{StaticResource TextSecondary}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="13"
+                                    TextColor="{StaticResource TextPrimary}"
+                                    HeightRequest="80"
+                                    AutoSize="TextChanges" />
+                            </Frame>
+                        </VerticalStackLayout>
+
+                        <!-- Activo Switch -->
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+                            <Label Grid.Column="0" Text="Producto disponible para venta" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center" />
+                            <Switch Grid.Column="1" IsToggled="{Binding Activo}" OnColor="{StaticResource Primary}" />
+                        </Grid>
+
+                        <BoxView HeightRequest="1" Color="{StaticResource Outline}" Margin="0,8,0,8" />
+
+                        <!-- Botones de Acción -->
+                        <Button
+                            Text="Guardar Producto"
+                            Command="{Binding GuardarCommand}"
+                            IsEnabled="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            HeightRequest="48"
+                            FontSize="14"
+                            CornerRadius="12" />
+
+                        <Button
+                            IsVisible="{Binding EsEdicion}"
+                            Text="Desactivar / Retirar Producto"
+                            Command="{Binding EliminarCommand}"
+                            IsEnabled="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}"
+                            BackgroundColor="#FFEBEE"
+                            TextColor="#C62828"
+                            FontFamily="PlusJakartaSans"
+                            FontAttributes="Bold"
+                            FontSize="13"
+                            HeightRequest="44"
+                            CornerRadius="10" />
+
+                        <ActivityIndicator
+                            IsRunning="{Binding IsSaving}"
+                            IsVisible="{Binding IsSaving}"
+                            Color="{StaticResource Primary}"
+                            HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Button Text="Cancelar" Command="{Binding RegresarCommand}" Style="{StaticResource SecondaryButtonStyle}" HeightRequest="44" FontSize="13" CornerRadius="10" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

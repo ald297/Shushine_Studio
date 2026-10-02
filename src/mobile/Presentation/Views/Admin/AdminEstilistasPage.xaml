@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+             xmlns:entities="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
+             x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminEstilistasPage"
+             x:DataType="vm:AdminEstilistasViewModel"
+             BackgroundColor="{StaticResource BackgroundColor}"
+             Shell.NavBarIsVisible="false">
+
+    <Grid>
+        <!-- Toast de Notificación Boutique Flotante (Reemplaza los alertas nativos grises) -->
+        <Border VerticalOptions="Start"
+                HorizontalOptions="Center"
+                Margin="20, 52, 20, 0"
+                Padding="16, 12"
+                StrokeShape="RoundRectangle 16"
+                BackgroundColor="#2C2420"
+                Stroke="#C5A059"
+                StrokeThickness="1"
+                IsVisible="{Binding IsToastVisible}"
+                ZIndex="999">
+            <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12">
+                <Border Grid.Column="0"
+                        StrokeShape="RoundRectangle 18"
+                        WidthRequest="36"
+                        HeightRequest="36"
+                        BackgroundColor="#3D322C"
+                        StrokeThickness="0"
+                        VerticalOptions="Center">
+                    <Label Text="✨" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                    <Label Text="{Binding ToastTitulo}" FontSize="13" FontAttributes="Bold" TextColor="#F5EBE6" />
+                    <Label Text="{Binding ToastMensaje}" FontSize="11" TextColor="{StaticResource Secondary}" />
+                </VerticalStackLayout>
+            </Grid>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding CerrarToastCommand}" />
+            </Border.GestureRecognizers>
+        </Border>
+
+        <!-- Contenido Principal con Margen Superior Seguro -->
+        <ScrollView>
+            <VerticalStackLayout Padding="20, 48, 20, 24" Spacing="16">
+                
+                <!-- 1. Cabecera Oficial de Administrador (Wireframe Pág. 19) -->
+                <VerticalStackLayout Spacing="4" Margin="0, 8, 0, 4">
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <Label Text="Shushine Studio"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource PrimaryColor}" />
+                        <Border StrokeShape="RoundRectangle 6"
+                                BackgroundColor="{StaticResource PrimaryLight}"
+                                Padding="6, 2">
+                            <Label Text="ADMINISTRADOR" FontSize="10" FontAttributes="Bold" TextColor="White" />
+                        </Border>
+                    </HorizontalStackLayout>
+
+                    <Grid ColumnDefinitions="*, Auto" Margin="0, 4, 0, 0">
+                        <Label Grid.Column="0"
+                               Text="Equipo de Estilistas"
+                               Style="{StaticResource HeaderLabelStyle}"
+                               FontSize="22" />
+
+                        <!-- Botón para Registrar Nuevo Estilista -->
+                        <Button Grid.Column="1"
+                                Text="+ Nuevo"
+                                Command="{Binding AbrirModalNuevoCommand}"
+                                BackgroundColor="{StaticResource PrimaryColor}"
+                                TextColor="White"
+                                CornerRadius="16"
+                                HeightRequest="34"
+                                Padding="14, 0"
+                                FontSize="12"
+                                FontAttributes="Bold" />
+                    </Grid>
+
+                    <Label Text="Control directo de disponibilidad operativa para asignación de citas en salón."
+                           Style="{StaticResource SubheaderLabelStyle}"
+                           FontSize="12" />
+                </VerticalStackLayout>
+
+                <!-- 2. Chips de Filtro (Wireframe Pág. 19) -->
+                <Grid ColumnDefinitions="*, *, *" ColumnSpacing="8">
+                    <!-- Chip: Todos -->
+                    <Border Grid.Column="0"
+                            StrokeShape="RoundRectangle 19"
+                            HeightRequest="38"
+                            Stroke="{StaticResource BorderColor}"
+                            BackgroundColor="{StaticResource SurfaceColor}">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding FiltroEstado}" Value="Todos">
+                                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                                <Setter Property="Stroke" Value="{StaticResource PrimaryColor}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Label Text="{Binding TotalEstilistas, StringFormat='Todos ({0})'}"
+                               FontAttributes="Bold"
+                               FontSize="12"
+                               TextColor="{StaticResource TextColorSecondary}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding FiltroEstado}" Value="Todos">
+                                    <Setter Property="TextColor" Value="White" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SeleccionarFiltroCommand}" CommandParameter="Todos" />
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                    <!-- Chip: Activos -->
+                    <Border Grid.Column="1"
+                            StrokeShape="RoundRectangle 19"
+                            HeightRequest="38"
+                            Stroke="{StaticResource BorderColor}"
+                            BackgroundColor="{StaticResource SurfaceColor}">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding FiltroEstado}" Value="Activos">
+                                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                                <Setter Property="Stroke" Value="{StaticResource PrimaryColor}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Label Text="{Binding TotalActivos, StringFormat='Activos ({0})'}"
+                               FontAttributes="Bold"
+                               FontSize="12"
+                               TextColor="{StaticResource TextColorSecondary}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding FiltroEstado}" Value="Activos">
+                                    <Setter Property="TextColor" Value="White" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SeleccionarFiltroCommand}" CommandParameter="Activos" />
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                    <!-- Chip: Inactivos -->
+                    <Border Grid.Column="2"
+                            StrokeShape="RoundRectangle 19"
+                            HeightRequest="38"
+                            Stroke="{StaticResource BorderColor}"
+                            BackgroundColor="{StaticResource SurfaceColor}">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding FiltroEstado}" Value="Inactivos">
+                                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                                <Setter Property="Stroke" Value="{StaticResource PrimaryColor}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Label Text="{Binding TotalInactivos, StringFormat='Inactivos ({0})'}"
+                               FontAttributes="Bold"
+                               FontSize="12"
+                               TextColor="{StaticResource TextColorSecondary}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding FiltroEstado}" Value="Inactivos">
+                                    <Setter Property="TextColor" Value="White" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SeleccionarFiltroCommand}" CommandParameter="Inactivos" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </Grid>
+
+                <!-- 3. Listado de Estilistas (Wireframe Pág. 19) -->
+                <CollectionView ItemsSource="{Binding Estilistas}" SelectionMode="None">
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout Padding="30" Spacing="8" HorizontalOptions="Center">
+                            <Label Text="💇‍♀️" FontSize="36" HorizontalOptions="Center" />
+                            <Label Text="No hay estilistas en esta categoría."
+                                   TextColor="{StaticResource TextColorSecondary}"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="entities:Estilista">
+                            <Border Style="{StaticResource CardBorderStyle}" Margin="0, 0, 0, 14" Padding="16">
+                                <VerticalStackLayout Spacing="12">
+                                    
+                                    <!-- Encabezado de la Tarjeta del Estilista -->
+                                    <Grid ColumnDefinitions="52, *, Auto, Auto" ColumnSpacing="10">
+                                        <!-- Avatar con Iniciales -->
+                                        <Border Grid.Column="0"
+                                                StrokeShape="RoundRectangle 26"
+                                                HeightRequest="52"
+                                                WidthRequest="52"
+                                                BackgroundColor="{StaticResource SecondaryLight}">
+                                            <Label Text="{Binding Iniciales}"
+                                                   FontSize="16"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{StaticResource PrimaryDark}"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center" />
+                                        </Border>
+
+                                        <!-- Nombre y Especialidad -->
+                                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                            <Label Text="{Binding NombreCompleto}"
+                                                   FontSize="15"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{StaticResource TextColorPrimary}" />
+                                            <Label Text="{Binding EspecialidadPrincipal}"
+                                                   FontSize="12"
+                                                   TextColor="{StaticResource TextColorSecondary}" />
+                                        </VerticalStackLayout>
+
+                                        <!-- Badge de Estado Dinámico -->
+                                        <Border Grid.Column="2"
+                                                StrokeShape="RoundRectangle 8"
+                                                BackgroundColor="{Binding EstadoBadgeBgColor}"
+                                                Padding="8, 3"
+                                                VerticalOptions="Center">
+                                            <Label Text="{Binding EstadoTexto}" 
+                                                   FontSize="10" 
+                                                   FontAttributes="Bold" 
+                                                   TextColor="{Binding EstadoBadgeTextColor}" />
+                                        </Border>
+
+                                        <!-- Botón de Remover / Dar de Baja -->
+                                        <Button Grid.Column="3"
+                                                Text="🗑️"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminEstilistasViewModel}}, Path=EliminarEstilistaCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="Transparent"
+                                                TextColor="#DC2626"
+                                                FontSize="14"
+                                                WidthRequest="36"
+                                                HeightRequest="36"
+                                                Padding="0"
+                                                VerticalOptions="Center" />
+                                    </Grid>
+
+                                    <!-- Botones de Estado Reactivos: Activo / Inactivo temporal (Wireframe Pág. 19) -->
+                                    <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
+                                        <!-- Botón: Activo -->
+                                        <Button Grid.Column="0"
+                                                Text="✔️ Activo"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminEstilistasViewModel}}, Path=SetEstadoActivoCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="{Binding BotonActivoBgColor}"
+                                                TextColor="{Binding BotonActivoTextColor}"
+                                                BorderColor="{Binding BotonActivoBorderColor}"
+                                                BorderWidth="1"
+                                                CornerRadius="10"
+                                                FontSize="12"
+                                                FontAttributes="Bold"
+                                                HeightRequest="42" />
+
+                                        <!-- Botón: Inactivo temporal -->
+                                        <Button Grid.Column="1"
+                                                Text="⏸️ Inactivo temp."
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminEstilistasViewModel}}, Path=SetEstadoInactivoCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="{Binding BotonInactivoBgColor}"
+                                                TextColor="{Binding BotonInactivoTextColor}"
+                                                BorderColor="{Binding BotonInactivoBorderColor}"
+                                                BorderWidth="1"
+                                                CornerRadius="10"
+                                                FontSize="12"
+                                                FontAttributes="Bold"
+                                                HeightRequest="42" />
+                                    </Grid>
+
+                                    <!-- Mensaje aclaratorio -->
+                                    <Border BackgroundColor="#FDFBF7"
+                                            Stroke="#F5EBE1"
+                                            StrokeThickness="1"
+                                            StrokeShape="RoundRectangle 8"
+                                            Padding="10, 6">
+                                        <Label Text="📅 Disponibilidad sincronizada en tiempo real con la agenda."
+                                               FontSize="11"
+                                               TextColor="{StaticResource TextColorSecondary}" />
+                                    </Border>
+
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Modal Flotante: Registrar Nuevo Estilista -->
+        <Grid BackgroundColor="#80000000"
+              IsVisible="{Binding IsCreandoNuevo}"
+              VerticalOptions="Fill"
+              HorizontalOptions="Fill">
+            <Border BackgroundColor="White"
+                    StrokeShape="RoundRectangle 20"
+                    StrokeThickness="0"
+                    Margin="24"
+                    Padding="22"
+                    VerticalOptions="Center">
+                <VerticalStackLayout Spacing="14">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0"
+                               Text="Registrar Estilista"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextColorPrimary}" />
+                        <Button Grid.Column="1"
+                                Text="✕"
+                                Command="{Binding CerrarModalNuevoCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{StaticResource TextColorSecondary}"
+                                FontSize="16"
+                                Padding="0"
+                                WidthRequest="32"
+                                HeightRequest="32" />
+                    </Grid>
+
+                    <Label Text="Añade un nuevo profesional al equipo del salón para habilitar asignación de citas."
+                           FontSize="12"
+                           TextColor="{StaticResource TextColorSecondary}" />
+
+                    <!-- Nombre Completo -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="NOMBRE COMPLETO *" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" />
+                        <Border StrokeShape="RoundRectangle 10" Stroke="{StaticResource BorderColor}" Padding="10, 2">
+                            <Entry Text="{Binding NuevoNombre}" Placeholder="Ej: Valentina Gómez" FontSize="14" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Especialidad -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="ESPECIALIDAD PRINCIPAL *" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextColorSecondary}" />
+                        <Border StrokeShape="RoundRectangle 10" Stroke="{StaticResource BorderColor}" Padding="10, 2">
+                            <Entry Text="{Binding NuevaEspecialidad}" Placeholder="Ej: Colorista &amp; Tratamientos Capilares" FontSize="14" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Botones de Acción -->
+                    <Grid ColumnDefinitions="*, *" ColumnSpacing="10" Margin="0, 8, 0, 0">
+                        <Button Grid.Column="0"
+                                Text="Cancelar"
+                                Command="{Binding CerrarModalNuevoCommand}"
+                                BackgroundColor="{StaticResource BackgroundColor}"
+                                TextColor="{StaticResource TextColorSecondary}"
+                                BorderColor="{StaticResource BorderColor}"
+                                BorderWidth="1"
+                                CornerRadius="12"
+                                HeightRequest="44"
+                                FontSize="13" />
+
+                        <Button Grid.Column="1"
+                                Text="Guardar"
+                                Command="{Binding GuardarNuevoEstilistaCommand}"
+                                BackgroundColor="{StaticResource PrimaryColor}"
+                                TextColor="White"
+                                CornerRadius="12"
+                                HeightRequest="44"
+                                FontSize="13"
+                                FontAttributes="Bold" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
+
+</ContentPage>

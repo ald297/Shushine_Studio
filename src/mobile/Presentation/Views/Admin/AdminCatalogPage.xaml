@@ -1,0 +1,581 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+             xmlns:entities="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
+             x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminCatalogPage"
+             x:DataType="vm:AdminCatalogViewModel"
+             BackgroundColor="{StaticResource BackgroundColor}"
+             Shell.NavBarIsVisible="false">
+
+    <Grid>
+        <!-- Toast de Notificación Boutique Flotante (Reemplaza los alertas nativos grises) -->
+        <Border VerticalOptions="Start"
+                HorizontalOptions="Center"
+                Margin="20, 52, 20, 0"
+                Padding="16, 12"
+                StrokeShape="RoundRectangle 16"
+                BackgroundColor="#2C2420"
+                Stroke="#C5A059"
+                StrokeThickness="1"
+                IsVisible="{Binding IsToastVisible}"
+                ZIndex="999">
+            <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12">
+                <Border Grid.Column="0"
+                        StrokeShape="RoundRectangle 18"
+                        WidthRequest="36"
+                        HeightRequest="36"
+                        BackgroundColor="#3D322C"
+                        StrokeThickness="0"
+                        VerticalOptions="Center">
+                    <Label Text="✨" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                    <Label Text="{Binding ToastTitulo}" FontSize="13" FontAttributes="Bold" TextColor="#F5EBE6" />
+                    <Label Text="{Binding ToastMensaje}" FontSize="11" TextColor="{StaticResource Secondary}" />
+                </VerticalStackLayout>
+            </Grid>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding CerrarToastCommand}" />
+            </Border.GestureRecognizers>
+        </Border>
+
+        <!-- Contenido Principal -->
+        <ScrollView>
+            <VerticalStackLayout Padding="20, 48, 20, 24" Spacing="16">
+                
+                <!-- 1. Cabecera Oficial de Administrador (Wireframe Pág. 18) -->
+                <Grid ColumnDefinitions="*, Auto" Margin="0, 8, 0, 4">
+                    <VerticalStackLayout Grid.Column="0" Spacing="3">
+                        <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                            <Label Text="Shushine Studio"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource PrimaryColor}" />
+                            <Border StrokeShape="RoundRectangle 6"
+                                    BackgroundColor="{StaticResource PrimaryLight}"
+                                    Padding="6, 2">
+                                <Label Text="ADMIN" FontSize="10" FontAttributes="Bold" TextColor="White" />
+                            </Border>
+                        </HorizontalStackLayout>
+                        <Label Text="Control de Tarifas &amp; Catálogo"
+                               Style="{StaticResource HeaderLabelStyle}"
+                               FontSize="22" />
+                        <Label Text="{Binding TotalRegistrados, StringFormat='{0} servicios registrados en agenda'}"
+                               Style="{StaticResource SubheaderLabelStyle}"
+                               FontSize="12" />
+                    </VerticalStackLayout>
+
+                    <!-- Botón Rosa '+' para Nuevo Servicio (Wireframe Pág. 18) -->
+                    <Border Grid.Column="1"
+                            StrokeShape="RoundRectangle 24"
+                            BackgroundColor="{StaticResource PrimaryColor}"
+                            HeightRequest="48"
+                            WidthRequest="48"
+                            HorizontalOptions="End"
+                            VerticalOptions="Center">
+                        <Label Text="+" 
+                               FontSize="28" 
+                               TextColor="White" 
+                               HorizontalOptions="Center" 
+                               VerticalOptions="Center" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding AbrirModalNuevoCommand}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </Grid>
+
+                <!-- 2. Barra de Búsqueda -->
+                <Border Style="{StaticResource InputContainerStyle}" 
+                        Padding="12, 0"
+                        HeightRequest="46">
+                    <Grid ColumnDefinitions="Auto, *">
+                        <Label Grid.Column="0" Text="🔍" FontSize="16" VerticalOptions="Center" Margin="0,0,8,0" />
+                        <Entry Grid.Column="1"
+                               Placeholder="Buscar por tratamiento o categoría..."
+                               PlaceholderColor="{StaticResource TextColorSecondary}"
+                               Text="{Binding TextoBusqueda}"
+                               FontSize="14"
+                               ClearButtonVisibility="WhileEditing"
+                               BackgroundColor="Transparent" />
+                    </Grid>
+                </Border>
+
+                <!-- 3. Chips de Filtro: Todos, Activos, Inactivos (Wireframe Pág. 18) -->
+                <Grid ColumnDefinitions="*, *, *" ColumnSpacing="8">
+                    <!-- Chip: Todos -->
+                    <Border Grid.Column="0"
+                            StrokeShape="RoundRectangle 19"
+                            HeightRequest="38"
+                            Stroke="{StaticResource BorderColor}"
+                            BackgroundColor="{StaticResource SurfaceColor}">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding FiltroEstado}" Value="Todos">
+                                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                                <Setter Property="Stroke" Value="{StaticResource PrimaryColor}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Label Text="{Binding TotalRegistrados, StringFormat='Todos ({0})'}"
+                               FontAttributes="Bold"
+                               FontSize="12"
+                               TextColor="{StaticResource TextColorSecondary}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding FiltroEstado}" Value="Todos">
+                                    <Setter Property="TextColor" Value="White" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SeleccionarFiltroEstadoCommand}" CommandParameter="Todos" />
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                    <!-- Chip: Activos -->
+                    <Border Grid.Column="1"
+                            StrokeShape="RoundRectangle 19"
+                            HeightRequest="38"
+                            Stroke="{StaticResource BorderColor}"
+                            BackgroundColor="{StaticResource SurfaceColor}">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding FiltroEstado}" Value="Activos">
+                                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                                <Setter Property="Stroke" Value="{StaticResource PrimaryColor}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Label Text="{Binding TotalActivos, StringFormat='Activos ({0})'}"
+                               FontAttributes="Bold"
+                               FontSize="12"
+                               TextColor="{StaticResource TextColorSecondary}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding FiltroEstado}" Value="Activos">
+                                    <Setter Property="TextColor" Value="White" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SeleccionarFiltroEstadoCommand}" CommandParameter="Activos" />
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                    <!-- Chip: Inactivos -->
+                    <Border Grid.Column="2"
+                            StrokeShape="RoundRectangle 19"
+                            HeightRequest="38"
+                            Stroke="{StaticResource BorderColor}"
+                            BackgroundColor="{StaticResource SurfaceColor}">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding FiltroEstado}" Value="Inactivos">
+                                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                                <Setter Property="Stroke" Value="{StaticResource PrimaryColor}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Label Text="{Binding TotalInactivos, StringFormat='Inactivos ({0})'}"
+                               FontAttributes="Bold"
+                               FontSize="12"
+                               TextColor="{StaticResource TextColorSecondary}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding FiltroEstado}" Value="Inactivos">
+                                    <Setter Property="TextColor" Value="White" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SeleccionarFiltroEstadoCommand}" CommandParameter="Inactivos" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </Grid>
+
+                <!-- 4. Listado de Servicios con Edición In-Card -->
+                <CollectionView ItemsSource="{Binding Servicios}" SelectionMode="None">
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout Padding="30" Spacing="8" HorizontalOptions="Center">
+                            <Label Text="📑" FontSize="36" HorizontalOptions="Center" />
+                            <Label Text="No hay servicios para este filtro."
+                                   TextColor="{StaticResource TextColorSecondary}"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="entities:Servicio">
+                            <Border Style="{StaticResource CardBorderStyle}" Margin="0, 0, 0, 14" Padding="14">
+                                <VerticalStackLayout Spacing="10">
+                                    
+                                    <!-- Fila Superior: Foto, Info y Switch Activo -->
+                                    <Grid ColumnDefinitions="60, *, Auto" ColumnSpacing="12">
+                                        <!-- Foto o Icono -->
+                                        <Border Grid.Column="0"
+                                                StrokeShape="RoundRectangle 12"
+                                                HeightRequest="56"
+                                                WidthRequest="56"
+                                                BackgroundColor="{StaticResource SecondaryLight}">
+                                            <Grid>
+                                                <Image Source="{Binding ImagenUrl}"
+                                                       Aspect="AspectFill"
+                                                       IsVisible="{Binding TieneImagen}" />
+                                                <Label Text="✨" FontSize="26" 
+                                                       HorizontalOptions="Center" VerticalOptions="Center"
+                                                       IsVisible="{Binding NoTieneImagen}" />
+                                            </Grid>
+                                        </Border>
+
+                                        <!-- Info del Tratamiento -->
+                                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                            <HorizontalStackLayout Spacing="6">
+                                                <Label Text="{Binding CategoriaNombre}" 
+                                                       FontSize="11" 
+                                                       FontAttributes="Bold" 
+                                                       TextColor="{StaticResource PrimaryColor}" />
+                                                <Label Text="•" TextColor="{StaticResource TextColorSecondary}" FontSize="11" />
+                                                <Label Text="{Binding DuracionMinutos, StringFormat='⏱ {0} min'}" 
+                                                       FontSize="11" 
+                                                       TextColor="{StaticResource TextColorSecondary}" />
+                                            </HorizontalStackLayout>
+                                            <Label Text="{Binding Nombre}" 
+                                                   FontSize="15" 
+                                                   FontAttributes="Bold" 
+                                                   TextColor="{StaticResource TextColorPrimary}" 
+                                                   LineBreakMode="TailTruncation" />
+                                        </VerticalStackLayout>
+
+                                        <!-- Badge y Switch Activo (Wireframe Pág. 18) -->
+                                        <VerticalStackLayout Grid.Column="2" Spacing="4" HorizontalOptions="End" VerticalOptions="Center">
+                                            <Border StrokeShape="RoundRectangle 8"
+                                                    BackgroundColor="{Binding EstadoBgColor}"
+                                                    Padding="8, 2">
+                                                <Label Text="{Binding EstadoTexto}" 
+                                                       FontSize="10" 
+                                                       FontAttributes="Bold" 
+                                                       TextColor="{Binding EstadoColor}" />
+                                            </Border>
+                                            <Switch IsToggled="{Binding Activo}"
+                                                    OnColor="{StaticResource PrimaryColor}"
+                                                    ThumbColor="White" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+
+                                    <!-- Fila de Tarifa Actual y Botones de Acción -->
+                                    <Grid ColumnDefinitions="*, Auto, Auto" Margin="0, 4, 0, 0">
+                                        <HorizontalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
+                                            <Label Text="TARIFA ACTUAL:" 
+                                                   FontSize="11" 
+                                                   FontAttributes="Bold" 
+                                                   TextColor="{StaticResource TextColorSecondary}" 
+                                                   VerticalOptions="Center" />
+                                            <Label Text="{Binding Precio, StringFormat='${0:F2}'}" 
+                                                   FontSize="16" 
+                                                   FontAttributes="Bold" 
+                                                   TextColor="{StaticResource PrimaryDark}" 
+                                                   VerticalOptions="Center" />
+                                        </HorizontalStackLayout>
+
+                                        <!-- Botón: Entrar a Editar Servicio Completo -->
+                                        <Button Grid.Column="1"
+                                                Text="✏️ Editar"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminCatalogViewModel}}, Path=AbrirEditarCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="{StaticResource BackgroundColor}"
+                                                TextColor="{StaticResource PrimaryDark}"
+                                                BorderColor="{StaticResource PrimaryColor}"
+                                                BorderWidth="1.5"
+                                                CornerRadius="14"
+                                                FontSize="12"
+                                                FontAttributes="Bold"
+                                                HeightRequest="36"
+                                                Padding="14, 0"
+                                                Margin="0, 0, 6, 0" />
+
+                                        <!-- Botón: Eliminar -->
+                                        <Button Grid.Column="2"
+                                                Text="🗑"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminCatalogViewModel}}, Path=EliminarServicioCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="#FDF2F2"
+                                                TextColor="#E02424"
+                                                BorderColor="#F98080"
+                                                BorderWidth="1"
+                                                CornerRadius="14"
+                                                FontSize="12"
+                                                HeightRequest="36"
+                                                WidthRequest="36"
+                                                Padding="0" />
+                                    </Grid>
+
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ======================================================== -->
+        <!-- 5. Modal Overlay: Edición Completa de Servicio          -->
+        <!-- ======================================================== -->
+        <Grid BackgroundColor="#80000000"
+              IsVisible="{Binding IsEditando}">
+            <Border StrokeShape="RoundRectangle 24"
+                    BackgroundColor="{StaticResource SurfaceColor}"
+                    Padding="22"
+                    Margin="18, 30"
+                    VerticalOptions="Center">
+                <ScrollView MaximumHeightRequest="560">
+                    <VerticalStackLayout Spacing="12">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0"
+                                   Text="✏️ Modificar Tratamiento"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource PrimaryColor}"
+                                   VerticalOptions="Center" />
+                            <Button Grid.Column="1"
+                                    Text="✕"
+                                    Command="{Binding CerrarEditarCommand}"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource TextColorSecondary}"
+                                    FontSize="16"
+                                    HeightRequest="36"
+                                    WidthRequest="36" />
+                        </Grid>
+
+                        <Label Text="Edita los datos oficiales, tarifa y fotografía en la nube."
+                               FontSize="11"
+                               TextColor="{StaticResource TextColorSecondary}" />
+
+                        <!-- Nombre -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Nombre del Tratamiento" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                            <Border Style="{StaticResource InputContainerStyle}" Padding="10,0" HeightRequest="42">
+                                <Entry Text="{Binding EditandoNombre}" FontSize="13" BackgroundColor="Transparent" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Categoría y Duración -->
+                        <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
+                            <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                <Label Text="Categoría" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                                <Border Style="{StaticResource InputContainerStyle}" Padding="8,0" HeightRequest="42">
+                                    <Picker ItemsSource="{Binding CategoriasDisponibles}" SelectedItem="{Binding EditandoCategoria}" FontSize="12" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Label Text="Duración (min)" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                                <Border Style="{StaticResource InputContainerStyle}" Padding="10,0" HeightRequest="42">
+                                    <Entry Text="{Binding EditandoDuracion}" Keyboard="Numeric" FontSize="13" BackgroundColor="Transparent" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- Tarifa Oficial -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Tarifa Oficial ($ USD)" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                            <Border Style="{StaticResource InputContainerStyle}" Padding="10,0" HeightRequest="42">
+                                <Grid ColumnDefinitions="Auto, *">
+                                    <Label Grid.Column="0" Text="$" TextColor="{StaticResource PrimaryDark}" FontAttributes="Bold" VerticalOptions="Center" Margin="0,0,4,0"/>
+                                    <Entry Grid.Column="1" Text="{Binding EditandoPrecio}" Keyboard="Numeric" FontSize="13" FontAttributes="Bold" BackgroundColor="Transparent" />
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Imagen del Producto / Servicio -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Fotografía del Tratamiento" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                            <Grid ColumnDefinitions="Auto, *" ColumnSpacing="8">
+                                <Button Grid.Column="0"
+                                        Text="📷 Galería"
+                                        Command="{Binding SeleccionarImagenEditarCommand}"
+                                        BackgroundColor="{StaticResource SecondaryLight}"
+                                        TextColor="{StaticResource PrimaryDark}"
+                                        BorderColor="{StaticResource PrimaryColor}"
+                                        BorderWidth="1"
+                                        CornerRadius="10"
+                                        FontSize="11"
+                                        FontAttributes="Bold"
+                                        HeightRequest="42"
+                                        Padding="10, 0" />
+                                <Border Grid.Column="1" Style="{StaticResource InputContainerStyle}" Padding="10,0" HeightRequest="42">
+                                    <Entry Placeholder="O ingresa URL de imagen..." Text="{Binding EditandoImagenUrl}" FontSize="11" BackgroundColor="Transparent" />
+                                </Border>
+                            </Grid>
+
+                            <!-- Vista previa de imagen -->
+                            <Border StrokeShape="RoundRectangle 10"
+                                    HeightRequest="70"
+                                    WidthRequest="120"
+                                    HorizontalOptions="Start"
+                                    BackgroundColor="{StaticResource SecondaryLight}"
+                                    Margin="0, 4, 0, 0">
+                                <Image Source="{Binding EditandoImagenUrl}" Aspect="AspectFill" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Descripción -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Descripción" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                            <Border Style="{StaticResource InputContainerStyle}" Padding="10,4" HeightRequest="56">
+                                <Editor Text="{Binding EditandoDescripcion}" FontSize="12" BackgroundColor="Transparent" AutoSize="TextChanges" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Switch Activo -->
+                        <Grid ColumnDefinitions="*, Auto" Margin="0, 4">
+                            <Label Grid.Column="0" Text="Tratamiento Activo en Catálogo" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" VerticalOptions="Center" />
+                            <Switch Grid.Column="1" IsToggled="{Binding EditandoActivo}" OnColor="{StaticResource PrimaryColor}" ThumbColor="White" />
+                        </Grid>
+
+                        <!-- Botones de Acción -->
+                        <Grid ColumnDefinitions="*, *" ColumnSpacing="12" Margin="0, 8, 0, 0">
+                            <Button Grid.Column="0"
+                                    Text="Cancelar"
+                                    Command="{Binding CerrarEditarCommand}"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    HeightRequest="44" />
+                            <Button Grid.Column="1"
+                                    Text="Guardar Cambios"
+                                    Command="{Binding GuardarEdicionCompletaCommand}"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    HeightRequest="44" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Border>
+        </Grid>
+
+        <!-- ======================================================== -->
+        <!-- 6. Modal Overlay: Nuevo Servicio con Foto                -->
+        <!-- ======================================================== -->
+        <Grid BackgroundColor="#80000000"
+              IsVisible="{Binding IsCreandoNuevo}">
+            <Border StrokeShape="RoundRectangle 24"
+                    BackgroundColor="{StaticResource SurfaceColor}"
+                    Padding="22"
+                    Margin="18, 30"
+                    VerticalOptions="Center">
+                <ScrollView MaximumHeightRequest="560">
+                    <VerticalStackLayout Spacing="12">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0"
+                                   Text="✨ Nuevo Tratamiento"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource PrimaryColor}"
+                                   VerticalOptions="Center" />
+                            <Button Grid.Column="1"
+                                    Text="✕"
+                                    Command="{Binding CerrarModalNuevoCommand}"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource TextColorSecondary}"
+                                    FontSize="16"
+                                    HeightRequest="36"
+                                    WidthRequest="36" />
+                        </Grid>
+
+                        <Label Text="Ingresa los datos para publicarlo de inmediato en el catálogo de clientes."
+                               FontSize="11"
+                               TextColor="{StaticResource TextColorSecondary}" />
+
+                        <!-- Nombre -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Nombre del Tratamiento" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                            <Border Style="{StaticResource InputContainerStyle}" Padding="10,0" HeightRequest="42">
+                                <Entry Placeholder="ej. Hidratación Capilar Intensiva" Text="{Binding NuevoNombre}" FontSize="13" BackgroundColor="Transparent" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Categoría y Duración -->
+                        <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
+                            <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                <Label Text="Categoría" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                                <Border Style="{StaticResource InputContainerStyle}" Padding="8,0" HeightRequest="42">
+                                    <Picker ItemsSource="{Binding CategoriasDisponibles}" SelectedItem="{Binding NuevoCategoria}" FontSize="12" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Label Text="Duración (minutos)" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                                <Border Style="{StaticResource InputContainerStyle}" Padding="10,0" HeightRequest="42">
+                                    <Entry Text="{Binding NuevoDuracion}" Keyboard="Numeric" FontSize="13" BackgroundColor="Transparent" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- Tarifa / Precio -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Tarifa Oficial ($ USD)" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                            <Border Style="{StaticResource InputContainerStyle}" Padding="10,0" HeightRequest="42">
+                                <Grid ColumnDefinitions="Auto, *">
+                                    <Label Grid.Column="0" Text="$" TextColor="{StaticResource PrimaryDark}" FontAttributes="Bold" VerticalOptions="Center" Margin="0,0,4,0"/>
+                                    <Entry Grid.Column="1" Text="{Binding NuevoPrecio}" Keyboard="Numeric" FontSize="13" FontAttributes="Bold" BackgroundColor="Transparent" />
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Fotografía -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Fotografía del Tratamiento" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                            <Grid ColumnDefinitions="Auto, *" ColumnSpacing="8">
+                                <Button Grid.Column="0"
+                                        Text="📷 Galería"
+                                        Command="{Binding SeleccionarImagenNuevoCommand}"
+                                        BackgroundColor="{StaticResource SecondaryLight}"
+                                        TextColor="{StaticResource PrimaryDark}"
+                                        BorderColor="{StaticResource PrimaryColor}"
+                                        BorderWidth="1"
+                                        CornerRadius="10"
+                                        FontSize="11"
+                                        FontAttributes="Bold"
+                                        HeightRequest="42"
+                                        Padding="10, 0" />
+                                <Border Grid.Column="1" Style="{StaticResource InputContainerStyle}" Padding="10,0" HeightRequest="42">
+                                    <Entry Placeholder="O escribe URL de la imagen..." Text="{Binding NuevoImagenUrl}" FontSize="11" BackgroundColor="Transparent" />
+                                </Border>
+                            </Grid>
+
+                            <!-- Vista previa miniatura si hay imagen -->
+                            <Border StrokeShape="RoundRectangle 10"
+                                    HeightRequest="70"
+                                    WidthRequest="120"
+                                    HorizontalOptions="Start"
+                                    BackgroundColor="{StaticResource SecondaryLight}"
+                                    Margin="0, 4, 0, 0">
+                                <Image Source="{Binding NuevoImagenUrl}" Aspect="AspectFill" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Descripción -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Descripción del Tratamiento" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextColorPrimary}" />
+                            <Border Style="{StaticResource InputContainerStyle}" Padding="10,4" HeightRequest="56">
+                                <Editor Placeholder="Beneficios, pasos o detalles..." Text="{Binding NuevoDescripcion}" FontSize="12" BackgroundColor="Transparent" AutoSize="TextChanges" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Botones de Acción -->
+                        <Grid ColumnDefinitions="*, *" ColumnSpacing="12" Margin="0, 8, 0, 0">
+                            <Button Grid.Column="0"
+                                    Text="Cancelar"
+                                    Command="{Binding CerrarModalNuevoCommand}"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    HeightRequest="44" />
+                            <Button Grid.Column="1"
+                                    Text="Publicar en Catálogo"
+                                    Command="{Binding CrearNuevoServicioCommand}"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    HeightRequest="44" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Border>
+        </Grid>
+    </Grid>
+
+</ContentPage>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+             xmlns:entities="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
+             x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.WalkInPage"
+             x:DataType="vm:WalkInViewModel"
+             BackgroundColor="{StaticResource BackgroundColor}"
+             Title="{Binding Title}">
+
+    <Grid>
+        <!-- Toast de Notificación Boutique Flotante -->
+        <Border VerticalOptions="Start"
+                HorizontalOptions="Center"
+                Margin="20, 20, 20, 0"
+                Padding="16, 12"
+                StrokeShape="RoundRectangle 16"
+                BackgroundColor="#2C2420"
+                Stroke="#C5A059"
+                StrokeThickness="1"
+                IsVisible="{Binding IsToastVisible}"
+                ZIndex="999">
+            <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12">
+                <Border Grid.Column="0"
+                        StrokeShape="RoundRectangle 18"
+                        WidthRequest="36"
+                        HeightRequest="36"
+                        BackgroundColor="#3D322C"
+                        StrokeThickness="0"
+                        VerticalOptions="Center">
+                    <Label Text="✨" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                    <Label Text="{Binding ToastTitulo}" FontSize="13" FontAttributes="Bold" TextColor="#F5EBE6" />
+                    <Label Text="{Binding ToastMensaje}" FontSize="11" TextColor="{StaticResource Secondary}" />
+                </VerticalStackLayout>
+            </Grid>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding CerrarToastCommand}" />
+            </Border.GestureRecognizers>
+        </Border>
+
+        <!-- Contenido Formulario -->
+        <ScrollView>
+            <VerticalStackLayout Padding="24" Spacing="18">
+
+                <!-- Cabecera -->
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Atención Sin Cita"
+                           Style="{StaticResource HeaderLabelStyle}"
+                           FontSize="22" />
+                    <Label Text="Registro de atención directa para clientas presentes en salón sin reserva previa."
+                           Style="{StaticResource SubheaderLabelStyle}"
+                           FontSize="13" />
+                </VerticalStackLayout>
+
+                <!-- Tarjeta Formulario Atención en Salón -->
+                <Border Style="{StaticResource CardBorderStyle}" Padding="20">
+                    <VerticalStackLayout Spacing="16">
+
+                        <!-- Nombre del Cliente Presencial -->
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Nombre de la Clienta *" 
+                                   FontSize="13" 
+                                   FontAttributes="Bold" 
+                                   TextColor="{StaticResource TextColorPrimary}" />
+                            <Border Style="{StaticResource InputContainerStyle}">
+                                <Entry Placeholder="ej. Andrea Quintanilla"
+                                       Text="{Binding NombreCliente}"
+                                       ReturnType="Next" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Teléfono / WhatsApp -->
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Teléfono de Contacto" 
+                                   FontSize="13" 
+                                   FontAttributes="Bold" 
+                                   TextColor="{StaticResource TextColorPrimary}" />
+                            <Border Style="{StaticResource InputContainerStyle}">
+                                <Entry Placeholder="7000-0000"
+                                       Text="{Binding Telefono}"
+                                       Keyboard="Telephone"
+                                       ReturnType="Next" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Selector de Tratamiento / Servicio -->
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Tratamiento o Servicio *" 
+                                   FontSize="13" 
+                                   FontAttributes="Bold" 
+                                   TextColor="{StaticResource TextColorPrimary}" />
+                            <Border Style="{StaticResource InputContainerStyle}">
+                                <Picker ItemsSource="{Binding Servicios}"
+                                        ItemDisplayBinding="{Binding Nombre}"
+                                        SelectedItem="{Binding ServicioSeleccionado}"
+                                        Title="Selecciona un servicio" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Selector de Estilista -->
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Estilista Asignada *" 
+                                   FontSize="13" 
+                                   FontAttributes="Bold" 
+                                   TextColor="{StaticResource TextColorPrimary}" />
+                            <Border Style="{StaticResource InputContainerStyle}">
+                                <Picker ItemsSource="{Binding Estilistas}"
+                                        ItemDisplayBinding="{Binding NombreCompleto}"
+                                        SelectedItem="{Binding EstilistaSeleccionado}"
+                                        Title="Selecciona una profesional" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Hora de Atención -->
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Hora de Atención Estimada *" 
+                                   FontSize="13" 
+                                   FontAttributes="Bold" 
+                                   TextColor="{StaticResource TextColorPrimary}" />
+                            <Border Style="{StaticResource InputContainerStyle}">
+                                <TimePicker Time="{Binding HoraAtencion}"
+                                            Format="hh:mm tt" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Observaciones -->
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Observaciones o Notas" 
+                                   FontSize="13" 
+                                   FontAttributes="Bold" 
+                                   TextColor="{StaticResource TextColorPrimary}" />
+                            <Border Style="{StaticResource InputContainerStyle}">
+                                <Entry Placeholder="ej. Clienta solicita atención inmediata"
+                                       Text="{Binding Notas}"
+                                       ReturnType="Done" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Botón Agendar -->
+                        <Button Text="➕ Confirmar Atención en Salón"
+                                Command="{Binding RegistrarWalkInCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                IsEnabled="{Binding IsNotBusy}"
+                                Margin="0,8,0,0" />
+
+                        <!-- Botón Cancelar -->
+                        <Button Text="Cancelar"
+                                Command="{Binding CancelarCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                HeightRequest="42" />
+
+                        <!-- Indicador de Carga -->
+                        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                           IsVisible="{Binding IsBusy}"
+                                           HeightRequest="30" />
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+
+</ContentPage>

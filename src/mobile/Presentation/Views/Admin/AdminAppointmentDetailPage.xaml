@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+    x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminAppointmentDetailPage"
+    x:DataType="vm:AdminAppointmentDetailViewModel"
+    BackgroundColor="{StaticResource Background}"
+    Shell.NavBarIsVisible="false"
+    Title="Detalle Administrativo">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- 1. HEADER -->
+        <Grid Grid.Row="0" BackgroundColor="{StaticResource Surface}" Padding="20,50,20,16">
+            <Grid ColumnDefinitions="40,*,40">
+                <ImageButton
+                    Grid.Column="0"
+                    Source="arrow_left.png"
+                    Command="{Binding RegresarCommand}"
+                    WidthRequest="28" HeightRequest="28"
+                    BackgroundColor="Transparent"
+                    HorizontalOptions="Start" VerticalOptions="Center" />
+
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4">
+                    <HorizontalStackLayout Spacing="6" HorizontalOptions="Center">
+                        <Label
+                            Text="Detalle de Cita"
+                            FontFamily="PlayfairDisplay"
+                            FontSize="18" FontAttributes="Bold"
+                            TextColor="{StaticResource TextPrimary}" />
+                        <Frame
+                            BackgroundColor="{StaticResource Primary}"
+                            CornerRadius="4"
+                            Padding="5,1"
+                            HasShadow="False"
+                            VerticalOptions="Center">
+                            <Label Text="ADMIN" FontFamily="PlusJakartaSans" FontSize="8" FontAttributes="Bold" TextColor="{StaticResource Surface}" />
+                        </Frame>
+                    </HorizontalStackLayout>
+                    <BoxView HeightRequest="2" WidthRequest="40" BackgroundColor="{StaticResource Secondary}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Grid>
+            <BoxView HeightRequest="1" BackgroundColor="{StaticResource Border}" Margin="0,14,0,0" VerticalOptions="End" />
+        </Grid>
+
+        <!-- 2. CUERPO DEL DETALLE -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20,16,20,24" Spacing="16">
+
+                <!-- MENSAJE DE ERROR -->
+                <Frame
+                    IsVisible="{Binding ErrorMessage, Converter={x:Null}}"
+                    BackgroundColor="#FEF2F2"
+                    BorderColor="#FCA5A5"
+                    CornerRadius="12"
+                    Padding="14,10"
+                    HasShadow="False">
+                    <Label Text="{Binding ErrorMessage}"
+                           FontFamily="PlusJakartaSans"
+                           FontSize="12"
+                           TextColor="#991B1B"
+                           HorizontalTextAlignment="Center" />
+                </Frame>
+
+                <!-- TARJETA PRINCIPAL: CÓDIGO Y ESTADO -->
+                <Frame
+                    BackgroundColor="{StaticResource Surface}"
+                    BorderColor="{StaticResource Border}"
+                    CornerRadius="16"
+                    Padding="18,16"
+                    HasShadow="False">
+                    <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label
+                                Text="CÓDIGO DE RESERVA"
+                                FontFamily="PlusJakartaSans"
+                                FontSize="10" FontAttributes="Bold"
+                                TextColor="{StaticResource TextSecondary}"
+                                CharacterSpacing="1" />
+                            <Label
+                                Text="{Binding CodigoCita}"
+                                FontFamily="PlayfairDisplay"
+                                FontSize="20" FontAttributes="Bold"
+                                TextColor="{StaticResource Primary}" />
+                        </VerticalStackLayout>
+
+                        <Frame
+                            Grid.Column="1"
+                            BackgroundColor="{StaticResource SurfaceVariant}"
+                            BorderColor="{Binding EstadoColor}"
+                            CornerRadius="10"
+                            Padding="12,6"
+                            HasShadow="False"
+                            VerticalOptions="Center">
+                            <Label
+                                Text="{Binding EstadoDisplay}"
+                                FontFamily="PlusJakartaSans"
+                                FontSize="12" FontAttributes="Bold"
+                                TextColor="{Binding EstadoColor}" />
+                        </Frame>
+                    </Grid>
+                </Frame>
+
+                <!-- TARJETA CLIENTE -->
+                <Frame
+                    BackgroundColor="{StaticResource Surface}"
+                    BorderColor="{StaticResource Border}"
+                    CornerRadius="16"
+                    Padding="18,16"
+                    HasShadow="False">
+                    <VerticalStackLayout Spacing="8">
+                        <Label
+                            Text="INFORMACIÓN DE LA CLIENTA"
+                            FontFamily="PlusJakartaSans"
+                            FontSize="11" FontAttributes="Bold"
+                            TextColor="{StaticResource Secondary}"
+                            CharacterSpacing="1" />
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Label Grid.Column="0" Text="👤" FontSize="20" VerticalOptions="Center" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label
+                                    Text="{Binding ClienteNombre}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="15" FontAttributes="Bold"
+                                    TextColor="{StaticResource TextPrimary}" />
+                                <Label
+                                    Text="{Binding ClienteTelefono, StringFormat='Teléfono: {0}'}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="12"
+                                    TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- TARJETA SERVICIO Y ESTILISTA -->
+                <Frame
+                    BackgroundColor="{StaticResource Surface}"
+                    BorderColor="{StaticResource Border}"
+                    CornerRadius="16"
+                    Padding="18,16"
+                    HasShadow="False">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="TRATAMIENTO Y PROFESIONAL"
+                            FontFamily="PlusJakartaSans"
+                            FontSize="11" FontAttributes="Bold"
+                            TextColor="{StaticResource Secondary}"
+                            CharacterSpacing="1" />
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Label Grid.Column="0" Text="✂️" FontSize="20" VerticalOptions="Start" Margin="0,2,0,0" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label
+                                    Text="{Binding ServicioNombre}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="14" FontAttributes="Bold"
+                                    TextColor="{StaticResource TextPrimary}" />
+                                <Label
+                                    Text="{Binding EstilistaNombre, StringFormat='Estilista: {0}'}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="12"
+                                    TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <BoxView HeightRequest="1" BackgroundColor="{StaticResource Border}" />
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Label Grid.Column="0" Text="📅" FontSize="20" VerticalOptions="Start" Margin="0,2,0,0" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label
+                                    Text="{Binding FechaCita}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="13" FontAttributes="Bold"
+                                    TextColor="{StaticResource TextPrimary}" />
+                                <Label
+                                    Text="{Binding HorarioTexto, StringFormat='Horario: {0}'}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="12"
+                                    TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- TARJETA FINANCIERA (DATOS REALES DE BACKEND) -->
+                <Frame
+                    BackgroundColor="{StaticResource Surface}"
+                    BorderColor="{StaticResource Border}"
+                    CornerRadius="16"
+                    Padding="18,16"
+                    HasShadow="False">
+                    <VerticalStackLayout Spacing="10">
+                        <Label
+                            Text="DESGLOSE FINANCIERO"
+                            FontFamily="PlusJakartaSans"
+                            FontSize="11" FontAttributes="Bold"
+                            TextColor="{StaticResource Secondary}"
+                            CharacterSpacing="1" />
+
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0" Text="Subtotal:" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextSecondary}" />
+                            <Label Grid.Column="1" Text="{Binding SubtotalFormateado}" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextPrimary}" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0" Text="IVA (13%):" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextSecondary}" />
+                            <Label Grid.Column="1" Text="{Binding IvaFormateado}" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextPrimary}" />
+                        </Grid>
+
+                        <BoxView HeightRequest="1" BackgroundColor="{StaticResource Border}" />
+
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0" Text="Total a Pagar:" FontFamily="PlusJakartaSans" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Label Grid.Column="1" Text="{Binding TotalFormateado}" FontFamily="PlayfairDisplay" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
+                        </Grid>
+
+                        <BoxView HeightRequest="1" BackgroundColor="{StaticResource Border}" />
+
+                        <!-- Estado y Método de Pago Oficial -->
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="Estado de Pago:" FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                                <Label Text="{Binding EstadoPagoTexto}" FontFamily="PlusJakartaSans" FontSize="13" FontAttributes="Bold" TextColor="{Binding EstadoPagoColor}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" HorizontalOptions="End" Spacing="2">
+                                <Label Text="Método de Pago:" FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="End" />
+                                <Label Text="{Binding MetodoPagoTexto}" FontFamily="PlusJakartaSans" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalTextAlignment="End" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- NOTAS DE LA CITA -->
+                <Frame
+                    BackgroundColor="{StaticResource Surface}"
+                    BorderColor="{StaticResource Border}"
+                    CornerRadius="16"
+                    Padding="18,14"
+                    HasShadow="False">
+                    <VerticalStackLayout Spacing="6">
+                        <Label
+                            Text="NOTAS OPERATIVAS"
+                            FontFamily="PlusJakartaSans"
+                            FontSize="11" FontAttributes="Bold"
+                            TextColor="{StaticResource Secondary}"
+                            CharacterSpacing="1" />
+                        <Label
+                            Text="{Binding Notas}"
+                            FontFamily="PlusJakartaSans"
+                            FontSize="13"
+                            TextColor="{StaticResource TextSecondary}"
+                            LineHeight="1.3" />
+                    </VerticalStackLayout>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- 3. BARRA INFERIOR DE ACCIONES ADMINISTRATIVAS -->
+        <Grid Grid.Row="2" BackgroundColor="{StaticResource Surface}" Padding="20,12,20,24">
+            <VerticalStackLayout Spacing="10">
+
+                <!-- BOTÓN REGISTRAR PAGO (EFECTIVO) -->
+                <Button
+                    IsVisible="{Binding PuedeRegistrarPago}"
+                    Text="Registrar Pago (Efectivo)"
+                    Command="{Binding RegistrarPagoEfectivoCommand}"
+                    BackgroundColor="#2E7D32"
+                    TextColor="{StaticResource Surface}"
+                    FontFamily="PlusJakartaSans"
+                    FontSize="14" FontAttributes="Bold"
+                    HeightRequest="48"
+                    CornerRadius="12" />
+
+                <!-- BOTÓN CONFIRMAR CITA (SI ESTÁ PENDIENTE) -->
+                <Button
+                    IsVisible="{Binding PuedeConfirmar}"
+                    Text="Confirmar Cita"
+                    Command="{Binding ConfirmarCitaCommand}"
+                    BackgroundColor="#6A1B9A"
+                    TextColor="{StaticResource Surface}"
+                    FontFamily="PlusJakartaSans"
+                    FontSize="14" FontAttributes="Bold"
+                    HeightRequest="48"
+                    CornerRadius="12" />
+
+                <!-- BOTÓN INICIAR ATENCIÓN (SI ESTÁ CONFIRMADA) -->
+                <Button
+                    IsVisible="{Binding PuedeIniciar}"
+                    Text="Iniciar Tratamiento (En Proceso)"
+                    Command="{Binding IniciarTratamientoCommand}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="{StaticResource Surface}"
+                    FontFamily="PlusJakartaSans"
+                    FontSize="14" FontAttributes="Bold"
+                    HeightRequest="48"
+                    CornerRadius="12" />
+
+                <!-- BOTÓN FINALIZAR / COMPLETAR (SI ESTÁ EN PROCESO) -->
+                <Button
+                    IsVisible="{Binding PuedeCompletar}"
+                    Text="Finalizar y Completar Cita"
+                    Command="{Binding FinalizarCitaCommand}"
+                    BackgroundColor="#1565C0"
+                    TextColor="{StaticResource Surface}"
+                    FontFamily="PlusJakartaSans"
+                    FontSize="14" FontAttributes="Bold"
+                    HeightRequest="48"
+                    CornerRadius="12" />
+
+                <!-- BOTÓN CANCELAR CITA -->
+                <Button
+                    IsVisible="{Binding PuedeCancelar}"
+                    Text="Cancelar Cita"
+                    Command="{Binding CancelarCitaCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="#C62828"
+                    BorderColor="#C62828"
+                    BorderWidth="1"
+                    FontFamily="PlusJakartaSans"
+                    FontSize="13" FontAttributes="Bold"
+                    HeightRequest="44"
+                    CornerRadius="12" />
+
+                <!-- AVISO DE CITA FINALIZADA -->
+                <Label
+                    IsVisible="{Binding CitaFinalizada}"
+                    Text="Esta cita ya se encuentra completada o cancelada. El backend no permite modificaciones posteriores."
+                    FontFamily="PlusJakartaSans"
+                    FontSize="12"
+                    TextColor="{StaticResource TextSecondary}"
+                    HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </Grid>
+
+    </Grid>
+
+</ContentPage>

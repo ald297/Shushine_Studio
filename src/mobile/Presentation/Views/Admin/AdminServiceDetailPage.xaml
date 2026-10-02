@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+    x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminServiceDetailPage"
+    x:DataType="vm:AdminServiceDetailViewModel"
+    Title="{Binding Title}"
+    BackgroundColor="{StaticResource Background}">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- 1. HEADER -->
+        <Grid Grid.Row="0" BackgroundColor="{StaticResource Surface}" Padding="20,50,20,16">
+            <Grid ColumnDefinitions="40,*,Auto">
+                <ImageButton
+                    Grid.Column="0"
+                    Source="arrow_left.png"
+                    Command="{Binding RegresarCommand}"
+                    WidthRequest="28" HeightRequest="28"
+                    BackgroundColor="Transparent"
+                    HorizontalOptions="Start" VerticalOptions="Center" />
+
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4">
+                    <HorizontalStackLayout Spacing="6" HorizontalOptions="Center">
+                        <Label
+                            Text="Ficha de Servicio"
+                            FontFamily="PlayfairDisplay"
+                            FontSize="18" FontAttributes="Bold"
+                            TextColor="{StaticResource TextPrimary}" />
+                        <Frame
+                            BackgroundColor="{StaticResource Primary}"
+                            CornerRadius="4"
+                            Padding="5,1"
+                            HasShadow="False"
+                            VerticalOptions="Center">
+                            <Label Text="ADMIN" FontFamily="PlusJakartaSans" FontSize="8" FontAttributes="Bold" TextColor="{StaticResource Surface}" />
+                        </Frame>
+                    </HorizontalStackLayout>
+                    <Label
+                        Text="Detalle y Tarifas del Salón"
+                        FontFamily="PlusJakartaSans"
+                        FontSize="11"
+                        TextColor="{StaticResource TextSecondary}"
+                        HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+
+                <Button
+                    Grid.Column="2"
+                    Text="{Binding IsEditing, Converter={StaticResource InvertedBoolConverter}, StringFormat='Editar'}"
+                    Command="{Binding HabilitarEdicionCommand}"
+                    IsVisible="{Binding IsEditing, Converter={StaticResource InvertedBoolConverter}}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="{StaticResource Surface}"
+                    FontFamily="PlusJakartaSans"
+                    FontSize="12" FontAttributes="Bold"
+                    CornerRadius="8"
+                    HeightRequest="36"
+                    Padding="12,0" />
+
+                <Button
+                    Grid.Column="2"
+                    Text="Cancelar"
+                    Command="{Binding CancelarEdicionCommand}"
+                    IsVisible="{Binding IsEditing}"
+                    BackgroundColor="{StaticResource SurfaceVariant}"
+                    TextColor="{StaticResource TextPrimary}"
+                    FontFamily="PlusJakartaSans"
+                    FontSize="12"
+                    CornerRadius="8"
+                    HeightRequest="36"
+                    Padding="12,0" />
+            </Grid>
+        </Grid>
+
+        <!-- 2. CONTENIDO PRINCIPAL -->
+        <ScrollView Grid.Row="1" Padding="20,16,20,32">
+            <VerticalStackLayout Spacing="20">
+
+                <!-- 2.1 MODO VISTA (LECTURA) -->
+                <VerticalStackLayout Spacing="20" IsVisible="{Binding IsEditing, Converter={StaticResource InvertedBoolConverter}}">
+                    <!-- Tarjeta Principal de Servicio -->
+                    <Border
+                        Stroke="{StaticResource Outline}"
+                        StrokeThickness="1"
+                        BackgroundColor="{StaticResource Surface}"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="20">
+                        <Border.Shadow>
+                            <Shadow Brush="#10000000" Offset="0,4" Radius="12" Opacity="0.8" />
+                        </Border.Shadow>
+
+                        <VerticalStackLayout Spacing="16">
+                            <Grid ColumnDefinitions="*,Auto" VerticalOptions="Start">
+                                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                    <Label
+                                        Text="{Binding Nombre}"
+                                        FontFamily="PlayfairDisplay"
+                                        FontSize="20" FontAttributes="Bold"
+                                        TextColor="{StaticResource TextPrimary}" />
+                                    <HorizontalStackLayout Spacing="8" Margin="0,2,0,0">
+                                        <Border
+                                            BackgroundColor="{StaticResource SurfaceVariant}"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 6"
+                                            Padding="8,2">
+                                            <Label
+                                                Text="{Binding CategoriaNombre}"
+                                                FontFamily="PlusJakartaSans"
+                                                FontSize="11" FontAttributes="Bold"
+                                                TextColor="{StaticResource Primary}" />
+                                        </Border>
+                                        <Label
+                                            Text="{Binding CodigoServicio, StringFormat='Ref: {0}'}"
+                                            FontFamily="PlusJakartaSans"
+                                            FontSize="11"
+                                            TextColor="{StaticResource TextSecondary}"
+                                            VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+
+                                <!-- Badge Estado -->
+                                <Border
+                                    Grid.Column="1"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 8"
+                                    Padding="10,4"
+                                    VerticalOptions="Start">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding Activo}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="#E8F5E9" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Border" Binding="{Binding Activo}" Value="False">
+                                            <Setter Property="BackgroundColor" Value="#FFEBEE" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Label FontFamily="PlusJakartaSans" FontSize="11" FontAttributes="Bold">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding Activo}" Value="True">
+                                                <Setter Property="Text" Value="Activo" />
+                                                <Setter Property="TextColor" Value="#2E7D32" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Label" Binding="{Binding Activo}" Value="False">
+                                                <Setter Property="Text" Value="Inactivo" />
+                                                <Setter Property="TextColor" Value="#C62828" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Border>
+                            </Grid>
+
+                            <BoxView HeightRequest="1" Color="{StaticResource Outline}" />
+
+                            <!-- Tarifa y Duración en 2 Columnas -->
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                                <Border
+                                    Grid.Column="0"
+                                    BackgroundColor="{StaticResource SurfaceVariant}"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 12"
+                                    Padding="14">
+                                    <VerticalStackLayout Spacing="4">
+                                        <Label Text="TARIFA OFICIAL" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}" />
+                                        <Label Text="{Binding Precio, StringFormat='${0}'}" FontFamily="PlayfairDisplay" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <Border
+                                    Grid.Column="1"
+                                    BackgroundColor="{StaticResource SurfaceVariant}"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 12"
+                                    Padding="14">
+                                    <VerticalStackLayout Spacing="4">
+                                        <Label Text="DURACIÓN ESTIMADA" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}" />
+                                        <Label Text="{Binding DuracionMinutos, StringFormat='{0} min'}" FontFamily="PlayfairDisplay" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </Grid>
+
+                            <!-- Descripción del Servicio -->
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="Descripción del Procedimiento" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                <Label Text="{Binding Descripcion}" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextSecondary}" LineHeight="1.3" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Sección de Asignación Operativa del Salón -->
+                    <Border
+                        Stroke="{StaticResource Outline}"
+                        StrokeThickness="1"
+                        BackgroundColor="{StaticResource Surface}"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="20">
+                        <Border.Shadow>
+                            <Shadow Brush="#10000000" Offset="0,4" Radius="12" Opacity="0.8" />
+                        </Border.Shadow>
+
+                        <VerticalStackLayout Spacing="10">
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="👥" FontSize="16" VerticalOptions="Center" />
+                                <Label Text="Asignación de Profesionales" FontFamily="PlayfairDisplay" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+
+                            <Border BackgroundColor="{StaticResource SurfaceVariant}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="14">
+                                <VerticalStackLayout Spacing="6">
+                                    <Label Text="Catálogo Centralizado de Belleza" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                    <Label Text="En la arquitectura de Shushine Studio, todos los profesionales activos atienden la cartera de servicios según su especialidad. No se requiere asignación manual individual." FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextSecondary}" LineHeight="1.3" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Botones de Acción Operativos -->
+                    <VerticalStackLayout Spacing="12">
+                        <Button
+                            Text="{Binding Activo, Converter={StaticResource InvertedBoolConverter}, StringFormat='Activar Servicio'}"
+                            Command="{Binding AlternarEstadoCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            HeightRequest="48"
+                            FontSize="14" FontAttributes="Bold"
+                            CornerRadius="12">
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" Binding="{Binding Activo}" Value="True">
+                                    <Setter Property="Text" Value="Pausar Servicio en Catálogo" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
+
+                        <Button
+                            Text="Eliminar Servicio del Salón"
+                            Command="{Binding EliminarServicioCommand}"
+                            BackgroundColor="#FFEBEE"
+                            TextColor="#C62828"
+                            FontFamily="PlusJakartaSans"
+                            FontSize="14" FontAttributes="Bold"
+                            HeightRequest="48"
+                            CornerRadius="12" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- 2.2 MODO EDICIÓN -->
+                <VerticalStackLayout Spacing="20" IsVisible="{Binding IsEditing}">
+                    <Border
+                        Stroke="{StaticResource Outline}"
+                        StrokeThickness="1"
+                        BackgroundColor="{StaticResource Surface}"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="20">
+                        <Border.Shadow>
+                            <Shadow Brush="#10000000" Offset="0,4" Radius="12" Opacity="0.8" />
+                        </Border.Shadow>
+
+                        <VerticalStackLayout Spacing="16">
+                            <Label Text="Modificar Parámetros del Servicio" FontFamily="PlayfairDisplay" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+
+                            <!-- Nombre -->
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Nombre del Servicio *" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                <Border Stroke="{StaticResource Outline}" StrokeThickness="1" BackgroundColor="{StaticResource SurfaceVariant}" StrokeShape="RoundRectangle 8" Padding="12,0">
+                                    <Entry Text="{Binding Nombre}" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextPrimary}" HeightRequest="44" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- Tarifa y Duración -->
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                    <Label Text="Tarifa ($) *" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                    <Border Stroke="{StaticResource Outline}" StrokeThickness="1" BackgroundColor="{StaticResource SurfaceVariant}" StrokeShape="RoundRectangle 8" Padding="12,0">
+                                        <Entry Text="{Binding Precio}" Keyboard="Numeric" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextPrimary}" HeightRequest="44" />
+                                    </Border>
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                    <Label Text="Duración (min) *" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                    <Border Stroke="{StaticResource Outline}" StrokeThickness="1" BackgroundColor="{StaticResource SurfaceVariant}" StrokeShape="RoundRectangle 8" Padding="12,0">
+                                        <Entry Text="{Binding DuracionMinutos}" Keyboard="Numeric" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextPrimary}" HeightRequest="44" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <!-- Descripción -->
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Descripción" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                <Border Stroke="{StaticResource Outline}" StrokeThickness="1" BackgroundColor="{StaticResource SurfaceVariant}" StrokeShape="RoundRectangle 8" Padding="12,8">
+                                    <Editor Text="{Binding Descripcion}" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextPrimary}" HeightRequest="80" AutoSize="Disabled" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- Estado Activo -->
+                            <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                                <Label Text="Servicio Habilitado" FontFamily="PlusJakartaSans" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" VerticalOptions="Center" />
+                                <Switch Grid.Column="1" IsToggled="{Binding Activo}" OnColor="{StaticResource Primary}" ThumbColor="{StaticResource Surface}" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Guardar Cambios -->
+                    <Button
+                        Text="Guardar Modificaciones"
+                        Command="{Binding GuardarCambiosCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        HeightRequest="48"
+                        FontSize="14" FontAttributes="Bold"
+                        CornerRadius="12" />
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

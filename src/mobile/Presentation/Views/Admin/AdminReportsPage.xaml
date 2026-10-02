@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+    x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminReportsPage"
+    x:DataType="vm:AdminReportsViewModel"
+    Title="{Binding Title}"
+    BackgroundColor="{StaticResource Background}">
+
+    <Grid>
+        <!-- ACCESO RESTRINGIDO (NO ADMIN) -->
+        <VerticalStackLayout
+            IsVisible="{Binding IsUnauthorized}"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Padding="32"
+            Spacing="16">
+
+            <Frame BackgroundColor="{StaticResource SurfaceVariant}" CornerRadius="36" WidthRequest="72" HeightRequest="72" HorizontalOptions="Center" HasShadow="False">
+                <Label Text="🔒" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center" />
+            </Frame>
+            <Label Text="Acceso Restringido" FontFamily="PlayfairDisplay" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalTextAlignment="Center" />
+            <Label Text="Esta pantalla requiere privilegios de Administrador de Shushine Studio." FontFamily="PlusJakartaSans" FontSize="14" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
+            <Button Text="Regresar al Login" Command="{Binding RegresarALoginCommand}" Style="{StaticResource PrimaryButtonStyle}" HeightRequest="48" FontSize="14" CornerRadius="12" />
+        </VerticalStackLayout>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <Grid IsVisible="{Binding IsAuthorized}" RowDefinitions="Auto,*">
+
+            <!-- 1. HEADER -->
+            <Grid Grid.Row="0" BackgroundColor="{StaticResource Surface}" Padding="20,50,20,16">
+                <Grid ColumnDefinitions="40,*,Auto">
+                    <ImageButton
+                        Grid.Column="0"
+                        Source="arrow_left.png"
+                        Command="{Binding RegresarCommand}"
+                        WidthRequest="28" HeightRequest="28"
+                        BackgroundColor="Transparent"
+                        HorizontalOptions="Start" VerticalOptions="Center" />
+
+                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4">
+                        <HorizontalStackLayout Spacing="6" HorizontalOptions="Center">
+                            <Label Text="Ingresos &amp; Reportes" FontFamily="PlayfairDisplay" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Frame BackgroundColor="{StaticResource Primary}" CornerRadius="4" Padding="5,1" HasShadow="False" VerticalOptions="Center">
+                                <Label Text="ADMIN" FontFamily="PlusJakartaSans" FontSize="8" FontAttributes="Bold" TextColor="{StaticResource Surface}" />
+                            </Frame>
+                        </HorizontalStackLayout>
+                        <Label Text="Métricas Consolidadas del Salón" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+
+                    <Button
+                        Grid.Column="2"
+                        Text="Exportar"
+                        Command="{Binding ExportarReporteCommand}"
+                        BackgroundColor="{StaticResource Accent}"
+                        TextColor="{StaticResource Surface}"
+                        FontFamily="PlusJakartaSans"
+                        FontSize="11" FontAttributes="Bold"
+                        CornerRadius="8"
+                        HeightRequest="36"
+                        Padding="10,0" />
+                </Grid>
+            </Grid>
+
+            <!-- 2. CUERPO SCROLLEABLE -->
+            <ScrollView Grid.Row="1" Padding="20,16,20,32">
+                <VerticalStackLayout Spacing="20">
+
+                    <!-- SELECTOR DE PERÍODO REAL DISPONIBLE EN BACKEND -->
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                        <Button
+                            Grid.Column="0"
+                            Text="Hoy"
+                            Command="{Binding CambiarPeriodoCommand}"
+                            CommandParameter="Hoy"
+                            HeightRequest="36" FontSize="12" CornerRadius="8" Padding="0"
+                            FontFamily="PlusJakartaSans"
+                            BackgroundColor="{StaticResource SurfaceVariant}"
+                            TextColor="{StaticResource TextPrimary}">
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" Binding="{Binding PeriodoSeleccionado}" Value="Hoy">
+                                    <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                                    <Setter Property="TextColor" Value="{StaticResource Surface}" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
+
+                        <Button
+                            Grid.Column="1"
+                            Text="Semana"
+                            Command="{Binding CambiarPeriodoCommand}"
+                            CommandParameter="Semana"
+                            HeightRequest="36" FontSize="12" CornerRadius="8" Padding="0"
+                            FontFamily="PlusJakartaSans"
+                            BackgroundColor="{StaticResource SurfaceVariant}"
+                            TextColor="{StaticResource TextPrimary}">
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" Binding="{Binding PeriodoSeleccionado}" Value="Semana">
+                                    <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                                    <Setter Property="TextColor" Value="{StaticResource Surface}" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
+
+                        <Button
+                            Grid.Column="2"
+                            Text="Mes"
+                            Command="{Binding CambiarPeriodoCommand}"
+                            CommandParameter="Mes"
+                            HeightRequest="36" FontSize="12" CornerRadius="8" Padding="0"
+                            FontFamily="PlusJakartaSans"
+                            BackgroundColor="{StaticResource SurfaceVariant}"
+                            TextColor="{StaticResource TextPrimary}">
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" Binding="{Binding PeriodoSeleccionado}" Value="Mes">
+                                    <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                                    <Setter Property="TextColor" Value="{StaticResource Surface}" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
+                    </Grid>
+
+                    <!-- TARJETA PRINCIPAL: INGRESOS RECAUDADOS -->
+                    <Border
+                        Stroke="{StaticResource Outline}"
+                        StrokeThickness="1"
+                        BackgroundColor="{StaticResource Surface}"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="20">
+                        <Border.Shadow>
+                            <Shadow Brush="#10000000" Offset="0,4" Radius="12" Opacity="0.8" />
+                        </Border.Shadow>
+
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="INGRESOS BRUTOS RECAUDADOS" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}" CharacterSpacing="1" />
+
+                            <Grid ColumnDefinitions="*,1,*" ColumnSpacing="16">
+                                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                    <Label Text="Hoy" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                    <Label Text="{Binding IngresosHoy, StringFormat='${0:N2}'}" FontFamily="PlayfairDisplay" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
+                                </VerticalStackLayout>
+
+                                <BoxView Grid.Column="1" BackgroundColor="{StaticResource Outline}" VerticalOptions="Fill" />
+
+                                <VerticalStackLayout Grid.Column="2" Spacing="4">
+                                    <Label Text="Mes en Curso" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                    <Label Text="{Binding IngresosMes, StringFormat='${0:N2}'}" FontFamily="PlayfairDisplay" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <Label
+                                Text="* Nota: Corresponde a los cobros registrados en caja y facturados mediante liquidación oficial. No representa utilidad neta del salón."
+                                FontFamily="PlusJakartaSans"
+                                FontSize="10" FontAttributes="Italic"
+                                TextColor="{StaticResource TextSecondary}"
+                                Margin="0,4,0,0" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- TARJETA DE VOLUMEN DE CITAS -->
+                    <Border
+                        Stroke="{StaticResource Outline}"
+                        StrokeThickness="1"
+                        BackgroundColor="{StaticResource Surface}"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="20">
+                        <Border.Shadow>
+                            <Shadow Brush="#10000000" Offset="0,4" Radius="12" Opacity="0.8" />
+                        </Border.Shadow>
+
+                        <VerticalStackLayout Spacing="14">
+                            <Label Text="VOLUMEN DE SERVICIOS" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}" CharacterSpacing="1" />
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
+                                <Border BackgroundColor="{StaticResource SurfaceVariant}" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="14">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="Citas de Hoy" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                        <Label Text="{Binding TotalCitasHoy}" FontFamily="PlayfairDisplay" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <Border Grid.Column="1" BackgroundColor="{StaticResource SurfaceVariant}" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="14">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="Esta Semana" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                        <Label Text="{Binding TotalCitasSemana}" FontFamily="PlayfairDisplay" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- TARJETA DE ESTADO DE OPERACIONES (KPIS) -->
+                    <Border
+                        Stroke="{StaticResource Outline}"
+                        StrokeThickness="1"
+                        BackgroundColor="{StaticResource Surface}"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="20">
+                        <Border.Shadow>
+                            <Shadow Brush="#10000000" Offset="0,4" Radius="12" Opacity="0.8" />
+                        </Border.Shadow>
+
+                        <VerticalStackLayout Spacing="14">
+                            <Label Text="ESTADO DE CITAS EN EL SERVIDOR" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}" CharacterSpacing="1" />
+
+                            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                                <Border BackgroundColor="{StaticResource SurfaceVariant}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="10">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="En Proceso" FontFamily="PlusJakartaSans" FontSize="10" TextColor="#E65100" />
+                                        <Label Text="{Binding CitasEnProceso}" FontFamily="PlayfairDisplay" FontSize="18" FontAttributes="Bold" TextColor="#E65100" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <Border Grid.Column="1" BackgroundColor="{StaticResource SurfaceVariant}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="10">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="Completadas" FontFamily="PlusJakartaSans" FontSize="10" TextColor="#2E7D32" />
+                                        <Label Text="{Binding CitasCompletadas}" FontFamily="PlayfairDisplay" FontSize="18" FontAttributes="Bold" TextColor="#2E7D32" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <Border Grid.Column="2" BackgroundColor="{StaticResource SurfaceVariant}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="10">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="Canceladas" FontFamily="PlusJakartaSans" FontSize="10" TextColor="#C62828" />
+                                        <Label Text="{Binding CitasCanceladas}" FontFamily="PlayfairDisplay" FontSize="18" FontAttributes="Bold" TextColor="#C62828" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- TARJETA DE EQUIPO ACTIVO Y POLÍTICA FISCAL -->
+                    <Border
+                        Stroke="{StaticResource Outline}"
+                        StrokeThickness="1"
+                        BackgroundColor="{StaticResource Surface}"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="20">
+                        <Border.Shadow>
+                            <Shadow Brush="#10000000" Offset="0,4" Radius="12" Opacity="0.8" />
+                        </Border.Shadow>
+
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Equipo Operativo Activo" FontFamily="PlusJakartaSans" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                    <Label Text="Estilistas disponibles en agenda" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1" Text="{Binding EstilistasActivos, StringFormat='{0} activos'}" FontFamily="PlayfairDisplay" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource Primary}" VerticalOptions="Center" />
+                            </Grid>
+
+                            <BoxView HeightRequest="1" Color="{StaticResource Outline}" />
+
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Régimen Tributario Aplicado" FontFamily="PlusJakartaSans" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}" />
+                                <Label Text="Todas las tarifas de servicios e insumos incluyen el 13% de IVA oficial conforme a la legislación mercantil de la República de El Salvador." FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" LineHeight="1.3" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
+    </Grid>
+</ContentPage>

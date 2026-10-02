@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+    x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminCreateClientPage"
+    x:DataType="vm:AdminCreateClientViewModel"
+    Title="{Binding Title}"
+    BackgroundColor="{StaticResource Background}">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- HEADER -->
+        <Grid Grid.Row="0" BackgroundColor="{StaticResource Surface}" Padding="20,50,20,16">
+            <Grid ColumnDefinitions="40,*,40">
+                <ImageButton
+                    Grid.Column="0"
+                    Source="arrow_left.png"
+                    Command="{Binding RegresarCommand}"
+                    WidthRequest="28" HeightRequest="28"
+                    BackgroundColor="Transparent"
+                    HorizontalOptions="Start" VerticalOptions="Center" />
+
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4">
+                    <HorizontalStackLayout Spacing="6" HorizontalOptions="Center">
+                        <Label
+                            Text="Nuevo Cliente"
+                            FontFamily="PlayfairDisplay"
+                            FontSize="18" FontAttributes="Bold"
+                            TextColor="{StaticResource TextPrimary}" />
+                        <Frame
+                            BackgroundColor="{StaticResource Primary}"
+                            CornerRadius="4"
+                            Padding="5,1"
+                            HasShadow="False"
+                            VerticalOptions="Center">
+                            <Label Text="ADMIN" FontFamily="PlusJakartaSans" FontSize="8" FontAttributes="Bold" TextColor="{StaticResource Surface}" />
+                        </Frame>
+                    </HorizontalStackLayout>
+                    <BoxView HeightRequest="2" WidthRequest="40" BackgroundColor="{StaticResource Secondary}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Grid>
+            <BoxView HeightRequest="1" BackgroundColor="{StaticResource Border}" Margin="0,14,0,0" VerticalOptions="End" />
+        </Grid>
+
+        <!-- FORMULARIO -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20,16,20,32" Spacing="16">
+
+                <!-- AVISO DE SOPORTE BACKEND -->
+                <Frame
+                    BackgroundColor="#FFFBEB"
+                    BorderColor="#FDE68A"
+                    CornerRadius="12"
+                    Padding="16,14"
+                    HasShadow="False">
+                    <VerticalStackLayout Spacing="6">
+                        <Label
+                            Text="ℹ️ Aviso de Disponibilidad del Backend"
+                            FontFamily="PlusJakartaSans"
+                            FontSize="12" FontAttributes="Bold"
+                            TextColor="#92400E" />
+                        <Label
+                            Text="Esta función estará disponible cuando el backend la habilite. Actualmente, los clientes se registran autónomamente en la app o al registrar una atención sin cita en recepción."
+                            FontFamily="PlusJakartaSans"
+                            FontSize="11"
+                            TextColor="#78350F" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- BOTÓN ACCESO DIRECTO ATENCIÓN SIN CITA -->
+                <Button
+                    Text="Registrar Atención sin Cita en Recepción"
+                    Command="{Binding IrACitaWalkinCommand}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="{StaticResource Surface}"
+                    FontFamily="PlusJakartaSans"
+                    FontSize="13" FontAttributes="Bold"
+                    HeightRequest="46"
+                    CornerRadius="12" />
+
+                <!-- FORMULARIO PREPARADO -->
+                <Frame
+                    BackgroundColor="{StaticResource Surface}"
+                    BorderColor="{StaticResource Border}"
+                    CornerRadius="16"
+                    Padding="20"
+                    HasShadow="False">
+                    <VerticalStackLayout Spacing="14">
+                        <Label
+                            Text="Datos del Cliente"
+                            FontFamily="PlayfairDisplay"
+                            FontSize="16" FontAttributes="Bold"
+                            TextColor="{StaticResource TextPrimary}" />
+
+                        <!-- NOMBRE -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="NOMBRE *" FontFamily="PlusJakartaSans" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}" />
+                            <Frame BackgroundColor="{StaticResource SurfaceVariant}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="12,2" HasShadow="False">
+                                <Entry Text="{Binding Nombre}" Placeholder="Ej. María" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextPrimary}" BackgroundColor="Transparent" />
+                            </Frame>
+                        </VerticalStackLayout>
+
+                        <!-- APELLIDO -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="APELLIDO" FontFamily="PlusJakartaSans" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}" />
+                            <Frame BackgroundColor="{StaticResource SurfaceVariant}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="12,2" HasShadow="False">
+                                <Entry Text="{Binding Apellido}" Placeholder="Ej. González" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextPrimary}" BackgroundColor="Transparent" />
+                            </Frame>
+                        </VerticalStackLayout>
+
+                        <!-- TELÉFONO -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="TELÉFONO" FontFamily="PlusJakartaSans" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}" />
+                            <Frame BackgroundColor="{StaticResource SurfaceVariant}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="12,2" HasShadow="False">
+                                <Entry Text="{Binding Telefono}" Placeholder="Ej. 7890-1234" Keyboard="Telephone" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextPrimary}" BackgroundColor="Transparent" />
+                            </Frame>
+                        </VerticalStackLayout>
+
+                        <!-- CORREO / USUARIO -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="CORREO ELECTRÓNICO" FontFamily="PlusJakartaSans" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}" />
+                            <Frame BackgroundColor="{StaticResource SurfaceVariant}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="12,2" HasShadow="False">
+                                <Entry Text="{Binding Email}" Placeholder="Ej. maria@ejemplo.com" Keyboard="Email" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextPrimary}" BackgroundColor="Transparent" />
+                            </Frame>
+                        </VerticalStackLayout>
+
+                        <!-- BOTÓN GUARDAR -->
+                        <Button
+                            Text="Guardar y Agendar Cita"
+                            Command="{Binding GuardarClienteCommand}"
+                            BackgroundColor="{StaticResource Primary}"
+                            TextColor="{StaticResource Surface}"
+                            FontFamily="PlusJakartaSans"
+                            FontSize="13" FontAttributes="Bold"
+                            HeightRequest="46"
+                            CornerRadius="12"
+                            Margin="0,8,0,0" />
+                    </VerticalStackLayout>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
+
+</ContentPage>

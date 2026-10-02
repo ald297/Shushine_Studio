@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+    x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminRequestDetailPage"
+    x:DataType="vm:AdminRequestDetailViewModel"
+    Title="{Binding Title}"
+    BackgroundColor="{StaticResource Background}">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- HEADER -->
+        <Grid Grid.Row="0" BackgroundColor="{StaticResource Surface}" Padding="20,50,20,16">
+            <Grid ColumnDefinitions="40,*,40">
+                <ImageButton
+                    Grid.Column="0"
+                    Source="arrow_left.png"
+                    Command="{Binding RegresarCommand}"
+                    WidthRequest="28" HeightRequest="28"
+                    BackgroundColor="Transparent"
+                    HorizontalOptions="Start" VerticalOptions="Center" />
+
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4">
+                    <Label Text="Detalle de Solicitud" FontFamily="PlayfairDisplay" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalTextAlignment="Center" />
+                    <Label Text="Evaluación y Presupuesto" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Grid>
+        </Grid>
+
+        <!-- CONTENIDO -->
+        <ScrollView Grid.Row="1" Padding="20,20,20,32">
+            <VerticalStackLayout Spacing="20">
+
+                <!-- Loading -->
+                <ActivityIndicator
+                    IsRunning="{Binding IsLoading}"
+                    IsVisible="{Binding IsLoading}"
+                    Color="{StaticResource Primary}"
+                    HorizontalOptions="Center" />
+
+                <!-- Error -->
+                <Border
+                    IsVisible="{Binding HasError}"
+                    Stroke="#FFCDD2"
+                    StrokeThickness="1"
+                    BackgroundColor="#FFEBEE"
+                    StrokeShape="RoundRectangle 8"
+                    Padding="12,8">
+                    <Label Text="{Binding ErrorMessage}" FontFamily="PlusJakartaSans" FontSize="12" TextColor="#C62828" />
+                </Border>
+
+                <!-- DATOS DE LA SOLICITUD -->
+                <Border
+                    IsVisible="{Binding TieneSolicitud}"
+                    Stroke="{StaticResource Outline}"
+                    StrokeThickness="1"
+                    BackgroundColor="{StaticResource Surface}"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="20">
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="{Binding Solicitud.NombreCliente, TargetNullValue='Cliente'}" FontFamily="PlusJakartaSans" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                <Label Text="{Binding Solicitud.TelefonoCliente, TargetNullValue='Sin teléfono'}" FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                                <Label Text="{Binding Solicitud.FechaTexto}" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+
+                            <Frame
+                                Grid.Column="1"
+                                BackgroundColor="#FCECEF"
+                                BorderColor="#F7CAD3"
+                                CornerRadius="8"
+                                Padding="10,4"
+                                HasShadow="False"
+                                VerticalOptions="Start">
+                                <Label Text="{Binding Solicitud.Estado}" FontFamily="PlusJakartaSans" FontSize="11" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
+                            </Frame>
+                        </Grid>
+
+                        <BoxView HeightRequest="1" Color="{StaticResource Outline}" />
+
+                        <!-- Descripción enviada -->
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Descripción de la clienta:" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Label Text="{Binding Solicitud.NotasCliente}" FontFamily="PlusJakartaSans" FontSize="13" TextColor="{StaticResource TextSecondary}" LineHeight="1.3" />
+                        </VerticalStackLayout>
+
+                        <!-- Foto de referencia adjunta -->
+                        <VerticalStackLayout Spacing="6" IsVisible="{Binding Solicitud.TieneFoto}">
+                            <Label Text="Fotografía de referencia:" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Image
+                                Source="{Binding Solicitud.ImagenesReferenciaUrls}"
+                                Aspect="AspectFit"
+                                HeightRequest="200"
+                                HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- FORMULARIO DE COTIZACIÓN -->
+                <Border
+                    IsVisible="{Binding TieneSolicitud}"
+                    Stroke="{StaticResource Outline}"
+                    StrokeThickness="1"
+                    BackgroundColor="{StaticResource Surface}"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="20">
+                    <VerticalStackLayout Spacing="16">
+                        <Label Text="Proponer Presupuesto / Cotización" FontFamily="PlayfairDisplay" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+
+                        <!-- Precio -->
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Precio estimado ($ USD)" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Frame BackgroundColor="{StaticResource InputBackground}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="14,0" HasShadow="False" HeightRequest="48">
+                                <Entry
+                                    Text="{Binding PrecioPropuesto}"
+                                    Keyboard="Numeric"
+                                    Placeholder="Ej: 35.00"
+                                    PlaceholderColor="{StaticResource TextSecondary}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="14"
+                                    TextColor="{StaticResource TextPrimary}"
+                                    VerticalOptions="Center" />
+                            </Frame>
+                        </VerticalStackLayout>
+
+                        <!-- Descripción del trabajo -->
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Detalles del trabajo / Insumos requeridos" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Frame BackgroundColor="{StaticResource InputBackground}" BorderColor="{StaticResource Border}" CornerRadius="10" Padding="14,10" HasShadow="False">
+                                <Editor
+                                    Text="{Binding DescripcionTrabajo}"
+                                    Placeholder="Describe qué incluye el presupuesto, duración aproximada, etc."
+                                    PlaceholderColor="{StaticResource TextSecondary}"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="13"
+                                    TextColor="{StaticResource TextPrimary}"
+                                    HeightRequest="90"
+                                    AutoSize="TextChanges" />
+                            </Frame>
+                        </VerticalStackLayout>
+
+                        <!-- Botón Enviar Cotización -->
+                        <Button
+                            Text="Guardar y Enviar Cotización"
+                            Command="{Binding EnviarCotizacionCommand}"
+                            IsEnabled="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            HeightRequest="48"
+                            FontSize="14"
+                            CornerRadius="12" />
+
+                        <ActivityIndicator
+                            IsRunning="{Binding IsSaving}"
+                            IsVisible="{Binding IsSaving}"
+                            Color="{StaticResource Primary}"
+                            HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Button Text="Regresar" Command="{Binding RegresarCommand}" Style="{StaticResource SecondaryButtonStyle}" HeightRequest="44" FontSize="13" CornerRadius="10" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

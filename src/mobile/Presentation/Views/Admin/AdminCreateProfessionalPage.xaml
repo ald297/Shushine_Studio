@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+    x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminCreateProfessionalPage"
+    x:DataType="vm:AdminCreateProfessionalViewModel"
+    Title="{Binding Title}"
+    BackgroundColor="{StaticResource Background}">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- 1. HEADER -->
+        <Grid Grid.Row="0" BackgroundColor="{StaticResource Surface}" Padding="20,50,20,16">
+            <Grid ColumnDefinitions="40,*,40">
+                <ImageButton
+                    Grid.Column="0"
+                    Source="arrow_left.png"
+                    Command="{Binding RegresarCommand}"
+                    WidthRequest="28" HeightRequest="28"
+                    BackgroundColor="Transparent"
+                    HorizontalOptions="Start" VerticalOptions="Center" />
+
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4">
+                    <Label
+                        Text="Nuevo Profesional"
+                        FontFamily="PlayfairDisplay"
+                        FontSize="18" FontAttributes="Bold"
+                        TextColor="{StaticResource TextPrimary}"
+                        HorizontalTextAlignment="Center" />
+                    <Label
+                        Text="Formulario Operativo"
+                        FontFamily="PlusJakartaSans"
+                        FontSize="11"
+                        TextColor="{StaticResource TextSecondary}"
+                        HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Grid>
+        </Grid>
+
+        <!-- 2. CONTENIDO PRINCIPAL -->
+        <ScrollView Grid.Row="1" Padding="20,16,20,32">
+            <VerticalStackLayout Spacing="20">
+
+                <!-- 2.2 FORMULARIO DE CAPTURA PREPARADO -->
+                <Border
+                    Stroke="{StaticResource Outline}"
+                    StrokeThickness="1"
+                    BackgroundColor="{StaticResource Surface}"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="20">
+                    <Border.Shadow>
+                        <Shadow Brush="#10000000" Offset="0,4" Radius="12" Opacity="0.8" />
+                    </Border.Shadow>
+
+                    <VerticalStackLayout Spacing="16">
+                        <Label
+                            Text="Datos del Estilista"
+                            FontFamily="PlayfairDisplay"
+                            FontSize="16" FontAttributes="Bold"
+                            TextColor="{StaticResource TextPrimary}" />
+
+                        <!-- Nombre -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Nombre" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Border Stroke="{StaticResource Outline}" StrokeThickness="1" BackgroundColor="{StaticResource SurfaceVariant}" StrokeShape="RoundRectangle 8" Padding="12,0">
+                                <Entry
+                                    Text="{Binding Nombre}"
+                                    Placeholder="Ej: María Elena"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="13"
+                                    TextColor="{StaticResource TextPrimary}"
+                                    PlaceholderColor="{StaticResource TextSecondary}"
+                                    HeightRequest="44" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Apellido -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Apellido" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Border Stroke="{StaticResource Outline}" StrokeThickness="1" BackgroundColor="{StaticResource SurfaceVariant}" StrokeShape="RoundRectangle 8" Padding="12,0">
+                                <Entry
+                                    Text="{Binding Apellido}"
+                                    Placeholder="Ej: Rodríguez"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="13"
+                                    TextColor="{StaticResource TextPrimary}"
+                                    PlaceholderColor="{StaticResource TextSecondary}"
+                                    HeightRequest="44" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Especialidad -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Especialidad Principal" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Border Stroke="{StaticResource Outline}" StrokeThickness="1" BackgroundColor="{StaticResource SurfaceVariant}" StrokeShape="RoundRectangle 8" Padding="12,0">
+                                <Entry
+                                    Text="{Binding Especialidad}"
+                                    Placeholder="Ej: Colorista &amp; Balayage Master"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="13"
+                                    TextColor="{StaticResource TextPrimary}"
+                                    PlaceholderColor="{StaticResource TextSecondary}"
+                                    HeightRequest="44" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Biografía -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Biografía / Resumen de Experiencia" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Border Stroke="{StaticResource Outline}" StrokeThickness="1" BackgroundColor="{StaticResource SurfaceVariant}" StrokeShape="RoundRectangle 8" Padding="12,8">
+                                <Editor
+                                    Text="{Binding Biografia}"
+                                    Placeholder="Descripción profesional del estilista..."
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="13"
+                                    TextColor="{StaticResource TextPrimary}"
+                                    PlaceholderColor="{StaticResource TextSecondary}"
+                                    HeightRequest="80"
+                                    AutoSize="Disabled" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Color de Agenda Hex -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Color de Identificación en Agenda (Hex)" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Border Stroke="{StaticResource Outline}" StrokeThickness="1" BackgroundColor="{StaticResource SurfaceVariant}" StrokeShape="RoundRectangle 8" Padding="12,0">
+                                <Entry
+                                    Text="{Binding ColorAgenda}"
+                                    Placeholder="#C5A059"
+                                    FontFamily="PlusJakartaSans"
+                                    FontSize="13"
+                                    TextColor="{StaticResource TextPrimary}"
+                                    PlaceholderColor="{StaticResource TextSecondary}"
+                                    HeightRequest="44" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Switch Activo -->
+                        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="Estado Inicial Activo" FontFamily="PlusJakartaSans" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                <Label Text="El profesional estará disponible para agendamiento de citas" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+                            <Switch
+                                Grid.Column="1"
+                                IsToggled="{Binding Activo}"
+                                OnColor="{StaticResource Primary}"
+                                ThumbColor="{StaticResource Surface}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- 2.3 BOTONES DE ACCIÓN -->
+                <VerticalStackLayout Spacing="12">
+                    <Button
+                        Text="Guardar Profesional"
+                        Command="{Binding GuardarCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        HeightRequest="48"
+                        FontSize="14" FontAttributes="Bold"
+                        CornerRadius="12" />
+
+                    <Button
+                        Text="Cancelar"
+                        Command="{Binding CancelarCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        HeightRequest="48"
+                        FontSize="14"
+                        CornerRadius="12" />
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

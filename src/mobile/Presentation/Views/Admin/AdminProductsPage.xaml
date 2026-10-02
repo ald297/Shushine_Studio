@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ShushineStudio.Mobile.Presentation.ViewModels.Admin"
+    xmlns:models="clr-namespace:ShushineStudio.Mobile.Domain.Entities"
+    x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminProductsPage"
+    x:DataType="vm:AdminProductsViewModel"
+    Title="{Binding Title}"
+    BackgroundColor="{StaticResource Background}">
+
+    <Grid>
+        <!-- ACCESO RESTRINGIDO (NO ADMIN) -->
+        <VerticalStackLayout
+            IsVisible="{Binding IsUnauthorized}"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Padding="32"
+            Spacing="16">
+
+            <Frame BackgroundColor="{StaticResource SurfaceVariant}" CornerRadius="36" WidthRequest="72" HeightRequest="72" HorizontalOptions="Center" HasShadow="False">
+                <Label Text="🔒" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center" />
+            </Frame>
+            <Label Text="Acceso Restringido" FontFamily="PlayfairDisplay" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalTextAlignment="Center" />
+            <Label Text="Esta pantalla requiere privilegios de Administrador de Shushine Studio." FontFamily="PlusJakartaSans" FontSize="14" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
+            <Button Text="Regresar al Login" Command="{Binding RegresarALoginCommand}" Style="{StaticResource PrimaryButtonStyle}" HeightRequest="48" FontSize="14" CornerRadius="12" />
+        </VerticalStackLayout>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <Grid IsVisible="{Binding IsAuthorized}" RowDefinitions="Auto,*">
+
+            <!-- 1. HEADER -->
+            <Grid Grid.Row="0" BackgroundColor="{StaticResource Surface}" Padding="20,50,20,16">
+                <Grid ColumnDefinitions="40,*,Auto">
+                    <ImageButton
+                        Grid.Column="0"
+                        Source="arrow_left.png"
+                        Command="{Binding RegresarCommand}"
+                        WidthRequest="28" HeightRequest="28"
+                        BackgroundColor="Transparent"
+                        HorizontalOptions="Start" VerticalOptions="Center" />
+
+                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4">
+                        <HorizontalStackLayout Spacing="6" HorizontalOptions="Center">
+                            <Label Text="Productos" FontFamily="PlayfairDisplay" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                            <Frame BackgroundColor="{StaticResource Primary}" CornerRadius="4" Padding="5,1" HasShadow="False" VerticalOptions="Center">
+                                <Label Text="ADMIN" FontFamily="PlusJakartaSans" FontSize="8" FontAttributes="Bold" TextColor="{StaticResource Surface}" />
+                            </Frame>
+                        </HorizontalStackLayout>
+                        <Label Text="Inventario y Catálogo" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+
+                    <Button
+                        Grid.Column="2"
+                        Text="+ Nuevo"
+                        Command="{Binding NuevoProductoCommand}"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="{StaticResource Surface}"
+                        FontFamily="PlusJakartaSans"
+                        FontSize="12" FontAttributes="Bold"
+                        CornerRadius="8"
+                        HeightRequest="36"
+                        Padding="12,0" />
+                </Grid>
+            </Grid>
+
+            <!-- 2. CUERPO PRINCIPAL -->
+            <ScrollView Grid.Row="1" Padding="20,16,20,32">
+                <VerticalStackLayout Spacing="16">
+
+                    <!-- Barra de búsqueda -->
+                    <Frame
+                        BackgroundColor="{StaticResource Surface}"
+                        BorderColor="{StaticResource Outline}"
+                        CornerRadius="12"
+                        Padding="12,0"
+                        HasShadow="False"
+                        HeightRequest="46">
+                        <Grid ColumnDefinitions="30,*">
+                            <Label Grid.Column="0" Text="🔍" FontSize="14" VerticalOptions="Center" />
+                            <Entry
+                                Grid.Column="1"
+                                Text="{Binding TextoBusqueda}"
+                                Placeholder="Buscar por nombre, código o marca..."
+                                PlaceholderColor="{StaticResource TextSecondary}"
+                                FontFamily="PlusJakartaSans"
+                                FontSize="13"
+                                TextColor="{StaticResource TextPrimary}"
+                                VerticalOptions="Center" />
+                        </Grid>
+                    </Frame>
+
+                    <!-- Loading -->
+                    <ActivityIndicator
+                        IsRunning="{Binding IsLoading}"
+                        IsVisible="{Binding IsLoading}"
+                        Color="{StaticResource Primary}"
+                        HorizontalOptions="Center" />
+
+                    <!-- Error -->
+                    <Border
+                        IsVisible="{Binding HasError}"
+                        Stroke="#FFCDD2"
+                        StrokeThickness="1"
+                        BackgroundColor="#FFEBEE"
+                        StrokeShape="RoundRectangle 8"
+                        Padding="12,8">
+                        <Label Text="{Binding ErrorMessage}" FontFamily="PlusJakartaSans" FontSize="12" TextColor="#C62828" />
+                    </Border>
+
+                    <!-- ESTADO VACÍO -->
+                    <VerticalStackLayout
+                        IsVisible="{Binding ShowEmptyState}"
+                        Padding="32"
+                        Spacing="8"
+                        HorizontalOptions="Center">
+                        <Label Text="🏷️" FontSize="36" HorizontalOptions="Center" />
+                        <Label Text="No hay productos registrados" FontFamily="PlayfairDisplay" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalTextAlignment="Center" />
+                        <Label Text="Presiona '+ Nuevo' para registrar tu primer producto de belleza o insumo." FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+
+                    <!-- LISTA REAL DE PRODUCTOS -->
+                    <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Productos}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:Producto">
+                                <Border
+                                    BackgroundColor="{StaticResource Surface}"
+                                    Stroke="{StaticResource Outline}"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 14"
+                                    Padding="16">
+                                    <Border.Shadow>
+                                        <Shadow Brush="#10000000" Offset="0,2" Radius="8" Opacity="0.8" />
+                                    </Border.Shadow>
+
+                                    <VerticalStackLayout Spacing="10">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                                <Label Text="{Binding Nombre}" FontFamily="PlusJakartaSans" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                                <Label Text="{Binding CodigoProducto, StringFormat='SKU: {0}'}" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                                <Label Text="{Binding Marca, StringFormat='Marca: {0}'}" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                            </VerticalStackLayout>
+
+                                            <!-- Precio -->
+                                            <VerticalStackLayout Grid.Column="1" HorizontalOptions="End" Spacing="4">
+                                                <Label Text="{Binding PrecioTexto}" FontFamily="PlusJakartaSans" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource Primary}" HorizontalTextAlignment="End" />
+                                                <Border
+                                                    BackgroundColor="{StaticResource SurfaceVariant}"
+                                                    Stroke="{StaticResource Outline}"
+                                                    StrokeThickness="1"
+                                                    StrokeShape="RoundRectangle 6"
+                                                    Padding="6,2">
+                                                    <Label Text="{Binding EstadoTexto}" FontFamily="PlusJakartaSans" FontSize="10" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                                                </Border>
+                                            </VerticalStackLayout>
+                                        </Grid>
+
+                                        <BoxView HeightRequest="1" Color="{StaticResource Outline}" />
+
+                                        <!-- Stock y Acciones -->
+                                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" VerticalOptions="Center">
+                                            <HorizontalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
+                                                <Label Text="Stock:" FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                                                <Label Text="{Binding StockTexto}" FontFamily="PlusJakartaSans" FontSize="12" FontAttributes="Bold" TextColor="{Binding StockStatusColor}" />
+                                            </HorizontalStackLayout>
+
+                                            <Button
+                                                Grid.Column="1"
+                                                Text="Ajustar Stock"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminProductsViewModel}}, Path=AjustarStockCommand}"
+                                                CommandParameter="{Binding .}"
+                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                HeightRequest="34"
+                                                FontSize="11"
+                                                CornerRadius="6"
+                                                Padding="8,0" />
+
+                                            <Button
+                                                Grid.Column="2"
+                                                Text="Editar"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminProductsViewModel}}, Path=VerDetalleProductoCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="{StaticResource Primary}"
+                                                TextColor="White"
+                                                HeightRequest="34"
+                                                FontSize="11"
+                                                FontAttributes="Bold"
+                                                CornerRadius="6"
+                                                Padding="10,0" />
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
+    </Grid>
+</ContentPage>
