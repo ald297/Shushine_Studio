@@ -97,9 +97,9 @@ public partial class LoginViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            if (ex is System.IO.IOException
+            if (ex is System.IO.IOException 
              || ex.GetType().Name.Contains("Socket", StringComparison.OrdinalIgnoreCase)
-             || ex.Message.Contains("Socket", StringComparison.OrdinalIgnoreCase)
+             || ex.Message.Contains("Socket", StringComparison.OrdinalIgnoreCase) 
              || ex.Message.Contains("closed", StringComparison.OrdinalIgnoreCase)
              || ex.Message.Contains("reset", StringComparison.OrdinalIgnoreCase))
             {

@@ -293,7 +293,7 @@ public class ServicioRepository : IServicioRepository
     {
         if (string.IsNullOrWhiteSpace(url)) return null;
         var lower = url.Trim().ToLowerInvariant();
-        if (lower.StartsWith("/data/") || lower.StartsWith("file:") || lower.Contains("/cache/")
+        if (lower.StartsWith("/data/") || lower.StartsWith("file:") || lower.Contains("/cache/") 
             || lower.StartsWith("c:\\") || lower.StartsWith("/storage/emulated/") || lower.StartsWith("/sdcard/"))
         {
             return null;

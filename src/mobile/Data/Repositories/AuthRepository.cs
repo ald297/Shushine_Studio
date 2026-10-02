@@ -70,8 +70,8 @@ public class AuthRepository : IAuthRepository
             await _tokenStorage.ClearAsync();
             throw new HttpRequestException("Sin conexión con el salón. Por favor verifica tu acceso a internet.");
         }
-        catch (Exception ex) when (ex is System.IO.IOException
-                                || ex.Message.Contains("Socket", StringComparison.OrdinalIgnoreCase)
+        catch (Exception ex) when (ex is System.IO.IOException 
+                                || ex.Message.Contains("Socket", StringComparison.OrdinalIgnoreCase) 
                                 || ex.Message.Contains("closed", StringComparison.OrdinalIgnoreCase)
                                 || ex.Message.Contains("reset", StringComparison.OrdinalIgnoreCase))
         {

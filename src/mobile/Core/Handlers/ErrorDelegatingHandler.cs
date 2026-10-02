@@ -97,9 +97,9 @@ public class ErrorDelegatingHandler : DelegatingHandler
             });
             throw;
         }
-        catch (Exception ex) when (ex is System.IO.IOException
+        catch (Exception ex) when (ex is System.IO.IOException 
                                 || ex.GetType().Name.Contains("Socket", StringComparison.OrdinalIgnoreCase)
-                                || ex.Message.Contains("Socket", StringComparison.OrdinalIgnoreCase)
+                                || ex.Message.Contains("Socket", StringComparison.OrdinalIgnoreCase) 
                                 || ex.Message.Contains("closed", StringComparison.OrdinalIgnoreCase)
                                 || ex.Message.Contains("reset", StringComparison.OrdinalIgnoreCase))
         {
@@ -111,8 +111,8 @@ public class ErrorDelegatingHandler : DelegatingHandler
                     if (Application.Current?.MainPage != null)
                     {
                         await Application.Current.MainPage.DisplayAlert(
-                            "Conexión Interrumpida",
-                            "La comunicación con el salón fue interrumpida o el servidor está iniciando. Por favor intente de nuevo en unos segundos.",
+                            "Conexión Interrumpida", 
+                            "La comunicación con el salón fue interrumpida o el servidor está iniciando. Por favor intente de nuevo en unos segundos.", 
                             "Aceptar"
                         );
                     }
