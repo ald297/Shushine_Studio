@@ -11,51 +11,83 @@
 
     <Grid RowDefinitions="Auto,*">
 
-        <!-- ══════════════════════════════════════════ -->
-        <!-- HEADER PREMIUM                             -->
-        <!-- ══════════════════════════════════════════ -->
-        <Grid
-            Grid.Row="0"
-            BackgroundColor="{StaticResource Surface}"
-            Padding="20,48,20,16">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+        <!-- HEADER CON SELECTOR CATÁLOGO -->
+        <Grid Grid.Row="0" BackgroundColor="{StaticResource Surface}"
+              RowDefinitions="Auto,Auto,Auto"
+              Padding="16,48,16,12">
 
-            <!-- Barra de Título -->
-            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
+            <!-- Título y botón volver -->
+            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,8">
+                <ImageButton Grid.Column="0"
+                             Source="arrow_left.svg"
+                             WidthRequest="28" HeightRequest="28"
+                             BackgroundColor="Transparent"
+                             HorizontalOptions="Start"
+                             Clicked="OnRegresarTapped" />
                 <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="2">
-                    <Label
-                        Text="Productos Exclusivos"
-                        FontFamily="PlayfairDisplay"
-                        FontSize="20"
-                        FontAttributes="Bold"
-                        TextColor="{StaticResource TextPrimary}"
-                        HorizontalOptions="Center" />
-                    <Label
-                        Text="Cuidados capilares, faciales y belleza para casa"
-                        FontFamily="PlusJakartaSans"
-                        FontSize="11"
-                        TextColor="{StaticResource TextSecondary}"
-                        HorizontalOptions="Center" />
+                    <Label Text="Catálogo"
+                           FontFamily="PlayfairDisplayBold"
+                           FontSize="20"
+                           TextColor="{StaticResource TextPrimary}"
+                           HorizontalOptions="Center" />
+                    <Label Text="Shunshine Studio • Atelier de Belleza"
+                           FontFamily="PlusJakartaSans"
+                           FontSize="11"
+                           TextColor="{StaticResource TextSecondary}"
+                           HorizontalOptions="Center" />
                 </VerticalStackLayout>
-
-                <Button
-                    Grid.Column="2"
-                    Text="↻"
-                    Command="{Binding CargarProductosCommand}"
-                    BackgroundColor="Transparent"
-                    TextColor="{StaticResource Primary}"
-                    FontSize="18"
-                    HeightRequest="36"
-                    WidthRequest="36"
-                    Padding="0" />
+                <Button Grid.Column="2"
+                        Text="↻"
+                        Command="{Binding CargarProductosCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="{StaticResource Primary}"
+                        FontSize="18"
+                        HeightRequest="36"
+                        WidthRequest="36"
+                        Padding="0" />
             </Grid>
+
+            <!-- Selector chips Servicios | Productos -->
+            <Border Grid.Row="1"
+                    Padding="4"
+                    BackgroundColor="{StaticResource SurfaceVariant}"
+                    Stroke="{StaticResource Border}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 9999"
+                    Margin="0,0,0,0">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="0">
+                    <Border Grid.Column="0"
+                            StrokeShape="RoundRectangle 9999"
+                            BackgroundColor="Transparent"
+                            Stroke="Transparent"
+                            Padding="0,8">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnRegresarServiciosTapped" />
+                        </Border.GestureRecognizers>
+                        <Label Text="✂ Servicios"
+                               FontFamily="PlusJakartaSansSemiBold"
+                               FontSize="13"
+                               TextColor="{StaticResource TextSecondary}"
+                               HorizontalOptions="Center" />
+                    </Border>
+                    <Border Grid.Column="1"
+                            StrokeShape="RoundRectangle 9999"
+                            BackgroundColor="{StaticResource Primary}"
+                            Stroke="Transparent"
+                            Padding="0,8">
+                        <Label Text="🛍 Productos"
+                               FontFamily="PlusJakartaSansSemiBold"
+                               FontSize="13"
+                               TextColor="White"
+                               HorizontalOptions="Center" />
+                    </Border>
+                </Grid>
+            </Border>
+
 
             <!-- Buscador de Productos -->
             <Border
-                Grid.Row="1"
+                Grid.Row="2"
                 Margin="0,14,0,0"
                 BackgroundColor="{StaticResource Background}"
                 Stroke="{StaticResource Border}"

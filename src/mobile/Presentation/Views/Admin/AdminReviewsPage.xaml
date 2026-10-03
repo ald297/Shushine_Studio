@@ -34,7 +34,7 @@
                 <Grid ColumnDefinitions="40,*,40">
                     <ImageButton
                         Grid.Column="0"
-                        Source="arrow_left.png"
+                        Source="arrow_left.svg"
                         Command="{Binding RegresarCommand}"
                         WidthRequest="28" HeightRequest="28"
                         BackgroundColor="Transparent"
@@ -50,11 +50,14 @@
                         <Label Text="Satisfacción y Feedback de Clientes" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
 
-                    <ImageButton
+                    <Button
                         Grid.Column="2"
-                        Source="sync.png"
+                        Text="↻"
                         Command="{Binding CargarResenasCommand}"
-                        WidthRequest="24" HeightRequest="24"
+                        WidthRequest="32" HeightRequest="32"
+                        FontSize="18"
+                        Padding="0"
+                        TextColor="{StaticResource Primary}"
                         BackgroundColor="Transparent"
                         HorizontalOptions="End" VerticalOptions="Center" />
                 </Grid>

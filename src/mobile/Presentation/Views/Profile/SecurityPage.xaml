@@ -16,7 +16,7 @@
             <Grid ColumnDefinitions="44,*,44">
                 <ImageButton
                     Grid.Column="0"
-                    Source="arrow_left.png"
+                    Source="arrow_left.svg"
                     Command="{Binding RegresarCommand}"
                     WidthRequest="28" HeightRequest="28"
                     BackgroundColor="Transparent"
@@ -80,7 +80,7 @@
                                    TextColor="{StaticResource TextPrimary}"
                                    HeightRequest="48" />
                             <ImageButton Grid.Column="1"
-                                         Source="eye.png"
+                                         Source="eye.svg"
                                          Command="{Binding ToggleMostrarActualCommand}"
                                          WidthRequest="20" HeightRequest="20"
                                          BackgroundColor="Transparent" />
@@ -106,7 +106,7 @@
                                    TextColor="{StaticResource TextPrimary}"
                                    HeightRequest="48" />
                             <ImageButton Grid.Column="1"
-                                         Source="eye.png"
+                                         Source="eye.svg"
                                          Command="{Binding ToggleMostrarNuevaCommand}"
                                          WidthRequest="20" HeightRequest="20"
                                          BackgroundColor="Transparent" />
@@ -132,7 +132,7 @@
                                    TextColor="{StaticResource TextPrimary}"
                                    HeightRequest="48" />
                             <ImageButton Grid.Column="1"
-                                         Source="eye.png"
+                                         Source="eye.svg"
                                          Command="{Binding ToggleMostrarConfirmarCommand}"
                                          WidthRequest="20" HeightRequest="20"
                                          BackgroundColor="Transparent" />

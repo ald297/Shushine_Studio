@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:auth="clr-namespace:ShushineStudio.Mobile.Presentation.Views.Auth"
+    xmlns:home="clr-namespace:ShushineStudio.Mobile.Presentation.Views.Home"
     xmlns:catalog="clr-namespace:ShushineStudio.Mobile.Presentation.Views.Catalog"
     xmlns:appointments="clr-namespace:ShushineStudio.Mobile.Presentation.Views.Appointments"
     xmlns:profile="clr-namespace:ShushineStudio.Mobile.Presentation.Views.Profile"
@@ -25,70 +26,88 @@
         Route="LoginPage"
         ContentTemplate="{DataTemplate auth:LoginPage}" />
 
-    <!-- Barra de Pestañas Cliente (Inicio | Catálogo | Citas | Chat | Perfil) -->
+    <!-- ====================================================
+         BARRA CLIENTE: Inicio | Catálogo | Citas | Chat | Perfil
+         ==================================================== -->
     <TabBar x:Name="ClientTabBar" Route="MainTabs">
-        <Tab Title="Inicio" Icon="scissors.png">
+
+        <!-- Inicio: pantalla de bienvenida con accesos rápidos -->
+        <Tab Title="Inicio" Icon="home.svg">
+            <ShellContent
+                Route="ClientHomePage"
+                ContentTemplate="{DataTemplate home:ClientHomePage}" />
+        </Tab>
+
+        <!-- Catálogo: servicios (root) con selector Servicios/Productos -->
+        <Tab Title="Catálogo" Icon="scissors.svg">
             <ShellContent
                 Route="CatalogPage"
                 ContentTemplate="{DataTemplate catalog:CatalogPage}" />
         </Tab>
 
-        <Tab Title="Catálogo" Icon="scissors.png">
-            <ShellContent
-                Route="ClientProductsPage"
-                ContentTemplate="{DataTemplate catalog:ClientProductsPage}" />
-        </Tab>
-
-        <Tab Title="Citas" Icon="calendar.png">
+        <!-- Citas del cliente -->
+        <Tab Title="Citas" Icon="calendar.svg">
             <ShellContent
                 Route="MyAppointmentsPage"
                 ContentTemplate="{DataTemplate appointments:MyAppointmentsPage}" />
         </Tab>
 
-        <Tab Title="Chat" Icon="chat.png">
+        <!-- Chat con el salón -->
+        <Tab Title="Chat" Icon="chat.svg">
             <ShellContent
                 Route="ChatPage"
                 ContentTemplate="{DataTemplate chat:ChatPage}" />
         </Tab>
 
-        <Tab Title="Perfil" Icon="user.png">
+        <!-- Perfil del cliente -->
+        <Tab Title="Perfil" Icon="user.svg">
             <ShellContent
                 Route="ProfilePage"
                 ContentTemplate="{DataTemplate profile:ProfilePage}" />
         </Tab>
+
     </TabBar>
 
-    <!-- Barra de Pestañas Administrador (Agenda | Catálogo | Estilistas | Mensajes | Perfil) -->
+    <!-- ====================================================
+         BARRA ADMIN: Agenda | Catálogo | Estilistas | Mensajes | Perfil
+         ==================================================== -->
     <TabBar x:Name="AdminTabBar" Route="AdminTabs">
-        <Tab Title="Agenda" Icon="calendar.png">
+
+        <!-- Agenda: hub con Timeline, Citas, Nueva Cita, Walk-In -->
+        <Tab Title="Agenda" Icon="calendar.svg">
             <ShellContent
-                Route="TimelineAgendaPage"
-                ContentTemplate="{DataTemplate admin:TimelineAgendaPage}" />
+                Route="AdminAgendaHubPage"
+                ContentTemplate="{DataTemplate admin:AdminAgendaHubPage}" />
         </Tab>
 
-        <Tab Title="Catálogo" Icon="scissors.png">
+        <!-- Catálogo admin: hub con Servicios y Productos -->
+        <Tab Title="Catálogo" Icon="scissors.svg">
             <ShellContent
-                Route="AdminCatalogPage"
-                ContentTemplate="{DataTemplate admin:AdminCatalogPage}" />
+                Route="AdminCatalogHubPage"
+                ContentTemplate="{DataTemplate admin:AdminCatalogHubPage}" />
         </Tab>
 
-        <Tab Title="Estilistas" Icon="user.png">
+        <!-- Estilistas -->
+        <Tab Title="Estilistas" Icon="user.svg">
             <ShellContent
                 Route="AdminEstilistasPage"
                 ContentTemplate="{DataTemplate admin:AdminEstilistasPage}" />
         </Tab>
 
-        <Tab Title="Mensajes" Icon="chat.png">
+        <!-- Mensajes: hub con Conversaciones, Solicitudes, Cotizaciones, Reseñas -->
+        <Tab Title="Mensajes" Icon="chat.svg">
             <ShellContent
-                Route="AdminRequestsPage"
-                ContentTemplate="{DataTemplate admin:AdminRequestsPage}" />
+                Route="AdminMessagesPage"
+                ContentTemplate="{DataTemplate admin:AdminMessagesPage}" />
         </Tab>
 
-        <Tab Title="Perfil" Icon="user.png">
+        <!-- Perfil del administrador -->
+        <Tab Title="Perfil" Icon="user.svg">
             <ShellContent
                 Route="AdminProfilePage"
                 ContentTemplate="{DataTemplate admin:AdminProfilePage}" />
         </Tab>
+
     </TabBar>
 
 </Shell>

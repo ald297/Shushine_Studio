@@ -12,6 +12,7 @@ using ShushineStudio.Mobile.Presentation.ViewModels.Admin;
 using ShushineStudio.Mobile.Presentation.ViewModels.Booking;
 using ShushineStudio.Mobile.Presentation.ViewModels.Catalog;
 using ShushineStudio.Mobile.Presentation.ViewModels.Chat;
+using ShushineStudio.Mobile.Presentation.ViewModels.Home;
 using ShushineStudio.Mobile.Presentation.ViewModels.Notifications;
 using ShushineStudio.Mobile.Presentation.ViewModels.Profile;
 using ShushineStudio.Mobile.Presentation.ViewModels.Reviews;
@@ -21,6 +22,7 @@ using ShushineStudio.Mobile.Presentation.Views.Auth;
 using ShushineStudio.Mobile.Presentation.Views.Booking;
 using ShushineStudio.Mobile.Presentation.Views.Catalog;
 using ShushineStudio.Mobile.Presentation.Views.Chat;
+using ShushineStudio.Mobile.Presentation.Views.Home;
 using ShushineStudio.Mobile.Presentation.Views.Notifications;
 using ShushineStudio.Mobile.Presentation.Views.Profile;
 using ShushineStudio.Mobile.Presentation.Views.Reviews;
@@ -97,6 +99,7 @@ public static class MauiProgram
 		// ==========================================
 		builder.Services.AddTransient<LoginViewModel>();
 		builder.Services.AddTransient<RegisterViewModel>();
+		builder.Services.AddTransient<ClientHomeViewModel>();
 		builder.Services.AddTransient<CatalogViewModel>();
 		builder.Services.AddTransient<ClientProductsViewModel>();
 		builder.Services.AddTransient<ServiceDetailViewModel>();
@@ -152,6 +155,7 @@ public static class MauiProgram
 		// ==========================================
 		builder.Services.AddTransient<LoginPage>();
 		builder.Services.AddTransient<RegisterPage>();
+		builder.Services.AddTransient<ClientHomePage>();
 		builder.Services.AddTransient<CatalogPage>();
 		builder.Services.AddTransient<ClientProductsPage>();
 		builder.Services.AddTransient<ServiceDetailPage>();
@@ -174,6 +178,8 @@ public static class MauiProgram
 		builder.Services.AddTransient<NotificationDetailPage>();
 		builder.Services.AddTransient<AdminDashboardPage>();
 		builder.Services.AddTransient<TimelineAgendaPage>();
+		builder.Services.AddTransient<AdminAgendaHubPage>();
+		builder.Services.AddTransient<AdminCatalogHubPage>();
 		builder.Services.AddTransient<AdminAppointmentsPage>();
 		builder.Services.AddTransient<AdminAppointmentDetailPage>();
 		builder.Services.AddTransient<AdminCreateAppointmentPage>();

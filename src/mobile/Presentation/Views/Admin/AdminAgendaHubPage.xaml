@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminAgendaHubPage"
+             BackgroundColor="{StaticResource Background}"
+             Shell.NavBarIsVisible="False"
+             Title="Agenda">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <!-- Header -->
+            <Grid BackgroundColor="{StaticResource Surface}" Padding="20,50,20,20">
+                <VerticalStackLayout Spacing="4">
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="Shunshine Studio"
+                               FontFamily="PlusJakartaSansSemiBold"
+                               FontSize="13"
+                               TextColor="{StaticResource Primary}" />
+                        <Border StrokeShape="RoundRectangle 6"
+                                BackgroundColor="{StaticResource Primary}"
+                                Stroke="Transparent"
+                                Padding="6,2">
+                            <Label Text="ADMIN" FontSize="9" FontAttributes="Bold" TextColor="White" />
+                        </Border>
+                    </HorizontalStackLayout>
+                    <Label Text="Agenda del Salón"
+                           FontFamily="PlayfairDisplayBold"
+                           FontSize="22"
+                           TextColor="{StaticResource TextPrimary}" />
+                    <Label Text="Gestiona citas, línea de tiempo y atención al cliente"
+                           FontFamily="PlusJakartaSans"
+                           FontSize="12"
+                           TextColor="{StaticResource TextSecondary}" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- Sección de módulos de agenda -->
+            <VerticalStackLayout Spacing="12" Margin="16,20,16,24">
+
+                <!-- Tarjeta 1: Agenda (Timeline) -->
+                <Border Padding="0"
+                        Stroke="{StaticResource Border}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 16"
+                        BackgroundColor="{StaticResource Surface}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnAgendaTimelineTapped" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" Padding="16">
+                        <Border Grid.Column="0"
+                                WidthRequest="48" HeightRequest="48"
+                                StrokeShape="RoundRectangle 12"
+                                BackgroundColor="#FFF0F4"
+                                Stroke="Transparent">
+                            <Image Source="calendar.svg"
+                                   WidthRequest="24" HeightRequest="24"
+                                   HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Margin="12,0" VerticalOptions="Center" Spacing="2">
+                            <Label Text="Agenda del Salón"
+                                   FontFamily="PlusJakartaSansSemiBold"
+                                   FontSize="15"
+                                   TextColor="{StaticResource TextPrimary}" />
+                            <Label Text="Línea de tiempo visual por estilista y día"
+                                   FontFamily="PlusJakartaSans"
+                                   FontSize="12"
+                                   TextColor="{StaticResource TextSecondary}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="›"
+                               FontSize="22" TextColor="{StaticResource TextSecondary}"
+                               VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- Tarjeta 2: Citas -->
+                <Border Padding="0"
+                        Stroke="{StaticResource Border}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 16"
+                        BackgroundColor="{StaticResource Surface}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnCitasTapped" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" Padding="16">
+                        <Border Grid.Column="0"
+                                WidthRequest="48" HeightRequest="48"
+                                StrokeShape="RoundRectangle 12"
+                                BackgroundColor="#F0F4FF"
+                                Stroke="Transparent">
+                            <Label Text="📋" FontSize="22"
+                                   HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Margin="12,0" VerticalOptions="Center" Spacing="2">
+                            <Label Text="Citas"
+                                   FontFamily="PlusJakartaSansSemiBold"
+                                   FontSize="15"
+                                   TextColor="{StaticResource TextPrimary}" />
+                            <Label Text="Listado completo y gestión de reservas"
+                                   FontFamily="PlusJakartaSans"
+                                   FontSize="12"
+                                   TextColor="{StaticResource TextSecondary}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="›"
+                               FontSize="22" TextColor="{StaticResource TextSecondary}"
+                               VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- Tarjeta 3: Nueva Cita -->
+                <Border Padding="0"
+                        Stroke="{StaticResource Primary}"
+                        StrokeThickness="1.5"
+                        StrokeShape="RoundRectangle 16"
+                        BackgroundColor="#FFF5F7">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnNuevaCitaTapped" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" Padding="16">
+                        <Border Grid.Column="0"
+                                WidthRequest="48" HeightRequest="48"
+                                StrokeShape="RoundRectangle 12"
+                                BackgroundColor="{StaticResource Primary}"
+                                Stroke="Transparent">
+                            <Label Text="+" FontSize="28" TextColor="White"
+                                   HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Margin="12,0" VerticalOptions="Center" Spacing="2">
+                            <Label Text="Nueva Cita"
+                                   FontFamily="PlusJakartaSansSemiBold"
+                                   FontSize="15"
+                                   TextColor="{StaticResource Primary}" />
+                            <Label Text="Crear una reserva para un cliente"
+                                   FontFamily="PlusJakartaSans"
+                                   FontSize="12"
+                                   TextColor="{StaticResource TextSecondary}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="›"
+                               FontSize="22" TextColor="{StaticResource Primary}"
+                               VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- Tarjeta 4: Atención sin Cita (Walk-In) -->
+                <Border Padding="0"
+                        Stroke="{StaticResource Border}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 16"
+                        BackgroundColor="{StaticResource Surface}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnWalkInTapped" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" Padding="16">
+                        <Border Grid.Column="0"
+                                WidthRequest="48" HeightRequest="48"
+                                StrokeShape="RoundRectangle 12"
+                                BackgroundColor="#F5FAF0"
+                                Stroke="Transparent">
+                            <Label Text="🚶" FontSize="22"
+                                   HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Margin="12,0" VerticalOptions="Center" Spacing="2">
+                            <Label Text="Atención sin Cita"
+                                   FontFamily="PlusJakartaSansSemiBold"
+                                   FontSize="15"
+                                   TextColor="{StaticResource TextPrimary}" />
+                            <Label Text="Registrar un cliente que llega sin reserva"
+                                   FontFamily="PlusJakartaSans"
+                                   FontSize="12"
+                                   TextColor="{StaticResource TextSecondary}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="›"
+                               FontSize="22" TextColor="{StaticResource TextSecondary}"
+                               VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

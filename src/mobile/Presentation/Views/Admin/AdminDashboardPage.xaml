@@ -102,22 +102,24 @@
 
                     <!-- ACCIONES DEL HEADER -->
                     <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="10" VerticalOptions="Center">
-                        <ImageButton
-                            Source="bell.png"
+                        <Button
+                            Text="🔔"
                             Command="{Binding IrANotificacionesCommand}"
                             WidthRequest="36" HeightRequest="36"
                             BackgroundColor="{StaticResource SurfaceVariant}"
                             CornerRadius="18"
-                            Padding="8"
+                            Padding="0"
+                            FontSize="16"
                             ToolTipProperties.Text="Notificaciones" />
 
-                        <ImageButton
-                            Source="logout.png"
+                        <Button
+                            Text="🚪"
                             Command="{Binding CerrarSesionAdminCommand}"
                             WidthRequest="36" HeightRequest="36"
                             BackgroundColor="{StaticResource SurfaceVariant}"
                             CornerRadius="18"
-                            Padding="8"
+                            Padding="0"
+                            FontSize="16"
                             ToolTipProperties.Text="Cerrar sesión" />
                     </HorizontalStackLayout>
 

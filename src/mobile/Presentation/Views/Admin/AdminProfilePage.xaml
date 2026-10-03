@@ -44,7 +44,7 @@
                 <!-- BOTÓN REFRESCAR -->
                 <ImageButton
                     Grid.Column="1"
-                    Source="arrow_left.png"
+                    Source="arrow_left.svg"
                     Command="{Binding CargarDatosAdminCommand}"
                     WidthRequest="36" HeightRequest="36"
                     BackgroundColor="{StaticResource BackgroundColor}"

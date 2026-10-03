@@ -7,7 +7,8 @@
     x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminMessagesPage"
     x:DataType="vm:AdminMessagesViewModel"
     Title="{Binding Title}"
-    BackgroundColor="{StaticResource Background}">
+    BackgroundColor="{StaticResource Background}"
+    Shell.NavBarIsVisible="False">
 
     <Grid>
         <!-- ACCESO RESTRINGIDO (NO ADMIN) -->
@@ -29,64 +30,114 @@
         <!-- CONTENIDO PRINCIPAL -->
         <Grid IsVisible="{Binding IsAuthorized}" RowDefinitions="Auto,*">
 
-            <!-- 1. HEADER -->
+            <!-- 1. HEADER (sin botón de regreso — es root de tab) -->
             <Grid Grid.Row="0" BackgroundColor="{StaticResource Surface}" Padding="20,50,20,16">
-                <Grid ColumnDefinitions="40,*,40">
-                    <ImageButton
-                        Grid.Column="0"
-                        Source="arrow_left.png"
-                        Command="{Binding RegresarCommand}"
-                        WidthRequest="28" HeightRequest="28"
-                        BackgroundColor="Transparent"
-                        HorizontalOptions="Start" VerticalOptions="Center" />
-
-                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4">
-                        <HorizontalStackLayout Spacing="6" HorizontalOptions="Center">
-                            <Label Text="Mensajes" FontFamily="PlayfairDisplay" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
-                            <Frame BackgroundColor="{StaticResource Primary}" CornerRadius="4" Padding="5,1" HasShadow="False" VerticalOptions="Center">
-                                <Label Text="ADMIN" FontFamily="PlusJakartaSans" FontSize="8" FontAttributes="Bold" TextColor="{StaticResource Surface}" />
-                            </Frame>
-                        </HorizontalStackLayout>
-                        <Label Text="Bandeja de Consultas de Clientes" FontFamily="PlusJakartaSans" FontSize="11" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
-                    </VerticalStackLayout>
-                </Grid>
+                <VerticalStackLayout Spacing="4">
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="Mensajes" FontFamily="PlayfairDisplayBold" FontSize="20" TextColor="{StaticResource TextPrimary}" />
+                        <Frame BackgroundColor="{StaticResource Primary}" CornerRadius="4" Padding="5,1" HasShadow="False" VerticalOptions="Center">
+                            <Label Text="ADMIN" FontFamily="PlusJakartaSans" FontSize="8" FontAttributes="Bold" TextColor="{StaticResource Surface}" />
+                        </Frame>
+                    </HorizontalStackLayout>
+                    <Label Text="Bandeja de consultas y comunicaciones del salón" FontFamily="PlusJakartaSans" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                </VerticalStackLayout>
             </Grid>
 
             <!-- 2. CUERPO -->
-            <ScrollView Grid.Row="1" Padding="20,20,20,32">
-                <VerticalStackLayout Spacing="20">
+            <ScrollView Grid.Row="1" Padding="16,16,16,32">
+                <VerticalStackLayout Spacing="16">
 
-                    <!-- TARJETA INFORMATIVA -->
-                    <Border
-                        Stroke="{StaticResource Outline}"
-                        StrokeThickness="1"
-                        BackgroundColor="{StaticResource Surface}"
-                        StrokeShape="RoundRectangle 16"
-                        Padding="20">
-                        <Border.Shadow>
-                            <Shadow Brush="#10000000" Offset="0,4" Radius="12" Opacity="0.8" />
-                        </Border.Shadow>
+                    <!-- ACCESOS RÁPIDOS: Solicitudes | Cotizaciones | Reseñas -->
+                    <Label Text="Módulos de Atención"
+                           FontFamily="PlusJakartaSansSemiBold"
+                           FontSize="14"
+                           TextColor="{StaticResource TextPrimary}" />
 
-                        <VerticalStackLayout Spacing="16">
-                            <Label Text="Canal Seguro de Atención al Cliente" FontFamily="PlayfairDisplay" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
-                            <Label
-                                Text="El sistema conecta directamente las conversaciones entre los Clientes autenticados y la administración de Shushine Studio. Toda respuesta enviada aquí se sincroniza en tiempo real con la app del cliente."
-                                FontFamily="PlusJakartaSans"
-                                FontSize="13"
-                                TextColor="{StaticResource TextSecondary}"
-                                LineHeight="1.3" />
-                        </VerticalStackLayout>
-                    </Border>
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+
+                        <!-- Solicitudes -->
+                        <Border Grid.Column="0"
+                                Padding="12,14"
+                                BackgroundColor="{StaticResource Surface}"
+                                Stroke="{StaticResource Border}"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 14">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnSolicitudesTapped" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                                <Label Text="📝" FontSize="22" HorizontalOptions="Center" />
+                                <Label Text="Solicitudes"
+                                       FontFamily="PlusJakartaSansSemiBold"
+                                       FontSize="11"
+                                       TextColor="{StaticResource TextPrimary}"
+                                       HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Cotizaciones -->
+                        <Border Grid.Column="1"
+                                Padding="12,14"
+                                BackgroundColor="{StaticResource Surface}"
+                                Stroke="{StaticResource Border}"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 14">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCotizacionesTapped" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                                <Label Text="💬" FontSize="22" HorizontalOptions="Center" />
+                                <Label Text="Cotizaciones"
+                                       FontFamily="PlusJakartaSansSemiBold"
+                                       FontSize="11"
+                                       TextColor="{StaticResource TextPrimary}"
+                                       HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Reseñas -->
+                        <Border Grid.Column="2"
+                                Padding="12,14"
+                                BackgroundColor="{StaticResource Surface}"
+                                Stroke="{StaticResource Border}"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 14">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnResenasTapped" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                                <Label Text="⭐" FontSize="22" HorizontalOptions="Center" />
+                                <Label Text="Reseñas"
+                                       FontFamily="PlusJakartaSansSemiBold"
+                                       FontSize="11"
+                                       TextColor="{StaticResource TextPrimary}"
+                                       HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <!-- SEPARADOR -->
+                    <BoxView HeightRequest="1" Color="{StaticResource Border}" Margin="0,4" />
 
                     <!-- LISTADO DE CONVERSACIONES REALES -->
+                    <Label Text="Conversaciones Activas"
+                           FontFamily="PlusJakartaSansSemiBold"
+                           FontSize="14"
+                           TextColor="{StaticResource TextPrimary}" />
+
+                    <!-- Estado de carga -->
+                    <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                       IsVisible="{Binding IsLoading}"
+                                       Color="{StaticResource Primary}"
+                                       HorizontalOptions="Center" />
+
                     <VerticalStackLayout Spacing="10" IsVisible="{Binding HasConversaciones}">
-                        <Label Text="Conversaciones Activas" FontFamily="PlayfairDisplay" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
 
                         <CollectionView ItemsSource="{Binding Conversaciones}" SelectionMode="None">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate x:DataType="entities:ConversacionChat">
                                     <Border
-                                        Stroke="{StaticResource Outline}"
+                                        Stroke="{StaticResource Border}"
                                         StrokeThickness="1"
                                         BackgroundColor="{StaticResource Surface}"
                                         StrokeShape="RoundRectangle 12"

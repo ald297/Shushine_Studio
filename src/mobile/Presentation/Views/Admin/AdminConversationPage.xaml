@@ -37,7 +37,7 @@
             <Grid ColumnDefinitions="40,*,40">
                 <ImageButton
                     Grid.Column="0"
-                    Source="arrow_left.png"
+                    Source="arrow_left.svg"
                     Command="{Binding RegresarCommand}"
                     WidthRequest="28" HeightRequest="28"
                     BackgroundColor="Transparent"

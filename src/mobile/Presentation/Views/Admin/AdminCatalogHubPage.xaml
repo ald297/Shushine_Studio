@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ShushineStudio.Mobile.Presentation.Views.Admin.AdminCatalogHubPage"
+             BackgroundColor="{StaticResource Background}"
+             Shell.NavBarIsVisible="False"
+             Title="Catálogo">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" BackgroundColor="{StaticResource Surface}" Padding="20,50,20,16">
+            <VerticalStackLayout Spacing="4">
+                <HorizontalStackLayout Spacing="8">
+                    <Label Text="Shunshine Studio"
+                           FontFamily="PlusJakartaSansSemiBold"
+                           FontSize="13"
+                           TextColor="{StaticResource Primary}" />
+                    <Border StrokeShape="RoundRectangle 6"
+                            BackgroundColor="{StaticResource Primary}"
+                            Stroke="Transparent"
+                            Padding="6,2">
+                        <Label Text="ADMIN" FontSize="9" FontAttributes="Bold" TextColor="White" />
+                    </Border>
+                </HorizontalStackLayout>
+                <Label Text="Catálogo"
+                       FontFamily="PlayfairDisplayBold"
+                       FontSize="22"
+                       TextColor="{StaticResource TextPrimary}" />
+                <Label Text="Administra los servicios y productos del salón"
+                       FontFamily="PlusJakartaSans"
+                       FontSize="12"
+                       TextColor="{StaticResource TextSecondary}" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- Selector de categoría -->
+        <Grid Grid.Row="1" RowDefinitions="Auto,*" Padding="16,20,16,0">
+
+            <!-- Chips selector -->
+            <Grid Grid.Row="0"
+                  ColumnDefinitions="*,*"
+                  ColumnSpacing="8"
+                  Margin="0,0,0,16">
+
+                <!-- Chip Servicios -->
+                <Border x:Name="ChipServicios"
+                        Grid.Column="0"
+                        StrokeShape="RoundRectangle 9999"
+                        HeightRequest="42"
+                        BackgroundColor="{StaticResource Primary}"
+                        Stroke="Transparent">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnServiciosTapped" />
+                    </Border.GestureRecognizers>
+                    <Label x:Name="LabelServicios"
+                           Text="✂ Servicios"
+                           FontFamily="PlusJakartaSansSemiBold"
+                           FontSize="14"
+                           TextColor="White"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+
+                <!-- Chip Productos -->
+                <Border x:Name="ChipProductos"
+                        Grid.Column="1"
+                        StrokeShape="RoundRectangle 9999"
+                        HeightRequest="42"
+                        BackgroundColor="{StaticResource SurfaceVariant}"
+                        Stroke="{StaticResource Border}"
+                        StrokeThickness="1">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnProductosTapped" />
+                    </Border.GestureRecognizers>
+                    <Label x:Name="LabelProductos"
+                           Text="🛍 Productos"
+                           FontFamily="PlusJakartaSansSemiBold"
+                           FontSize="14"
+                           TextColor="{StaticResource TextSecondary}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+            </Grid>
+
+            <!-- Zona de contenido: acceso rápido a la sección activa -->
+            <ScrollView Grid.Row="1">
+                <VerticalStackLayout Spacing="12" x:Name="ContentStack">
+
+                    <!-- Tarjeta Servicios (default visible) -->
+                    <Border x:Name="CardServicios"
+                            Padding="0"
+                            Stroke="{StaticResource Primary}"
+                            StrokeThickness="1.5"
+                            StrokeShape="RoundRectangle 16"
+                            BackgroundColor="#FFF5F7">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnIrAServiciosTapped" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16">
+                            <Border Grid.Column="0"
+                                    WidthRequest="52" HeightRequest="52"
+                                    StrokeShape="RoundRectangle 12"
+                                    BackgroundColor="{StaticResource Primary}"
+                                    Stroke="Transparent">
+                                <Image Source="scissors.svg"
+                                       WidthRequest="24" HeightRequest="24"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Margin="12,0" VerticalOptions="Center" Spacing="3">
+                                <Label Text="Gestión de Servicios"
+                                       FontFamily="PlusJakartaSansSemiBold"
+                                       FontSize="16"
+                                       TextColor="{StaticResource Primary}" />
+                                <Label Text="Crear, editar y activar tratamientos del salón"
+                                       FontFamily="PlusJakartaSans"
+                                       FontSize="12"
+                                       TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="›"
+                                   FontSize="22" TextColor="{StaticResource Primary}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Acceso a crear nuevo servicio -->
+                    <Border Padding="0"
+                            Stroke="{StaticResource Border}"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 16"
+                            BackgroundColor="{StaticResource Surface}"
+                            x:Name="CardNuevoServicio">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnNuevoServicioTapped" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="14">
+                            <Border Grid.Column="0"
+                                    WidthRequest="44" HeightRequest="44"
+                                    StrokeShape="RoundRectangle 10"
+                                    BackgroundColor="#FFF0F4"
+                                    Stroke="Transparent">
+                                <Label Text="+" FontSize="24" TextColor="{StaticResource Primary}"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Margin="10,0" VerticalOptions="Center" Spacing="2">
+                                <Label Text="Nuevo Servicio"
+                                       FontFamily="PlusJakartaSansSemiBold"
+                                       FontSize="14"
+                                       TextColor="{StaticResource TextPrimary}" />
+                                <Label Text="Agregar un tratamiento al catálogo"
+                                       FontFamily="PlusJakartaSans"
+                                       FontSize="12"
+                                       TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="›"
+                                   FontSize="22" TextColor="{StaticResource TextSecondary}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Tarjeta Productos (oculto por defecto) -->
+                    <Border x:Name="CardProductos"
+                            IsVisible="False"
+                            Padding="0"
+                            Stroke="{StaticResource Primary}"
+                            StrokeThickness="1.5"
+                            StrokeShape="RoundRectangle 16"
+                            BackgroundColor="#FFF5F7">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnIrAProductosTapped" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16">
+                            <Border Grid.Column="0"
+                                    WidthRequest="52" HeightRequest="52"
+                                    StrokeShape="RoundRectangle 12"
+                                    BackgroundColor="{StaticResource Primary}"
+                                    Stroke="Transparent">
+                                <Label Text="🛍" FontSize="22"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Margin="12,0" VerticalOptions="Center" Spacing="3">
+                                <Label Text="Gestión de Productos"
+                                       FontFamily="PlusJakartaSansSemiBold"
+                                       FontSize="16"
+                                       TextColor="{StaticResource Primary}" />
+                                <Label Text="Inventario de productos disponibles en el salón"
+                                       FontFamily="PlusJakartaSans"
+                                       FontSize="12"
+                                       TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="›"
+                                   FontSize="22" TextColor="{StaticResource Primary}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Acceso a crear nuevo producto (oculto por defecto) -->
+                    <Border x:Name="CardNuevoProducto"
+                            IsVisible="False"
+                            Padding="0"
+                            Stroke="{StaticResource Border}"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 16"
+                            BackgroundColor="{StaticResource Surface}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnNuevoProductoTapped" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="14">
+                            <Border Grid.Column="0"
+                                    WidthRequest="44" HeightRequest="44"
+                                    StrokeShape="RoundRectangle 10"
+                                    BackgroundColor="#FFF0F4"
+                                    Stroke="Transparent">
+                                <Label Text="+" FontSize="24" TextColor="{StaticResource Primary}"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Margin="10,0" VerticalOptions="Center" Spacing="2">
+                                <Label Text="Nuevo Producto"
+                                       FontFamily="PlusJakartaSansSemiBold"
+                                       FontSize="14"
+                                       TextColor="{StaticResource TextPrimary}" />
+                                <Label Text="Agregar un producto al inventario"
+                                       FontFamily="PlusJakartaSans"
+                                       FontSize="12"
+                                       TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="›"
+                                   FontSize="22" TextColor="{StaticResource TextSecondary}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
+    </Grid>
+
+</ContentPage>

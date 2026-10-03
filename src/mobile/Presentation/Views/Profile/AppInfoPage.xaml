@@ -16,7 +16,7 @@
             <Grid ColumnDefinitions="44,*,44">
                 <ImageButton
                     Grid.Column="0"
-                    Source="arrow_left.png"
+                    Source="arrow_left.svg"
                     Command="{Binding RegresarCommand}"
                     WidthRequest="28" HeightRequest="28"
                     BackgroundColor="Transparent"
@@ -43,9 +43,9 @@
                 <!-- LOGO & BRANDING HERO: Logotipo Oficial -->
                 <VerticalStackLayout HorizontalOptions="Center" Spacing="8">
                     <Image
-                        Source="shunshine_logo.svg"
-                        HeightRequest="115"
-                        WidthRequest="150"
+                        Source="shunshine_studio_badge.jpg"
+                        HeightRequest="120"
+                        WidthRequest="180"
                         Aspect="AspectFit"
                         HorizontalOptions="Center" />
 

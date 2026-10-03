@@ -20,9 +20,9 @@
                                  VerticalOptions="Center">
 
                 <!-- 1. IDENTIDAD DE MARCA: Logotipo Oficial Flor de Loto -->
-                <Image Source="shunshine_logo.svg"
-                       HeightRequest="115"
-                       WidthRequest="150"
+                <Image Source="shunshine_studio_badge.jpg"
+                       HeightRequest="120"
+                       WidthRequest="180"
                        Aspect="AspectFit"
                        HorizontalOptions="Center"
                        Margin="0, 10, 0, 14" />

@@ -47,7 +47,7 @@
             <Grid Grid.Row="0" ColumnDefinitions="44,*,Auto">
                 <ImageButton
                     Grid.Column="0"
-                    Source="arrow_left.png"
+                    Source="arrow_left.svg"
                     Command="{Binding GoBackCommand}"
                     WidthRequest="28"
                     HeightRequest="28"
@@ -266,12 +266,15 @@
                         FontSize="12"
                         TextColor="#C62828"
                         VerticalOptions="Center" />
-                    <ImageButton
+                    <Button
                         Grid.Column="1"
-                        Source="close.png"
+                        Text="✕"
                         Command="{Binding DismissErrorCommand}"
-                        WidthRequest="18"
-                        HeightRequest="18"
+                        WidthRequest="22"
+                        HeightRequest="22"
+                        Padding="0"
+                        FontSize="13"
+                        TextColor="#C62828"
                         BackgroundColor="Transparent" />
                 </Grid>
             </Frame>
@@ -335,7 +338,7 @@
                     <Grid>
                         <ImageButton
                             IsVisible="{Binding IsNotSending}"
-                            Source="send.png"
+                            Source="send.svg"
                             Command="{Binding SendMessageCommand}"
                             BackgroundColor="Transparent"
                             WidthRequest="20"

@@ -4,6 +4,7 @@ using ShushineStudio.Mobile.Presentation.Views.Auth;
 using ShushineStudio.Mobile.Presentation.Views.Booking;
 using ShushineStudio.Mobile.Presentation.Views.Catalog;
 using ShushineStudio.Mobile.Presentation.Views.Chat;
+using ShushineStudio.Mobile.Presentation.Views.Home;
 using ShushineStudio.Mobile.Presentation.Views.Notifications;
 using ShushineStudio.Mobile.Presentation.Views.Profile;
 using ShushineStudio.Mobile.Presentation.Views.Reviews;
@@ -18,6 +19,7 @@ public partial class AppShell : Shell
 
 		// Registro de Rutas secundarias para navegación con Shell.Current.GoToAsync()
 		Routing.RegisterRoute("RegisterPage", typeof(RegisterPage));
+		// ClientHomePage está registrada en el TabBar; ruta secundaria no necesaria
 		Routing.RegisterRoute("ClientProductsPage", typeof(ClientProductsPage));
 		Routing.RegisterRoute("ServiceDetailPage", typeof(ServiceDetailPage));
 		Routing.RegisterRoute("StylistSelectionPage", typeof(StylistSelectionPage));
@@ -37,6 +39,8 @@ public partial class AppShell : Shell
 		Routing.RegisterRoute("ReviewSuccessPage", typeof(ReviewSuccessPage));
 		Routing.RegisterRoute("NotificationCenterPage", typeof(NotificationCenterPage));
 		Routing.RegisterRoute("NotificationDetailPage", typeof(NotificationDetailPage));
+		// Rutas secundarias del Hub de Agenda Admin
+		Routing.RegisterRoute("TimelineAgendaPage", typeof(TimelineAgendaPage));
 		Routing.RegisterRoute("AdminAppointmentsPage", typeof(AdminAppointmentsPage));
 		Routing.RegisterRoute("AdminAppointmentDetailPage", typeof(AdminAppointmentDetailPage));
 		Routing.RegisterRoute("AdminCreateAppointmentPage", typeof(AdminCreateAppointmentPage));
@@ -46,18 +50,22 @@ public partial class AppShell : Shell
 		Routing.RegisterRoute("AdminProfessionalsPage", typeof(AdminProfessionalsPage));
 		Routing.RegisterRoute("AdminProfessionalDetailPage", typeof(AdminProfessionalDetailPage));
 		Routing.RegisterRoute("AdminCreateProfessionalPage", typeof(AdminCreateProfessionalPage));
+		// Rutas secundarias del Hub de Catálogo Admin
+		Routing.RegisterRoute("AdminCatalogPage", typeof(AdminCatalogPage));
 		Routing.RegisterRoute("AdminServicesPage", typeof(AdminServicesPage));
 		Routing.RegisterRoute("AdminServiceDetailPage", typeof(AdminServiceDetailPage));
 		Routing.RegisterRoute("AdminCreateServicePage", typeof(AdminCreateServicePage));
 		Routing.RegisterRoute("AdminProductsPage", typeof(AdminProductsPage));
 		Routing.RegisterRoute("AdminProductDetailPage", typeof(AdminProductDetailPage));
-		Routing.RegisterRoute("AdminMessagesPage", typeof(AdminMessagesPage));
+		// Rutas secundarias del Hub de Mensajes Admin
+		// AdminMessagesPage es raíz de tab — NO registrar como ruta secundaria
 		Routing.RegisterRoute("AdminConversationPage", typeof(AdminConversationPage));
 		Routing.RegisterRoute("AdminRequestsPage", typeof(AdminRequestsPage));
 		Routing.RegisterRoute("AdminRequestDetailPage", typeof(AdminRequestDetailPage));
 		Routing.RegisterRoute("AdminReviewsPage", typeof(AdminReviewsPage));
 		Routing.RegisterRoute("AdminReportsPage", typeof(AdminReportsPage));
 		Routing.RegisterRoute("AdminSettingsPage", typeof(AdminSettingsPage));
+		Routing.RegisterRoute("AdminDashboardPage", typeof(AdminDashboardPage));
 
 		// Inicializar la aplicación en la pantalla de Login sin pestañas
 		CurrentItem = LoginShellContent;
